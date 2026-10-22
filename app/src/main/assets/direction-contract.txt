@@ -1,0 +1,6 @@
+THESIS: Search and recents first. Departure discovery has a separate long-list screen.
+OWN-WORLD: Icy blue ground, ink text, royal-blue actions, fully rounded milky panels and Roboto through Material roles.
+STORY: Choose stops, search, scan departures, inspect the journey, see the route and live vehicles, and track pass expiry locally.
+FIRST VIEWPORT: MenetrendGO and reminders shortcut, Hová indulunk?, two station rows and swap, departure date, wide pill search action, recents below. No result previews on the home screen.
+FORM: User-approved concept A with the explicitly requested separate results flow; seed 1b242c78. The user's rounded-glass brief overrides unchosen direction candidates.
+FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance

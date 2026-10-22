@@ -1,0 +1,461 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-22T19:52:55.1473715Z",
+  "title": "Design System: MenetrendGO",
+  "extensions": {
+    "colorMeta": {
+      "primary": {
+        "role": "primary",
+        "displayName": "primary",
+        "tonalRamp": [
+          "oklch(15% 0.10 263)",
+          "oklch(27% 0.10 263)",
+          "oklch(39% 0.10 263)",
+          "oklch(51% 0.10 263)",
+          "oklch(63% 0.10 263)",
+          "oklch(75% 0.10 263)",
+          "oklch(87% 0.10 263)",
+          "oklch(95% 0.10 263)"
+        ]
+      },
+      "on-primary": {
+        "role": "primary",
+        "displayName": "on primary",
+        "tonalRamp": [
+          "oklch(15% 0.025 263)",
+          "oklch(27% 0.025 263)",
+          "oklch(39% 0.025 263)",
+          "oklch(51% 0.025 263)",
+          "oklch(63% 0.025 263)",
+          "oklch(75% 0.025 263)",
+          "oklch(87% 0.025 263)",
+          "oklch(95% 0.025 263)"
+        ]
+      },
+      "background": {
+        "role": "neutral",
+        "displayName": "background",
+        "tonalRamp": [
+          "oklch(15% 0.025 245)",
+          "oklch(27% 0.025 245)",
+          "oklch(39% 0.025 245)",
+          "oklch(51% 0.025 245)",
+          "oklch(63% 0.025 245)",
+          "oklch(75% 0.025 245)",
+          "oklch(87% 0.025 245)",
+          "oklch(95% 0.025 245)"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "ink",
+        "tonalRamp": [
+          "oklch(15% 0.025 245)",
+          "oklch(27% 0.025 245)",
+          "oklch(39% 0.025 245)",
+          "oklch(51% 0.025 245)",
+          "oklch(63% 0.025 245)",
+          "oklch(75% 0.025 245)",
+          "oklch(87% 0.025 245)",
+          "oklch(95% 0.025 245)"
+        ]
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "surface",
+        "tonalRamp": [
+          "oklch(15% 0.025 245)",
+          "oklch(27% 0.025 245)",
+          "oklch(39% 0.025 245)",
+          "oklch(51% 0.025 245)",
+          "oklch(63% 0.025 245)",
+          "oklch(75% 0.025 245)",
+          "oklch(87% 0.025 245)",
+          "oklch(95% 0.025 245)"
+        ]
+      },
+      "surface-variant": {
+        "role": "neutral",
+        "displayName": "surface variant",
+        "tonalRamp": [
+          "oklch(15% 0.025 245)",
+          "oklch(27% 0.025 245)",
+          "oklch(39% 0.025 245)",
+          "oklch(51% 0.025 245)",
+          "oklch(63% 0.025 245)",
+          "oklch(75% 0.025 245)",
+          "oklch(87% 0.025 245)",
+          "oklch(95% 0.025 245)"
+        ]
+      },
+      "muted-ink": {
+        "role": "neutral",
+        "displayName": "muted ink",
+        "tonalRamp": [
+          "oklch(15% 0.025 245)",
+          "oklch(27% 0.025 245)",
+          "oklch(39% 0.025 245)",
+          "oklch(51% 0.025 245)",
+          "oklch(63% 0.025 245)",
+          "oklch(75% 0.025 245)",
+          "oklch(87% 0.025 245)",
+          "oklch(95% 0.025 245)"
+        ]
+      },
+      "primary-container": {
+        "role": "primary",
+        "displayName": "primary container",
+        "tonalRamp": [
+          "oklch(15% 0.10 263)",
+          "oklch(27% 0.10 263)",
+          "oklch(39% 0.10 263)",
+          "oklch(51% 0.10 263)",
+          "oklch(63% 0.10 263)",
+          "oklch(75% 0.10 263)",
+          "oklch(87% 0.10 263)",
+          "oklch(95% 0.10 263)"
+        ]
+      },
+      "on-primary-container": {
+        "role": "primary",
+        "displayName": "on primary container",
+        "tonalRamp": [
+          "oklch(15% 0.10 263)",
+          "oklch(27% 0.10 263)",
+          "oklch(39% 0.10 263)",
+          "oklch(51% 0.10 263)",
+          "oklch(63% 0.10 263)",
+          "oklch(75% 0.10 263)",
+          "oklch(87% 0.10 263)",
+          "oklch(95% 0.10 263)"
+        ]
+      },
+      "outline": {
+        "role": "neutral",
+        "displayName": "outline",
+        "tonalRamp": [
+          "oklch(15% 0.025 245)",
+          "oklch(27% 0.025 245)",
+          "oklch(39% 0.025 245)",
+          "oklch(51% 0.025 245)",
+          "oklch(63% 0.025 245)",
+          "oklch(75% 0.025 245)",
+          "oklch(87% 0.025 245)",
+          "oklch(95% 0.025 245)"
+        ]
+      },
+      "dark-primary": {
+        "role": "primary",
+        "displayName": "dark primary",
+        "tonalRamp": [
+          "oklch(15% 0.10 263)",
+          "oklch(27% 0.10 263)",
+          "oklch(39% 0.10 263)",
+          "oklch(51% 0.10 263)",
+          "oklch(63% 0.10 263)",
+          "oklch(75% 0.10 263)",
+          "oklch(87% 0.10 263)",
+          "oklch(95% 0.10 263)"
+        ]
+      },
+      "dark-on-primary": {
+        "role": "primary",
+        "displayName": "dark on primary",
+        "tonalRamp": [
+          "oklch(15% 0.025 263)",
+          "oklch(27% 0.025 263)",
+          "oklch(39% 0.025 263)",
+          "oklch(51% 0.025 263)",
+          "oklch(63% 0.025 263)",
+          "oklch(75% 0.025 263)",
+          "oklch(87% 0.025 263)",
+          "oklch(95% 0.025 263)"
+        ]
+      },
+      "dark-background": {
+        "role": "neutral",
+        "displayName": "dark background",
+        "tonalRamp": [
+          "oklch(15% 0.025 245)",
+          "oklch(27% 0.025 245)",
+          "oklch(39% 0.025 245)",
+          "oklch(51% 0.025 245)",
+          "oklch(63% 0.025 245)",
+          "oklch(75% 0.025 245)",
+          "oklch(87% 0.025 245)",
+          "oklch(95% 0.025 245)"
+        ]
+      },
+      "dark-ink": {
+        "role": "neutral",
+        "displayName": "dark ink",
+        "tonalRamp": [
+          "oklch(15% 0.025 245)",
+          "oklch(27% 0.025 245)",
+          "oklch(39% 0.025 245)",
+          "oklch(51% 0.025 245)",
+          "oklch(63% 0.025 245)",
+          "oklch(75% 0.025 245)",
+          "oklch(87% 0.025 245)",
+          "oklch(95% 0.025 245)"
+        ]
+      },
+      "dark-surface": {
+        "role": "neutral",
+        "displayName": "dark surface",
+        "tonalRamp": [
+          "oklch(15% 0.025 245)",
+          "oklch(27% 0.025 245)",
+          "oklch(39% 0.025 245)",
+          "oklch(51% 0.025 245)",
+          "oklch(63% 0.025 245)",
+          "oklch(75% 0.025 245)",
+          "oklch(87% 0.025 245)",
+          "oklch(95% 0.025 245)"
+        ]
+      },
+      "dark-surface-variant": {
+        "role": "neutral",
+        "displayName": "dark surface variant",
+        "tonalRamp": [
+          "oklch(15% 0.025 245)",
+          "oklch(27% 0.025 245)",
+          "oklch(39% 0.025 245)",
+          "oklch(51% 0.025 245)",
+          "oklch(63% 0.025 245)",
+          "oklch(75% 0.025 245)",
+          "oklch(87% 0.025 245)",
+          "oklch(95% 0.025 245)"
+        ]
+      },
+      "dark-muted-ink": {
+        "role": "neutral",
+        "displayName": "dark muted ink",
+        "tonalRamp": [
+          "oklch(15% 0.025 245)",
+          "oklch(27% 0.025 245)",
+          "oklch(39% 0.025 245)",
+          "oklch(51% 0.025 245)",
+          "oklch(63% 0.025 245)",
+          "oklch(75% 0.025 245)",
+          "oklch(87% 0.025 245)",
+          "oklch(95% 0.025 245)"
+        ]
+      },
+      "dark-primary-container": {
+        "role": "primary",
+        "displayName": "dark primary container",
+        "tonalRamp": [
+          "oklch(15% 0.10 263)",
+          "oklch(27% 0.10 263)",
+          "oklch(39% 0.10 263)",
+          "oklch(51% 0.10 263)",
+          "oklch(63% 0.10 263)",
+          "oklch(75% 0.10 263)",
+          "oklch(87% 0.10 263)",
+          "oklch(95% 0.10 263)"
+        ]
+      },
+      "dark-on-primary-container": {
+        "role": "primary",
+        "displayName": "dark on primary container",
+        "tonalRamp": [
+          "oklch(15% 0.10 263)",
+          "oklch(27% 0.10 263)",
+          "oklch(39% 0.10 263)",
+          "oklch(51% 0.10 263)",
+          "oklch(63% 0.10 263)",
+          "oklch(75% 0.10 263)",
+          "oklch(87% 0.10 263)",
+          "oklch(95% 0.10 263)"
+        ]
+      },
+      "dark-outline": {
+        "role": "neutral",
+        "displayName": "dark outline",
+        "tonalRamp": [
+          "oklch(15% 0.025 245)",
+          "oklch(27% 0.025 245)",
+          "oklch(39% 0.025 245)",
+          "oklch(51% 0.025 245)",
+          "oklch(63% 0.025 245)",
+          "oklch(75% 0.025 245)",
+          "oklch(87% 0.025 245)",
+          "oklch(95% 0.025 245)"
+        ]
+      },
+      "map-cluster": {
+        "role": "secondary",
+        "displayName": "map cluster",
+        "tonalRamp": [
+          "oklch(15% 0.10 263)",
+          "oklch(27% 0.10 263)",
+          "oklch(39% 0.10 263)",
+          "oklch(51% 0.10 263)",
+          "oklch(63% 0.10 263)",
+          "oklch(75% 0.10 263)",
+          "oklch(87% 0.10 263)",
+          "oklch(95% 0.10 263)"
+        ]
+      },
+      "map-coach": {
+        "role": "secondary",
+        "displayName": "map coach",
+        "tonalRamp": [
+          "oklch(15% 0.10 210)",
+          "oklch(27% 0.10 210)",
+          "oklch(39% 0.10 210)",
+          "oklch(51% 0.10 210)",
+          "oklch(63% 0.10 210)",
+          "oklch(75% 0.10 210)",
+          "oklch(87% 0.10 210)",
+          "oklch(95% 0.10 210)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "title-medium": {
+        "displayName": "Key row text",
+        "purpose": "Station values, action labels and key rows; weight follows the native component."
+      },
+      "headline-large": {
+        "displayName": "Planning headline",
+        "purpose": "Bold Material headlineLarge, native Android sp scaling."
+      }
+    },
+    "shadows": [
+      {
+        "name": "result-card",
+        "value": "2dp",
+        "purpose": "Native Compose shadowElevation."
+      },
+      {
+        "name": "glass-panel",
+        "value": "3dp",
+        "purpose": "Native Compose shadowElevation."
+      },
+      {
+        "name": "bottom-navigation",
+        "value": "5dp",
+        "purpose": "Native Compose shadowElevation."
+      },
+      {
+        "name": "map-marker",
+        "value": "0 2px 8px #1234",
+        "purpose": "Actual bundled map CSS shadow."
+      },
+      {
+        "name": "map-zoom",
+        "value": "0 3px 16px #1233",
+        "purpose": "Actual bundled map zoom-control CSS shadow."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "navigation-rail",
+        "value": "700dp"
+      }
+    ],
+    "implementationNotes": [
+      "Compose values use dp/sp; map CSS uses px.",
+      "HTML component snippets are illustrative translations for the documentation panel, not production Android components or proof of native interaction. Preview hover/focus and CSS elevation approximations are panel affordances.",
+      "Tonal ramps are synthesized documentation swatches, not additional implemented theme tokens.",
+      "No custom motion token scale is established.",
+      "Native Material date/time dialogs, sheets, focus, press and disabled behavior remain authoritative.",
+      "The map is bundled Leaflet HTML in a WebView with native surrounding actions. Runtime tiles retain attribution."
+    ],
+    "glass": {
+      "surfaceAlpha": 0.86,
+      "gradientStartRole": "surface",
+      "gradientStartAlpha": 0.95,
+      "gradientEndRole": "surfaceVariant",
+      "gradientEndAlpha": 0.32,
+      "bottomNavigationSurfaceAlpha": 0.96
+    },
+    "nativeTypeNotes": "Unmodified Material 3 typography; headline sizes are selected roles, and explicit bold/semibold emphasis remains component-specific."
+  },
+  "components": [
+    {
+      "name": "Primary action",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "HTML illustration of the native full-width pill; production interaction is Material Compose.",
+      "html": "<button class=\"ds-primary\"><svg width=\"22\" height=\"22\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><circle cx=\"10\" cy=\"10\" r=\"6\"/><path d=\"m15 15 6 6\"/></svg>Járatok keresése</button>",
+      "css": ".ds-primary{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:58px;border:0;border-radius:999px;background:#2864d9;color:#fff;font:500 16px/24px Roboto,Arial,sans-serif;padding:12px 24px}.ds-primary:hover,.ds-primary:active{background-image:linear-gradient(#ffffff14,#ffffff14)}.ds-primary:focus-visible{outline:2px solid #2864d9;outline-offset:3px}.ds-primary:disabled{background:#112d431f;color:#112d4361}"
+    },
+    {
+      "name": "Outlined action",
+      "kind": "button",
+      "refersTo": "button-outlined",
+      "description": "Preview of the outlined native pill used for secondary actions.",
+      "html": "<button class=\"ds-outline\">További indulások</button>",
+      "css": ".ds-outline{width:100%;min-height:52px;border:1px solid #71849c;border-radius:999px;background:transparent;color:#2864d9;font:500 14px/20px Roboto,Arial,sans-serif;padding:12px 24px}.ds-outline:hover,.ds-outline:active{background:#2864d914}.ds-outline:focus-visible{outline:2px solid #2864d9;outline-offset:3px}"
+    },
+    {
+      "name": "Station field",
+      "kind": "input",
+      "refersTo": "station-field",
+      "description": "Station-selection row preview; the native row opens the autocomplete sheet.",
+      "html": "<button class=\"ds-station\"><span class=\"ds-station-label\">Honnan?</span><span class=\"ds-station-value\">Megálló kiválasztása</span></button>",
+      "css": ".ds-station{display:flex;flex-direction:column;align-items:flex-start;width:100%;min-height:76px;border:0;border-radius:28px;background:#f8fbff;color:#112d43;padding:16px 18px;text-align:left;font-family:Roboto,Arial,sans-serif}.ds-station-label{color:#4e6581;font-size:14px;line-height:20px}.ds-station-value{font-size:16px;line-height:24px;font-weight:600}.ds-station:hover,.ds-station:active{background:#e3edfa}.ds-station:focus-visible{outline:2px solid #2864d9;outline-offset:2px}"
+    },
+    {
+      "name": "Glass panel",
+      "kind": "card",
+      "refersTo": "glass-panel",
+      "description": "Tonal layering preview; CSS shadow approximates the native 3dp elevation only for this panel.",
+      "html": "<section class=\"ds-glass\"><strong class=\"ds-glass-title\">Legutóbbi keresések</strong><p class=\"ds-glass-copy\">A kereséseidet itt találod majd.</p></section>",
+      "css": ".ds-glass{border-radius:32px;padding:20px;background:linear-gradient(#f8fbfff2,#e3edfa52),#f8fbffdb;box-shadow:0 3px 6px #112d4326;color:#112d43;font-family:Roboto,Arial,sans-serif}.ds-glass-title{font-size:16px;line-height:24px;font-weight:600}.ds-glass-copy{font-size:14px;line-height:20px;color:#4e6581;margin:8px 0 0}"
+    },
+    {
+      "name": "Transport filter",
+      "kind": "chip",
+      "description": "Selected and unselected native filter-chip appearance translated for the panel.",
+      "html": "<div class=\"ds-filters\"><button class=\"ds-chip ds-chip-selected\" aria-pressed=\"true\">Összes</button><button class=\"ds-chip\" aria-pressed=\"false\">Vonat</button><button class=\"ds-chip\" aria-pressed=\"false\">Busz</button></div>",
+      "css": ".ds-filters{display:flex;gap:8px;flex-wrap:wrap}.ds-chip{border:1px solid #71849c;border-radius:999px;background:transparent;color:#4e6581;padding:6px 16px;min-height:32px;font:500 14px/20px Roboto,Arial,sans-serif}.ds-chip-selected{background:#dceaff;border-color:#dceaff;color:#174faf}.ds-chip:hover,.ds-chip:active{background:#e3edfa}.ds-chip:focus-visible{outline:2px solid #2864d9;outline-offset:2px}"
+    },
+    {
+      "name": "Bottom destinations",
+      "kind": "nav",
+      "refersTo": "bottom-navigation",
+      "description": "Label-and-selection preview of the native navigation; production also uses Material vector icons.",
+      "html": "<nav class=\"ds-nav\" aria-label=\"Fő navigáció\"><button class=\"ds-nav-item ds-nav-selected\" aria-current=\"page\">Tervezés</button><button class=\"ds-nav-item\">Térkép</button><button class=\"ds-nav-item\">Bérletek</button><button class=\"ds-nav-item\">Beállítások</button></nav>",
+      "css": ".ds-nav{display:flex;align-items:center;gap:4px;border-radius:36px;background:#f8fbfff5;padding:12px;min-height:56px;box-shadow:0 5px 10px #112d4326}.ds-nav-item{flex:1;min-width:0;border:0;border-radius:24px;background:transparent;color:#4e6581;padding:12px 4px;overflow-wrap:anywhere;font:500 12px/16px Roboto,Arial,sans-serif}.ds-nav-selected{background:#dceaff;color:#174faf}.ds-nav-item:hover,.ds-nav-item:active{background:#e3edfa}.ds-nav-item:focus-visible{outline:2px solid #2864d9;outline-offset:2px}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Icy blue ground, ink text, royal-blue actions, fully rounded milky panels",
+    "overview": "MenetrendGO feels calm, legible and direct. Its slight glass character comes from pale tonal layers, a restrained vertical highlight and soft native elevation. Large rounded forms hold useful Hungarian text and familiar Material vector icons; the interface does not rely on decorative artwork.\n\nThis records the implemented Android world, adapted from the approved concept A. Roboto, Material controls, system bars and platform interaction anatomy are intentional. The native source is authoritative when a reference image differs. Source: `MainActivity.kt`, `PlanningScreens.kt`, `UtilityScreens.kt`, `NearbyScreen.kt` and bundled `map.html` under `app/src/main`.",
+    "keyCharacteristics": [
+      "Icy blue and milky surfaces with strong ink text.",
+      "Fully rounded panels, fields, pills and navigation.",
+      "Native Android typography, controls and feedback.",
+      "Text-led journey information with explicit data status."
+    ],
+    "rules": [
+      {
+        "name": "The Role Pairing Rule",
+        "section": "colors",
+        "body": "Change surface and content colors together through `MaterialTheme.colorScheme`; a light-scheme ink or action label must not leak into its dark counterpart."
+      },
+      {
+        "name": "The Rounded Continuity Rule",
+        "section": "shapes",
+        "body": "New controls and containers should continue the existing rounded family, including overlays and selection states."
+      }
+    ],
+    "dos": [
+      "**Do** use theme role pairs for every surface and its text in light and dark modes.",
+      "**Do** retain the fully rounded family and restrained milky tonal depth.",
+      "**Do** keep Hungarian names and labels readable through wrapping, font scaling and scrolling.",
+      "**Do** use semantic native controls and meaningful Hungarian labels for functional vector icons.",
+      "**Do** distinguish scheduled, live, stale, unavailable and unknown states with explicit text."
+    ],
+    "donts": [
+      "**Don't** flatten interface text, controls or navigation into image assets.",
+      "**Don't** use heavy glass blur that compromises information legibility.",
+      "**Don't** promote mockup sample times, badges or system chrome into product facts.",
+      "**Don't** substitute map marker styling for the native application color and elevation system."
+    ]
+  }
+}

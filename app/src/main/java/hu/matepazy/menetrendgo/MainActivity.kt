@@ -1,0 +1,199 @@
+package hu.matepazy.menetrendgo
+
+import android.os.Bundle
+import android.content.Context
+import android.content.res.Configuration
+import android.os.LocaleList
+import java.util.Locale
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.*
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.outlined.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.*
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.graphics.*
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.core.view.WindowCompat
+import kotlinx.coroutines.delay
+import java.time.Instant
+import java.time.LocalDate
+
+/* THESIS: search and recents first; departure discovery gets its own screen.
+ * OWN-WORLD: icy blue ground, ink text, royal-blue actions, fully rounded milky panels.
+ * STORY: choose stops, search, scan departures, inspect the journey and its vehicle.
+ * FIRST VIEWPORT: title, two station rows and swap, departure date, wide search, recents.
+ * FORM: user-approved concept A, revised results flow; seed 1b242c78, brief overrides roll.
+ * FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review,
+ * the verdict, DESIGN.md, and every shipping raster carrying its provenance.
+ */
+class MainActivity : ComponentActivity() {
+    override fun attachBaseContext(newBase: Context) {
+        val configuration=Configuration(newBase.resources.configuration)
+        configuration.setLocales(LocaleList.forLanguageTags("hu"))
+        super.attachBaseContext(newBase.createConfigurationContext(configuration))
+    }
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        Locale.setDefault(Locale.forLanguageTag("hu"))
+        PassNotifications.saved(this).forEach { PassNotifications.schedule(this,it) }
+        enableEdgeToEdge()
+        setContent { val state: AppState = viewModel(); MenetrendTheme(state.theme) { MenetrendApp(state, intent.getStringExtra("tab")) } }
+    }
+}
+
+private val Light = lightColorScheme(primary=Color(0xFF2864D9), onPrimary=Color.White,
+    background=Color(0xFFEDF4FA), onBackground=Color(0xFF112D43), surface=Color(0xFFF8FBFF),
+    onSurface=Color(0xFF112D43), surfaceVariant=Color(0xFFE3EDFA), onSurfaceVariant=Color(0xFF4E6581),
+    primaryContainer=Color(0xFFDCEAFF), onPrimaryContainer=Color(0xFF174FAF), outline=Color(0xFF71849C),
+    secondaryContainer=Color(0xFFDCEAFF),onSecondaryContainer=Color(0xFF174FAF),
+    surfaceDim=Color(0xFFD7E3EF),surfaceBright=Color(0xFFF8FBFF),
+    surfaceContainerLowest=Color.White,surfaceContainerLow=Color(0xFFF1F7FD),
+    surfaceContainer=Color(0xFFEAF2FA),surfaceContainerHigh=Color(0xFFE3EDF7),
+    surfaceContainerHighest=Color(0xFFDBE7F3),surfaceTint=Color(0xFF2864D9))
+private val Dark = darkColorScheme(primary=Color(0xFFA8C7FF), onPrimary=Color(0xFF092B64),
+    background=Color(0xFF101D2A), onBackground=Color(0xFFE6F0FF), surface=Color(0xFF192B3D),
+    onSurface=Color(0xFFE6F0FF), surfaceVariant=Color(0xFF253B51), onSurfaceVariant=Color(0xFFB8CAE0),
+    primaryContainer=Color(0xFF294C7C), onPrimaryContainer=Color(0xFFD6E6FF), outline=Color(0xFF8CA2BB),
+    secondaryContainer=Color(0xFF294C7C),onSecondaryContainer=Color(0xFFD6E6FF),
+    surfaceDim=Color(0xFF101D2A),surfaceBright=Color(0xFF30465C),
+    surfaceContainerLowest=Color(0xFF0B1723),surfaceContainerLow=Color(0xFF152536),
+    surfaceContainer=Color(0xFF192B3D),surfaceContainerHigh=Color(0xFF203449),
+    surfaceContainerHighest=Color(0xFF293F55),surfaceTint=Color(0xFFA8C7FF))
+@Composable fun MenetrendTheme(choice: String, content: @Composable () -> Unit) {
+    val dark = choice == "dark" || (choice == "system" && isSystemInDarkTheme())
+    val scheme=if(dark) Dark else Light
+    val view=LocalView.current
+    SideEffect {
+        (view.context as? ComponentActivity)?.window?.let {window ->
+            WindowCompat.getInsetsController(window,view).apply {
+                isAppearanceLightStatusBars=!dark
+                isAppearanceLightNavigationBars=!dark
+            }
+        }
+    }
+    MaterialTheme(colorScheme=scheme,
+        shapes=Shapes(extraSmall=RoundedCornerShape(16.dp),small=RoundedCornerShape(24.dp),medium=RoundedCornerShape(28.dp),large=RoundedCornerShape(32.dp),extraLarge=RoundedCornerShape(36.dp)),
+        content={CompositionLocalProvider(LocalContentColor provides scheme.onBackground,content=content)})
+}
+
+@Composable fun Glass(modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {
+    val colors = MaterialTheme.colorScheme
+    Surface(modifier=modifier,shape=RoundedCornerShape(32.dp),color=colors.surface.copy(alpha=.86f),shadowElevation=3.dp) {
+        Column(Modifier.background(Brush.verticalGradient(listOf(colors.surface.copy(alpha=.95f), colors.surfaceVariant.copy(alpha=.32f)))).padding(20.dp),content=content)
+    }
+}
+@Composable fun PageTitle(title: String, subtitle: String? = null, back: (() -> Unit)? = null) {
+    Row(Modifier.fillMaxWidth().padding(vertical=12.dp),verticalAlignment=Alignment.CenterVertically) {
+        if(back != null) IconButton(onClick=back) { Icon(Icons.AutoMirrored.Outlined.ArrowBack,"Vissza") }
+        Column(Modifier.weight(1f)) {
+            Text(title,style=MaterialTheme.typography.headlineMedium,fontWeight=FontWeight.Bold)
+            if(subtitle != null) Text(subtitle,style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+    }
+}
+@Composable fun MainButton(label: String, icon: ImageVector, enabled: Boolean = true, onClick: () -> Unit) {
+    Button(onClick=onClick,enabled=enabled,shape=CircleShape,modifier=Modifier.fillMaxWidth().heightIn(min=58.dp)) {
+        Icon(icon,null,Modifier.size(22.dp)); Spacer(Modifier.width(10.dp)); Text(label,style=MaterialTheme.typography.titleMedium)
+    }
+}
+@Composable fun InfoPanel(title: String, message: String, retry: (() -> Unit)? = null) {
+    Glass(Modifier.fillMaxWidth()) {
+        Icon(Icons.Outlined.Info,null,tint=MaterialTheme.colorScheme.primary)
+        Spacer(Modifier.height(12.dp)); Text(title,style=MaterialTheme.typography.titleMedium,fontWeight=FontWeight.SemiBold)
+        Spacer(Modifier.height(6.dp)); Text(message,color=MaterialTheme.colorScheme.onSurfaceVariant)
+        if(retry != null) TextButton(onClick=retry) { Text("Újrapróbálás") }
+    }
+}
+@Composable fun LoadingRows() {
+    Column(verticalArrangement=Arrangement.spacedBy(14.dp)) {
+        LinearProgressIndicator(Modifier.fillMaxWidth().clip(CircleShape))
+        repeat(3) { Surface(Modifier.fillMaxWidth().height(100.dp),shape=RoundedCornerShape(28.dp),color=MaterialTheme.colorScheme.surfaceVariant.copy(alpha=.5f)) {} }
+    }
+}
+
+@Composable fun MenetrendApp(vm: AppState, initialTab: String?) {
+    var tab by rememberSaveable { mutableIntStateOf(if(initialTab == "passes") 2 else 0) }
+    var page by rememberSaveable { mutableStateOf("search") }
+    var selected by vm::selectedJourney
+    var tripId by rememberSaveable { mutableStateOf("") }
+    var tripDay by rememberSaveable { mutableStateOf(LocalDate.now(Budapest).toString()) }
+    var tracked by vm::trackedJourney
+    var focusedVehicle by rememberSaveable { mutableStateOf<String?>(null) }
+    val owner = LocalLifecycleOwner.current
+    LaunchedEffect(tab, page, tripId, tripDay, vm.backend) {
+        owner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            if(tab == 1 || page == "trip" || page == "journey") {
+                while(true) {
+                    vm.refreshVehicles()
+                    if(page == "trip" && tripId.isNotEmpty()) vm.loadTrip(tripId,tripDay)
+                    delay(75_000)
+                }
+            }
+        }
+    }
+    fun back() {
+        when {
+            page == "trip" -> page = if(selected != null) "journey" else "search"
+            page == "journey" -> { selected=null; page="results" }
+            page == "results" -> page="search"
+            tab != 0 -> { tab=0; page="search" }
+        }
+    }
+    BackHandler(enabled=page != "search" || tab != 0) { back() }
+    val destinations = listOf("Tervezés","Térkép","Bérletek","Beállítások")
+    val icons = listOf(Icons.Outlined.Search,Icons.Outlined.Map,Icons.Outlined.CreditCard,Icons.Outlined.Settings)
+    BoxWithConstraints(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+        val wide = maxWidth >= 700.dp
+        val navLabelWidth=(maxWidth-24.dp)/4-8.dp
+        val largeFont=LocalDensity.current.fontScale>1.15f
+        Row(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing.only(if(wide) WindowInsetsSides.Top + WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom else WindowInsetsSides.Top + WindowInsetsSides.Horizontal))) {
+            if(wide) NavigationRail(containerColor=MaterialTheme.colorScheme.surface) {
+                Spacer(Modifier.height(30.dp))
+                destinations.forEachIndexed { index,label -> NavigationRailItem(selected=tab==index,onClick={tab=index;page="search";selected=null},icon={Icon(icons[index],null)},label={Text(label)}) }
+            }
+            Scaffold(containerColor=Color.Transparent,contentWindowInsets=WindowInsets(0),
+                bottomBar={ if(!wide) {
+                    Surface(Modifier.padding(start=12.dp,end=12.dp,top=8.dp).navigationBarsPadding(),shape=RoundedCornerShape(36.dp),color=MaterialTheme.colorScheme.surface.copy(alpha=.96f),shadowElevation=5.dp) {
+                        NavigationBar(modifier=Modifier.heightIn(min=if(largeFont) 100.dp else 80.dp),containerColor=Color.Transparent,windowInsets=WindowInsets(0),tonalElevation=0.dp) {
+                            destinations.forEachIndexed { index,label -> NavigationBarItem(selected=tab==index,onClick={tab=index;page="search";selected=null},icon={Icon(icons[index],null)},label={Text(label,modifier=Modifier.requiredWidth(navLabelWidth),style=MaterialTheme.typography.labelMedium,textAlign=TextAlign.Center,maxLines=2)},alwaysShowLabel=true) }
+                        }
+                    }
+                } }
+            ) { inset ->
+                Box(Modifier.fillMaxSize().padding(inset).imePadding(),contentAlignment=Alignment.TopCenter) {
+                    Box(Modifier.widthIn(max=if(tab==1) 1600.dp else 760.dp).fillMaxSize()) {
+                        when {
+                            page == "trip" -> TripScreen(vm, tripId, tripDay, ::back) { tab=1;page="search";tracked=selected;focusedVehicle=tripId }
+                            tab==0 && page=="results" -> ResultsScreen(vm,::back) { selected=it; page="journey" }
+                            tab==0 && page=="journey" && selected!=null -> JourneyScreen(vm,selected!!,::back,
+                                onTrip={ leg -> tripId=leg.tripId; tripDay=Instant.ofEpochMilli(leg.start).atZone(Budapest).toLocalDate().toString(); vm.loadTrip(tripId,tripDay); page="trip" },
+                                onMap={ tracked=selected;focusedVehicle=null;tab=1;page="search" })
+                            tab==0 -> SearchScreen(vm,onPasses={tab=2}) { vm.search();page="results" }
+                            tab==1 -> NearbyScreen(vm,tracked,focusedVehicle,onClearRoute={tracked=null;focusedVehicle=null}) { vehicle -> selected=null;tripId=vehicle.id;tripDay=LocalDate.now(Budapest).toString();vm.loadTrip(tripId,tripDay);page="trip" }
+                            tab==2 -> PassesScreen(vm)
+                            else -> SettingsScreen(vm)
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

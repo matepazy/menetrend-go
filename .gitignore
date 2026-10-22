@@ -1,0 +1,17 @@
+.gradle/
+.gradle-home/
+.android-home/
+local.properties
+**/build/
+.idea/
+*.iml
+*.jks
+*.keystore
+backend/.venv/
+__pycache__/
+.pytest_cache/
+.impeccable/review/
+.impeccable/ui.xml
+artifacts/
+*.log
+.kotlin/

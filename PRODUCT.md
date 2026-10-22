@@ -1,0 +1,48 @@
+# MenetrendGO
+
+<!-- impeccable:product-schema 1 -->
+
+## Platform
+
+android
+
+## Stack
+
+Kotlin Android application with Jetpack Compose and Material 3. Python/Flask backend follows matepazy/hovamegy.hu's MÁV GraphQL proxy architecture. Implementation minimum: Android 9 (API 28).
+
+## Users
+
+People planning Hungarian public transport journeys and locating nearby MÁV vehicles.
+
+## Product Purpose
+
+Find a journey, inspect its timetable and live vehicle position, and keep track of pass expiration with fewer steps than the supplied menetrendek.hu references.
+
+## Capabilities and Constraints
+
+- Package: hu.matepazy.menetrendgo.
+- Bottom destinations: Tervezés (default), Térkép, Bérletek (proposed name), Beállítások.
+- Timetable search, service details and nearby vehicle map.
+- Refresh every 60–90 seconds; implementation target 75 seconds.
+- User confirmed first-version support for ország- and vármegyebérlet.
+- Store passes and expiry dates locally, provide expiration notifications, and display eligibility against the selected service. Unknown eligibility must remain unknown rather than imply permission to travel.
+- No official affiliation or live-data accuracy claims.
+
+## Brand Commitments
+
+Fully rounded, slightly liquid-glass appearance. Reference screenshots provide layout ideas only; the interface must be significantly simpler and original. Hungarian interface.
+
+## Evidence on Hand
+
+Five supplied reference screenshots and the public hovamegy.hu backend source. No runnable Android application existed at intake.
+
+## Product Principles
+
+- One clear primary action per screen.
+- Separate scheduled times, live observations, stale data and unavailable data.
+- Make unknown pass eligibility explicit.
+- Respect native Android navigation, accessibility and system settings.
+
+## Open Decisions
+
+Backend deployment URL, release signing and distribution are undecided. User chose image concept approval, then approved concept A with recents and a separate departures list. Implemented reminder lead times are three and one days before expiry, then the morning after expiry, at 09:00 Budapest time.
