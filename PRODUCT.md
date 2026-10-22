@@ -8,7 +8,7 @@ android
 
 ## Stack
 
-Kotlin Android application with Jetpack Compose and Material 3. Python/Flask backend follows matepazy/hovamegy.hu's MÁV GraphQL proxy architecture. Implementation minimum: Android 9 (API 28).
+Kotlin Android application with Jetpack Compose and Material 3. The device calls MÁVPlusz OTP directly over HTTPS, reusing hovamegy.hu's query and normalization architecture with a device-local cache. No separate backend is required. Implementation minimum: Android 9 (API 28).
 
 ## Users
 
@@ -45,4 +45,4 @@ Five supplied reference screenshots and the public hovamegy.hu backend source. N
 
 ## Open Decisions
 
-Backend deployment URL, release signing and distribution are undecided. User chose image concept approval, then approved concept A with recents and a separate departures list. Implemented reminder lead times are three and one days before expiry, then the morning after expiry, at 09:00 Budapest time.
+Release signing and distribution are undecided. The user requires standalone device operation without a separate server. User chose image concept approval, then approved concept A with recents and a separate departures list. Implemented reminder lead times are three and one days before expiry, then the morning after expiry, at 09:00 Budapest time.

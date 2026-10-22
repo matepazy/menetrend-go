@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-22T19:52:55.1473715Z",
+  "generatedAt": "2026-10-22T20:06:48.7001320Z",
   "title": "Design System: MenetrendGO",
   "extensions": {
     "colorMeta": {
@@ -372,7 +372,31 @@
       "gradientEndAlpha": 0.32,
       "bottomNavigationSurfaceAlpha": 0.96
     },
-    "nativeTypeNotes": "Unmodified Material 3 typography; headline sizes are selected roles, and explicit bold/semibold emphasis remains component-specific."
+    "nativeTypeNotes": "Unmodified Material 3 typography; headline sizes are selected roles, and explicit bold/semibold emphasis remains component-specific.",
+    "phoneNavigation": {
+      "implementation": "Custom native Compose selectable row",
+      "semanticRole": "Role.Tab",
+      "outerCornerRadius": "36dp",
+      "horizontalMargin": "10dp",
+      "verticalMargin": "8dp",
+      "innerPadding": "8dp",
+      "itemGap": "4dp",
+      "itemCornerRadius": "26dp",
+      "itemHorizontalPadding": "2dp",
+      "itemVerticalPadding": "10dp",
+      "itemMinimumInnerHeight": "52dp",
+      "largeFontMinimumInnerHeight": "72dp",
+      "largeFontThreshold": 1.15,
+      "activeBackgroundRole": "primaryContainer",
+      "activeBackgroundAlpha": 0.65,
+      "activeContentRole": "primary",
+      "inactiveContentRole": "onSurfaceVariant",
+      "iconSize": "24dp",
+      "iconLabelGap": "5dp",
+      "labelMaximumLines": 2
+    },
+    "planningHeader": "Hová indulunk? headline and reminders bell share one row; no separate wordmark row.",
+    "settingsSource": "Read-only source information replaces backend URL input; direct HTTPS and local caches are product implementation facts, not visual tokens."
   },
   "components": [
     {
@@ -418,9 +442,9 @@
       "name": "Bottom destinations",
       "kind": "nav",
       "refersTo": "bottom-navigation",
-      "description": "Label-and-selection preview of the native navigation; production also uses Material vector icons.",
-      "html": "<nav class=\"ds-nav\" aria-label=\"Fő navigáció\"><button class=\"ds-nav-item ds-nav-selected\" aria-current=\"page\">Tervezés</button><button class=\"ds-nav-item\">Térkép</button><button class=\"ds-nav-item\">Bérletek</button><button class=\"ds-nav-item\">Beállítások</button></nav>",
-      "css": ".ds-nav{display:flex;align-items:center;gap:4px;border-radius:36px;background:#f8fbfff5;padding:12px;min-height:56px;box-shadow:0 5px 10px #112d4326}.ds-nav-item{flex:1;min-width:0;border:0;border-radius:24px;background:transparent;color:#4e6581;padding:12px 4px;overflow-wrap:anywhere;font:500 12px/16px Roboto,Arial,sans-serif}.ds-nav-selected{background:#dceaff;color:#174faf}.ds-nav-item:hover,.ds-nav-item:active{background:#e3edfa}.ds-nav-item:focus-visible{outline:2px solid #2864d9;outline-offset:2px}"
+      "description": "HTML illustration of the custom native Role.Tab row: the selected background covers the complete icon and label. Production uses Compose semantics and ripple feedback.",
+      "html": "<nav class=\"ds-nav\" aria-label=\"Fő navigáció\"><button class=\"ds-nav-item ds-nav-selected\" role=\"tab\" aria-selected=\"true\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><circle cx=\"10\" cy=\"10\" r=\"6\"/><path d=\"m15 15 6 6\"/></svg><span>Tervezés</span></button><button class=\"ds-nav-item\" role=\"tab\" aria-selected=\"false\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"m3 5 6-2 6 2 6-2v16l-6 2-6-2-6 2zM9 3v16M15 5v16\"/></svg><span>Térkép</span></button><button class=\"ds-nav-item\" role=\"tab\" aria-selected=\"false\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><rect x=\"3\" y=\"5\" width=\"18\" height=\"14\" rx=\"2\"/><path d=\"M3 10h18\"/></svg><span>Bérletek</span></button><button class=\"ds-nav-item\" role=\"tab\" aria-selected=\"false\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"m9 3-1 3-3 1-2 5 2 5 3 1 1 3h6l1-3 3-1 2-5-2-5-3-1-1-3z\"/><circle cx=\"12\" cy=\"12\" r=\"3\"/></svg><span>Beállítások</span></button></nav>",
+      "css": ".ds-nav{display:flex;align-items:stretch;gap:4px;border-radius:36px;background:#f8fbfff5;padding:8px;margin:8px 10px;box-shadow:0 5px 10px #112d4326}.ds-nav-item{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;flex:1;min-width:0;min-height:52px;border:0;border-radius:26px;background:transparent;color:#4e6581;padding:10px 2px;font:500 12px/16px Roboto,Arial,sans-serif;text-align:center}.ds-nav-item span{max-width:100%;overflow-wrap:anywhere}.ds-nav-selected{background:#dceaffa6;color:#2864d9}.ds-nav-item:hover,.ds-nav-item:active{background-color:#e3edfa}.ds-nav-item:focus-visible{outline:2px solid #2864d9;outline-offset:2px}"
     }
   ],
   "narrative": {

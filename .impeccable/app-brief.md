@@ -2,7 +2,7 @@
 
 Approved reference: `.impeccable/mocks/concept-a.png`. User approved search-first plus recent searches, with results moved to a separate screen containing a long departure list. All controls and panels must remain fully rounded. Sample departure cards in the comp are not home-screen requirements and are never seeded as real data.
 
-Composition: compact MenetrendGO wordmark, Hová indulunk?, one milky search panel, two rounded station controls, native swap icon, rounded date/time control, full-width pill search button; recent searches below. Results open separately with route/time cards, bus/rail filters and additional-result loading. Journey detail, full stop list and nearby map continue the same world. Four bottom destinations remain visible; expanded displays use a rail.
+Composition: Hová indulunk? with its pass-reminder action, one milky search panel, two rounded station controls, native swap icon, rounded date/time control, full-width pill search button; recent searches below. Results open separately with route/time cards, bus/rail filters and additional-result loading. Journey detail, full stop list and nearby map continue the same world. Four bottom destinations remain visible; the user-requested rounded floating bar highlights the complete icon-and-label group. Expanded displays use a rail.
 
 Comp pixel samples: ground #ebf5fb, panel #eaf3fb, action #3675f0. Compose roles use the same icy-blue family with a slightly darker #2864D9 primary to improve white action-label contrast. Roboto via Android's Material type scale. Panels 32dp, fields 28dp, pill actions; soft tonal depth instead of backdrop-blurred text. Native Android system bars replace the generated comp's inaccurate iOS chrome.
 

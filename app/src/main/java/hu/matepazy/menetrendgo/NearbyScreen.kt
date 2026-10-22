@@ -64,7 +64,7 @@ import org.json.*
         if(ready && focusedId!=null) vm.vehicles.find {it.id==focusedId}?.let {web?.evaluateJavascript("window.centerOn(${it.lat},${it.lon});",null)}
     }
     DisposableEffect(Unit) {onDispose {web?.removeJavascriptInterface("NativeMap");web?.destroy();web=null}}
-    Column(Modifier.fillMaxSize().padding(horizontal=16.dp)) {
+    Column(Modifier.fillMaxSize().padding(horizontal=16.dp).padding(bottom=LocalBottomOverlayInset.current)) {
         PageTitle(if(journey==null) "Térkép" else "Az utad a térképen", "Koppints egy járműre a megállókért")
         Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(6.dp)) {
             listOf("Összes","Vonat","Busz").forEach {label->FilterChip(filter==label,{filter=label},label={Text(label)},shape=CircleShape)}

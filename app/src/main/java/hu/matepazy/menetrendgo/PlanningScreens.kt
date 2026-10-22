@@ -6,14 +6,25 @@ import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.shape.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowForward
+import androidx.compose.material.icons.automirrored.outlined.DirectionsWalk
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.*
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.platform.LocalDensity
 import kotlinx.coroutines.*
 import java.time.*
 import java.time.format.DateTimeFormatter
@@ -35,12 +46,11 @@ import java.time.format.DateTimeFormatter
 @Composable fun SearchScreen(vm: AppState, onPasses: () -> Unit, onSearch: () -> Unit) {
     var picker by remember { mutableStateOf<String?>(null) }
     var datePicker by remember { mutableStateOf(false) }
-    LazyColumn(Modifier.fillMaxSize(),contentPadding=PaddingValues(20.dp),verticalArrangement=Arrangement.spacedBy(20.dp)) {
-        item { Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically) {
-            Text("MenetrendGO",style=MaterialTheme.typography.titleLarge,fontWeight=FontWeight.Bold,modifier=Modifier.weight(1f))
+    LazyColumn(Modifier.fillMaxSize(),contentPadding=PaddingValues(start=20.dp,top=20.dp,end=20.dp,bottom=20.dp+LocalBottomOverlayInset.current),verticalArrangement=Arrangement.spacedBy(20.dp)) {
+        item { Row(Modifier.fillMaxWidth().padding(top=10.dp,bottom=4.dp),verticalAlignment=Alignment.CenterVertically) {
+            Text("Hová indulunk?",style=MaterialTheme.typography.headlineLarge,fontWeight=FontWeight.Bold,modifier=Modifier.weight(1f))
             FilledTonalIconButton(onClick=onPasses,shape=CircleShape) {Icon(Icons.Outlined.NotificationsNone,"Bérletek és emlékeztetők")}
         } }
-        item { Text("Hová indulunk?",style=MaterialTheme.typography.headlineLarge,fontWeight=FontWeight.Bold,modifier=Modifier.padding(top=10.dp,bottom=4.dp)) }
         item {
             Glass(Modifier.fillMaxWidth()) {
                 Row(verticalAlignment=Alignment.CenterVertically) {
@@ -93,7 +103,7 @@ import java.time.format.DateTimeFormatter
     var results by remember { mutableStateOf<List<Station>>(emptyList()) }
     var loading by remember { mutableStateOf(false) }
     var error by remember {mutableStateOf<String?>(null)}
-    LaunchedEffect(query,vm.backend) {
+    LaunchedEffect(query) {
         results=emptyList();error=null
         if(query.trim().length>=2) {
             loading=true;delay(350)
@@ -146,18 +156,64 @@ import java.time.format.DateTimeFormatter
     }){Text("Kész")}},dismissButton={TextButton(onClick={stage=0}){Text("Vissza")}})
 }
 
+/** Provider route colors identify services; walking/unknown services use theme roles. */
+@Composable private fun serviceColor(leg: Leg): Color =
+    leg.routeColor.removePrefix("#").takeIf { it.matches(Regex("[0-9a-fA-F]{6}")) }
+        ?.toLongOrNull(16)?.let { Color((0xFF000000L or it).toInt()) }
+        ?: MaterialTheme.colorScheme.onSurfaceVariant
+
+private fun serviceIcon(leg: Leg): ImageVector = when(leg.mode) {
+    "WALK" -> Icons.AutoMirrored.Outlined.DirectionsWalk
+    "BUS", "COACH", "RAIL_REPLACEMENT_BUS" -> Icons.Outlined.DirectionsBus
+    "TRAM", "TRAMTRAIN" -> Icons.Outlined.Tram
+    "SUBURBAN_RAILWAY" -> Icons.Outlined.DirectionsTransit
+    else -> Icons.Outlined.Train
+}
+
+private fun serviceType(leg: Leg): String = leg.category.ifBlank { when(leg.mode) {
+    "WALK" -> "Gyalog"
+    "COACH", "BUS" -> "Autóbusz"
+    "RAIL_REPLACEMENT_BUS" -> "Vonatpótló autóbusz"
+    "SUBURBAN_RAILWAY" -> "HÉV"
+    "TRAMTRAIN" -> "TramTrain"
+    "TRAM" -> "Villamos"
+    else -> "Vonat"
+} }
+
 @Composable fun RouteBadge(leg: Leg) {
-    Surface(shape=CircleShape,color=MaterialTheme.colorScheme.primaryContainer) {
-        Row(Modifier.padding(horizontal=12.dp,vertical=7.dp),verticalAlignment=Alignment.CenterVertically) {
-            Icon(if(leg.walking) Icons.Outlined.DirectionsWalk else if(leg.mode in listOf("COACH","BUS","RAIL_REPLACEMENT_BUS")) Icons.Outlined.DirectionsBus else Icons.Outlined.Train,null,Modifier.size(18.dp))
-            Spacer(Modifier.width(6.dp));Text(if(leg.walking) "Gyalog" else leg.route,style=MaterialTheme.typography.labelLarge)
+    val color=serviceColor(leg)
+    // A colored swatch retains the exact source color, while text stays readable in both themes.
+    Surface(shape=CircleShape,color=MaterialTheme.colorScheme.surfaceVariant,
+        modifier=Modifier.semantics(mergeDescendants=true) { contentDescription="${serviceType(leg)} ${if(leg.walking) "" else leg.route}" }) {
+        Row(Modifier.padding(start=6.dp,end=12.dp,top=5.dp,bottom=5.dp),verticalAlignment=Alignment.CenterVertically) {
+            Surface(shape=CircleShape,color=color) {
+                Icon(serviceIcon(leg),null,Modifier.padding(5.dp).size(18.dp),tint=if(color.luminance()>.179f) Color.Black else Color.White)
+            }
+            Spacer(Modifier.width(7.dp))
+            Text(if(leg.walking) "Gyalog" else leg.route,style=MaterialTheme.typography.labelLarge,fontWeight=FontWeight.Bold)
         }
     }
 }
+
+@Composable private fun JourneyEndpoints(journey: Journey) {
+    Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.Top) {
+        Column(Modifier.weight(1f)) {
+            Text(timeLabel(journey.start),style=MaterialTheme.typography.headlineMedium,fontWeight=FontWeight.Bold)
+            Text(journey.legs.first().from.name,style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        Icon(Icons.AutoMirrored.Outlined.ArrowForward,null,Modifier.padding(horizontal=12.dp,vertical=6.dp).size(24.dp),tint=MaterialTheme.colorScheme.onSurfaceVariant)
+        Column(Modifier.weight(1f),horizontalAlignment=Alignment.End) {
+            Text(timeLabel(journey.end),style=MaterialTheme.typography.headlineMedium,fontWeight=FontWeight.Bold)
+            Text(journey.legs.last().to.name,style=MaterialTheme.typography.bodyMedium,textAlign=TextAlign.End,color=MaterialTheme.colorScheme.onSurfaceVariant)
+            if(dayLabel(journey.end)!=dayLabel(journey.start)) Text(dayLabel(journey.end),style=MaterialTheme.typography.labelMedium)
+        }
+    }
+}
+
 @Composable fun ResultsScreen(vm: AppState, back: () -> Unit, select: (Journey) -> Unit) {
     var filter by rememberSaveable {mutableStateOf("Összes")}
     val results=vm.journeys.filter { j -> filter=="Összes" || j.legs.any {if(filter=="Vonat") it.mode in listOf("RAIL","SUBURBAN_RAILWAY","TRAMTRAIN") else it.mode in listOf("BUS","COACH","RAIL_REPLACEMENT_BUS")} }
-    LazyColumn(Modifier.fillMaxSize(),contentPadding=PaddingValues(20.dp),verticalArrangement=Arrangement.spacedBy(16.dp)) {
+    LazyColumn(Modifier.fillMaxSize(),contentPadding=PaddingValues(start=20.dp,top=20.dp,end=20.dp,bottom=20.dp+LocalBottomOverlayInset.current),verticalArrangement=Arrangement.spacedBy(16.dp)) {
         item { PageTitle("Indulások", "${vm.from?.name.orEmpty()} → ${vm.to?.name.orEmpty()}",back) }
         item { Row(horizontalArrangement=Arrangement.spacedBy(8.dp)) { listOf("Összes","Vonat","Busz").forEach { label -> FilterChip(selected=filter==label,onClick={filter=label},label={Text(label)},shape=CircleShape) } } }
         if(vm.searchError!=null) item {InfoPanel("Nem sikerült a keresés",vm.searchError!!){vm.search(vm.journeys.isNotEmpty())}}
@@ -167,15 +223,15 @@ import java.time.format.DateTimeFormatter
             Surface(onClick={select(journey)},shape=RoundedCornerShape(32.dp),color=MaterialTheme.colorScheme.surface,shadowElevation=2.dp) {
                 Column(Modifier.padding(22.dp),verticalArrangement=Arrangement.spacedBy(14.dp)) {
                     Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically) {
-                        Text(timeLabel(journey.start),style=MaterialTheme.typography.headlineMedium,fontWeight=FontWeight.Bold)
-                        Icon(Icons.AutoMirrored.Outlined.ArrowForward,null,Modifier.padding(horizontal=12.dp),tint=MaterialTheme.colorScheme.onSurfaceVariant)
-                        Text(timeLabel(journey.end),style=MaterialTheme.typography.headlineSmall,fontWeight=FontWeight.SemiBold)
-                        Spacer(Modifier.weight(1f));Icon(Icons.Outlined.ChevronRight,null)
+                        val services=journey.legs.filterNot {it.walking}.distinctBy {it.mode to it.route}
+                        FlowRow(Modifier.weight(1f),horizontalArrangement=Arrangement.spacedBy(6.dp),verticalArrangement=Arrangement.spacedBy(6.dp)) {
+                            (services.ifEmpty {journey.legs.take(1)}).forEach {RouteBadge(it)}
+                        }
+                        Icon(Icons.Outlined.ChevronRight,null,Modifier.padding(start=8.dp))
                     }
-                    Text("${dayLabel(journey.start)} · ${journey.minutes} perc · ${if(journey.changes==0) "Közvetlen" else "${journey.changes} átszállás"}",color=MaterialTheme.colorScheme.onSurfaceVariant)
-                    FlowRow(horizontalArrangement=Arrangement.spacedBy(6.dp),verticalArrangement=Arrangement.spacedBy(6.dp)) {journey.legs.forEach {RouteBadge(it)}}
-                    val live=journey.legs.any {it.realTime}
-                    Text(if(live) "Valós idejű menetadatok" else "Menetrendi időpontok",style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
+                    JourneyEndpoints(journey)
+                    Text("${dayLabel(journey.start)} · ${journey.minutes} perc · ${if(journey.changes==0) "Közvetlen" else "${journey.changes} átszállás"}",style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)
+                    if(journey.legs.any {it.realTime}) Text("Valós idejű menetadatok",style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
                     if(vm.passes.isNotEmpty()) Text(passAdvice(vm.passes,journey).title,style=MaterialTheme.typography.labelLarge,color=MaterialTheme.colorScheme.primary)
                 }
             }
@@ -186,31 +242,93 @@ import java.time.format.DateTimeFormatter
     }
 }
 
-@Composable fun JourneyScreen(vm: AppState, journey: Journey, back: () -> Unit, onTrip: (Leg) -> Unit, onMap: () -> Unit) {
-    LazyColumn(Modifier.fillMaxSize(),contentPadding=PaddingValues(20.dp),verticalArrangement=Arrangement.spacedBy(16.dp)) {
-        item {PageTitle("Utazás részletei", "${dayLabel(journey.start)} · ${timeLabel(journey.start)}–${timeLabel(journey.end)} · ${journey.minutes} perc",back)}
-        item { MainButton("Útvonal a térképen",Icons.Outlined.Map,onClick=onMap) }
-        item {val advice=passAdvice(vm.passes,journey);InfoPanel(advice.title,advice.detail)}
-        items(journey.legs) {leg ->
-            Glass(Modifier.fillMaxWidth()) {
-                RouteBadge(leg);Spacer(Modifier.height(18.dp))
-                Text("${timeLabel(leg.start)}  ${leg.from.name}",style=MaterialTheme.typography.titleMedium,fontWeight=FontWeight.SemiBold)
-                Spacer(Modifier.height(8.dp))
-                val arrivalDay=if(Instant.ofEpochMilli(leg.end).atZone(Budapest).toLocalDate()!=Instant.ofEpochMilli(journey.start).atZone(Budapest).toLocalDate()) "${dayLabel(leg.end)} · " else ""
-                Text("$arrivalDay${timeLabel(leg.end)}  ${leg.to.name}",style=MaterialTheme.typography.titleMedium)
-                Spacer(Modifier.height(12.dp))
-                Text(if(leg.realTime) "Valós idejű adat · eltérés: ${leg.departureDelay/60} perc" else "Menetrendi adat · élő időpont nem érhető el",style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
-                if(!leg.walking && leg.tripId.isNotBlank()) TextButton(onClick={onTrip(leg)}) {Text("Teljes megállólista");Icon(Icons.Outlined.ChevronRight,null)}
-                if(leg.walking) Text("${(leg.end-leg.start+59_999)/60_000} perc gyaloglás",Modifier.padding(top=8.dp))
+/** A continuous stop/time column with solid transit lines and dotted walking connections. */
+@Composable private fun TimelineRow(time: String, color: Color, stop: Boolean=false, first: Boolean=false, last: Boolean=false,
+    walking: Boolean=false, content: @Composable ColumnScope.() -> Unit) {
+    val surface=MaterialTheme.colorScheme.surface
+    Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min)) {
+        Text(time,Modifier.width(with(LocalDensity.current) { 56.sp.toDp() }).padding(top=2.dp,end=8.dp),style=MaterialTheme.typography.labelLarge,fontWeight=FontWeight.Bold)
+        Canvas(Modifier.width(24.dp).fillMaxHeight()) {
+            val x=size.width/2
+            val nodeY=12.dp.toPx()
+            drawLine(color,Offset(x,if(first) nodeY else 0f),Offset(x,if(last) nodeY else size.height),
+                strokeWidth=if(walking) 3.dp.toPx() else 4.dp.toPx(),cap=StrokeCap.Round,
+                pathEffect=if(walking) PathEffect.dashPathEffect(floatArrayOf(2.dp.toPx(),6.dp.toPx())) else null)
+            if(stop) {
+                drawCircle(color,6.dp.toPx(),Offset(x,nodeY))
+                drawCircle(surface,3.dp.toPx(),Offset(x,nodeY))
             }
         }
+        Column(Modifier.weight(1f).padding(start=12.dp,bottom=24.dp),content=content)
+    }
+}
+
+@Composable fun JourneyScreen(vm: AppState, journey: Journey, back: () -> Unit, onTrip: (Leg) -> Unit, onMap: () -> Unit) {
+    LazyColumn(Modifier.fillMaxSize(),contentPadding=PaddingValues(start=20.dp,top=20.dp,end=20.dp,bottom=20.dp+LocalBottomOverlayInset.current),verticalArrangement=Arrangement.spacedBy(16.dp)) {
+        item {PageTitle("Utazás részletei", "${dayLabel(journey.start)} · ${timeLabel(journey.start)}–${timeLabel(journey.end)} · ${journey.minutes} perc",back)}
+        item { MainButton("Útvonal a térképen",Icons.Outlined.Map,onClick=onMap) }
+        item {
+            Surface(shape=RoundedCornerShape(32.dp),color=MaterialTheme.colorScheme.surface) {
+                Column(Modifier.padding(20.dp)) {
+                    journey.legs.forEachIndexed {index,leg ->
+                        val color=serviceColor(leg)
+                        val walking=leg.walking
+                        TimelineRow(timeLabel(leg.start),color,stop=true,first=index==0,walking=walking) {
+                            Text(leg.from.name,style=MaterialTheme.typography.titleMedium,fontWeight=FontWeight.SemiBold)
+                            if(index>0 && dayLabel(leg.start)!=dayLabel(journey.start)) Text(dayLabel(leg.start),style=MaterialTheme.typography.labelMedium)
+                        }
+                        TimelineRow("",color,walking=walking) {
+                            if(walking) {
+                                Row(verticalAlignment=Alignment.CenterVertically) {
+                                    Icon(Icons.AutoMirrored.Outlined.DirectionsWalk,null,Modifier.size(20.dp))
+                                    Spacer(Modifier.width(8.dp))
+                                    Text("${(leg.end-leg.start+59_999)/60_000} perc gyaloglás",style=MaterialTheme.typography.bodyMedium)
+                                }
+                            } else {
+                                RouteBadge(leg)
+                                Text("${serviceType(leg)} · ${((leg.end-leg.start+59_999)/60_000)} perc",Modifier.padding(top=8.dp),style=MaterialTheme.typography.bodyMedium)
+                                if(leg.headsign.isNotBlank()) Text("Irány: ${leg.headsign}",Modifier.padding(top=4.dp),style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text(if(leg.realTime) "Élő adat · eltérés: ${leg.departureDelay/60} perc" else "Menetrend szerint · élő adat nem érhető el",Modifier.padding(top=8.dp),style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
+                                var expanded by remember(journey.key,index) { mutableStateOf(false) }
+                                if(leg.intermediate.isNotEmpty()) {
+                                    TextButton(onClick={expanded=!expanded},contentPadding=PaddingValues(horizontal=0.dp),modifier=Modifier.heightIn(min=48.dp)) {
+                                        Text("${leg.intermediate.size} köztes megálló",Modifier.weight(1f))
+                                        Icon(if(expanded) Icons.Outlined.ExpandLess else Icons.Outlined.ExpandMore,if(expanded) "Megállók elrejtése" else "Megállók megjelenítése")
+                                    }
+                                    if(expanded) leg.intermediate.forEach {stop ->
+                                        Text(stop.name,Modifier.padding(vertical=8.dp),style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)
+                                    }
+                                }
+                                if(leg.tripId.isNotBlank()) TextButton(onClick={onTrip(leg)},contentPadding=PaddingValues(horizontal=0.dp),modifier=Modifier.heightIn(min=48.dp)) {
+                                    Text("Teljes járatmenetrend");Icon(Icons.Outlined.ChevronRight,null)
+                                }
+                            }
+                        }
+                        val next=journey.legs.getOrNull(index+1)
+                        // A shared stop at the same time is one interchange node, not two repeated rows.
+                        val sharedStop=next!=null && next.from.name==leg.to.name && next.start-leg.end<60_000
+                        if(!sharedStop) TimelineRow(timeLabel(leg.end),color,stop=true,last=next==null,walking=next?.walking ?: walking) {
+                            Text(leg.to.name,style=MaterialTheme.typography.titleMedium,fontWeight=FontWeight.SemiBold)
+                            if(dayLabel(leg.end)!=dayLabel(journey.start)) Text(dayLabel(leg.end),style=MaterialTheme.typography.labelMedium)
+                        }
+                        if(next!=null) {
+                            val wait=(next.start-leg.end)/60_000
+                            if(wait>=1) TimelineRow("",MaterialTheme.colorScheme.onSurfaceVariant,walking=true) {
+                                Text("$wait perc várakozás",style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        item {val advice=passAdvice(vm.passes,journey);InfoPanel(advice.title,advice.detail)}
     }
 }
 
 @Composable fun TripScreen(vm: AppState, id: String, day: String, back: () -> Unit, onMap: () -> Unit) {
     val detail=vm.detail
     val vehicle=vm.vehicles.find {it.id==id}
-    LazyColumn(Modifier.fillMaxSize(),contentPadding=PaddingValues(20.dp),verticalArrangement=Arrangement.spacedBy(14.dp)) {
+    LazyColumn(Modifier.fillMaxSize(),contentPadding=PaddingValues(start=20.dp,top=20.dp,end=20.dp,bottom=20.dp+LocalBottomOverlayInset.current),verticalArrangement=Arrangement.spacedBy(14.dp)) {
         item {PageTitle(detail?.optJSONObject("route")?.optString("shortName")?.ifBlank {"Járat"} ?: "Járat", "$day · ${detail?.optString("tripHeadsign").orEmpty()}",back)}
         if(vm.detailLoading && detail==null) item {LoadingRows()}
         if(vm.detailError!=null) item {InfoPanel("A menetrend nem tölthető be",vm.detailError!!){vm.loadTrip(id,day)}}

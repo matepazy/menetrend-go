@@ -23,7 +23,8 @@ data class Recent(val from: Station, val to: Station) {
 data class Vehicle(val id: String, val name: String, val headsign: String, val mode: String, val lat: Double, val lon: Double)
 data class Leg(val mode: String, val start: Long, val end: Long, val from: Station, val to: Station,
     val route: String, val tripId: String, val realTime: Boolean, val departureDelay: Int,
-    val intermediate: List<Station>, val geometry: String) {
+    val intermediate: List<Station>, val geometry: String,
+    val routeColor: String = "", val category: String = "", val headsign: String = "") {
     val walking get() = mode == "WALK"
     companion object {
         fun parse(o: JSONObject): Leg {
@@ -33,7 +34,8 @@ data class Leg(val mode: String, val start: Long, val end: Long, val from: Stati
                 Station.parse(o.getJSONObject("from")), Station.parse(o.getJSONObject("to")),
                 route.optString("shortName").ifBlank { trip.optString("tripShortName").ifBlank { o.optString("mode") } },
                 trip.optString("gtfsId"), o.optBoolean("realTime"), o.optInt("departureDelay"),
-                o.array("intermediateStops").map(Station::parse), o.optJSONObject("legGeometry")?.optString("points").orEmpty())
+                o.array("intermediateStops").map(Station::parse), o.optJSONObject("legGeometry")?.optString("points").orEmpty(),
+                route.optString("color"), trip.optString("trainCategoryName"), trip.optString("tripHeadsign"))
         }
     }
 }

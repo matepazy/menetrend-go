@@ -4,20 +4,11 @@ Native Kotlin / Jetpack Compose Android journey planner and live vehicle tracker
 
 The Hungarian interface has **Tervezés**, **Térkép**, **Bérletek** and **Beállítások**. The search-first home stores recent stop pairs locally. Search opens a separate scrollable departures page; “További indulások” asks for later results (or earlier results for arrival searches). Open a result for individual legs, full service stop lists and its route on the map.
 
-## Run the backend
+## Data connection
 
-The Python/Flask proxy follows [hovamegy.hu](https://github.com/matepazy/hovamegy.hu)'s architecture and uses the MÁVPlusz OTP GraphQL and station-search endpoints. It is an independent backend implementation, with a shared 75-second vehicle snapshot and on-demand service-detail caching. Failed refreshes retain the last good snapshot and timestamp.
+The Android app calls MÁVPlusz OTP GraphQL and station search directly over HTTPS. Query construction, normalization and 75-second vehicle/service caches run on the device, following the data architecture of [hovamegy.hu](https://github.com/matepazy/hovamegy.hu). No Python server, hosted proxy, endpoint configuration or computer connection is required. Internet is needed for fresh timetables, vehicles and OpenStreetMap tiles; this is not an offline timetable database.
 
-```powershell
-cd backend
-python -m venv .venv
-.venv/Scripts/python -m pip install -r requirements.txt
-.venv/Scripts/python server.py
-```
-
-Or run `docker build -t menetrendgo backend` and `docker run --rm -p 8000:8000 menetrendgo`. Use one server process; its polling thread must not be duplicated across multiple workers. Public deployments need HTTPS and reverse-proxy request limits. No backend has been deployed by this project.
-
-Endpoints: `GET /health`, `GET /api/stations?q=...`, `POST /api/plan`, `GET /live_data.json`, `GET /api/trip?id=...&date=YYYY-MM-DD`. Server timestamps are epoch seconds; journey times are epoch milliseconds. Service stop times are seconds from the service-day midnight in Europe/Budapest, including values above 86400.
+The `backend/` Python prototype is retained as a reference, with its own tests. It is not used by the Android app.
 
 ## Build Android
 
@@ -27,7 +18,7 @@ Open the repository in Android Studio with JDK 21 and SDK 37 installed; Gradle d
 ./gradlew.bat :app:assembleDebug :app:testDebugUnitTest
 ```
 
-Debug defaults to `http://10.0.2.2:8000`, the Android emulator's host address. A physical device needs a reachable HTTPS server. Set its address in **Beállítások → Adatkapcsolat**, or build with `-PapiUrl=https://your-server.example`. Release builds have no default server and reject cleartext HTTP. Local HTTP is allowed only for emulator/loopback hosts in debug.
+Install the debug APK on an emulator or Android 9+ phone. It connects directly to MÁV over HTTPS. Previously saved proxy addresses are ignored. Beállítások → Fejlesztői beállítások contains read-only data-source information; normal settings contain appearance, local data and notifications.
 
 APK: `app/build/outputs/apk/debug/app-debug.apk`. This is a debug-signed development build, not a Play Store release.
 
@@ -41,7 +32,7 @@ Date validity is evaluated at **both ends of every transit leg**. Service entitl
 
 ## Live data and map
 
-Vehicle and open-service screens refresh every 75 seconds while foregrounded. Backgrounding stops the app polling loop. Timetable results are snapshots; start a new search for new journey predictions. The server refreshes its shared vehicle snapshot every 75 seconds. Source positions may be older or unavailable; the app marks old snapshots after three minutes. There is no simulated movement.
+Vehicle and open-service screens refresh every 75 seconds while foregrounded. Backgrounding stops the app polling loop. Timetable results are snapshots; start a new search for new journey predictions. The device caches successful vehicle and service responses for 75 seconds. Failed refreshes keep the last good displayed snapshot and timestamp. Source positions may be older or unavailable; the app marks old snapshots after three minutes. There is no simulated movement.
 
 The map bundles [Leaflet 1.9.4](https://leafletjs.com/download.html) and loads OpenStreetMap tiles with visible attribution. Country-scale positions are grouped into tappable count clusters; zoom in for individual service labels. Only the map is a WebView; the rest of the app is native Compose. Location permission is optional and coarse; coordinates stay on the device and center the map. Tile requests reveal the viewed region and IP address to the tile provider. No offline tile download or location history is implemented. Read the [OSM tile usage policy](https://operations.osmfoundation.org/policies/tiles/) before a public launch at scale.
 

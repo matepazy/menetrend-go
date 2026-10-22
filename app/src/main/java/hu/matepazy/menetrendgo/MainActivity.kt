@@ -12,6 +12,8 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.*
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.ui.semantics.Role
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.*
@@ -94,6 +96,9 @@ private val Dark = darkColorScheme(primary=Color(0xFFA8C7FF), onPrimary=Color(0x
         content={CompositionLocalProvider(LocalContentColor provides scheme.onBackground,content=content)})
 }
 
+// Scrollable pages draw beneath the floating bar; trailing content remains reachable.
+val LocalBottomOverlayInset = staticCompositionLocalOf { 0.dp }
+
 @Composable fun Glass(modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {
     val colors = MaterialTheme.colorScheme
     Surface(modifier=modifier,shape=RoundedCornerShape(32.dp),color=colors.surface.copy(alpha=.86f),shadowElevation=3.dp) {
@@ -138,7 +143,7 @@ private val Dark = darkColorScheme(primary=Color(0xFFA8C7FF), onPrimary=Color(0x
     var tracked by vm::trackedJourney
     var focusedVehicle by rememberSaveable { mutableStateOf<String?>(null) }
     val owner = LocalLifecycleOwner.current
-    LaunchedEffect(tab, page, tripId, tripDay, vm.backend) {
+    LaunchedEffect(tab, page, tripId, tripDay) {
         owner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
             if(tab == 1 || page == "trip" || page == "journey") {
                 while(true) {
@@ -162,7 +167,6 @@ private val Dark = darkColorScheme(primary=Color(0xFFA8C7FF), onPrimary=Color(0x
     val icons = listOf(Icons.Outlined.Search,Icons.Outlined.Map,Icons.Outlined.CreditCard,Icons.Outlined.Settings)
     BoxWithConstraints(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         val wide = maxWidth >= 700.dp
-        val navLabelWidth=(maxWidth-24.dp)/4-8.dp
         val largeFont=LocalDensity.current.fontScale>1.15f
         Row(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing.only(if(wide) WindowInsetsSides.Top + WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom else WindowInsetsSides.Top + WindowInsetsSides.Horizontal))) {
             if(wide) NavigationRail(containerColor=MaterialTheme.colorScheme.surface) {
@@ -171,14 +175,27 @@ private val Dark = darkColorScheme(primary=Color(0xFFA8C7FF), onPrimary=Color(0x
             }
             Scaffold(containerColor=Color.Transparent,contentWindowInsets=WindowInsets(0),
                 bottomBar={ if(!wide) {
-                    Surface(Modifier.padding(start=12.dp,end=12.dp,top=8.dp).navigationBarsPadding(),shape=RoundedCornerShape(36.dp),color=MaterialTheme.colorScheme.surface.copy(alpha=.96f),shadowElevation=5.dp) {
-                        NavigationBar(modifier=Modifier.heightIn(min=if(largeFont) 100.dp else 80.dp),containerColor=Color.Transparent,windowInsets=WindowInsets(0),tonalElevation=0.dp) {
-                            destinations.forEachIndexed { index,label -> NavigationBarItem(selected=tab==index,onClick={tab=index;page="search";selected=null},icon={Icon(icons[index],null)},label={Text(label,modifier=Modifier.requiredWidth(navLabelWidth),style=MaterialTheme.typography.labelMedium,textAlign=TextAlign.Center,maxLines=2)},alwaysShowLabel=true) }
+                    Surface(Modifier.padding(horizontal=10.dp,vertical=8.dp).navigationBarsPadding(),shape=RoundedCornerShape(36.dp),color=MaterialTheme.colorScheme.surface.copy(alpha=.96f),shadowElevation=5.dp) {
+                        Row(Modifier.fillMaxWidth().padding(8.dp),horizontalArrangement=Arrangement.spacedBy(4.dp)) {
+                            destinations.forEachIndexed { index,label ->
+                                val active=tab==index
+                                val tint=if(active) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                                Column(Modifier.weight(1f).clip(RoundedCornerShape(26.dp))
+                                    .background(if(active) MaterialTheme.colorScheme.primaryContainer.copy(alpha=.65f) else Color.Transparent)
+                                    .selectable(selected=active,role=Role.Tab,onClick={tab=index;page="search";selected=null})
+                                    .padding(horizontal=2.dp,vertical=10.dp).heightIn(min=if(largeFont) 72.dp else 52.dp),
+                                    horizontalAlignment=Alignment.CenterHorizontally,verticalArrangement=Arrangement.Center) {
+                                    Icon(icons[index],null,Modifier.size(24.dp),tint=tint)
+                                    Spacer(Modifier.height(5.dp))
+                                    Text(label,style=MaterialTheme.typography.labelMedium,textAlign=TextAlign.Center,maxLines=2,color=tint)
+                                }
+                            }
                         }
                     }
                 } }
             ) { inset ->
-                Box(Modifier.fillMaxSize().padding(inset).imePadding(),contentAlignment=Alignment.TopCenter) {
+                Box(Modifier.fillMaxSize().padding(top=inset.calculateTopPadding()).imePadding(),contentAlignment=Alignment.TopCenter) {
+                    CompositionLocalProvider(LocalBottomOverlayInset provides inset.calculateBottomPadding()) {
                     Box(Modifier.widthIn(max=if(tab==1) 1600.dp else 760.dp).fillMaxSize()) {
                         when {
                             page == "trip" -> TripScreen(vm, tripId, tripDay, ::back) { tab=1;page="search";tracked=selected;focusedVehicle=tripId }
@@ -191,6 +208,7 @@ private val Dark = darkColorScheme(primary=Color(0xFFA8C7FF), onPrimary=Color(0x
                             tab==2 -> PassesScreen(vm)
                             else -> SettingsScreen(vm)
                         }
+                    }
                     }
                 }
             }

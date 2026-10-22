@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.*
@@ -60,7 +61,7 @@ private val Counties=listOf("Baranya","Bács-Kiskun","Békés","Borsod-Abaúj-Ze
     fun requestNotifications() {
         if(Build.VERSION.SDK_INT>=33 && ContextCompat.checkSelfPermission(context,Manifest.permission.POST_NOTIFICATIONS)!=PackageManager.PERMISSION_GRANTED) permissions.launch(Manifest.permission.POST_NOTIFICATIONS)
     }
-    LazyColumn(Modifier.fillMaxSize(),contentPadding=PaddingValues(20.dp),verticalArrangement=Arrangement.spacedBy(18.dp)) {
+    LazyColumn(Modifier.fillMaxSize(),contentPadding=PaddingValues(start=20.dp,top=20.dp,end=20.dp,bottom=20.dp+LocalBottomOverlayInset.current),verticalArrangement=Arrangement.spacedBy(18.dp)) {
         item {PageTitle("Bérletek","Lejárat és emlékeztetők, egy helyen")}
         item {MainButton("Bérlet hozzáadása",Icons.Outlined.Add){editing=null;add=true}}
         if(vm.passes.isEmpty()) item {InfoPanel("Mikor jár le a bérleted?","Add hozzá a bérlet típusát és a rajta szereplő dátumokat. Három és egy nappal a lejárat előtt, majd a lejárat után emlékeztetünk.")}
@@ -129,33 +130,35 @@ private val Counties=listOf("Baranya","Bács-Kiskun","Békés","Borsod-Abaúj-Ze
 
 @Composable fun SettingsScreen(vm: AppState) {
     val context=LocalContext.current
-    var url by remember(vm.backend) {mutableStateOf(vm.backend)}
-    var error by remember {mutableStateOf<String?>(null)}
-    var saved by remember {mutableStateOf(false)}
-    LazyColumn(Modifier.fillMaxSize(),contentPadding=PaddingValues(20.dp),verticalArrangement=Arrangement.spacedBy(20.dp)) {
-        item {PageTitle("Beállítások")}
+    var developer by rememberSaveable {mutableStateOf(false)}
+    BackHandler(enabled=developer) {developer=false}
+    LazyColumn(Modifier.fillMaxSize(),contentPadding=PaddingValues(start=20.dp,top=20.dp,end=20.dp,bottom=20.dp+LocalBottomOverlayInset.current),verticalArrangement=Arrangement.spacedBy(20.dp)) {
+        item {PageTitle(if(developer) "Fejlesztői beállítások" else "Beállítások",back=if(developer) ({developer=false}) else null)}
+        if(!developer) {
         item {Glass(Modifier.fillMaxWidth()) {
             Text("Megjelenés",style=MaterialTheme.typography.titleLarge,fontWeight=FontWeight.SemiBold)
             listOf("system" to "Rendszer szerint","light" to "Világos","dark" to "Sötét").forEach {(value,label)->
                 Row(Modifier.fillMaxWidth().clickable {vm.chooseTheme(value)}.padding(vertical=3.dp),verticalAlignment=Alignment.CenterVertically){RadioButton(vm.theme==value,{vm.chooseTheme(value)});Text(label)}
             }
         }}
+        } else {
         item {Glass(Modifier.fillMaxWidth()) {
-            Text("Adatkapcsolat",style=MaterialTheme.typography.titleLarge,fontWeight=FontWeight.SemiBold)
-            Spacer(Modifier.height(8.dp));Text("A menetrendeket és járműpozíciókat a MenetrendGO kiszolgáló tölti le a MÁV rendszeréből.",color=MaterialTheme.colorScheme.onSurfaceVariant)
-            Spacer(Modifier.height(16.dp));OutlinedTextField(url,{url=it;saved=false;error=null},Modifier.fillMaxWidth(),singleLine=true,shape=RoundedCornerShape(24.dp),label={Text("Kiszolgáló HTTPS-címe")},isError=error!=null)
-            if(error!=null) Text(error!!,color=MaterialTheme.colorScheme.error)
-            if(saved) Text("Kiszolgáló elmentve",color=MaterialTheme.colorScheme.primary,modifier=Modifier.padding(top=8.dp))
-            TextButton(onClick={error=vm.configure(url,vm.theme);saved=error==null}){Text("Cím mentése")}
-            Text("Járműadatok frissítése: 75 másodpercenként, amíg a térképet vagy a járatot nézed.",style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
+            Text("Adatforrás",style=MaterialTheme.typography.titleLarge,fontWeight=FontWeight.SemiBold)
+            Spacer(Modifier.height(8.dp));Text("Közvetlen MÁV-kapcsolat · OTP GraphQL. Az adatfeldolgozás és a gyorsítótár ezen az eszközön fut. Nincs külön MenetrendGO-kiszolgáló.",color=MaterialTheme.colorScheme.onSurfaceVariant)
+            Spacer(Modifier.height(12.dp));Text("mavplusz.hu · HTTPS\nJárműadatok frissítése: 75 másodpercenként, amíg a térképet vagy a járatot nézed.",style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
+            Spacer(Modifier.height(12.dp));Text("Verzió: ${BuildConfig.VERSION_NAME}",style=MaterialTheme.typography.bodySmall)
         }}
+        item {TextButton(onClick={context.startActivity(Intent(Intent.ACTION_VIEW,Uri.parse("https://github.com/matepazy/hovamegy.hu")))}){Text("Backend alapja: hovamegy.hu")}}
+        }
+        if(!developer) {
         item {Glass(Modifier.fillMaxWidth()) {
             Text("Adatok és értesítések",style=MaterialTheme.typography.titleLarge,fontWeight=FontWeight.SemiBold)
-            Spacer(Modifier.height(8.dp));Text("Bérleteid és keresési előzményeid ezen az eszközön maradnak. Nincs fiók vagy analitika. A keresett megállók és az időpont a kiszolgálóra kerülnek; a térképcsempéket az OpenStreetMap szolgáltatja.",color=MaterialTheme.colorScheme.onSurfaceVariant)
-            TextButton(onClick={vm.clearRecents();saved=false}){Text("Keresési előzmények törlése")}
+            Spacer(Modifier.height(8.dp));Text("Bérleteid és keresési előzményeid ezen az eszközön maradnak. Nincs fiók vagy analitika. A keresett megállók és az időpont közvetlenül a MÁV-hoz kerülnek; a térképcsempéket az OpenStreetMap szolgáltatja.",color=MaterialTheme.colorScheme.onSurfaceVariant)
+            TextButton(onClick={vm.clearRecents()}){Text("Keresési előzmények törlése")}
             TextButton(onClick={context.startActivity(Intent(android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(android.provider.Settings.EXTRA_APP_PACKAGE,context.packageName))}){Text("Android értesítésbeállítások")}
         }}
         item {Text("MenetrendGO · ${BuildConfig.VERSION_NAME}\nNem hivatalos alkalmazás. Az adatok hiányozhatnak vagy késhetnek.",style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)}
-        item {TextButton(onClick={context.startActivity(Intent(Intent.ACTION_VIEW,Uri.parse("https://github.com/matepazy/hovamegy.hu")))}){Text("Backend alapja: hovamegy.hu")}}
+        item {TextButton(onClick={developer=true}){Text("Fejlesztői beállítások")}}
+        }
     }
 }

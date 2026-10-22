@@ -4,3 +4,5 @@ STORY: Choose stops, search, scan departures, inspect the journey, see the route
 FIRST VIEWPORT: MenetrendGO and reminders shortcut, Hová indulunk?, two station rows and swap, departure date, wide pill search action, recents below. No result previews on the home screen.
 FORM: User-approved concept A with the explicitly requested separate results flow; seed 1b242c78. The user's rounded-glass brief overrides unchosen direction candidates.
 FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance
+
+REVISION: User removed the planning wordmark and requested a whole-item rounded navigation highlight. The app connects directly to MÁV; no separate backend.

@@ -1,5 +1,21 @@
 # MenetrendGO verification
 
+## Current revision: standalone Android client
+
+This section supersedes the earlier proxy-build evidence and hash below. The app now calls fixed MÁVPlusz HTTPS endpoints directly through MavClient.kt; query normalization and 75-second caches run on the device. Saved proxy URLs are ignored, API_URL configuration and debug cleartext exceptions are removed. The Python reference backend is not used and no process was listening on port 8000 during these runtime checks.
+
+- Final assembleDebug and lintDebug succeeded. Nine Android JVM tests passed (five pass/date tests and four query validation/escaping/date tests).
+- Updated emulator-5554 in place with Android Studio's existing debug key; no uninstall or saved-data deletion. The initial mismatched-key update was rejected; its screenshot was replaced after successful install.
+- Direct MÁV vehicle positions and visible map clusters loaded. Direct station autocomplete returned Mór and Székesfehérvár. A real journey search returned next-day 04:23, 06:13 and 06:44 options; opening 8096 loaded its complete stop list.
+- Raw captures: standalone-home.png, standalone-map.png, standalone-settings.png, standalone-developer.png, standalone-results.png, standalone-stops.png and standalone-large-font.png. Planning wordmark removed; navigation highlights the full icon/label group. Developer source information is nested under developer settings. Larger-font dark mode inspected at scale 1.3; scale restored to 1.0 and theme to system afterward.
+- The prior independent ship verdict covers only the prior revision. This narrow revision was verified with a bounded native runtime inspection; no new independent ship verdict is claimed. DESIGN.md and its sidecar were refreshed by the documenter.
+- Internet remains required for MÁV data and OpenStreetMap tiles. No offline timetable database, future-day notification delivery or hardware GPS/performance is claimed.
+
+Final standalone debug APK SHA-256: `5ebdb92a48b060ae964f7cafeee0b215b67c162073c3a0064641ccd478b23b8d`.
+
+## Earlier proxy-build history
+
+
 ## Completed evidence
 
 - Debug APK assembled; Kotlin unit tests and Android lint passed with no lint errors. Remaining lint warnings concern dependency versions/platform recommendations and non-fatal code recommendations.
@@ -37,3 +53,15 @@ Final debug APK SHA-256: `47855a075d3322905357b096cbaebc2298230b912c07bf1871f692
 The task-created headless QA emulator was stopped and its exact D:/Temp/MenetrendGO-QA-01a164d3 directory removed after the final captures. The separate user emulator and installed SDK were retained. The local test backend was stopped; use README instructions to start it.
 
 The fresh Impeccable documenter recorded the final built system in DESIGN.md and .impeccable/design.json. Its sidecar previews are illustrative documentation, not shipped Android controls. The surface brief is bound to the native source files and map asset.
+
+## Floating navigation backing fix
+
+Removed the reserved bottom viewport strip on scrollable pages. Lists draw under the rounded navigation surface and retain its measured height as trailing content padding. The map keeps safe control bounds. assembleDebug passed; installed in place on emulator-5554 and inspected a real departure list in floating-nav-results.png. This is a bounded refinement check, not a new independent whole-app verdict.
+
+## Journey card and itinerary refinement (2026-10-22)
+
+- Cards now show top-left service numbers and mode icons on provider route colors; equally bold endpoint times with names underneath and an arrow; scheduled-time boilerplate removed. Query/model retain route.color, trainCategoryName and tripHeadsign. Direct MÁVPlusz OTP readback confirmed COACH 8096/8097/1846 colors F6AC00 and category helyközi busz. Official context: https://www.mavcsoport.hu/mav-csoport/minden-eddiginel-tobb-utastajekoztatasi-funkcioval-erkezik-mavplusz-jaratinfo .
+- Journey details use a connected timeline, dotted walking, colored transit, directions, transfer waits, day transitions, inline intermediate stops and the existing full-service timetable action. Shared same-time stops are condensed. A final source correction keeps time-column width consistent under font scaling.
+- assembleDebug, testDebugUnitTest and lintDebug passed. Existing nine JVM tests pass; no new UI automation suite is claimed. Layout detector reports no findings.
+- Updated emulator-5554 in place. Real saved Mór–Székesfehérvár search showed the new cards; opened 8096 itinerary and expanded its 16 intermediate stops, reading back real stop names. Inspected light phone results, dark 1.3 font-scale phone itinerary, and expanded 1600x2560/density 240 results/itinerary. Native dimensions 1280x2856/density 480, font 1.0 and system theme restored afterward. Evidence in .impeccable/review/: cards-results.png, final-results-expanded.png, final-itinerary-expanded.png, final-itinerary-dark-large.png, final-expanded-stops.xml. Initial cards-dark-large.png/cards-expanded.png were captured before configuration settled and are not final evidence.
+- Runtime journey evidence is a direct bus with a walking connection; multi-transfer/overnight logic is implemented but not separately exercised in this bounded check. No physical-device claim.
