@@ -77,6 +77,7 @@ import java.time.format.DateTimeFormatter
 @Composable fun SearchScreen(vm: AppState, onPasses: () -> Unit, onSearch: () -> Unit) {
     var picker by remember { mutableStateOf<String?>(null) }
     var datePicker by remember { mutableStateOf(false) }
+    var timePicker by remember { mutableStateOf(false) }
     var swaps by remember { mutableIntStateOf(0) }
     val swapRotation by animateFloatAsState(swaps*180f,
         tween(AppMotion.Reveal,easing=AppMotion.State),label="Swap stations")
@@ -103,13 +104,17 @@ import java.time.format.DateTimeFormatter
                     vm.to=it;vm.selectStation(it);closePicker()
                 } else StopField("Hová?",vm.to,Icons.Outlined.LocationOn) { picker="to" }
                 Spacer(Modifier.height(14.dp))
-                Surface(onClick={closePicker();datePicker=true},shape=RoundedCornerShape(20.dp),color=MaterialTheme.colorScheme.surfaceContainerLow,modifier=Modifier.fillMaxWidth()) {
-                    Row(Modifier.padding(16.dp).heightIn(min=24.dp),verticalAlignment=Alignment.CenterVertically) {
-                        Icon(Icons.Outlined.CalendarToday,null,tint=MaterialTheme.colorScheme.primary)
-                        Spacer(Modifier.width(12.dp))
-                        Text(if(vm.useNow) "Ma, indulás most" else vm.dateTime.format(DateTimeFormatter.ofPattern("MM. dd. HH:mm")) + if(vm.arriveBy) " · érkezés" else " · indulás",Modifier.weight(1f),style=MaterialTheme.typography.bodyLarge)
-                        Icon(Icons.Outlined.ExpandMore,null)
-                    }
+                val today=LocalDate.now(Budapest)
+                val selectedDate=if(vm.useNow) today else vm.dateTime.toLocalDate()
+                Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(12.dp)) {
+                    JourneyPickerControl("Dátum",when(selectedDate) {
+                        today -> "Ma"
+                        today.plusDays(1) -> "Holnap"
+                        else -> selectedDate.format(DateTimeFormatter.ofPattern("MM. dd."))
+                    },Icons.Outlined.CalendarToday,Modifier.weight(1f)) {closePicker();datePicker=true}
+                    JourneyPickerControl(if(vm.arriveBy) "Érkezés" else "Indulás",
+                        if(vm.useNow) "Most" else vm.dateTime.format(DateTimeFormatter.ofPattern("HH:mm")),
+                        Icons.Outlined.Schedule,Modifier.weight(1f)) {closePicker();timePicker=true}
                 }
                 Spacer(Modifier.height(16.dp))
                 MainButton("Járatok keresése",Icons.Outlined.Search,vm.from!=null && vm.to!=null && vm.from!=vm.to,onSearch)
@@ -134,6 +139,21 @@ import java.time.format.DateTimeFormatter
         item { Text("MÁV-adatokkal · Nem hivatalos alkalmazás",style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant,modifier=Modifier.padding(top=12.dp,bottom=16.dp)) }
     }
     if(datePicker) JourneyDatePicker(vm) {datePicker=false}
+    if(timePicker) JourneyTimePicker(vm) {timePicker=false}
+}
+
+@Composable private fun JourneyPickerControl(label: String, value: String, icon: ImageVector,
+    modifier: Modifier, onClick: () -> Unit) {
+    Surface(onClick=onClick,shape=RoundedCornerShape(20.dp),color=MaterialTheme.colorScheme.surfaceContainerLow,modifier=modifier) {
+        Row(Modifier.padding(12.dp).heightIn(min=40.dp),verticalAlignment=Alignment.CenterVertically) {
+            Icon(icon,null,Modifier.size(20.dp),tint=MaterialTheme.colorScheme.primary)
+            Spacer(Modifier.width(8.dp))
+            Column(Modifier.weight(1f)) {
+                Text(label,style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(value,style=MaterialTheme.typography.bodyLarge)
+            }
+        }
+    }
 }
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -240,21 +260,51 @@ import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable private fun JourneyDatePicker(vm: AppState, dismiss: () -> Unit) {
-    val dateState = rememberDatePickerState(initialSelectedDateMillis=vm.dateTime.toLocalDate().atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli())
-    val timeState = rememberTimePickerState(vm.dateTime.hour,vm.dateTime.minute,is24Hour=true)
-    var stage by remember {mutableIntStateOf(0)}
-    var arrive by remember {mutableStateOf(vm.arriveBy)}
-    if(stage==0) DatePickerDialog(onDismissRequest=dismiss,shape=RoundedCornerShape(32.dp),confirmButton={TextButton(onClick={stage=1}){Text("Időpont")}},dismissButton={TextButton(onClick={vm.useNow=true;vm.arriveBy=false;dismiss()}){Text("Indulás most")}}) {
-        DatePicker(dateState,showModeToggle=false,title={Text("Utazás napja",Modifier.padding(24.dp),style=MaterialTheme.typography.titleLarge)})
-    } else AlertDialog(onDismissRequest=dismiss,shape=RoundedCornerShape(32.dp),title={Text("Utazás időpontja")},text={
-        Column {
-            TimeInput(timeState)
-            Row(verticalAlignment=Alignment.CenterVertically) {Checkbox(arrive,{arrive=it});Text("Ekkorra érkezzek meg")}
+    val initial=remember {if(vm.useNow) LocalDateTime.now(Budapest).withSecond(0).withNano(0) else vm.dateTime}
+    val dateState = rememberDatePickerState(initialSelectedDateMillis=initial.toLocalDate().atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli())
+    ModalBottomSheet(onDismissRequest=dismiss,sheetState=rememberModalBottomSheetState(skipPartiallyExpanded=true),
+        shape=RoundedCornerShape(topStart=36.dp,topEnd=36.dp)) {
+        Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(bottom=24.dp)) {
+            DatePicker(dateState,showModeToggle=false,
+                colors=DatePickerDefaults.colors(containerColor=MaterialTheme.colorScheme.surfaceContainerLow),
+                title={Text("Utazás napja",Modifier.padding(24.dp),style=MaterialTheme.typography.titleLarge)})
+            Row(Modifier.fillMaxWidth().padding(horizontal=24.dp),horizontalArrangement=Arrangement.spacedBy(12.dp,Alignment.End)) {
+                TextButton(onClick=dismiss) {Text("Mégse")}
+                Button(onClick={
+                    dateState.selectedDateMillis?.let {millis ->
+                        val day=Instant.ofEpochMilli(millis).atZone(ZoneOffset.UTC).toLocalDate()
+                        vm.dateTime=day.atTime(initial.toLocalTime())
+                        vm.useNow=vm.useNow && day==LocalDate.now(Budapest)
+                        dismiss()
+                    }
+                },enabled=dateState.selectedDateMillis!=null) {Text("Kész")}
+            }
         }
-    },confirmButton={TextButton(onClick={
-        val day=Instant.ofEpochMilli(dateState.selectedDateMillis ?: System.currentTimeMillis()).atZone(ZoneOffset.UTC).toLocalDate()
-        vm.dateTime=day.atTime(timeState.hour,timeState.minute);vm.useNow=false;vm.arriveBy=arrive;dismiss()
-    }){Text("Kész")}},dismissButton={TextButton(onClick={stage=0}){Text("Vissza")}})
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable private fun JourneyTimePicker(vm: AppState, dismiss: () -> Unit) {
+    val initial=remember {if(vm.useNow) LocalDateTime.now(Budapest).withSecond(0).withNano(0) else vm.dateTime}
+    val timeState = rememberTimePickerState(initial.hour,initial.minute,is24Hour=true)
+    var arrive by remember {mutableStateOf(vm.arriveBy)}
+    ModalBottomSheet(onDismissRequest=dismiss,sheetState=rememberModalBottomSheetState(skipPartiallyExpanded=true),
+        shape=RoundedCornerShape(topStart=36.dp,topEnd=36.dp)) {
+        Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).imePadding().padding(horizontal=24.dp).padding(bottom=24.dp),
+            verticalArrangement=Arrangement.spacedBy(16.dp)) {
+            Text("Utazás időpontja",style=MaterialTheme.typography.titleLarge)
+            TimeInput(timeState,modifier=Modifier.align(Alignment.CenterHorizontally))
+            Row(verticalAlignment=Alignment.CenterVertically) {Checkbox(arrive,{arrive=it});Text("Ekkorra érkezzek meg")}
+            TextButton(onClick={vm.useNow=true;vm.arriveBy=false;dismiss()}) {Text("Indulás most")}
+            Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(12.dp,Alignment.End)) {
+                TextButton(onClick=dismiss) {Text("Mégse")}
+                Button(onClick={
+                    vm.dateTime=initial.toLocalDate().atTime(timeState.hour,timeState.minute)
+                    vm.useNow=false;vm.arriveBy=arrive;dismiss()
+                }) {Text("Kész")}
+            }
+        }
+    }
 }
 
 /** Rail uses MÁV category colors; other services retain provider route colors. */
