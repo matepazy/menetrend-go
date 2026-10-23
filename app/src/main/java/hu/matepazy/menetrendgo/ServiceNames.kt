@@ -2,6 +2,16 @@ package hu.matepazy.menetrendgo
 
 import java.util.Locale
 
+/** Trip numbers and named trains may embed the English category in the label. */
+fun hungarianServiceLabel(label: String): String {
+    var result=label
+    for(category in listOf("accelerated passenger train", "semi-fast train", "passenger train", "passanger train",
+        "regional train", "local train", "fast train", "express train", "zonal train", "intercity train", "eurocity train")) {
+        result=result.replace(Regex("\\b${Regex.escape(category)}\\b",RegexOption.IGNORE_CASE),hungarianServiceName(category,"RAIL"))
+    }
+    return result
+}
+
 /** Provider categories can be English even when the rest of the response is Hungarian. */
 fun hungarianServiceName(category: String, mode: String): String {
     val name = category.trim()

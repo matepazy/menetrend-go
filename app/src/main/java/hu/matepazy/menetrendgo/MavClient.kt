@@ -82,7 +82,7 @@ class MavClient {
                     val trip=v.optJSONObject("trip")
                     val id=trip?.optString("gtfsId").orEmpty()
                     if(id.isBlank() || v.isNull("lat") || v.isNull("lon")) null else Vehicle(id,
-                        trip!!.optString("tripShortName").ifBlank {v.optString("label").ifBlank {"Járat"}},
+                        hungarianServiceLabel(trip!!.optString("tripShortName").ifBlank {v.optString("label").ifBlank {"Járat"}}),
                         trip.optString("tripHeadsign"),trip.optJSONObject("route")?.optString("mode").orEmpty(),v.getDouble("lat"),v.getDouble("lon"),
                         trip.optJSONObject("route")?.optString("color").orEmpty(),trip.optString("trainCategoryName"),
                         trip.optJSONObject("route")?.optString("longName").orEmpty())
@@ -107,6 +107,7 @@ class MavClient {
     }
     private fun normalizeRoute(route: JSONObject?,fallback: String?) {
         if(route?.optString("shortName")?.contains('<')==true) route.put("shortName",fallback?.takeIf {it.isNotBlank()} ?: "Vonat")
+        route?.put("shortName",hungarianServiceLabel(route.optString("shortName")))
     }
 }
 
