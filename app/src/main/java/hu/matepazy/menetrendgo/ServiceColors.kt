@@ -10,7 +10,7 @@ import java.util.Locale
  */
 fun trainCategoryColor(leg: Leg): String? {
     if (leg.mode != "RAIL") return null
-    for (label in listOf(leg.category, leg.routeLongName, leg.route)) {
+    for (label in listOf(hungarianServiceName(leg.category, leg.mode), leg.routeLongName, leg.route)) {
         val normalized = Normalizer.normalize(label, Normalizer.Form.NFD)
             .replace(Regex("\\p{M}+"), "").uppercase(Locale.ROOT)
         val tokens = Regex("[A-Z]+").findAll(normalized).map { it.value }.toSet()

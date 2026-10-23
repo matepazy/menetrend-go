@@ -320,15 +320,7 @@ private fun serviceIcon(leg: Leg): ImageVector = when(leg.mode) {
     else -> Icons.Outlined.Train
 }
 
-private fun serviceType(leg: Leg): String = leg.category.ifBlank { when(leg.mode) {
-    "WALK" -> "Gyalog"
-    "COACH", "BUS" -> "Autóbusz"
-    "RAIL_REPLACEMENT_BUS" -> "Vonatpótló autóbusz"
-    "SUBURBAN_RAILWAY" -> "HÉV"
-    "TRAMTRAIN" -> "TramTrain"
-    "TRAM" -> "Villamos"
-    else -> "Vonat"
-} }
+private fun serviceType(leg: Leg): String = hungarianServiceName(leg.category, leg.mode)
 
 @Composable fun RouteBadge(leg: Leg) {
     val color=serviceColor(leg)
