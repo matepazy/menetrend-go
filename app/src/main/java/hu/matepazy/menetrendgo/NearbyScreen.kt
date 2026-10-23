@@ -43,7 +43,8 @@ import org.json.*
     val manager=remember {context.getSystemService(LocationManager::class.java)}
     val lifecycle=LocalLifecycleOwner.current.lifecycle
     val snackbars=remember {SnackbarHostState()}
-    val onSelect by rememberUpdatedState(select)
+    var selectedVehicle by remember {mutableStateOf<Vehicle?>(null)}
+    val onSelect by rememberUpdatedState<(Vehicle) -> Unit>({vehicle -> vm.loadTrip(vehicle.id,java.time.LocalDate.now(Budapest).toString());selectedVehicle=vehicle})
     val currentVehicles by rememberUpdatedState(vm.vehicles)
     val permission=rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {granted ->
         allowed=granted
@@ -142,6 +143,7 @@ import org.json.*
             },modifier=Modifier.align(Alignment.BottomEnd).padding(end=14.dp,bottom=LocalBottomOverlayInset.current+52.dp).size(54.dp)) {
                 Icon(Icons.Outlined.MyLocation,"Saját helyzet mutatása")
             }
+        selectedVehicle?.let {VehicleDrawer(vm,it) {selectedVehicle=null}}
         SnackbarHost(snackbars,Modifier.align(Alignment.BottomCenter).padding(bottom=LocalBottomOverlayInset.current+12.dp))
     }
 }
