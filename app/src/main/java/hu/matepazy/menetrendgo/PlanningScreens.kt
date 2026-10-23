@@ -340,12 +340,12 @@ private fun serviceType(leg: Leg): String = hungarianServiceName(leg.category, l
     val arrival=journey.alightingLeg
     Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.Top) {
         Column(Modifier.weight(1f)) {
-            Text(timeLabel(departure.start),style=MaterialTheme.typography.headlineMedium,fontWeight=FontWeight.Bold)
+            ScheduledTime(departure.departureTime,style=MaterialTheme.typography.headlineMedium)
             Text(departure.from.name,style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)
         }
         Icon(Icons.AutoMirrored.Outlined.ArrowForward,null,Modifier.padding(horizontal=12.dp,vertical=6.dp).size(24.dp),tint=MaterialTheme.colorScheme.onSurfaceVariant)
         Column(Modifier.weight(1f),horizontalAlignment=Alignment.End) {
-            Text(timeLabel(arrival.end),style=MaterialTheme.typography.headlineMedium,fontWeight=FontWeight.Bold)
+            ScheduledTime(arrival.arrivalTime,style=MaterialTheme.typography.headlineMedium,alignment=Alignment.End)
             Text(arrival.to.name,style=MaterialTheme.typography.bodyMedium,textAlign=TextAlign.End,color=MaterialTheme.colorScheme.onSurfaceVariant)
             if(dayLabel(arrival.end)!=dayLabel(departure.start)) Text(dayLabel(arrival.end),style=MaterialTheme.typography.labelMedium)
         }
@@ -384,11 +384,13 @@ private fun serviceType(leg: Leg): String = hungarianServiceName(leg.category, l
 }
 
 /** A continuous stop/time column with solid transit lines and dotted walking connections. */
-@Composable private fun TimelineRow(time: String, color: Color, stop: Boolean=false, first: Boolean=false, last: Boolean=false,
+@Composable private fun TimelineRow(time: ServiceTime?, color: Color, stop: Boolean=false, first: Boolean=false, last: Boolean=false,
     walking: Boolean=false, content: @Composable ColumnScope.() -> Unit) {
     val surface=MaterialTheme.colorScheme.surface
     Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min)) {
-        Text(time,Modifier.width(with(LocalDensity.current) { 56.sp.toDp() }).padding(top=2.dp,end=8.dp),style=MaterialTheme.typography.labelLarge,fontWeight=FontWeight.Bold)
+        Box(Modifier.width(with(LocalDensity.current) { 64.sp.toDp() }).padding(top=2.dp,end=8.dp)) {
+            time?.let {ScheduledTime(it,style=MaterialTheme.typography.labelLarge)}
+        }
         Canvas(Modifier.width(24.dp).fillMaxHeight()) {
             val x=size.width/2
             val nodeY=12.dp.toPx()
@@ -408,7 +410,7 @@ private fun serviceType(leg: Leg): String = hungarianServiceName(leg.category, l
     var menuOpen by remember(journey.key) { mutableStateOf(false) }
     var rawOpen by remember(journey.key) { mutableStateOf(false) }
     LazyColumn(Modifier.fillMaxSize(),contentPadding=PaddingValues(start=20.dp,top=20.dp,end=20.dp,bottom=20.dp+LocalBottomOverlayInset.current),verticalArrangement=Arrangement.spacedBy(16.dp)) {
-        item {PageTitle("Utazás részletei", listOf(dayLabel(journey.start),"${timeLabel(journey.start)}–${timeLabel(journey.end)}","${journey.minutes} perc").filter {it.isNotBlank()}.joinToString(" · "),back) {
+        item {PageTitle("Utazás részletei", listOf(dayLabel(journey.start),"${journey.minutes} perc").filter {it.isNotBlank()}.joinToString(" · "),back) {
             if(vm.showRawGraphQl) Box {
                 IconButton(onClick={menuOpen=true}) {Icon(Icons.Outlined.MoreVert,"További lehetőségek")}
                 DropdownMenu(expanded=menuOpen,onDismissRequest={menuOpen=false}) {
@@ -423,11 +425,11 @@ private fun serviceType(leg: Leg): String = hungarianServiceName(leg.category, l
                     journey.legs.forEachIndexed {index,leg ->
                         val color=serviceColor(leg)
                         val walking=leg.walking
-                        TimelineRow(timeLabel(leg.start),color,stop=true,first=index==0,walking=walking) {
+                        TimelineRow(leg.departureTime,color,stop=true,first=index==0,walking=walking) {
                             Text(leg.from.name,style=MaterialTheme.typography.titleMedium,fontWeight=FontWeight.SemiBold)
                             if(index>0 && dayLabel(leg.start)!=dayLabel(journey.start)) Text(dayLabel(leg.start),style=MaterialTheme.typography.labelMedium)
                         }
-                        TimelineRow("",color,walking=walking) {
+                        TimelineRow(null,color,walking=walking) {
                             if(walking) {
                                 Row(verticalAlignment=Alignment.CenterVertically) {
                                     Icon(Icons.AutoMirrored.Outlined.DirectionsWalk,null,Modifier.size(20.dp))
@@ -438,7 +440,7 @@ private fun serviceType(leg: Leg): String = hungarianServiceName(leg.category, l
                                 RouteBadge(leg)
                                 Text("${serviceType(leg)} · ${((leg.end-leg.start+59_999)/60_000)} perc",Modifier.padding(top=8.dp),style=MaterialTheme.typography.bodyMedium)
                                 if(leg.headsign.isNotBlank()) Text("Irány: ${leg.headsign}",Modifier.padding(top=4.dp),style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)
-                                Text(if(leg.realTime) "Élő adat · eltérés: ${leg.departureDelay/60} perc" else "Menetrend szerint · élő adat nem érhető el",Modifier.padding(top=8.dp),style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
+                                if(!leg.realTime) Text("Menetrend szerint · élő adat nem érhető el",Modifier.padding(top=8.dp),style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
                                 var expanded by remember(journey.key,index) { mutableStateOf(false) }
                                 if(leg.intermediate.isNotEmpty()) {
                                     val disclosureRotation by animateFloatAsState(if(expanded) 180f else 0f,
@@ -464,14 +466,14 @@ private fun serviceType(leg: Leg): String = hungarianServiceName(leg.category, l
                         }
                         val next=journey.legs.getOrNull(index+1)
                         // A shared stop at the same time is one interchange node, not two repeated rows.
-                        val sharedStop=next!=null && next.from.name==leg.to.name && next.start-leg.end<60_000
-                        if(!sharedStop) TimelineRow(timeLabel(leg.end),color,stop=true,last=next==null,walking=next?.walking ?: walking) {
+                        val sharedStop=next!=null && next.from.name==leg.to.name && next.start==leg.end && next.departureTime==leg.arrivalTime
+                        if(!sharedStop) TimelineRow(leg.arrivalTime,color,stop=true,last=next==null,walking=next?.walking ?: walking) {
                             Text(leg.to.name,style=MaterialTheme.typography.titleMedium,fontWeight=FontWeight.SemiBold)
                             if(dayLabel(leg.end)!=dayLabel(journey.start)) Text(dayLabel(leg.end),style=MaterialTheme.typography.labelMedium)
                         }
                         if(next!=null) {
                             val wait=(next.start-leg.end)/60_000
-                            if(wait>=1) TimelineRow("",MaterialTheme.colorScheme.onSurfaceVariant,walking=true) {
+                            if(wait>=1) TimelineRow(null,MaterialTheme.colorScheme.onSurfaceVariant,walking=true) {
                                 Text("$wait perc várakozás",style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                         }

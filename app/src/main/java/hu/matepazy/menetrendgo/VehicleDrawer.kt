@@ -12,7 +12,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
@@ -84,10 +83,7 @@ fun upcomingVehicleStops(stops: List<VehicleStop>, now: Long): List<VehicleStop>
                         Surface(shape=RoundedCornerShape(24.dp),color=if(index==0) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface) {
                             Row(Modifier.fillMaxWidth().padding(16.dp),verticalAlignment=Alignment.Top) {
                                 Column(Modifier.width(with(LocalDensity.current) {72.sp.toDp()})) {
-                                    Text(timeLabel(stop.scheduled),style=MaterialTheme.typography.titleMedium,fontWeight=FontWeight.Bold,
-                                        color=if(stop.changed) MaterialTheme.colorScheme.error else LocalContentColor.current,
-                                        textDecoration=if(stop.changed) TextDecoration.LineThrough else TextDecoration.None)
-                                    if(stop.changed) Text(timeLabel(stop.arrival),style=MaterialTheme.typography.titleMedium,fontWeight=FontWeight.Bold)
+                                    ScheduledTime(ServiceTime(stop.scheduled,stop.arrival,stop.realtime),style=MaterialTheme.typography.titleMedium)
                                 }
                                 Column(Modifier.weight(1f),verticalArrangement=Arrangement.spacedBy(4.dp)) {
                                     if(index==0) Text("Következő megálló",style=MaterialTheme.typography.labelMedium)
