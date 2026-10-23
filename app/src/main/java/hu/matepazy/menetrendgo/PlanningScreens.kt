@@ -4,6 +4,7 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.shape.*
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowForward
 import androidx.compose.material.icons.automirrored.outlined.DirectionsWalk
@@ -22,9 +23,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalContext
+import org.json.JSONObject
 import kotlinx.coroutines.*
 import java.time.*
 import java.time.format.DateTimeFormatter
@@ -157,9 +161,9 @@ import java.time.format.DateTimeFormatter
     }){Text("Kész")}},dismissButton={TextButton(onClick={stage=0}){Text("Vissza")}})
 }
 
-/** Provider route colors identify services; walking/unknown services use theme roles. */
+/** Rail uses MÁV category colors; other services retain provider route colors. */
 @Composable private fun serviceColor(leg: Leg): Color =
-    leg.routeColor.removePrefix("#").takeIf { it.matches(Regex("[0-9a-fA-F]{6}")) }
+    (trainCategoryColor(leg) ?: leg.routeColor).removePrefix("#").takeIf { it.matches(Regex("[0-9a-fA-F]{6}")) }
         ?.toLongOrNull(16)?.let { Color((0xFF000000L or it).toInt()) }
         ?: MaterialTheme.colorScheme.onSurfaceVariant
 
@@ -183,13 +187,11 @@ private fun serviceType(leg: Leg): String = leg.category.ifBlank { when(leg.mode
 
 @Composable fun RouteBadge(leg: Leg) {
     val color=serviceColor(leg)
-    // A colored swatch retains the exact source color, while text stays readable in both themes.
-    Surface(shape=CircleShape,color=MaterialTheme.colorScheme.surfaceVariant,
+    val foreground=if(color.luminance()>.179f) Color.Black else Color.White
+    Surface(shape=CircleShape,color=color,contentColor=foreground,
         modifier=Modifier.semantics(mergeDescendants=true) { contentDescription="${serviceType(leg)} ${if(leg.walking) "" else leg.route}" }) {
         Row(Modifier.padding(start=6.dp,end=12.dp,top=5.dp,bottom=5.dp),verticalAlignment=Alignment.CenterVertically) {
-            Surface(shape=CircleShape,color=color) {
-                Icon(serviceIcon(leg),null,Modifier.padding(5.dp).size(18.dp),tint=if(color.luminance()>.179f) Color.Black else Color.White)
-            }
+            Icon(serviceIcon(leg),null,Modifier.padding(5.dp).size(18.dp),tint=foreground)
             Spacer(Modifier.width(7.dp))
             Text(if(leg.walking) "Gyalog" else leg.route,style=MaterialTheme.typography.labelLarge,fontWeight=FontWeight.Bold)
         }
@@ -197,16 +199,18 @@ private fun serviceType(leg: Leg): String = leg.category.ifBlank { when(leg.mode
 }
 
 @Composable private fun JourneyEndpoints(journey: Journey) {
+    val departure=journey.boardingLeg
+    val arrival=journey.alightingLeg
     Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.Top) {
         Column(Modifier.weight(1f)) {
-            Text(timeLabel(journey.start),style=MaterialTheme.typography.headlineMedium,fontWeight=FontWeight.Bold)
-            Text(journey.legs.first().from.name,style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(timeLabel(departure.start),style=MaterialTheme.typography.headlineMedium,fontWeight=FontWeight.Bold)
+            Text(departure.from.name,style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)
         }
         Icon(Icons.AutoMirrored.Outlined.ArrowForward,null,Modifier.padding(horizontal=12.dp,vertical=6.dp).size(24.dp),tint=MaterialTheme.colorScheme.onSurfaceVariant)
         Column(Modifier.weight(1f),horizontalAlignment=Alignment.End) {
-            Text(timeLabel(journey.end),style=MaterialTheme.typography.headlineMedium,fontWeight=FontWeight.Bold)
-            Text(journey.legs.last().to.name,style=MaterialTheme.typography.bodyMedium,textAlign=TextAlign.End,color=MaterialTheme.colorScheme.onSurfaceVariant)
-            if(dayLabel(journey.end)!=dayLabel(journey.start)) Text(dayLabel(journey.end),style=MaterialTheme.typography.labelMedium)
+            Text(timeLabel(arrival.end),style=MaterialTheme.typography.headlineMedium,fontWeight=FontWeight.Bold)
+            Text(arrival.to.name,style=MaterialTheme.typography.bodyMedium,textAlign=TextAlign.End,color=MaterialTheme.colorScheme.onSurfaceVariant)
+            if(dayLabel(arrival.end)!=dayLabel(departure.start)) Text(dayLabel(arrival.end),style=MaterialTheme.typography.labelMedium)
         }
     }
 }
@@ -231,8 +235,7 @@ private fun serviceType(leg: Leg): String = leg.category.ifBlank { when(leg.mode
                         Icon(Icons.Outlined.ChevronRight,null,Modifier.padding(start=8.dp))
                     }
                     JourneyEndpoints(journey)
-                    Text("${dayLabel(journey.start)} · ${journey.minutes} perc · ${if(journey.changes==0) "Közvetlen" else "${journey.changes} átszállás"}",style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)
-                    if(journey.legs.any {it.realTime}) Text("Valós idejű menetadatok",style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(listOf(dayLabel(journey.boardingLeg.start),"${journey.serviceMinutes} perc",if(journey.changes==0) "Közvetlen" else "${journey.changes} átszállás").filter {it.isNotBlank()}.joinToString(" · "),style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)
                     if(vm.passes.isNotEmpty()) Text(passAdvice(vm.passes,journey).title,style=MaterialTheme.typography.labelLarge,color=MaterialTheme.colorScheme.primary)
                 }
             }
@@ -265,8 +268,17 @@ private fun serviceType(leg: Leg): String = leg.category.ifBlank { when(leg.mode
 }
 
 @Composable fun JourneyScreen(vm: AppState, journey: Journey, back: () -> Unit, onTrip: (Leg) -> Unit, onMap: () -> Unit) {
+    var menuOpen by remember(journey.key) { mutableStateOf(false) }
+    var rawOpen by remember(journey.key) { mutableStateOf(false) }
     LazyColumn(Modifier.fillMaxSize(),contentPadding=PaddingValues(start=20.dp,top=20.dp,end=20.dp,bottom=20.dp+LocalBottomOverlayInset.current),verticalArrangement=Arrangement.spacedBy(16.dp)) {
-        item {PageTitle("Utazás részletei", "${dayLabel(journey.start)} · ${timeLabel(journey.start)}–${timeLabel(journey.end)} · ${journey.minutes} perc",back)}
+        item {PageTitle("Utazás részletei", listOf(dayLabel(journey.start),"${timeLabel(journey.start)}–${timeLabel(journey.end)}","${journey.minutes} perc").filter {it.isNotBlank()}.joinToString(" · "),back) {
+            if(vm.showRawGraphQl) Box {
+                IconButton(onClick={menuOpen=true}) {Icon(Icons.Outlined.MoreVert,"További lehetőségek")}
+                DropdownMenu(expanded=menuOpen,onDismissRequest={menuOpen=false}) {
+                    DropdownMenuItem(text={Text("Nyers adatok")},onClick={menuOpen=false;rawOpen=true})
+                }
+            }
+        }}
         item { MainButton("Útvonal a térképen",Icons.Outlined.Map,onClick=onMap) }
         item {
             Surface(shape=RoundedCornerShape(32.dp),color=MaterialTheme.colorScheme.surface) {
@@ -323,6 +335,46 @@ private fun serviceType(leg: Leg): String = leg.category.ifBlank { when(leg.mode
             }
         }
         item {val advice=passAdvice(vm.passes,journey);InfoPanel(advice.title,advice.detail)}
+    }
+    if(vm.showRawGraphQl && rawOpen) RawGraphQlSheet(journey.rawGraphQl) {rawOpen=false}
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable private fun RawGraphQlSheet(raw: String?, dismiss: () -> Unit) {
+    val context=LocalContext.current
+    var copied by remember(raw) {mutableStateOf(false)}
+    var lines by remember(raw) {mutableStateOf<List<String>?>(null)}
+    LaunchedEffect(raw) {
+        lines=raw?.let {response -> withContext(Dispatchers.Default) {
+            // Only presentation is formatted. Copy always uses the exact received body.
+            runCatching {JSONObject(response).toString(2)}.getOrDefault(response).lines()
+        }}
+    }
+    ModalBottomSheet(onDismissRequest=dismiss,sheetState=rememberModalBottomSheetState(skipPartiallyExpanded=true)) {
+        Column(Modifier.fillMaxWidth().fillMaxHeight(.94f).padding(horizontal=20.dp),verticalArrangement=Arrangement.spacedBy(12.dp)) {
+            Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically) {
+                Text("Nyers adatok",Modifier.weight(1f),style=MaterialTheme.typography.titleLarge,fontWeight=FontWeight.Bold)
+                TextButton(enabled=raw!=null,onClick={
+                    context.getSystemService(android.content.ClipboardManager::class.java)
+                        .setPrimaryClip(android.content.ClipData.newPlainText("GraphQL-válasz",raw))
+                    copied=true
+                }) {Text(if(copied) "Másolva" else "Másolás")}
+                IconButton(onClick=dismiss) {Icon(Icons.Outlined.Close,"Nyers adatok bezárása")}
+            }
+            Text("A kiválasztott utazást tartalmazó teljes GraphQL-válasz. A behúzás az olvashatóságot segíti; másoláskor az eredeti választ kapod.",
+                style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
+            when {
+                raw==null -> InfoPanel("Nincs eltárolt nyers válasz","Indíts új keresést, majd nyisd meg újra az utazás részleteit.")
+                lines==null -> LinearProgressIndicator(Modifier.fillMaxWidth())
+                else -> SelectionContainer(Modifier.weight(1f)) {
+                    LazyColumn(Modifier.fillMaxSize(),contentPadding=PaddingValues(bottom=24.dp)) {
+                        items(lines.orEmpty()) {line ->
+                            Text(line,style=MaterialTheme.typography.bodySmall,fontFamily=FontFamily.Monospace)
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 

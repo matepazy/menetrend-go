@@ -28,7 +28,7 @@ class PassRulesTest {
     }
     @Test fun nextDayDepartureIsExplicit() {
         assertEquals("Holnap",dayLabel(at("2026-10-23T04:25"),LocalDate.of(2026,10,22)))
-        assertEquals("Ma",dayLabel(at("2026-10-22T23:50"),LocalDate.of(2026,10,22)))
+        assertEquals("",dayLabel(at("2026-10-22T23:50"),LocalDate.of(2026,10,22)))
     }
     @Test fun busWithUnverifiedTerritoryRemainsUnknown() {
         val from=Station("hu","Budapest",47.5,19.0)

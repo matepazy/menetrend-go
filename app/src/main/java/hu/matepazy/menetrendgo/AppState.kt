@@ -13,6 +13,7 @@ class AppState(app: Application) : AndroidViewModel(app) {
     private val prefs = app.getSharedPreferences("menetrendgo", 0)
     private val mav=MavClient()
     var theme by mutableStateOf(prefs.getString("theme", "system").orEmpty()); private set
+    var showRawGraphQl by mutableStateOf(prefs.getBoolean("show_raw_graphql", false)); private set
     var recents by mutableStateOf(readArray("recents").mapNotNull { runCatching { Recent(Station.parse(it.getJSONObject("from")), Station.parse(it.getJSONObject("to"))) }.getOrNull() }); private set
     var passes by mutableStateOf(readArray("passes").mapNotNull { runCatching { Pass.parse(it) }.getOrNull() }); private set
     var from by mutableStateOf<Station?>(null)
@@ -42,6 +43,7 @@ class AppState(app: Application) : AndroidViewModel(app) {
 
     suspend fun stations(query: String) = mav.stations(query)
     fun chooseTheme(value: String) { theme = value; prefs.edit().putString("theme", value).apply() }
+    fun chooseRawGraphQl(enabled: Boolean) { showRawGraphQl=enabled; prefs.edit().putBoolean("show_raw_graphql",enabled).apply() }
     fun clearRecents() { recents = emptyList(); prefs.edit().remove("recents").apply() }
     fun addPass(pass: Pass) {
         passes = passes.filterNot { it.id == pass.id } + pass

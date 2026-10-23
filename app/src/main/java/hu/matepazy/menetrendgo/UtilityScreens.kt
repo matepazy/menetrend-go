@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.shape.*
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.ui.semantics.Role
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
@@ -159,6 +160,16 @@ private val Counties=listOf("Baranya","Bács-Kiskun","Békés","Borsod-Abaúj-Ze
             }
         }}
         } else {
+        item {Glass(Modifier.fillMaxWidth()) {
+            Row(Modifier.fillMaxWidth().heightIn(min=56.dp)
+                .toggleable(value=vm.showRawGraphQl,role=Role.Switch,onValueChange=vm::chooseRawGraphQl),
+                verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(16.dp)) {
+                Text("Nyers GraphQL adatok mutatása",Modifier.weight(1f),style=MaterialTheme.typography.titleMedium)
+                Switch(checked=vm.showRawGraphQl,onCheckedChange=null)
+            }
+            Spacer(Modifier.height(8.dp))
+            Text("Az utazás részleteinél megjelenik a Nyers adatok menüpont.",style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)
+        }}
         item {Glass(Modifier.fillMaxWidth()) {
             Text("Adatforrás",style=MaterialTheme.typography.titleLarge,fontWeight=FontWeight.SemiBold)
             Spacer(Modifier.height(8.dp));Text("Közvetlen MÁV-kapcsolat · OTP GraphQL. Az adatfeldolgozás és a gyorsítótár ezen az eszközön fut. Nincs külön MenetrendGO-kiszolgáló.",color=MaterialTheme.colorScheme.onSurfaceVariant)

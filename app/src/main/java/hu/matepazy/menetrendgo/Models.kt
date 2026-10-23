@@ -9,7 +9,7 @@ val Budapest: ZoneId = ZoneId.of("Europe/Budapest")
 fun timeLabel(millis: Long): String = Instant.ofEpochMilli(millis).atZone(Budapest).format(DateTimeFormatter.ofPattern("HH:mm"))
 fun dayLabel(millis: Long, today: LocalDate = LocalDate.now(Budapest)): String {
     val date=Instant.ofEpochMilli(millis).atZone(Budapest).toLocalDate()
-    return when(date) {today->"Ma";today.plusDays(1)->"Holnap";else->date.format(DateTimeFormatter.ofPattern("yyyy. MM. dd."))}
+    return when(date) {today->"";today.plusDays(1)->"Holnap";else->date.format(DateTimeFormatter.ofPattern("yyyy. MM. dd."))}
 }
 fun JSONArray.objects(): List<JSONObject> = (0 until length()).mapNotNull { optJSONObject(it) }
 fun JSONObject.array(key: String): List<JSONObject> = optJSONArray(key)?.objects().orEmpty()
@@ -24,7 +24,7 @@ data class Vehicle(val id: String, val name: String, val headsign: String, val m
 data class Leg(val mode: String, val start: Long, val end: Long, val from: Station, val to: Station,
     val route: String, val tripId: String, val realTime: Boolean, val departureDelay: Int,
     val intermediate: List<Station>, val geometry: String,
-    val routeColor: String = "", val category: String = "", val headsign: String = "") {
+    val routeColor: String = "", val category: String = "", val headsign: String = "", val routeLongName: String = "") {
     val walking get() = mode == "WALK"
     companion object {
         fun parse(o: JSONObject): Leg {
@@ -35,14 +35,18 @@ data class Leg(val mode: String, val start: Long, val end: Long, val from: Stati
                 route.optString("shortName").ifBlank { trip.optString("tripShortName").ifBlank { o.optString("mode") } },
                 trip.optString("gtfsId"), o.optBoolean("realTime"), o.optInt("departureDelay"),
                 o.array("intermediateStops").map(Station::parse), o.optJSONObject("legGeometry")?.optString("points").orEmpty(),
-                route.optString("color"), trip.optString("trainCategoryName"), trip.optString("tripHeadsign"))
+                route.optString("color"), trip.optString("trainCategoryName"), trip.optString("tripHeadsign"), route.optString("longName"))
         }
     }
 }
-data class Journey(val duration: Int, val legs: List<Leg>) {
+data class Journey(val duration: Int, val legs: List<Leg>, val rawGraphQl: String? = null) {
     val minutes get() = (duration+59)/60
     val start get() = legs.first().start
     val end get() = legs.last().end
+    // Result endpoints describe boarding/alighting, excluding access and egress walks.
+    val boardingLeg get() = legs.firstOrNull { !it.walking } ?: legs.first()
+    val alightingLeg get() = legs.lastOrNull { !it.walking } ?: legs.last()
+    val serviceMinutes get() = ((alightingLeg.end - boardingLeg.start + 59_999) / 60_000).toInt()
     val key get() = legs.joinToString("|") { "${it.tripId}:${it.start}:${it.from.name}" }
     val changes get() = (legs.count { !it.walking } - 1).coerceAtLeast(0)
     companion object { fun parse(o: JSONObject) = Journey(o.optInt("duration"), o.array("legs").map(Leg::parse)) }

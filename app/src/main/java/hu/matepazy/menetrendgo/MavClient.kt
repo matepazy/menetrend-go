@@ -22,7 +22,7 @@ class MavClient {
     private val trips=mutableMapOf<String,Pair<JSONObject,Long>>()
     private val tripLock=Mutex()
 
-    private fun request(path: String, query: String?=null): JSONObject {
+    private fun request(path: String, query: String?=null, onRawResponse: ((String) -> Unit)?=null): JSONObject {
         val connection=URI(root+path).toURL().openConnection() as HttpURLConnection
         try {
             connection.connectTimeout=10_000;connection.readTimeout=40_000
@@ -36,7 +36,9 @@ class MavClient {
                 connection.outputStream.use {it.write(JSONObject().put("query",query).toString().toByteArray(Charsets.UTF_8))}
             }
             check(connection.responseCode in 200..299) {"A MÁV adatai most nem érhetők el (${connection.responseCode}). Próbáld újra."}
-            val body=JSONObject(connection.inputStream.bufferedReader().use {it.readText()})
+            val raw=connection.inputStream.bufferedReader().use {it.readText()}
+            val body=JSONObject(raw)
+            onRawResponse?.invoke(raw)
             if(query==null) return body
             check(!body.has("errors") && body.optJSONObject("data")!=null) {"A MÁV hiányos választ adott. Próbáld újra."}
             return body.getJSONObject("data")
@@ -49,10 +51,11 @@ class MavClient {
         request("/geocode/stations?q="+URLEncoder.encode(query.trim(),"UTF-8")+"&limit=10").array("features").mapNotNull {feature->
             val coords=feature.optJSONObject("geometry")?.optJSONArray("coordinates")
             if(coords==null || coords.length()<2) null else Station(feature.optString("id"),feature.optJSONObject("properties")?.optString("name",query) ?: query,coords.getDouble(1),coords.getDouble(0))
-        }
+        }.distinctBy {it.id}
     }
     suspend fun plan(from: Station,to: Station,time: LocalDateTime,arrive: Boolean): List<Journey> = withContext(Dispatchers.IO) {
-        val data=request("/index/graphql",MavQueries.plan(from.lat,from.lon,to.lat,to.lon,time,arrive))
+        var rawResponse: String? = null
+        val data=request("/index/graphql",MavQueries.plan(from.lat,from.lon,to.lat,to.lon,time,arrive)) {rawResponse=it}
         data.optJSONObject("plan")?.array("itineraries").orEmpty().map {itinerary->
             itinerary.array("legs").forEach {leg->
                 normalizeRoute(leg.optJSONObject("route"),leg.optJSONObject("trip")?.optString("tripShortName"))
@@ -61,7 +64,9 @@ class MavClient {
                     if(place?.optString("name") in listOf("Origin","Destination")) place?.put("name",station.name)
                 }
             }
-            Journey.parse(itinerary)
+            // Keep the original envelope before route/name normalization mutates the JSON.
+            // Each result retains its own search batch, including paginated departures.
+            Journey.parse(itinerary).copy(rawGraphQl=rawResponse)
         }.filter {it.legs.isNotEmpty()}.sortedBy {it.start}
     }
     suspend fun vehicles(): Pair<List<Vehicle>,Long> = withContext(Dispatchers.IO) {

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-23T00:00:00+02:00",
+  "generatedAt": "2026-10-23T12:53:23.406Z",
   "title": "Design System: MenetrendGO",
   "extensions": {
     "colorMeta": {
@@ -463,7 +463,7 @@
   ],
   "narrative": {
     "northStar": "Icy blue ground, ink text, royal-blue actions, fully rounded milky panels",
-    "overview": "MenetrendGO feels calm, legible and direct. Its rounded character comes from solid themed panels and pale tonal separation. A feathered bottom blur softens content behind the floating phone navigation. Large rounded forms hold useful Hungarian text and familiar Material vector icons; the interface does not rely on decorative artwork.\n\nThis records the implemented Android world, adapted from the approved concept A. Roboto, Material controls, system bars and platform interaction anatomy are intentional. The native source is authoritative when a reference image differs. Source: `MainActivity.kt`, `PlanningScreens.kt`, `UtilityScreens.kt`, `NearbyScreen.kt` and bundled `map.html` under `app/src/main`.",
+    "overview": "MenetrendGO feels calm, legible and direct. Its rounded character comes from solid themed panels and pale tonal separation. A feathered bottom blur softens content behind the floating phone navigation. Large rounded forms hold useful Hungarian text and familiar Material vector icons; the interface does not rely on decorative artwork.\n\nThis records the implemented Android world, adapted from the approved concept A. Roboto, Material controls, system bars and platform interaction anatomy are intentional. The native source is authoritative when a reference image differs. Source: `MainActivity.kt`, `PlanningScreens.kt`, `UtilityScreens.kt`, `NearbyScreen.kt` and bundled `map.html` under `app/src/main`. The default-off developer setting “Nyers GraphQL adatok mutatása” reveals a top-right overflow menu on journey details. “Nyers adatok” opens a nearly full-height native bottom sheet with selectable, wrapping monospace JSON, copy and close controls. Formatting runs off the main thread and rows are lazy. The view describes the complete GraphQL response containing the selected journey; copy uses the exact original response body, preserved before normalization and attributed to that journey’s search batch. Raw responses stay in memory; only the toggle is saved locally.",
     "keyCharacteristics": [
       "Icy blue and milky surfaces with strong ink text.",
       "Fully rounded panels, fields, pills and navigation.",

@@ -1,0 +1,11 @@
+# Service card corrections, 2026-10-23
+
+- Removed today's day label and the result-card real-time boilerplate. Tomorrow is computed from the departure's Europe/Budapest calendar date, and later dates remain explicit.
+- Card endpoints use the first boarded service and final alighted service, including their actual station names. Access/egress walks stay in the detailed itinerary. Card duration uses the same station endpoints and includes intervening transfers.
+- Entire service pills use the service color with luminance-selected black/white content. Rail category colors override GraphQL route.color, while other modes retain provider colors. The shared helper also updates itinerary line colors.
+- Official palette source: https://mavplusz.hu/main.56c42ecd9e04ed9c.js, category table Wae / Zae. Extracted category fill colors: IC/EC 274F96, Ex C82227, IR 29803C, S 00A0E3, Z FECC00, G B0CB1F, unclassified rail 000000. Hungarian category names and line-code aliases are recognized.
+- Final assembleDebug, testDebugUnitTest (12 tests, zero failures) and lintDebug passed. New regression coverage checks exclusion of endpoint walking, preservation of transfers/full journey duration, tomorrow versus later dates, category aliases and precedence over GraphQL rail color.
+- Updated emulator-5554 in place with Android Studio's existing debug key. Initial repository-home debug signing did not match the installed app, so the final APK was rebuilt with the existing key. No uninstall or app-data clearing.
+- Real Székesfehérvár autóbusz-állomás to BUDAPEST* results show 15:09 boarding, 16:10 Budapest-Déli arrival, and 61 minutes. A direct IC shows 15:39 to 16:26 and 47 minutes. Neither today nor real-time boilerplate appears in the cards.
+- Inspected actual phone screenshots at 1280x2856/density 480, font scale 1.0 and 1.3, plus expanded 1600x2560/density 240. Evidence: review/service-cards/results-light.png, results-large.png and results-expanded.png. Bus, IC, unclassified rail and passenger-rail full pills are visible. IR/Ex values are unit-tested and source-verified, not separately shown in these runtime results.
+- The app was pinned to its light theme, so changing Android's night mode did not verify the dark app scheme. No dark-theme runtime claim. Original size/density, font scale 1.0 and night mode auto restored.

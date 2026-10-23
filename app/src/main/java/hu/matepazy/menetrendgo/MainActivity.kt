@@ -144,13 +144,14 @@ val LocalBottomOverlayInset = staticCompositionLocalOf { 0.dp }
         Column(Modifier.padding(20.dp),content=content)
     }
 }
-@Composable fun PageTitle(title: String, subtitle: String? = null, back: (() -> Unit)? = null) {
+@Composable fun PageTitle(title: String, subtitle: String? = null, back: (() -> Unit)? = null, actions: @Composable RowScope.() -> Unit = {}) {
     Row(Modifier.fillMaxWidth().padding(vertical=12.dp),verticalAlignment=Alignment.CenterVertically) {
         if(back != null) IconButton(onClick=back) { Icon(Icons.AutoMirrored.Outlined.ArrowBack,"Vissza") }
         Column(Modifier.weight(1f)) {
             Text(title,style=MaterialTheme.typography.headlineSmall,fontWeight=FontWeight.Bold)
             if(subtitle != null) Text(subtitle,style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)
         }
+        actions()
     }
 }
 
