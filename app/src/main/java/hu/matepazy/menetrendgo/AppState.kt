@@ -12,6 +12,14 @@ import java.time.Instant
 class AppState(app: Application) : AndroidViewModel(app) {
     private val prefs = app.getSharedPreferences("menetrendgo", 0)
     private val mav=MavClient()
+    var passGeography by mutableStateOf<PassGeography?>(null); private set
+    init {
+        viewModelScope.launch {
+            passGeography=withContext(Dispatchers.IO) {
+                runCatching {app.assets.open("hungary-counties.txt").reader(Charsets.UTF_8).use {PassGeography(it)}}.getOrNull()
+            }
+        }
+    }
     private val stationSearch=StationSearch(app, mav::stations)
     var theme by mutableStateOf(prefs.getString("theme", "system").orEmpty()); private set
     var showRawGraphQl by mutableStateOf(prefs.getBoolean("show_raw_graphql", false)); private set

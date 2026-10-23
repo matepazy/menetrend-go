@@ -373,7 +373,7 @@ private fun serviceType(leg: Leg): String = hungarianServiceName(leg.category, l
                     }
                     JourneyEndpoints(journey)
                     Text(listOf(dayLabel(journey.boardingLeg.start),"${journey.serviceMinutes} perc",if(journey.changes==0) "Közvetlen" else "${journey.changes} átszállás").filter {it.isNotBlank()}.joinToString(" · "),style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)
-                    if(vm.passes.isNotEmpty()) Text(passAdvice(vm.passes,journey).title,style=MaterialTheme.typography.labelLarge,color=MaterialTheme.colorScheme.primary)
+                    if(vm.passes.isNotEmpty()) Text(passAdvice(vm.passes,journey,vm.passGeography).title,style=MaterialTheme.typography.labelLarge,color=MaterialTheme.colorScheme.primary)
                 }
             }
         }
@@ -479,7 +479,7 @@ private fun serviceType(leg: Leg): String = hungarianServiceName(leg.category, l
                 }
             }
         }
-        item {val advice=passAdvice(vm.passes,journey);InfoPanel(advice.title,advice.detail)}
+        item {val advice=passAdvice(vm.passes,journey,vm.passGeography);InfoPanel(advice.title,advice.detail)}
     }
     if(vm.showRawGraphQl && rawOpen) RawGraphQlSheet(journey.rawGraphQl) {rawOpen=false}
 }

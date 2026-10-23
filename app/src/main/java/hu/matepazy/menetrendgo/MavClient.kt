@@ -129,7 +129,7 @@ object MavQueries {
         transportModes:[{mode:RAIL},{mode:COACH},{mode:BUS},{mode:SUBURBAN_RAILWAY},{mode:TRAMTRAIN},{mode:WALK}],minTransferTime:120,maxWalkDistance:2000) {
         itineraries {duration walkTime waitingTime legs {mode startTime endTime duration distance realTime departureDelay arrivalDelay
         from {name lat lon} to {name lat lon} intermediateStops {name lat lon} legGeometry {points}
-        route {shortName longName mode color} trip {gtfsId tripShortName tripHeadsign trainCategoryName}}}}}
+        route {shortName longName mode color agency {name}} trip {gtfsId tripShortName tripHeadsign trainCategoryName}}}}}
     """.trimIndent()
     val vehicles="""{vehiclePositions(swLat:45.5,swLon:16.1,neLat:48.7,neLon:22.8,modes:[RAIL,RAIL_REPLACEMENT_BUS,COACH,SUBURBAN_RAILWAY,TRAMTRAIN]) {vehicleId lat lon speed heading label trip {gtfsId tripShortName tripHeadsign trainCategoryName route {mode color longName}}}}"""
     fun trip(id: String,day: String): String {

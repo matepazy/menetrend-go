@@ -36,7 +36,7 @@ data class Vehicle(val id: String, val name: String, val headsign: String, val m
 data class Leg(val mode: String, val start: Long, val end: Long, val from: Station, val to: Station,
     val route: String, val tripId: String, val realTime: Boolean, val departureDelay: Int,
     val intermediate: List<Station>, val geometry: String,
-    val routeColor: String = "", val category: String = "", val headsign: String = "", val routeLongName: String = "") {
+    val routeColor: String = "", val category: String = "", val headsign: String = "", val routeLongName: String = "", val agencyName: String = "") {
     val walking get() = mode == "WALK"
     companion object {
         fun parse(o: JSONObject): Leg {
@@ -47,7 +47,7 @@ data class Leg(val mode: String, val start: Long, val end: Long, val from: Stati
                 route.optString("shortName").ifBlank { trip.optString("tripShortName").ifBlank { o.optString("mode") } },
                 trip.optString("gtfsId"), o.optBoolean("realTime"), o.optInt("departureDelay"),
                 o.array("intermediateStops").map(Station::parse), o.optJSONObject("legGeometry")?.optString("points").orEmpty(),
-                route.optString("color"), trip.optString("trainCategoryName"), trip.optString("tripHeadsign"), route.optString("longName"))
+                route.optString("color"), trip.optString("trainCategoryName"), trip.optString("tripHeadsign"), route.optString("longName"), route.optJSONObject("agency")?.optString("name").orEmpty())
         }
     }
 }
@@ -76,16 +76,3 @@ data class Pass(val id: String, val county: String?, val starts: LocalDate, val 
 }
 data class PassAdvice(val title: String, val detail: String, val confirmed: Boolean = false)
 
-/** County boundaries, rail reservation segments and local acceptance are not guessed.
- * Evaluate every leg at travel time, including a journey that crosses midnight.
- */
-fun passAdvice(passes: List<Pass>, journey: Journey): PassAdvice {
-    if (passes.isEmpty()) return PassAdvice("Nincs mentett bérlet", "A Bérletek oldalon hozzáadhatod a bérletedet.")
-    val transit = journey.legs.filterNot { it.walking }
-    if (transit.isEmpty()) return PassAdvice("Gyalogos útvonal", "Ehhez a szakaszhoz nem szükséges bérlet.")
-    val active = passes.filter { p -> transit.all { p.validAt(it.start) && p.validAt(it.end) } }
-    if (active.isEmpty()) return PassAdvice("A mentett bérlet ekkor nem érvényes", "Ellenőrizd az utazás napját és a bérlet kezdő, illetve lejárati dátumát.")
-    return PassAdvice("A járati érvényesség nem igazolható", if (active.all { it.county != null })
-        "A dátum megfelelő. A teljes útvonal megyehatárai és a járati kivételek nem állnak rendelkezésre; ellenőrizd a hivatalos feltételeket."
-        else "A dátum megfelelő. Vasúton helyjegy vagy kiegészítő jegy is kellhet; a helyi és nemzetközi szakaszok feltételei eltérhetnek.")
-}
