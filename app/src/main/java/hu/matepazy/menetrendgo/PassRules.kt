@@ -13,8 +13,11 @@ fun passAdvice(passes: List<Pass>, journey: Journey, geography: PassGeography?=n
     var reservationCheck=false
     val used=linkedSetOf<String>()
     for(leg in transit) {
-        val active=passes.filter {it.validAt(leg.start) && it.validAt(leg.end)}
-        if(active.isEmpty()) return PassAdvice("A mentett bérlet ekkor nem érvényes","Ellenőrizd az utazás napját és a bérlet kezdő, illetve lejárati dátumát.")
+        val dated=passes.filter {it.validAt(leg.start) && it.validAt(leg.end)}
+        if(dated.isEmpty()) return PassAdvice("A mentett bérlet ekkor nem érvényes","Ellenőrizd az utazás napját és a bérlet kezdő, illetve lejárati dátumát.")
+        val active=dated.filter {it.localCity==null}
+        if(active.isEmpty()) return PassAdvice("A helyi bérlet elfogadását ellenőrizd",
+            "A mentett helyi bérlet dátuma megfelelő. A település és a járat szerinti elfogadást a helyi szolgáltatónál ellenőrizd.")
         val operator=leg.agencyName.uppercase(java.util.Locale.ROOT)
         val supported=operator.startsWith("MÁV SZEMÉLYSZÁLLÍTÁSI") || operator.startsWith("MÁV-START") ||
             operator.startsWith("GYSEV") || operator.startsWith("VOLÁNBUSZ") || operator.startsWith("MÁV-HÉV")

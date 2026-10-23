@@ -65,15 +65,22 @@ data class Journey(val duration: Int, val legs: List<Leg>, val rawGraphQl: Strin
     val changes get() = (legs.count { !it.walking } - 1).coerceAtLeast(0)
     companion object { fun parse(o: JSONObject) = Journey(o.optInt("duration"), o.array("legs").map(Leg::parse)) }
 }
-data class Pass(val id: String, val county: String?, val starts: LocalDate, val expires: LocalDate) {
-    val name get() = county?.let { "$it vármegyebérlet" } ?: "Országbérlet"
+data class Pass(val id: String, val county: String?, val starts: LocalDate, val expires: LocalDate,
+                val localCity: String? = null, val thirtyDays: Boolean = expires == starts.plusDays(29)) {
+    val name get() = localCity?.let { "$it · helyi bérlet" } ?: county?.let { "$it vármegyebérlet" } ?: "Országbérlet"
     fun json() = JSONObject().put("id", id).put("county", county ?: "").put("starts", starts.toString()).put("expires", expires.toString())
+        .put("localCity", localCity ?: "").put("thirtyDays", thirtyDays)
     fun validAt(millis: Long): Boolean {
         val day = Instant.ofEpochMilli(millis).atZone(Budapest).toLocalDate()
         return !day.isBefore(starts) && !day.isAfter(expires)
     }
     companion object {
-        fun parse(o: JSONObject) = Pass(o.getString("id"), o.optString("county").ifBlank { null }, LocalDate.parse(o.getString("starts")), LocalDate.parse(o.getString("expires")))
+        fun parse(o: JSONObject): Pass {
+            val starts = LocalDate.parse(o.getString("starts"))
+            val expires = LocalDate.parse(o.getString("expires"))
+            return Pass(o.getString("id"), o.optString("county").ifBlank { null }, starts, expires,
+                o.optString("localCity").ifBlank { null }, o.optBoolean("thirtyDays", expires == starts.plusDays(29)))
+        }
     }
 }
 data class PassAdvice(val title: String, val detail: String, val confirmed: Boolean = false)

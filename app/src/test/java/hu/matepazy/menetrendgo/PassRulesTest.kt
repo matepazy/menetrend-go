@@ -5,6 +5,14 @@ import org.junit.Test
 import java.time.LocalDate
 
 class PassRulesTest {
+    @Test fun localPassNeverActsAsNationalCoverage() {
+        val local = pass.copy(localCity="Székesfehérvár")
+        assertEquals("Székesfehérvár · helyi bérlet", local.name)
+        val result = passAdvice(listOf(local), localJourney(), geography)
+        assertFalse(result.confirmed)
+        assertEquals("A helyi bérlet elfogadását ellenőrizd", result.title)
+        assertTrue(passAdvice(listOf(local, pass), localJourney(), geography).confirmed)
+    }
     private val geography=PassGeography(java.io.File("src/main/assets/hungary-counties.txt").reader())
     private val pass=Pass("test",null,LocalDate.of(2026,10,1),LocalDate.of(2026,10,22))
     private fun at(day: String)=java.time.LocalDateTime.parse(day).atZone(Budapest).toInstant().toEpochMilli()
