@@ -233,3 +233,8 @@ The map is locally bundled Leaflet HTML in a WebView, filling its screen with zo
 - **Don't** use heavy glass blur that compromises information legibility.
 - **Don't** promote mockup sample times, badges or system chrome into product facts.
 - **Don't** substitute map marker styling for the native application color and elevation system.
+
+
+Journey time changes: one shared native time component presents scheduled versus live values in departures, journey timelines and the vehicle drawer. Changed scheduled times are red and struck through; the estimate follows underneath in normal content color. A date is shown for each time when a change crosses midnight. “Élő érkezés” is omitted.
+
+The journey route map is a separate subordinate Operate screen. It fills the available width, with a native back control at top left, map zoom at top right and attribution above system navigation. It has no main navbar, no user-location request and no unrelated vehicle markers. Match selected non-walking trip IDs on their travel date, retain all transfer vehicles, fit route plus available positions initially, and refresh vehicle positions every 75 seconds while foregrounded. Walking sections are dashed. Back returns to the same journey; the all-vehicle Térkép tab remains independent.

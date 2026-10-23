@@ -6,17 +6,17 @@ html,body,#map{height:100%;margin:0;background:#e5edf3;font-family:Roboto,Arial,
 const map=L.map('map',{zoomControl:true}).setView([47.17,19.5],7);
 const status=document.getElementById('status');let tileFailed=false;
 L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> közreműködők'}).on('tileerror',()=>{tileFailed=true;status.textContent='A térképcsempék nem tölthetők be. Ellenőrizd az internetkapcsolatot.';status.style.display='block'}).addTo(map);
-const markers=L.layerGroup().addTo(map),routes=L.layerGroup().addTo(map);let vehicles=[],routeKey='';
+const markers=L.layerGroup().addTo(map),routes=L.layerGroup().addTo(map);let vehicles=[],routeKey='',routeMode=false,routePoints=[],fittedVehicleIds='';
 // Cluster in screen space, so every country-scale target remains independently tappable.
 function draw(){
  markers.clearLayers();
  const visible=vehicles.filter(v=>map.getBounds().pad(.2).contains([v.lat,v.lon]));
  const groups=new Map(),zoom=map.getZoom();
- visible.forEach(v=>{const point=map.latLngToContainerPoint([v.lat,v.lon]);const key=Math.floor(point.x/64)+','+Math.floor(point.y/64);if(!groups.has(key))groups.set(key,[]);groups.get(key).push(v)});
+ visible.forEach(v=>{const point=map.latLngToContainerPoint([v.lat,v.lon]);const key=routeMode?v.id:Math.floor(point.x/64)+','+Math.floor(point.y/64);if(!groups.has(key))groups.set(key,[]);groups.get(key).push(v)});
  groups.forEach(group=>{
   const lat=group.reduce((s,v)=>s+v.lat,0)/group.length,lon=group.reduce((s,v)=>s+v.lon,0)/group.length;
   const hit=document.createElement('div');hit.className='hit';
-  if(group.length>1){
+  if(group.length>1 && !routeMode){
    const label=document.createElement('div');label.className='cluster';label.textContent=group.length;hit.append(label);
    L.marker([lat,lon],{icon:L.divIcon({html:hit,iconSize:[48,48],iconAnchor:[24,24],className:''}),title:group.length+' jármű · nagyítás',keyboard:true}).addTo(markers).on('click',()=>map.fitBounds(group.map(v=>[v.lat,v.lon]),{padding:[48,48],maxZoom:Math.min(19,zoom+3)}));
   }else{
@@ -39,7 +39,11 @@ function draw(){
 // Compose parent is being measured. Use the measured visual viewport explicitly.
 window.resizeMap=()=>{const h=Math.max(1,innerHeight),w=Math.max(1,innerWidth);document.documentElement.style.height=h+'px';document.body.style.height=h+'px';const el=document.getElementById('map');el.style.height=h+'px';el.style.width=w+'px';map.invalidateSize({pan:false});draw()};
 window.addEventListener('resize',window.resizeMap);
-window.updateVehicles=v=>{vehicles=v;window.resizeMap()};map.on('moveend',draw);
+window.setRouteMode=enabled=>{routeMode=enabled;map.zoomControl.setPosition(enabled?'topright':'topleft')};
+window.updateVehicles=v=>{vehicles=v;window.resizeMap();
+ const ids=v.map(item=>item.id).sort().join('|');
+ if(routeMode&&routePoints.length&&ids&&ids!==fittedVehicleIds){map.fitBounds([...routePoints,...v.map(item=>[item.lat,item.lon])],{padding:[50,60]});fittedVehicleIds=ids}
+};map.on('moveend',draw);
 let bottomInset=0;window.setBottomInset=px=>{bottomInset=px;document.documentElement.style.setProperty('--bottom-inset',px+'px');document.getElementById('status').style.bottom=(px+48)+'px';reportLocation()};
 window.centerOn=(lat,lon)=>{map.setView([lat,lon],12)};
 let userLocation=null,userDot=null;
@@ -53,6 +57,6 @@ window.updateLocation=(lat,lon,recenter)=>{
 };
 map.on('moveend resize',reportLocation);
 function decode(encoded){let i=0,lat=0,lng=0,points=[];while(i<encoded.length){let coords=[];for(let c=0;c<2;c++){let shift=0,result=0,b;do{b=encoded.charCodeAt(i++)-63;result|=(b&31)<<shift;shift+=5}while(b>=32 && i<encoded.length);coords.push(result&1?~(result>>1):result>>1)}lat+=coords[0];lng+=coords[1];points.push([lat/1e5,lng/1e5])}return points}
-window.updateRoute=legs=>{window.resizeMap();const key=JSON.stringify(legs);if(key===routeKey)return;routeKey=key;routes.clearLayers();const points=[];legs.forEach(leg=>{const line=leg.geometry?decode(leg.geometry):[[leg.from.lat,leg.from.lon],[leg.to.lat,leg.to.lon]];if(line.length){L.polyline(line,{color:'#2864d9',weight:5,opacity:.85}).addTo(routes);points.push(...line)};[leg.from,leg.to].forEach(s=>L.circleMarker([s.lat,s.lon],{radius:6,color:'#2864d9',fillColor:'white',fillOpacity:1,weight:3}).bindTooltip(s.name).addTo(routes))});if(points.length)map.fitBounds(points,{padding:[30,40]})};
+window.updateRoute=legs=>{window.resizeMap();const key=JSON.stringify(legs);if(key===routeKey)return;routeKey=key;routes.clearLayers();const points=[];legs.forEach(leg=>{const line=leg.geometry?decode(leg.geometry):[[leg.from.lat,leg.from.lon],[leg.to.lat,leg.to.lon]];if(line.length){L.polyline(line,{color:'#2864d9',weight:5,opacity:.85,dashArray:leg.walking?'5 9':null}).addTo(routes);points.push(...line)};[leg.from,leg.to].forEach(s=>L.circleMarker([s.lat,s.lon],{radius:6,color:'#2864d9',fillColor:'white',fillOpacity:1,weight:3}).bindTooltip(s.name).addTo(routes))});routePoints=points;if(points.length){const positions=routeMode?vehicles.map(v=>[v.lat,v.lon]):[];map.fitBounds([...points,...positions],{padding:[50,60]});if(positions.length)fittedVehicleIds=vehicles.map(v=>v.id).sort().join('|')}};
 requestAnimationFrame(window.resizeMap);
 </script></body></html>

@@ -16,6 +16,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -26,7 +27,14 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import org.json.*
 
-@Composable fun NearbyScreen(vm: AppState, journey: Journey?, focusedId: String?) {
+@Composable fun NearbyScreen(vm: AppState, journey: Journey?, focusedId: String?) =
+    TransportMap(vm,journey,focusedId,routeOnly=false)
+
+@Composable fun JourneyMapScreen(vm: AppState, journey: Journey, back: () -> Unit) =
+    TransportMap(vm,journey,null,routeOnly=true,back=back)
+
+/** Shared map renderer. A route screen never requests the user's location or loads unrelated markers. */
+@Composable private fun TransportMap(vm: AppState, journey: Journey?, focusedId: String?, routeOnly: Boolean, back: () -> Unit={}) {
     val context=LocalContext.current
     val bottomInset=LocalBottomOverlayInset.current.value
     var web by remember {mutableStateOf<WebView?>(null)}
@@ -42,12 +50,15 @@ import org.json.*
     val snackbars=remember {SnackbarHostState()}
     var selectedVehicle by vm::mapVehicle
     val onSelect by rememberUpdatedState<(Vehicle) -> Unit>({vehicle -> vm.loadTrip(vehicle.id,java.time.LocalDate.now(Budapest).toString());selectedVehicle=vehicle})
-    val currentVehicles by rememberUpdatedState(vm.vehicles)
+    val visibleVehicles=remember(routeOnly,journey,vm.vehicles,vm.vehicleUpdated) {
+        if(routeOnly && journey!=null) routeVehicles(journey,vm.vehicles,System.currentTimeMillis()) else vm.vehicles
+    }
+    val currentVehicles by rememberUpdatedState(visibleVehicles)
     val permission=rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {granted ->
         allowed=granted
         if(!granted) locationMessage="A helyhozzáférés nélkül kézzel használhatod a térképet."
     }
-    LaunchedEffect(Unit) {if(!allowed) permission.launch(Manifest.permission.ACCESS_COARSE_LOCATION)}
+    LaunchedEffect(Unit) {if(!routeOnly && !allowed) permission.launch(Manifest.permission.ACCESS_COARSE_LOCATION)}
     LaunchedEffect(locationMessage,vm.vehicleError) {
         (locationMessage ?: vm.vehicleError)?.let {snackbars.showSnackbar(it)}
     }
@@ -60,7 +71,7 @@ import org.json.*
             override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
         }
         fun start() {
-            if(!allowed) return
+            if(routeOnly || !allowed) return
             try {
                 val providers=manager.getProviders(true).filter {it!=LocationManager.PASSIVE_PROVIDER}
                 providers.mapNotNull {runCatching {manager.getLastKnownLocation(it)}.getOrNull()}
@@ -83,16 +94,16 @@ import org.json.*
         if(lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) start()
         onDispose {lifecycle.removeObserver(observer);manager.removeUpdates(listener)}
     }
-    LaunchedEffect(ready,vm.vehicles,journey) {
+    LaunchedEffect(ready,visibleVehicles,journey) {
         if(ready) {
-            val array=JSONArray(vm.vehicles.map { vehicle ->
+            val array=JSONArray(visibleVehicles.map { vehicle ->
                 JSONObject().put("id",vehicle.id).put("name",vehicle.name).put("headsign",vehicle.headsign)
                     .put("lat",vehicle.lat).put("lon",vehicle.lon).put("mode",vehicle.mode)
                     .put("color",serviceColorHex(vehicle.badgeLeg()))
                     .put("type",hungarianServiceName(vehicle.category,vehicle.mode))
             })
-            val route=JSONArray(journey?.legs.orEmpty().map {leg->JSONObject().put("geometry",leg.geometry).put("from",leg.from.json()).put("to",leg.to.json())})
-            web?.evaluateJavascript("window.updateVehicles($array);window.updateRoute($route);",null)
+            val route=JSONArray(journey?.legs.orEmpty().map {leg->JSONObject().put("geometry",leg.geometry).put("from",leg.from.json()).put("to",leg.to.json()).put("walking",leg.walking)})
+            web?.evaluateJavascript("window.setRouteMode($routeOnly);window.updateVehicles($array);window.updateRoute($route);",null)
         }
     }
     LaunchedEffect(ready,bottomInset) {if(ready) web?.evaluateJavascript("window.setBottomInset($bottomInset);",null)}
@@ -140,12 +151,15 @@ import org.json.*
                     web=this
                 }
             })
-            if(center==null || !locationVisible) FilledTonalIconButton(onClick={
+            if(!routeOnly && (center==null || !locationVisible)) FilledTonalIconButton(onClick={
                 if(allowed) {recenter=true;if(center==null) locationMessage="Várakozás a helymeghatározásra. Ellenőrizd, hogy be van-e kapcsolva."}
                 else permission.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
             },modifier=Modifier.align(Alignment.BottomEnd).padding(end=14.dp,bottom=LocalBottomOverlayInset.current+52.dp).size(54.dp)) {
                 Icon(Icons.Outlined.MyLocation,"Saját helyzet mutatása")
             }
+        if(routeOnly) FilledTonalIconButton(onClick=back,modifier=Modifier.align(Alignment.TopStart).padding(12.dp).size(48.dp)) {
+            Icon(Icons.AutoMirrored.Outlined.ArrowBack,"Vissza az utazás részleteihez")
+        }
         selectedVehicle?.let {VehicleDrawer(vm,it) {selectedVehicle=null}}
         SnackbarHost(snackbars,Modifier.align(Alignment.BottomCenter).padding(bottom=LocalBottomOverlayInset.current+12.dp))
     }

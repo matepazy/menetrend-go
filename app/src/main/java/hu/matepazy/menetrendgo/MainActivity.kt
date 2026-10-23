@@ -221,6 +221,9 @@ val LocalBottomOverlayInset = staticCompositionLocalOf { 0.dp }
     var tab by rememberSaveable { mutableIntStateOf(if(initialTab == "passes") 2 else 0) }
     var page by rememberSaveable { mutableStateOf("search") }
     var selected by vm::selectedJourney
+    LaunchedEffect(page,selected) {
+        if(page=="routeMap" && selected==null) page="search"
+    }
     var tripId by rememberSaveable { mutableStateOf("") }
     var tripDay by rememberSaveable { mutableStateOf(LocalDate.now(Budapest).toString()) }
     var tracked by vm::trackedJourney
@@ -228,7 +231,7 @@ val LocalBottomOverlayInset = staticCompositionLocalOf { 0.dp }
     val owner = LocalLifecycleOwner.current
     LaunchedEffect(tab, page, tripId, tripDay) {
         owner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-            if(tab == 1 || page == "trip" || page == "journey") {
+            if(tab == 1 || page == "trip" || page == "journey" || page == "routeMap") {
                 while(true) {
                     vm.refreshVehicles()
                     if(page == "trip" && tripId.isNotEmpty()) vm.loadTrip(tripId,tripDay)
@@ -239,6 +242,7 @@ val LocalBottomOverlayInset = staticCompositionLocalOf { 0.dp }
     }
     fun back() {
         when {
+            page == "routeMap" -> page="journey"
             page == "trip" -> page = if(selected != null) "journey" else "search"
             page == "journey" -> { selected=null; page="results" }
             page == "results" -> page="search"
@@ -250,13 +254,13 @@ val LocalBottomOverlayInset = staticCompositionLocalOf { 0.dp }
     BoxWithConstraints(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         val wide = maxWidth >= 700.dp
         val largeFont=LocalDensity.current.fontScale>1.15f
-        Row(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing.only(if(wide) WindowInsetsSides.Top + WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom else WindowInsetsSides.Top + WindowInsetsSides.Horizontal))) {
-            if(wide) NavigationRail(containerColor=MaterialTheme.colorScheme.surface) {
+        Row(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing.only(if(wide || page=="routeMap") WindowInsetsSides.Top + WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom else WindowInsetsSides.Top + WindowInsetsSides.Horizontal))) {
+            if(wide && page!="routeMap") NavigationRail(containerColor=MaterialTheme.colorScheme.surface) {
                 Spacer(Modifier.height(30.dp))
                 destinations.forEachIndexed { index,label -> NavigationRailItem(selected=tab==index,onClick={tab=index;page="search";selected=null},icon={Icon(icons[index],null)},label={Text(label)}) }
             }
             Scaffold(containerColor=Color.Transparent,contentWindowInsets=WindowInsets(0),
-                bottomBar={ if(!wide) {
+                bottomBar={ if(!wide && page!="routeMap") {
                     Surface(Modifier.navigationBarsPadding().padding(horizontal=12.dp,vertical=6.dp),shape=RoundedCornerShape(28.dp),color=MaterialTheme.colorScheme.surface) {
                         Row(Modifier.fillMaxWidth().padding(6.dp),horizontalArrangement=Arrangement.spacedBy(4.dp)) {
                             destinations.forEachIndexed { index,label ->
@@ -283,10 +287,11 @@ val LocalBottomOverlayInset = staticCompositionLocalOf { 0.dp }
             ) { inset ->
                 Box(Modifier.fillMaxSize().padding(top=inset.calculateTopPadding()).imePadding(),contentAlignment=Alignment.TopCenter) {
                     CompositionLocalProvider(LocalBottomOverlayInset provides inset.calculateBottomPadding()) {
-                    FeatheredBottomContent(enabled=!wide && tab!=1,height=inset.calculateBottomPadding()+48.dp) {
-                    Box(Modifier.widthIn(max=if(tab==1) 1600.dp else 760.dp).fillMaxSize()) {
+                    FeatheredBottomContent(enabled=!wide && tab!=1 && page!="routeMap",height=inset.calculateBottomPadding()+48.dp) {
+                    Box(Modifier.widthIn(max=if(page=="routeMap") Dp.Infinity else if(tab==1) 1600.dp else 760.dp).fillMaxSize()) {
                         PredictiveBackPane(enabled=(page!="search" || tab!=0) && vm.mapVehicle==null,onBack=::back,preview={
                             when {
+                                page=="routeMap" && selected!=null -> JourneyScreen(vm,selected!!,{},onTrip={},onMap={})
                                 page=="trip" && selected!=null -> JourneyScreen(vm,selected!!,{},onTrip={},onMap={})
                                 page=="trip" && tab==1 -> NearbyScreen(vm,tracked,focusedVehicle)
                                 page=="journey" -> ResultsScreen(vm,{}) {}
@@ -295,11 +300,12 @@ val LocalBottomOverlayInset = staticCompositionLocalOf { 0.dp }
                         }) {
                         ScreenArrival("$tab:$page") {
                         when {
+                            page=="routeMap" && selected!=null -> JourneyMapScreen(vm,selected!!,::back)
                             page == "trip" -> TripScreen(vm, tripId, tripDay, ::back) { tab=1;page="search";tracked=selected;focusedVehicle=tripId }
                             tab==0 && page=="results" -> ResultsScreen(vm,::back) { selected=it; page="journey" }
                             tab==0 && page=="journey" && selected!=null -> JourneyScreen(vm,selected!!,::back,
                                 onTrip={ leg -> tripId=leg.tripId; tripDay=Instant.ofEpochMilli(leg.start).atZone(Budapest).toLocalDate().toString(); vm.loadTrip(tripId,tripDay); page="trip" },
-                                onMap={ tracked=selected;focusedVehicle=null;tab=1;page="search" })
+                                onMap={ vm.mapVehicle=null;page="routeMap" })
                             tab==0 -> SearchScreen(vm,onPasses={tab=2}) { vm.search();page="results" }
                             tab==1 -> NearbyScreen(vm,tracked,focusedVehicle)
                             tab==2 -> PassesScreen(vm)
