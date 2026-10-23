@@ -39,8 +39,9 @@ import java.time.temporal.ChronoUnit
 internal val Counties=listOf("Baranya","Bács-Kiskun","Békés","Borsod-Abaúj-Zemplén","Csongrád-Csanád","Fejér","Győr-Moson-Sopron","Hajdú-Bihar","Heves","Jász-Nagykun-Szolnok","Komárom-Esztergom","Nógrád","Pest","Somogy","Szabolcs-Szatmár-Bereg","Tolna","Vas","Veszprém","Zala")
 
 @Composable fun PassesScreen(vm: AppState) {
-    var editing by remember {mutableStateOf<Pass?>(null)}
-    var add by remember {mutableStateOf(false)}
+    var editingId by rememberSaveable {mutableStateOf<String?>(null)}
+    val editing=vm.passes.firstOrNull {it.id==editingId}
+    var add by rememberSaveable {mutableStateOf(false)}
     var remove by remember {mutableStateOf<Pass?>(null)}
     val context=LocalContext.current
     var notificationsEnabled by remember {mutableStateOf(NotificationManagerCompat.from(context).areNotificationsEnabled())}
@@ -67,14 +68,14 @@ internal val Counties=listOf("Baranya","Bács-Kiskun","Békés","Borsod-Abaúj-Z
     }
     LazyColumn(Modifier.fillMaxSize(),contentPadding=PaddingValues(start=20.dp,top=20.dp,end=20.dp,bottom=20.dp+LocalBottomOverlayInset.current),verticalArrangement=Arrangement.spacedBy(18.dp)) {
         item {PageTitle("Bérletek","Lejárat és emlékeztetők, egy helyen")}
-        item {MainButton("Bérlet hozzáadása",Icons.Outlined.Add){editing=null;add=true}}
+        item {MainButton("Bérlet hozzáadása",Icons.Outlined.Add){editingId=null;add=true}}
         if(vm.passes.isEmpty()) item {InfoPanel("Mikor jár le a bérleted?","Ország-, vármegye- vagy helyi bérletet is menthetsz. Add meg a rajta szereplő dátumokat. Három és egy nappal a lejárat előtt, majd a lejárat után emlékeztetünk.")}
         items(vm.passes.sortedWith(compareBy<Pass> {it.expires.isBefore(today)}.thenBy {it.expires}),key={it.id}) {pass ->
             Glass(Modifier.fillMaxWidth()) {
                 Row(verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(12.dp)) {
                     Icon(if(pass.localCity!=null) Icons.Outlined.LocationCity else Icons.Outlined.CreditCard,null,tint=MaterialTheme.colorScheme.primary)
                     Text(pass.name,Modifier.weight(1f),style=MaterialTheme.typography.titleLarge,fontWeight=FontWeight.Bold)
-                    IconButton(onClick={editing=pass;add=true}) {Icon(Icons.Outlined.Edit,"${pass.name} szerkesztése")}
+                    IconButton(onClick={editingId=pass.id;add=true}) {Icon(Icons.Outlined.Edit,"${pass.name} szerkesztése")}
                 }
                 Spacer(Modifier.height(16.dp))
                 FlowRow(horizontalArrangement=Arrangement.spacedBy(24.dp),verticalArrangement=Arrangement.spacedBy(12.dp)) {

@@ -25,6 +25,7 @@ Find a journey, inspect its timetable and live vehicle position, and keep track 
 - Timetable search, service details and nearby vehicle map.
 - Refresh every 60–90 seconds; implementation target 75 seconds.
 - User confirmed first-version support for ország- and vármegyebérlet.
+- Local passes can also be recorded with a city name and expiry reminders. Local service acceptance is unverified, so recording one does not confirm journey coverage.
 - Store passes and expiry dates locally, provide expiration notifications, and display eligibility against the selected service. Unknown eligibility must remain unknown rather than imply permission to travel.
 - No official affiliation or live-data accuracy claims.
 
