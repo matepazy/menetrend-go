@@ -11,6 +11,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.sp
 import java.time.Instant
 
 data class ServiceTime(val scheduled: Long, val estimate: Long, val realtime: Boolean) {
@@ -27,8 +28,12 @@ data class ServiceTime(val scheduled: Long, val estimate: Long, val realtime: Bo
 @Composable fun ScheduledTime(time: ServiceTime, modifier: Modifier=Modifier,
     style: TextStyle=MaterialTheme.typography.titleMedium, alignment: Alignment.Horizontal=Alignment.Start) {
     val textAlign=if(alignment==Alignment.End) TextAlign.End else TextAlign.Start
+    val scheduledStyle=if(time.changed) style.copy(
+        fontSize=(style.fontSize.value*.75f).coerceAtLeast(12f).sp,
+        lineHeight=(style.lineHeight.value*.75f).coerceAtLeast(16f).sp
+    ) else style
     Column(modifier,horizontalAlignment=alignment) {
-        Text(timeLabel(time.scheduled),style=style,fontWeight=FontWeight.Bold,textAlign=textAlign,
+        Text(timeLabel(time.scheduled),style=scheduledStyle,fontWeight=FontWeight.Bold,textAlign=textAlign,
             color=if(time.changed) MaterialTheme.colorScheme.error else LocalContentColor.current,
             textDecoration=if(time.changed) TextDecoration.LineThrough else TextDecoration.None)
         if(time.crossesDay) Text(dayLabel(time.scheduled).ifBlank {"Ma"},style=MaterialTheme.typography.labelSmall,textAlign=textAlign)
