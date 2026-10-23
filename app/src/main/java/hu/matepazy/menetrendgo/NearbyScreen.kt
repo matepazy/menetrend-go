@@ -27,11 +27,14 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import org.json.*
 
-@Composable fun NearbyScreen(vm: AppState, journey: Journey?, focusedId: String?) =
-    TransportMap(vm,journey,focusedId,routeOnly=false)
+@Composable fun NearbyScreen(vm: AppState) =
+    TransportMap(vm,null,null,routeOnly=false)
 
 @Composable fun JourneyMapScreen(vm: AppState, journey: Journey, back: () -> Unit) =
     TransportMap(vm,journey,null,routeOnly=true,back=back)
+
+@Composable fun VehicleMapScreen(vm: AppState, tripId: String, back: () -> Unit) =
+    TransportMap(vm,null,tripId,routeOnly=true,back=back)
 
 /** Shared map renderer. A route screen never requests the user's location or loads unrelated markers. */
 @Composable private fun TransportMap(vm: AppState, journey: Journey?, focusedId: String?, routeOnly: Boolean, back: () -> Unit={}) {
@@ -50,8 +53,13 @@ import org.json.*
     val snackbars=remember {SnackbarHostState()}
     var selectedVehicle by vm::mapVehicle
     val onSelect by rememberUpdatedState<(Vehicle) -> Unit>({vehicle -> vm.loadTrip(vehicle.id,java.time.LocalDate.now(Budapest).toString());selectedVehicle=vehicle})
-    val visibleVehicles=remember(routeOnly,journey,vm.vehicles,vm.vehicleUpdated) {
-        if(routeOnly && journey!=null) routeVehicles(journey,vm.vehicles,System.currentTimeMillis()) else vm.vehicles
+    val visibleVehicles=remember(routeOnly,journey,focusedId,vm.vehicles,vm.vehicleUpdated) {
+        when {
+            routeOnly && focusedId!=null -> vehicleForTrip(vm.vehicles,focusedId)
+            routeOnly && journey!=null -> routeVehicles(journey,vm.vehicles,System.currentTimeMillis())
+            routeOnly -> emptyList()
+            else -> vm.vehicles
+        }
     }
     val currentVehicles by rememberUpdatedState(visibleVehicles)
     val permission=rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {granted ->
@@ -116,8 +124,12 @@ import org.json.*
             recenter=false
         }
     }
-    LaunchedEffect(ready,focusedId,vm.vehicles) {
-        if(ready && focusedId!=null) vm.vehicles.find {it.id==focusedId}?.let {web?.evaluateJavascript("window.centerOn(${it.lat},${it.lon});",null)}
+    var focusedOnce by remember(focusedId) {mutableStateOf(false)}
+    LaunchedEffect(ready,focusedId,visibleVehicles) {
+        if(ready && focusedId!=null && !focusedOnce) visibleVehicles.firstOrNull()?.let {
+            web?.evaluateJavascript("window.centerOn(${it.lat},${it.lon});",null)
+            focusedOnce=true
+        }
     }
     DisposableEffect(Unit) {onDispose {web?.removeJavascriptInterface("NativeMap");web?.destroy();web=null}}
     Box(Modifier.fillMaxSize()) {
@@ -158,7 +170,15 @@ import org.json.*
                 Icon(Icons.Outlined.MyLocation,"Saját helyzet mutatása")
             }
         if(routeOnly) FilledTonalIconButton(onClick=back,modifier=Modifier.align(Alignment.TopStart).padding(12.dp).size(48.dp)) {
-            Icon(Icons.AutoMirrored.Outlined.ArrowBack,"Vissza az utazás részleteihez")
+            Icon(Icons.AutoMirrored.Outlined.ArrowBack,if(focusedId!=null) "Vissza a járat menetrendjéhez" else "Vissza az utazás részleteihez")
+        }
+        if(routeOnly && focusedId!=null && visibleVehicles.isEmpty()) Surface(
+            modifier=Modifier.align(Alignment.BottomCenter).padding(16.dp),shape=androidx.compose.foundation.shape.RoundedCornerShape(24.dp),
+            color=MaterialTheme.colorScheme.surface) {
+            Column(Modifier.padding(16.dp),verticalArrangement=Arrangement.spacedBy(8.dp)) {
+                if(vm.vehiclesLoading) LinearProgressIndicator(Modifier.fillMaxWidth())
+                Text(if(vm.vehiclesLoading) "Járműpozíció betöltése…" else "Ehhez a járathoz most nincs élő járműpozíció.",style=MaterialTheme.typography.bodyMedium)
+            }
         }
         selectedVehicle?.let {VehicleDrawer(vm,it) {selectedVehicle=null}}
         SnackbarHost(snackbars,Modifier.align(Alignment.BottomCenter).padding(bottom=LocalBottomOverlayInset.current+12.dp))

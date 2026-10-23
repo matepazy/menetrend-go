@@ -46,3 +46,5 @@ python -m unittest discover -s backend/tests -v
 Backend tests cover coordinate validation, invalid-plan rejection, Budapest timezone conversion, bounded station search, escaped/cached trip IDs and stale snapshots. Kotlin tests cover pass date boundaries, midnight expiry and unknown rail entitlement. Emulator checks and their limits are recorded in `.impeccable/verification.md`.
 
 This app is unofficial and has no affiliation with MÁV. Live service availability depends on upstream public endpoints. No signing keys, production hosting credentials or fabricated timetables are included.
+
+The service timetable’s “Jármű a térképen” action opens a separate map containing only that exact trip’s live vehicle, without the main navigation or journey route. Back returns to the same timetable. Missing positions are shown explicitly; unrelated vehicles never act as a fallback.

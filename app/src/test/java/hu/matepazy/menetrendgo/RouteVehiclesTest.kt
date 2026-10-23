@@ -10,6 +10,12 @@ class RouteVehiclesTest {
     private fun leg(id: String, mode: String="RAIL", day: String="2026-10-23") =
         Leg(mode,at("${day}T12:00"),at("${day}T13:00"),point,point,"S1",id,true,0,emptyList(),"")
     private fun vehicle(id: String)=Vehicle(id,"S1","","RAIL",47.0,19.0)
+    @Test fun focusedMapOnlyShowsTheExactTripEvenWhenRouteNamesMatch() {
+        val positions=listOf(vehicle("other"),vehicle("selected"),vehicle("another"))
+        assertEquals(listOf("selected"),vehicleForTrip(positions,"selected").map {it.id})
+        assertTrue(vehicleForTrip(positions,"missing").isEmpty())
+        assertTrue(vehicleForTrip(positions,"").isEmpty())
+    }
     @Test fun onlySelectedTransitTripIdsAreShown() {
         val journey=Journey(7200,listOf(leg("a"),leg("walk","WALK"),leg("b")))
         assertEquals(listOf("a","b"),routeVehicles(journey,listOf(vehicle("a"),vehicle("other"),vehicle("walk"),vehicle("b")),at("2026-10-23T12:30")).map {it.id})
