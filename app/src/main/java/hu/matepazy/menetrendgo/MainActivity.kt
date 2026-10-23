@@ -11,6 +11,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.compose.PredictiveBackHandler
 import androidx.activity.BackEventCompat
 import android.animation.ValueAnimator
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.*
@@ -259,9 +261,14 @@ val LocalBottomOverlayInset = staticCompositionLocalOf { 0.dp }
                         Row(Modifier.fillMaxWidth().padding(6.dp),horizontalArrangement=Arrangement.spacedBy(4.dp)) {
                             destinations.forEachIndexed { index,label ->
                                 val active=tab==index
-                                val tint=if(active) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                                val tint by animateColorAsState(
+                                    if(active) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                                    tween(AppMotion.Feedback),label="Navigation content")
+                                val selection by animateColorAsState(
+                                    MaterialTheme.colorScheme.primaryContainer.copy(alpha=if(active) .65f else 0f),
+                                    tween(AppMotion.Feedback),label="Navigation selection")
                                 Column(Modifier.weight(1f).clip(RoundedCornerShape(26.dp))
-                                    .background(if(active) MaterialTheme.colorScheme.primaryContainer.copy(alpha=.65f) else Color.Transparent)
+                                    .background(selection)
                                     .selectable(selected=active,role=Role.Tab,onClick={tab=index;page="search";selected=null})
                                     .padding(horizontal=2.dp,vertical=8.dp).heightIn(min=if(largeFont) 64.dp else 48.dp),
                                     horizontalAlignment=Alignment.CenterHorizontally,verticalArrangement=Arrangement.Center) {
@@ -286,6 +293,7 @@ val LocalBottomOverlayInset = staticCompositionLocalOf { 0.dp }
                                 else -> SearchScreen(vm,onPasses={}) {}
                             }
                         }) {
+                        ScreenArrival("$tab:$page") {
                         when {
                             page == "trip" -> TripScreen(vm, tripId, tripDay, ::back) { tab=1;page="search";tracked=selected;focusedVehicle=tripId }
                             tab==0 && page=="results" -> ResultsScreen(vm,::back) { selected=it; page="journey" }
@@ -296,6 +304,7 @@ val LocalBottomOverlayInset = staticCompositionLocalOf { 0.dp }
                             tab==1 -> NearbyScreen(vm,tracked,focusedVehicle,onClearRoute={tracked=null;focusedVehicle=null}) { vehicle -> selected=null;tripId=vehicle.id;tripDay=LocalDate.now(Budapest).toString();vm.loadTrip(tripId,tripDay);page="trip" }
                             tab==2 -> PassesScreen(vm)
                             else -> SettingsScreen(vm)
+                        }
                         }
                         }
                     }

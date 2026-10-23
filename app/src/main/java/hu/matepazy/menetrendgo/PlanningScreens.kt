@@ -1,6 +1,18 @@
 package hu.matepazy.menetrendgo
 
 import androidx.compose.foundation.*
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.shape.*
@@ -65,6 +77,9 @@ import java.time.format.DateTimeFormatter
 @Composable fun SearchScreen(vm: AppState, onPasses: () -> Unit, onSearch: () -> Unit) {
     var picker by remember { mutableStateOf<String?>(null) }
     var datePicker by remember { mutableStateOf(false) }
+    var swaps by remember { mutableIntStateOf(0) }
+    val swapRotation by animateFloatAsState(swaps*180f,
+        tween(AppMotion.Reveal,easing=AppMotion.State),label="Swap stations")
     val focus=LocalFocusManager.current
     fun closePicker() { focus.clearFocus();picker=null }
     BackHandler(picker!=null) { closePicker() }
@@ -78,10 +93,10 @@ import java.time.format.DateTimeFormatter
                 if(picker=="from") StationAutocomplete(vm,"Honnan?",vm.from,Icons.Outlined.TripOrigin,::closePicker) {
                     vm.from=it;vm.selectStation(it);closePicker()
                 } else StopField("Honnan?",vm.from,Icons.Outlined.TripOrigin) { picker="from" }
-                Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically) {
+                Row(Modifier.fillMaxWidth().padding(vertical=12.dp),verticalAlignment=Alignment.CenterVertically) {
                     HorizontalDivider(Modifier.weight(1f),color=MaterialTheme.colorScheme.outlineVariant)
-                    IconButton(onClick={ closePicker();val first=vm.from; vm.from=vm.to;vm.to=first }) {
-                        Icon(Icons.Outlined.SwapVert,"Indulás és érkezés felcserélése",tint=MaterialTheme.colorScheme.primary)
+                    IconButton(onClick={ closePicker();val first=vm.from; vm.from=vm.to;vm.to=first;swaps++ }) {
+                        Icon(Icons.Outlined.SwapVert,"Indulás és érkezés felcserélése",modifier=Modifier.graphicsLayer {rotationZ=swapRotation},tint=MaterialTheme.colorScheme.primary)
                     }
                 }
                 if(picker=="to") StationAutocomplete(vm,"Hová?",vm.to,Icons.Outlined.LocationOn,::closePicker) {
@@ -129,7 +144,11 @@ import java.time.format.DateTimeFormatter
     }
     val query=input.text.trim()
     val requester=remember {FocusRequester()}
+    var revealSuggestions by remember {mutableStateOf(false)}
+    val labelColor by animateColorAsState(if(revealSuggestions) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+        tween(AppMotion.Feedback),label="Station focus label")
     val spotlight=LocalStationFocus.current
+    val focusGutter=with(LocalDensity.current) {20.dp.toPx()}
     val dismiss by rememberUpdatedState(onDismiss)
     val keyboardVisible=WindowInsets.isImeVisible
     var keyboardWasVisible by remember {mutableStateOf(false)}
@@ -145,7 +164,7 @@ import java.time.format.DateTimeFormatter
     var loading by remember { mutableStateOf(false) }
     var error by remember {mutableStateOf<String?>(null)}
     val listState=key(query) {rememberLazyListState()}
-    LaunchedEffect(Unit) {requester.requestFocus()}
+    LaunchedEffect(Unit) {requester.requestFocus();revealSuggestions=true}
     LaunchedEffect(query) {
         results=emptyList();error=null
         if(query.length>=2) {
@@ -161,17 +180,31 @@ import java.time.format.DateTimeFormatter
         } else loading=false
     }
     Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(28.dp)).background(MaterialTheme.colorScheme.surface)
-        .onGloballyPositioned {spotlight.bounds=it.boundsInWindow()}
-        .semantics {paneTitle="Megállókeresés";dismiss {dismiss();true}}
-        .padding(16.dp)) {
-        TextField(input,{input=it},Modifier.fillMaxWidth().focusRequester(requester),singleLine=true,
-            shape=RoundedCornerShape(28.dp),label={Text(label)},placeholder={Text("Település vagy megálló")},
-            leadingIcon={Icon(icon,null)},trailingIcon={IconButton(onClick=onDismiss){Icon(Icons.Outlined.Close,"Megállókeresés bezárása")}},
-            colors=TextFieldDefaults.colors(focusedContainerColor=MaterialTheme.colorScheme.surface,
-                unfocusedContainerColor=MaterialTheme.colorScheme.surface,focusedIndicatorColor=Color.Transparent,
-                unfocusedIndicatorColor=Color.Transparent),
-            keyboardOptions=KeyboardOptions(imeAction=ImeAction.Done),keyboardActions=KeyboardActions(onDone={onDismiss()}))
-        HorizontalDivider(Modifier.padding(horizontal=16.dp),color=MaterialTheme.colorScheme.outlineVariant)
+        .onGloballyPositioned {spotlight.bounds=it.boundsInWindow().inflate(focusGutter)}
+        .semantics {paneTitle="Megállókeresés";dismiss {dismiss();true}}) {
+        // Match StopField's geometry exactly: focus changes editing, never the text anchor.
+        Row(Modifier.padding(horizontal=4.dp,vertical=12.dp).heightIn(min=48.dp),verticalAlignment=Alignment.CenterVertically) {
+            Icon(icon,null,tint=MaterialTheme.colorScheme.primary,modifier=Modifier.size(26.dp))
+            Spacer(Modifier.width(16.dp))
+            Column(Modifier.weight(1f)) {
+                Text(label,style=MaterialTheme.typography.bodyMedium,color=labelColor)
+                BasicTextField(input,{input=it},Modifier.fillMaxWidth().focusRequester(requester)
+                    .semantics {contentDescription=label},singleLine=true,
+                    textStyle=MaterialTheme.typography.titleMedium.copy(color=MaterialTheme.colorScheme.onSurface,fontWeight=FontWeight.SemiBold),
+                    cursorBrush=SolidColor(MaterialTheme.colorScheme.primary),
+                    decorationBox={editor -> Box {
+                        if(input.text.isEmpty()) Text("Megálló kiválasztása",style=MaterialTheme.typography.titleMedium,
+                            fontWeight=FontWeight.SemiBold,color=MaterialTheme.colorScheme.onSurface)
+                        editor()
+                    }},
+                    keyboardOptions=KeyboardOptions(imeAction=ImeAction.Done),keyboardActions=KeyboardActions(onDone={onDismiss()}))
+            }
+            IconButton(onClick=onDismiss) {Icon(Icons.Outlined.Close,"Megállókeresés bezárása")}
+        }
+        AnimatedVisibility(revealSuggestions,
+            enter=expandVertically(tween(AppMotion.Reveal,easing=AppMotion.Arrival),expandFrom=Alignment.Top)+fadeIn(tween(AppMotion.Feedback))) {
+        Column(Modifier.fillMaxWidth().padding(bottom=12.dp)) {
+        HorizontalDivider(color=MaterialTheme.colorScheme.outlineVariant)
         if(loading) LinearProgressIndicator(Modifier.fillMaxWidth().padding(top=8.dp))
         if(error!=null) Text(error!!,color=if(results.isEmpty()) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
             style=MaterialTheme.typography.bodySmall,modifier=Modifier.padding(vertical=8.dp))
@@ -199,6 +232,8 @@ import java.time.format.DateTimeFormatter
                     }
                 }
             }
+        }
+        }
         }
     }
 }
@@ -365,12 +400,20 @@ private fun serviceType(leg: Leg): String = leg.category.ifBlank { when(leg.mode
                                 Text(if(leg.realTime) "Élő adat · eltérés: ${leg.departureDelay/60} perc" else "Menetrend szerint · élő adat nem érhető el",Modifier.padding(top=8.dp),style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
                                 var expanded by remember(journey.key,index) { mutableStateOf(false) }
                                 if(leg.intermediate.isNotEmpty()) {
-                                    TextButton(onClick={expanded=!expanded},contentPadding=PaddingValues(horizontal=0.dp),modifier=Modifier.heightIn(min=48.dp)) {
+                                    val disclosureRotation by animateFloatAsState(if(expanded) 180f else 0f,
+                                        tween(AppMotion.Reveal,easing=AppMotion.State),label="Intermediate stops")
+                                    TextButton(onClick={expanded=!expanded},contentPadding=PaddingValues(horizontal=0.dp),modifier=Modifier.heightIn(min=48.dp)
+                                        .semantics {stateDescription=if(expanded) "Kibontva" else "Összecsukva"}) {
                                         Text("${leg.intermediate.size} köztes megálló",Modifier.weight(1f))
-                                        Icon(if(expanded) Icons.Outlined.ExpandLess else Icons.Outlined.ExpandMore,if(expanded) "Megállók elrejtése" else "Megállók megjelenítése")
+                                        Icon(Icons.Outlined.ExpandMore,if(expanded) "Megállók elrejtése" else "Megállók megjelenítése",
+                                            Modifier.graphicsLayer {rotationZ=disclosureRotation})
                                     }
-                                    if(expanded) leg.intermediate.forEach {stop ->
+                                    AnimatedVisibility(expanded,
+                                        enter=expandVertically(tween(AppMotion.Reveal,easing=AppMotion.Arrival),expandFrom=Alignment.Top)+fadeIn(tween(AppMotion.Feedback)),
+                                        exit=shrinkVertically(tween(AppMotion.Dismiss,easing=AppMotion.State),shrinkTowards=Alignment.Top)+fadeOut(tween(AppMotion.Dismiss))) {
+                                    Column { leg.intermediate.forEach {stop ->
                                         Text(stop.name,Modifier.padding(vertical=8.dp),style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)
+                                    } }
                                     }
                                 }
                                 if(leg.tripId.isNotBlank()) TextButton(onClick={onTrip(leg)},contentPadding=PaddingValues(horizontal=0.dp),modifier=Modifier.heightIn(min=48.dp)) {

@@ -175,7 +175,9 @@ Depth comes from solid themed surfaces and tonal separation. The reusable panel 
 
 Phone content extends behind the floating bar, with no fixed background strip. A bottom-only display-list blur (18dp on Android 12+) covers the measured navigation inset plus 48dp. Its alpha mask goes from transparent at the top to opaque at fraction .55, with a background-color fade from alpha 0 to .82. Navigation controls remain sharp. Android 9–11 use the tonal fade fallback; rail layouts have no bottom veil.
 
-The map retains its own compact marker and zoom-control shadows; those CSS shadows do not define native Compose elevation. Dialogs, sheets, disabled states and pressed feedback continue to use Material behavior. No application-specific motion duration or easing scale has been established.
+The map retains its own compact marker and zoom-control shadows; those CSS shadows do not define native Compose elevation. Dialogs, sheets, disabled states and pressed feedback continue to use Material behavior.
+
+Motion uses the shared `AppMotion` timings: 150ms feedback, 220ms arrivals and expansion, 160ms dismissal. Screen changes use a brief opacity transition with a 6dp vertical settle, without retaining outgoing interactive screens. Phone tab selection blends theme colors; the station-swap icon turns a half rotation; itinerary disclosures rotate and reveal their stops along the existing timeline. Compose respects Android's animator duration scale, including Remove animations. Station editing preserves the resting row's text and icon anchors. The focus scrim fades around a cutout expanded by the search panel's 20dp gutter, aligning it with the outer card edges; suggestions expand below the anchored row. No decorative loops or additional animation dependency are used.
 
 ## Shapes
 
