@@ -283,12 +283,12 @@ val LocalBottomOverlayInset = staticCompositionLocalOf { 0.dp }
             ) { inset ->
                 Box(Modifier.fillMaxSize().padding(top=inset.calculateTopPadding()).imePadding(),contentAlignment=Alignment.TopCenter) {
                     CompositionLocalProvider(LocalBottomOverlayInset provides inset.calculateBottomPadding()) {
-                    FeatheredBottomContent(enabled=!wide,height=inset.calculateBottomPadding()+48.dp) {
+                    FeatheredBottomContent(enabled=!wide && tab!=1,height=inset.calculateBottomPadding()+48.dp) {
                     Box(Modifier.widthIn(max=if(tab==1) 1600.dp else 760.dp).fillMaxSize()) {
-                        PredictiveBackPane(enabled=page!="search" || tab!=0,onBack=::back,preview={
+                        PredictiveBackPane(enabled=(page!="search" || tab!=0) && vm.mapVehicle==null,onBack=::back,preview={
                             when {
                                 page=="trip" && selected!=null -> JourneyScreen(vm,selected!!,{},onTrip={},onMap={})
-                                page=="trip" && tab==1 -> NearbyScreen(vm,tracked,focusedVehicle,onClearRoute={}) {}
+                                page=="trip" && tab==1 -> NearbyScreen(vm,tracked,focusedVehicle)
                                 page=="journey" -> ResultsScreen(vm,{}) {}
                                 else -> SearchScreen(vm,onPasses={}) {}
                             }
@@ -301,7 +301,7 @@ val LocalBottomOverlayInset = staticCompositionLocalOf { 0.dp }
                                 onTrip={ leg -> tripId=leg.tripId; tripDay=Instant.ofEpochMilli(leg.start).atZone(Budapest).toLocalDate().toString(); vm.loadTrip(tripId,tripDay); page="trip" },
                                 onMap={ tracked=selected;focusedVehicle=null;tab=1;page="search" })
                             tab==0 -> SearchScreen(vm,onPasses={tab=2}) { vm.search();page="results" }
-                            tab==1 -> NearbyScreen(vm,tracked,focusedVehicle,onClearRoute={tracked=null;focusedVehicle=null}) { vehicle -> selected=null;tripId=vehicle.id;tripDay=LocalDate.now(Budapest).toString();vm.loadTrip(tripId,tripDay);page="trip" }
+                            tab==1 -> NearbyScreen(vm,tracked,focusedVehicle)
                             tab==2 -> PassesScreen(vm)
                             else -> SettingsScreen(vm)
                         }

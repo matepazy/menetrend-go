@@ -15,23 +15,20 @@ import android.webkit.*
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.*
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
-import kotlinx.coroutines.launch
 import org.json.*
 
-@Composable fun NearbyScreen(vm: AppState, journey: Journey?, focusedId: String?, onClearRoute: () -> Unit, select: (Vehicle) -> Unit) {
+@Composable fun NearbyScreen(vm: AppState, journey: Journey?, focusedId: String?) {
     val context=LocalContext.current
-    val bottomInsetPx=with(androidx.compose.ui.platform.LocalDensity.current) {LocalBottomOverlayInset.current.toPx()}
+    val bottomInset=LocalBottomOverlayInset.current.value
     var web by remember {mutableStateOf<WebView?>(null)}
     var ready by remember {mutableStateOf(false)}
     var center by remember {mutableStateOf<Pair<Double,Double>?>(null)}
@@ -43,7 +40,7 @@ import org.json.*
     val manager=remember {context.getSystemService(LocationManager::class.java)}
     val lifecycle=LocalLifecycleOwner.current.lifecycle
     val snackbars=remember {SnackbarHostState()}
-    var selectedVehicle by remember {mutableStateOf<Vehicle?>(null)}
+    var selectedVehicle by vm::mapVehicle
     val onSelect by rememberUpdatedState<(Vehicle) -> Unit>({vehicle -> vm.loadTrip(vehicle.id,java.time.LocalDate.now(Budapest).toString());selectedVehicle=vehicle})
     val currentVehicles by rememberUpdatedState(vm.vehicles)
     val permission=rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {granted ->
@@ -66,16 +63,20 @@ import org.json.*
             if(!allowed) return
             try {
                 val providers=manager.getProviders(true).filter {it!=LocationManager.PASSIVE_PROVIDER}
-                providers.mapNotNull {manager.getLastKnownLocation(it)}
+                providers.mapNotNull {runCatching {manager.getLastKnownLocation(it)}.getOrNull()}
                     .filter {System.currentTimeMillis()-it.time<120_000}.maxByOrNull {it.time}
                     ?.let {listener.onLocationChanged(it)}
-                val provider=providers.firstOrNull {it==LocationManager.NETWORK_PROVIDER} ?: providers.firstOrNull()
-                if(provider!=null) manager.requestLocationUpdates(provider,15_000L,20f,listener,Looper.getMainLooper())
-                else locationMessage="Kapcsold be a helymeghatározást a saját helyzetedhez."
+                if(providers.isEmpty()) locationMessage="Kapcsold be a helymeghatározást a saját helyzetedhez."
+                providers.forEach {provider ->
+                    runCatching {manager.requestLocationUpdates(provider,15_000L,20f,listener,Looper.getMainLooper())}
+                }
             } catch(e: SecurityException) {locationMessage="Engedélyezd a helyhozzáférést a Beállításokban."}
         }
         val observer=LifecycleEventObserver {_,event ->
-            if(event==Lifecycle.Event.ON_START) start()
+            if(event==Lifecycle.Event.ON_START) {
+                allowed=ContextCompat.checkSelfPermission(context,Manifest.permission.ACCESS_COARSE_LOCATION)==PackageManager.PERMISSION_GRANTED
+                start()
+            }
             if(event==Lifecycle.Event.ON_STOP) manager.removeUpdates(listener)
         }
         lifecycle.addObserver(observer)
@@ -87,13 +88,14 @@ import org.json.*
             val array=JSONArray(vm.vehicles.map { vehicle ->
                 JSONObject().put("id",vehicle.id).put("name",vehicle.name).put("headsign",vehicle.headsign)
                     .put("lat",vehicle.lat).put("lon",vehicle.lon).put("mode",vehicle.mode)
-                    .put("color",trainCategoryColor(vehicle.badgeLeg()) ?: vehicle.routeColor)
+                    .put("color",serviceColorHex(vehicle.badgeLeg()))
                     .put("type",hungarianServiceName(vehicle.category,vehicle.mode))
             })
             val route=JSONArray(journey?.legs.orEmpty().map {leg->JSONObject().put("geometry",leg.geometry).put("from",leg.from.json()).put("to",leg.to.json())})
             web?.evaluateJavascript("window.updateVehicles($array);window.updateRoute($route);",null)
         }
     }
+    LaunchedEffect(ready,bottomInset) {if(ready) web?.evaluateJavascript("window.setBottomInset($bottomInset);",null)}
     LaunchedEffect(ready,center,recenter) {
         val position=center
         if(ready && position!=null) {
@@ -110,6 +112,7 @@ import org.json.*
     Box(Modifier.fillMaxSize()) {
             AndroidView(modifier=Modifier.fillMaxSize(),factory={ctx->
                 WebView(ctx).apply {
+                    if(BuildConfig.DEBUG) WebView.setWebContentsDebuggingEnabled(true)
                     layoutParams=android.view.ViewGroup.LayoutParams(android.view.ViewGroup.LayoutParams.MATCH_PARENT,android.view.ViewGroup.LayoutParams.MATCH_PARENT)
                     settings.javaScriptEnabled=true
                     settings.allowFileAccess=false;settings.allowContentAccess=false
@@ -122,7 +125,7 @@ import org.json.*
                     },"NativeMap")
                     webViewClient=object:WebViewClient() {
                         override fun onPageFinished(view: WebView, url: String) {
-                            view.evaluateJavascript("window.resizeMap && window.resizeMap();window.setBottomInset("+(bottomInsetPx)+");",null)
+                            view.evaluateJavascript("window.resizeMap && window.resizeMap();window.setBottomInset($bottomInset);",null)
                             ready=true
                         }
                         override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {

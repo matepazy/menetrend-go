@@ -308,7 +308,7 @@ import java.time.format.DateTimeFormatter
 
 /** Rail uses MÁV category colors; other services retain provider route colors. */
 @Composable private fun serviceColor(leg: Leg): Color =
-    (trainCategoryColor(leg) ?: leg.routeColor).removePrefix("#").takeIf { it.matches(Regex("[0-9a-fA-F]{6}")) }
+    serviceColorHex(leg).removePrefix("#").takeIf { it.matches(Regex("[0-9a-fA-F]{6}")) }
         ?.toLongOrNull(16)?.let { Color((0xFF000000L or it).toInt()) }
         ?: MaterialTheme.colorScheme.onSurfaceVariant
 

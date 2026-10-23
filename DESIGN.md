@@ -141,7 +141,7 @@ The primary blue draws attention to actions and selected states; cool neutrals c
 
 ### Secondary
 
-- **Map Coach Teal** (`map-coach`): the bundled map's coach marker distinction.
+- **Service colors**: rail categories use the shared MÁV category palette; other modes use provider route colors, with green for HÉV when its provider color is generic white.
 - **Map Cluster Blue** (`map-cluster`): count clusters at wider geographic scales. These are map-specific roles, not additional application action colors.
 
 ### Neutral
@@ -163,7 +163,7 @@ The frontmatter headline weights record the repeated heading treatment; individu
 
 ## Layout
 
-Phone screens are single-column, vertically scrollable and inset from system bars. Most content lists use page padding (20dp) and gaps (16–20dp). The map uses a narrower horizontal inset (16dp), then fills the remaining height. Panels commonly use the page padding internally; the pass editor uses sheet padding (24dp).
+Phone screens are single-column, vertically scrollable and inset from system bars. Most content lists use page padding (20dp) and gaps (16–20dp). The map fills the available screen behind navigation without a page inset or rounded viewport. Panels commonly use the page padding internally; the pass editor uses sheet padding (24dp).
 
 At the implemented wide-layout threshold (700dp), bottom navigation becomes a navigation rail. Main utility content is centered with a maximum width (760dp); the map can expand further (1600dp). The phone navigation surface has horizontal margins (12dp), vertical margins (6dp), inner padding (6dp) and gaps (4dp). Each item's inner content has a minimum height (48dp), growing to (64dp) above the font-scale threshold (1.15), with separate item padding (2dp horizontal, 8dp vertical). Labels may occupy two lines. Scrollable pages extend behind the floating navigation surface; its measured bottom inset is added to list content padding so final actions can scroll clear. The map retains safe control bounds. Safe drawing insets, navigation-bar padding and IME padding belong to the layout.
 
@@ -181,7 +181,7 @@ Motion uses the shared `AppMotion` timings: 150ms feedback, 220ms arrivals and e
 
 ## Shapes
 
-The native theme's shape scale runs from softly rounded small controls to large containers, as recorded in frontmatter. Reusable panels, station rows and bottom navigation use medium corners (28dp). Result cards, dialog surfaces and the map viewport retain large corners (32dp); autocomplete rows use small corners (24dp). Sheet top corners retain extra-large corners (36dp); each phone navigation item has its own rounded corners (26dp). The planning date/time control uses 20dp corners. Buttons, badges and filter chips use pill geometry; circular icon controls remain circular.
+The native theme's shape scale runs from softly rounded small controls to large containers, as recorded in frontmatter. Reusable panels, station rows and bottom navigation use medium corners (28dp). Result cards and dialog surfaces retain large corners (32dp); autocomplete rows use small corners (24dp). Sheet top corners retain extra-large corners (36dp); each phone navigation item has its own rounded corners (26dp). The planning date/time control uses 20dp corners. Buttons, badges and filter chips use pill geometry; circular icon controls remain circular.
 
 **The Rounded Continuity Rule.** New controls and containers should continue the existing rounded family, including overlays and selection states.
 
@@ -215,7 +215,7 @@ The default-off “Nyers GraphQL adatok mutatása” developer setting reveals a
 
 ### Map
 
-The map is locally bundled Leaflet HTML in a WebView, surrounded by native filters, refresh and location controls. It uses runtime OpenStreetMap tiles with visible attribution. Geographic clustering replaces overlapping country-scale vehicle labels; individual targets keep a (48px) hit wrapper. Clusters are count circles; individual markers become compact dots below zoom (12) and labeled pills at closer scales. Routes use primary blue. These HTML pixel values are local map implementation values, not replacements for Android `dp`.
+The map is locally bundled Leaflet HTML in a WebView, filling its screen with zoom and a contextual native location button. Native navigation floats above it; attribution stays clear of its measured inset. Its WebView bypasses display-list backdrop recording to preserve tile rendering. Geographic clustering replaces overlapping country-scale vehicle labels; individual targets keep a (48px) hit wrapper. Clusters are count circles; individual markers show a vector vehicle icon on a service-colored circle at every zoom. Service numbers and names appear in the drawer and accessible marker labels. Color and contrast match native route badges. Location centers once on entry, updates while foregrounded, and exposes recenter only when outside the unobscured viewport. Vehicle taps open a native modal bottom drawer, with origin → destination, upcoming stops, highlighted next stop, and red struck-through scheduled arrival above a differing live time. Android Back dismisses the drawer before leaving the map. Routes use primary blue. HTML pixel values remain local map implementation units.
 
 ## Do's and Don'ts
 

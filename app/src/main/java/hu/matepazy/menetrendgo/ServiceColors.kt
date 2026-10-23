@@ -25,3 +25,9 @@ fun trainCategoryColor(leg: Leg): String? {
     }
     return "000000" // Official unclassified rail fallback; never use the GraphQL rail color.
 }
+
+/** Some HÉV routes expose the generic white rail color instead of a service color. */
+fun serviceColorHex(leg: Leg): String = trainCategoryColor(leg) ?: when {
+    leg.mode=="SUBURBAN_RAILWAY" && leg.routeColor.removePrefix("#").uppercase(Locale.ROOT) in setOf("", "FEFEFE", "FFFFFF") -> "18834B"
+    else -> leg.routeColor
+}

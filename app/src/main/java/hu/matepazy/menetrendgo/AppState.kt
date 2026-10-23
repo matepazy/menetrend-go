@@ -43,6 +43,7 @@ class AppState(app: Application) : AndroidViewModel(app) {
     var detailLoading by mutableStateOf(false); private set
     var selectedJourney by mutableStateOf<Journey?>(null)
     var trackedJourney by mutableStateOf<Journey?>(null)
+    var mapVehicle by mutableStateOf<Vehicle?>(null)
     private var searchJob: Job? = null
     private var detailJob: Job? = null
     private var detailKey = ""

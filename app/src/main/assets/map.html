@@ -1,7 +1,7 @@
 <!doctype html><html lang="hu"><head><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src https://tile.openstreetmap.org data:; connect-src 'none';">
 <style>/* LEAFLET_CSS */
-html,body,#map{height:100%;margin:0;background:#e5edf3;font-family:Roboto,Arial,sans-serif}.leaflet-control-zoom{border-radius:24px!important;overflow:hidden;border:0!important;box-shadow:0 3px 16px #1233!important}.leaflet-control-zoom a{width:48px!important;height:48px!important;line-height:48px!important}.hit{width:48px;height:48px;display:flex;align-items:center;justify-content:center}.cluster{background:#244c86;color:white;border:3px solid white;border-radius:50%;width:34px;height:34px;display:flex;align-items:center;justify-content:center;font:bold 13px Roboto,Arial;box-shadow:0 2px 8px #1234}.vehicle.compact{width:28px;height:28px;min-width:0;padding:0;border-radius:50%}.vehicle svg{width:20px;height:20px;flex-shrink:0}.vehicle{display:flex;align-items:center;justify-content:center;gap:5px}.vehicle{flex-shrink:0;width:max-content;background:#2864d9;color:white;border:2px solid white;border-radius:22px;padding:6px 10px;white-space:nowrap;font:bold 13px Roboto,Arial;box-shadow:0 2px 8px #1234;min-width:20px;text-align:center}.bus{background:#0d687a}#status{position:absolute;z-index:1000;bottom:36px;left:12px;right:78px;background:#f8fbfff2;color:#112d43;border-radius:18px;padding:10px;font-size:12px;display:none}.leaflet-control-attribution{font-size:10px!important;max-width:240px;white-space:normal;margin-right:18px!important;margin-bottom:16px!important;border-radius:12px;padding:4px 8px!important}.leaflet-tooltip{border-radius:16px;padding:10px}
+html,body,#map{height:100%;margin:0;background:#e5edf3;font-family:Roboto,Arial,sans-serif}.leaflet-control-zoom{border-radius:24px!important;overflow:hidden;border:0!important;box-shadow:0 3px 16px #1233!important}.leaflet-control-zoom a{width:48px!important;height:48px!important;line-height:48px!important}.hit{width:48px;height:48px;display:flex;align-items:center;justify-content:center}.cluster{background:#244c86;color:white;border:3px solid white;border-radius:50%;width:34px;height:34px;display:flex;align-items:center;justify-content:center;font:bold 13px Roboto,Arial;box-shadow:0 2px 8px #1234}.vehicle.compact{width:28px;height:28px;min-width:0;padding:0;border-radius:50%}.vehicle svg{width:20px;height:20px;flex-shrink:0}.vehicle{display:flex;align-items:center;justify-content:center;gap:5px}.vehicle{flex-shrink:0;width:max-content;background:#2864d9;color:white;border:2px solid white;border-radius:22px;padding:6px 10px;white-space:nowrap;font:bold 13px Roboto,Arial;box-shadow:0 2px 8px #1234;min-width:20px;text-align:center}.bus{background:#0d687a}#status{position:absolute;z-index:1000;bottom:36px;left:12px;right:78px;background:#f8fbfff2;color:#112d43;border-radius:18px;padding:10px;font-size:12px;display:none}.leaflet-control-attribution{font-size:10px!important;max-width:240px;white-space:normal;margin-right:18px!important;margin-bottom:calc(var(--bottom-inset,0px) + 12px)!important;border-radius:12px;padding:4px 8px!important}.leaflet-tooltip{border-radius:16px;padding:10px}
 </style></head><body><div id="map" role="application" aria-label="Járművek térképe"></div><div id="status"></div><script>/* LEAFLET_JS */</script><script>
 const map=L.map('map',{zoomControl:true}).setView([47.17,19.5],7);
 const status=document.getElementById('status');let tileFailed=false;
@@ -20,7 +20,7 @@ function draw(){
    const label=document.createElement('div');label.className='cluster';label.textContent=group.length;hit.append(label);
    L.marker([lat,lon],{icon:L.divIcon({html:hit,iconSize:[48,48],iconAnchor:[24,24],className:''}),title:group.length+' jármű · nagyítás',keyboard:true}).addTo(markers).on('click',()=>map.fitBounds(group.map(v=>[v.lat,v.lon]),{padding:[48,48],maxZoom:Math.min(19,zoom+3)}));
   }else{
-   const v=group[0],label=document.createElement('div');label.className='vehicle '+(zoom<12?'compact':'');
+   const v=group[0],label=document.createElement('div');label.className='vehicle compact';
    const color=/^[0-9a-f]{6}$/i.test((v.color||'').replace('#',''))?(v.color||'').replace('#',''):'2864d9';
    label.style.backgroundColor='#'+color;
    const rgb=[0,2,4].map(i=>parseInt(color.slice(i,i+2),16)/255).map(c=>c<=.04045?c/12.92:((c+.055)/1.055)**2.4);
@@ -28,7 +28,7 @@ function draw(){
    const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('viewBox','0 0 24 24');svg.setAttribute('fill','currentColor');svg.setAttribute('aria-hidden','true');
    const path=document.createElementNS(svg.namespaceURI,'path');
    path.setAttribute('d',['COACH','BUS','RAIL_REPLACEMENT_BUS'].includes(v.mode)?'M4 16c0 .88.39 1.67 1 2.22V20h2v-2h10v2h2v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4S4 2.5 4 6v10zm3 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm10 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zM6 6h12v5H6z':v.mode==='TRAM'||v.mode==='TRAMTRAIN'?'M19 16V6c0-2-2-2.5-5-2.7L15 2h3V1H6v1h7l-1 1.2C8 3.2 5 3.5 5 6v10c0 1.5 1 2.7 2.3 3.2L6 21v1h2l2-2h4l2 2h2v-1l-1.3-1.8C18 18.7 19 17.5 19 16zM7 6h10v6H7zm1.5 12a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm7 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z':'M12 2C8 2 4 2.5 4 6v10c0 1.93 1.57 3.5 3.5 3.5L6 21v1h2l2-2h4l2 2h2v-1l-1.5-1.5c1.93 0 3.5-1.57 3.5-3.5V6c0-3.5-3.58-4-8-4zM6 6h5v5H6zm7 0h5v5h-5zM8.5 17a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm7 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z');
-   svg.append(path);label.append(svg);if(zoom>=12){const number=document.createElement('span');number.textContent=v.name;label.append(number)}hit.append(label);
+   svg.append(path);label.append(svg);hit.append(label);
    const marker=L.marker([v.lat,v.lon],{icon:L.divIcon({html:hit,iconSize:[48,48],iconAnchor:[24,24],className:''}),keyboard:true,title:v.type+' '+v.name+' '+v.headsign}).addTo(markers);
    const tip=document.createElement('span');tip.textContent=v.name+' · '+v.headsign;marker.bindTooltip(tip);marker.on('click',()=>NativeMap.selectVehicle(v.id));
   }
@@ -40,10 +40,10 @@ function draw(){
 window.resizeMap=()=>{const h=Math.max(1,innerHeight),w=Math.max(1,innerWidth);document.documentElement.style.height=h+'px';document.body.style.height=h+'px';const el=document.getElementById('map');el.style.height=h+'px';el.style.width=w+'px';map.invalidateSize({pan:false});draw()};
 window.addEventListener('resize',window.resizeMap);
 window.updateVehicles=v=>{vehicles=v;window.resizeMap()};map.on('moveend',draw);
-window.setBottomInset=px=>{document.querySelector('.leaflet-control-attribution').style.marginBottom=(px+12)+'px';document.getElementById('status').style.bottom=(px+48)+'px'};
+let bottomInset=0;window.setBottomInset=px=>{bottomInset=px;document.documentElement.style.setProperty('--bottom-inset',px+'px');document.getElementById('status').style.bottom=(px+48)+'px';reportLocation()};
 window.centerOn=(lat,lon)=>{map.setView([lat,lon],12)};
 let userLocation=null,userDot=null;
-function reportLocation(){if(window.NativeMap) NativeMap.locationInView(!!userLocation&&map.getBounds().contains(userLocation))}
+function reportLocation(){const p=userLocation&&map.latLngToContainerPoint(userLocation),size=map.getSize();if(window.NativeMap) NativeMap.locationInView(!!p&&p.x>=8&&p.x<=size.x-8&&p.y>=8&&p.y<=size.y-bottomInset-32)}
 window.updateLocation=(lat,lon,recenter)=>{
  userLocation=L.latLng(lat,lon);
  if(!userDot) userDot=L.circleMarker(userLocation,{radius:8,color:'#fff',weight:3,fillColor:'#2864d9',fillOpacity:1,interactive:false}).addTo(map);
