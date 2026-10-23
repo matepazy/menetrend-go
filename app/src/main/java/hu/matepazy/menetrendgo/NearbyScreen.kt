@@ -3,6 +3,12 @@ package hu.matepazy.menetrendgo
 import android.Manifest
 import android.content.pm.PackageManager
 import android.location.LocationManager
+import android.location.Location
+import android.location.LocationListener
+import android.os.Bundle
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import android.os.Handler
 import android.os.Looper
 import android.webkit.*
@@ -30,27 +36,51 @@ import org.json.*
     var ready by remember {mutableStateOf(false)}
     var center by remember {mutableStateOf<Pair<Double,Double>?>(null)}
     var locationMessage by remember {mutableStateOf<String?>(null)}
-    var locating by remember {mutableStateOf(false)}
-    val scope=rememberCoroutineScope()
+    var locationVisible by remember {mutableStateOf(false)}
+    var recenter by remember {mutableStateOf(false)}
+    var hasCentered by remember {mutableStateOf(false)}
+    var allowed by remember {mutableStateOf(ContextCompat.checkSelfPermission(context,Manifest.permission.ACCESS_COARSE_LOCATION)==PackageManager.PERMISSION_GRANTED)}
+    val manager=remember {context.getSystemService(LocationManager::class.java)}
+    val lifecycle=LocalLifecycleOwner.current.lifecycle
+    val snackbars=remember {SnackbarHostState()}
     val onSelect by rememberUpdatedState(select)
     val currentVehicles by rememberUpdatedState(vm.vehicles)
-    fun locate() {
-        val manager=context.getSystemService(LocationManager::class.java)
-        locating=true;locationMessage=null
-        try {
-            val providers=manager.getProviders(true)
-            val last=providers.mapNotNull {runCatching {manager.getLastKnownLocation(it)}.getOrNull()}.maxByOrNull {it.time}
-            if(last!=null && System.currentTimeMillis()-last.time<30*60_000) {center=last.latitude to last.longitude;locating=false}
-            else if(android.os.Build.VERSION.SDK_INT>=30 && manager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
-                manager.getCurrentLocation(LocationManager.NETWORK_PROVIDER,null,context.mainExecutor) {loc->
-                    locating=false
-                    if(loc!=null) center=loc.latitude to loc.longitude else locationMessage="Nem sikerült meghatározni a helyed. Mozgasd a térképet a keresett területre."
-                }
-                Handler(Looper.getMainLooper()).postDelayed({if(locating){locating=false;locationMessage="A helymeghatározás túl sokáig tart. A térkép kézzel is mozgatható."}},15_000)
-            } else {locating=false;locationMessage="Kapcsold be a helymeghatározást, vagy mozgasd a térképet a keresett területre."}
-        } catch(e: SecurityException) {locating=false;locationMessage="A helyhozzáférés nincs engedélyezve. A térképet kézzel is használhatod."}
+    val permission=rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {granted ->
+        allowed=granted
+        if(!granted) locationMessage="A helyhozzáférés nélkül kézzel használhatod a térképet."
     }
-    val permission=rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {granted->if(granted) locate() else locationMessage="A helyhozzáférés nélkül kézzel választhatsz területet a térképen."}
+    LaunchedEffect(Unit) {if(!allowed) permission.launch(Manifest.permission.ACCESS_COARSE_LOCATION)}
+    LaunchedEffect(locationMessage,vm.vehicleError) {
+        (locationMessage ?: vm.vehicleError)?.let {snackbars.showSnackbar(it)}
+    }
+    DisposableEffect(allowed,lifecycle) {
+        val listener=object:LocationListener {
+            override fun onLocationChanged(location: Location) {center=location.latitude to location.longitude}
+            override fun onProviderEnabled(provider: String) {}
+            override fun onProviderDisabled(provider: String) {locationMessage="Kapcsold be a helymeghatározást a saját helyzetedhez."}
+            @Deprecated("Legacy Android callback")
+            override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
+        }
+        fun start() {
+            if(!allowed) return
+            try {
+                val providers=manager.getProviders(true).filter {it!=LocationManager.PASSIVE_PROVIDER}
+                providers.mapNotNull {manager.getLastKnownLocation(it)}
+                    .filter {System.currentTimeMillis()-it.time<120_000}.maxByOrNull {it.time}
+                    ?.let {listener.onLocationChanged(it)}
+                val provider=providers.firstOrNull {it==LocationManager.NETWORK_PROVIDER} ?: providers.firstOrNull()
+                if(provider!=null) manager.requestLocationUpdates(provider,15_000L,20f,listener,Looper.getMainLooper())
+                else locationMessage="Kapcsold be a helymeghatározást a saját helyzetedhez."
+            } catch(e: SecurityException) {locationMessage="Engedélyezd a helyhozzáférést a Beállításokban."}
+        }
+        val observer=LifecycleEventObserver {_,event ->
+            if(event==Lifecycle.Event.ON_START) start()
+            if(event==Lifecycle.Event.ON_STOP) manager.removeUpdates(listener)
+        }
+        lifecycle.addObserver(observer)
+        if(lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) start()
+        onDispose {lifecycle.removeObserver(observer);manager.removeUpdates(listener)}
+    }
     LaunchedEffect(ready,vm.vehicles,journey) {
         if(ready) {
             val array=JSONArray(vm.vehicles.map { vehicle ->
@@ -63,7 +93,15 @@ import org.json.*
             web?.evaluateJavascript("window.updateVehicles($array);window.updateRoute($route);",null)
         }
     }
-    LaunchedEffect(ready,center) {if(ready && center!=null) web?.evaluateJavascript("window.centerOn(${center!!.first},${center!!.second});",null)}
+    LaunchedEffect(ready,center,recenter) {
+        val position=center
+        if(ready && position!=null) {
+            val move=recenter || (!hasCentered && journey==null && focusedId==null)
+            web?.evaluateJavascript("window.updateLocation(${position.first},${position.second},$move);",null)
+            hasCentered=true
+            recenter=false
+        }
+    }
     LaunchedEffect(ready,focusedId,vm.vehicles) {
         if(ready && focusedId!=null) vm.vehicles.find {it.id==focusedId}?.let {web?.evaluateJavascript("window.centerOn(${it.lat},${it.lon});",null)}
     }
@@ -78,6 +116,7 @@ import org.json.*
                     settings.mixedContentMode=WebSettings.MIXED_CONTENT_NEVER_ALLOW
                     settings.userAgentString="MenetrendGO/${BuildConfig.VERSION_NAME} (Android; https://github.com/matepazy/menetrend-go)"
                     addJavascriptInterface(object {
+                        @JavascriptInterface fun locationInView(visible: Boolean) {Handler(Looper.getMainLooper()).post {locationVisible=visible}}
                         @JavascriptInterface fun selectVehicle(id: String) {Handler(Looper.getMainLooper()).post {currentVehicles.find {it.id==id}?.let(onSelect)}}
                     },"NativeMap")
                     webViewClient=object:WebViewClient() {
@@ -97,10 +136,12 @@ import org.json.*
                     web=this
                 }
             })
-            FilledTonalIconButton(onClick={
-                if(ContextCompat.checkSelfPermission(context,Manifest.permission.ACCESS_COARSE_LOCATION)==PackageManager.PERMISSION_GRANTED) locate() else permission.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
-            },modifier=Modifier.align(Alignment.BottomEnd).padding(end=14.dp,bottom=LocalBottomOverlayInset.current+52.dp).size(54.dp),enabled=!locating) {
-                Icon(Icons.Outlined.MyLocation,if(locating) "Helymeghatározás folyamatban" else "Járművek a közelemben")
+            if(center==null || !locationVisible) FilledTonalIconButton(onClick={
+                if(allowed) {recenter=true;if(center==null) locationMessage="Várakozás a helymeghatározásra. Ellenőrizd, hogy be van-e kapcsolva."}
+                else permission.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
+            },modifier=Modifier.align(Alignment.BottomEnd).padding(end=14.dp,bottom=LocalBottomOverlayInset.current+52.dp).size(54.dp)) {
+                Icon(Icons.Outlined.MyLocation,"Saját helyzet mutatása")
             }
+        SnackbarHost(snackbars,Modifier.align(Alignment.BottomCenter).padding(bottom=LocalBottomOverlayInset.current+12.dp))
     }
 }
