@@ -83,7 +83,9 @@ class MavClient {
                     val id=trip?.optString("gtfsId").orEmpty()
                     if(id.isBlank() || v.isNull("lat") || v.isNull("lon")) null else Vehicle(id,
                         trip!!.optString("tripShortName").ifBlank {v.optString("label").ifBlank {"Járat"}},
-                        trip.optString("tripHeadsign"),trip.optJSONObject("route")?.optString("mode").orEmpty(),v.getDouble("lat"),v.getDouble("lon"))
+                        trip.optString("tripHeadsign"),trip.optJSONObject("route")?.optString("mode").orEmpty(),v.getDouble("lat"),v.getDouble("lon"),
+                        trip.optJSONObject("route")?.optString("color").orEmpty(),trip.optString("trainCategoryName"),
+                        trip.optJSONObject("route")?.optString("longName").orEmpty())
                 }
                 (items to System.currentTimeMillis()/1000).also {vehicleCache=it}
             }
@@ -129,7 +131,7 @@ object MavQueries {
         from {name lat lon} to {name lat lon} intermediateStops {name lat lon} legGeometry {points}
         route {shortName longName mode color} trip {gtfsId tripShortName tripHeadsign trainCategoryName}}}}}
     """.trimIndent()
-    val vehicles="""{vehiclePositions(swLat:45.5,swLon:16.1,neLat:48.7,neLon:22.8,modes:[RAIL,RAIL_REPLACEMENT_BUS,COACH,SUBURBAN_RAILWAY,TRAMTRAIN]) {vehicleId lat lon speed heading label trip {gtfsId tripShortName tripHeadsign route {mode}}}}"""
+    val vehicles="""{vehiclePositions(swLat:45.5,swLon:16.1,neLat:48.7,neLon:22.8,modes:[RAIL,RAIL_REPLACEMENT_BUS,COACH,SUBURBAN_RAILWAY,TRAMTRAIN]) {vehicleId lat lon speed heading label trip {gtfsId tripShortName tripHeadsign trainCategoryName route {mode color longName}}}}"""
     fun trip(id: String,day: String): String {
         require(id.length in 1..250);LocalDate.parse(day)
         return """{trip(id:${quote(id)},serviceDay:${quote(day)}) {gtfsId tripHeadsign trainCategoryName trainName tripShortName route {shortName longName(language:"hu")} stoptimes {serviceDay realtime stop {name lat lon platformCode} realtimeArrival realtimeDeparture arrivalDelay departureDelay scheduledArrival scheduledDeparture}}}"""

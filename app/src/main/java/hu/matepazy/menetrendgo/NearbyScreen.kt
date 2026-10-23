@@ -25,12 +25,12 @@ import org.json.*
 
 @Composable fun NearbyScreen(vm: AppState, journey: Journey?, focusedId: String?, onClearRoute: () -> Unit, select: (Vehicle) -> Unit) {
     val context=LocalContext.current
+    val bottomInsetPx=with(androidx.compose.ui.platform.LocalDensity.current) {LocalBottomOverlayInset.current.toPx()}
     var web by remember {mutableStateOf<WebView?>(null)}
     var ready by remember {mutableStateOf(false)}
     var center by remember {mutableStateOf<Pair<Double,Double>?>(null)}
     var locationMessage by remember {mutableStateOf<String?>(null)}
     var locating by remember {mutableStateOf(false)}
-    var filter by remember {mutableStateOf("Összes")}
     val scope=rememberCoroutineScope()
     val onSelect by rememberUpdatedState(select)
     val currentVehicles by rememberUpdatedState(vm.vehicles)
@@ -51,10 +51,14 @@ import org.json.*
         } catch(e: SecurityException) {locating=false;locationMessage="A helyhozzáférés nincs engedélyezve. A térképet kézzel is használhatod."}
     }
     val permission=rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {granted->if(granted) locate() else locationMessage="A helyhozzáférés nélkül kézzel választhatsz területet a térképen."}
-    LaunchedEffect(ready,vm.vehicles,journey,filter) {
+    LaunchedEffect(ready,vm.vehicles,journey) {
         if(ready) {
-            val vehicles=vm.vehicles.filter {filter=="Összes" || if(filter=="Vonat") it.mode in listOf("RAIL","SUBURBAN_RAILWAY","TRAMTRAIN") else it.mode in listOf("COACH","BUS","RAIL_REPLACEMENT_BUS")}
-            val array=JSONArray(vehicles.map {JSONObject().put("id",it.id).put("name",it.name).put("headsign",it.headsign).put("lat",it.lat).put("lon",it.lon).put("mode",it.mode)})
+            val array=JSONArray(vm.vehicles.map { vehicle ->
+                JSONObject().put("id",vehicle.id).put("name",vehicle.name).put("headsign",vehicle.headsign)
+                    .put("lat",vehicle.lat).put("lon",vehicle.lon).put("mode",vehicle.mode)
+                    .put("color",trainCategoryColor(vehicle.badgeLeg()) ?: vehicle.routeColor)
+                    .put("type",hungarianServiceName(vehicle.category,vehicle.mode))
+            })
             val route=JSONArray(journey?.legs.orEmpty().map {leg->JSONObject().put("geometry",leg.geometry).put("from",leg.from.json()).put("to",leg.to.json())})
             web?.evaluateJavascript("window.updateVehicles($array);window.updateRoute($route);",null)
         }
@@ -64,19 +68,7 @@ import org.json.*
         if(ready && focusedId!=null) vm.vehicles.find {it.id==focusedId}?.let {web?.evaluateJavascript("window.centerOn(${it.lat},${it.lon});",null)}
     }
     DisposableEffect(Unit) {onDispose {web?.removeJavascriptInterface("NativeMap");web?.destroy();web=null}}
-    Column(Modifier.fillMaxSize().padding(horizontal=16.dp).padding(bottom=LocalBottomOverlayInset.current)) {
-        PageTitle(if(journey==null) "Térkép" else "Az utad a térképen", "Koppints egy járműre a megállókért")
-        FlowRow(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(8.dp),verticalArrangement=Arrangement.spacedBy(4.dp)) {
-            listOf("Összes","Vonat","Busz").forEach {label->FilterChip(filter==label,{filter=label},label={Text(label)},shape=CircleShape)}
-            IconButton(onClick={scope.launch {vm.refreshVehicles()}},enabled=!vm.vehiclesLoading) {Icon(Icons.Outlined.Refresh,"Járműadatok frissítése")}
-        }
-        val age=System.currentTimeMillis()/1000-vm.vehicleUpdated
-        if(vm.vehicleUpdated>0) Text(if(age>180) "Régi adat · utolsó frissítés: ${timeLabel(vm.vehicleUpdated*1000)}" else "Frissítve: ${timeLabel(vm.vehicleUpdated*1000)} · 75 mp-enként",style=MaterialTheme.typography.bodySmall,color=if(age>180) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,modifier=Modifier.padding(bottom=10.dp))
-        if(vm.vehicleError!=null) Text(vm.vehicleError!!,style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.error,modifier=Modifier.padding(bottom=8.dp))
-        if(!vm.vehiclesLoading && vm.vehicleError==null && vm.vehicleUpdated>0 && vm.vehicles.isEmpty()) Text("Most nincs megjeleníthető járműadat.",style=MaterialTheme.typography.bodySmall,modifier=Modifier.padding(bottom=8.dp))
-        if(locationMessage!=null) Text(locationMessage!!,style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant,modifier=Modifier.padding(bottom=8.dp))
-        if(vm.vehiclesLoading) LinearProgressIndicator(Modifier.fillMaxWidth())
-        Box(Modifier.weight(1f).fillMaxWidth().clip(RoundedCornerShape(32.dp))) {
+    Box(Modifier.fillMaxSize()) {
             AndroidView(modifier=Modifier.fillMaxSize(),factory={ctx->
                 WebView(ctx).apply {
                     layoutParams=android.view.ViewGroup.LayoutParams(android.view.ViewGroup.LayoutParams.MATCH_PARENT,android.view.ViewGroup.LayoutParams.MATCH_PARENT)
@@ -90,7 +82,7 @@ import org.json.*
                     },"NativeMap")
                     webViewClient=object:WebViewClient() {
                         override fun onPageFinished(view: WebView, url: String) {
-                            view.evaluateJavascript("window.resizeMap && window.resizeMap();",null)
+                            view.evaluateJavascript("window.resizeMap && window.resizeMap();window.setBottomInset("+(bottomInsetPx)+");",null)
                             ready=true
                         }
                         override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
@@ -107,11 +99,8 @@ import org.json.*
             })
             FilledTonalIconButton(onClick={
                 if(ContextCompat.checkSelfPermission(context,Manifest.permission.ACCESS_COARSE_LOCATION)==PackageManager.PERMISSION_GRANTED) locate() else permission.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
-            },modifier=Modifier.align(Alignment.BottomEnd).padding(end=14.dp,bottom=34.dp).size(54.dp),enabled=!locating) {
+            },modifier=Modifier.align(Alignment.BottomEnd).padding(end=14.dp,bottom=LocalBottomOverlayInset.current+52.dp).size(54.dp),enabled=!locating) {
                 Icon(Icons.Outlined.MyLocation,if(locating) "Helymeghatározás folyamatban" else "Járművek a közelemben")
             }
-        }
-        if(journey!=null || focusedId!=null) TextButton(onClick=onClearRoute){Text("Követés / útvonal elrejtése")}
-        Spacer(Modifier.height(8.dp))
     }
 }

@@ -26,7 +26,13 @@ data class Station(val id: String, val name: String, val lat: Double, val lon: D
 data class Recent(val from: Station, val to: Station) {
     fun json() = JSONObject().put("from", from.json()).put("to", to.json())
 }
-data class Vehicle(val id: String, val name: String, val headsign: String, val mode: String, val lat: Double, val lon: Double)
+data class Vehicle(val id: String, val name: String, val headsign: String, val mode: String, val lat: Double, val lon: Double,
+    val routeColor: String = "", val category: String = "", val routeLongName: String = "") {
+    fun badgeLeg(): Leg {
+        val point = Station("", "", lat, lon)
+        return Leg(mode, 0, 0, point, point, name, id, true, 0, emptyList(), "", routeColor, category, headsign, routeLongName)
+    }
+}
 data class Leg(val mode: String, val start: Long, val end: Long, val from: Station, val to: Station,
     val route: String, val tripId: String, val realTime: Boolean, val departureDelay: Int,
     val intermediate: List<Station>, val geometry: String,
