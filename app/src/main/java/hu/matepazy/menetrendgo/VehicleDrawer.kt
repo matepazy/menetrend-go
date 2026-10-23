@@ -93,7 +93,7 @@ fun upcomingVehicleStops(stops: List<VehicleStop>, now: Long): List<VehicleStop>
                                     if(index==0) Text("Következő megálló",style=MaterialTheme.typography.labelMedium)
                                     Text(stop.name,style=MaterialTheme.typography.titleMedium,fontWeight=if(index==0) FontWeight.Bold else FontWeight.Medium)
                                     if(stop.platform.isNotBlank() && stop.platform!="null") Text("Vágány / kocsiállás: ${stop.platform}",style=MaterialTheme.typography.bodySmall)
-                                    Text(if(stop.realtime) "Élő érkezés" else "Menetrendi érkezés",style=MaterialTheme.typography.bodySmall)
+                                    if(!stop.realtime) Text("Menetrendi érkezés",style=MaterialTheme.typography.bodySmall)
                                 }
                             }
                         }
