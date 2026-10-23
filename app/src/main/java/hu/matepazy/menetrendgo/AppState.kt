@@ -12,6 +12,7 @@ import java.time.Instant
 class AppState(app: Application) : AndroidViewModel(app) {
     private val prefs = app.getSharedPreferences("menetrendgo", 0)
     private val mav=MavClient()
+    private val stationSearch=StationSearch(app, mav::stations)
     var theme by mutableStateOf(prefs.getString("theme", "system").orEmpty()); private set
     var showRawGraphQl by mutableStateOf(prefs.getBoolean("show_raw_graphql", false)); private set
     var recents by mutableStateOf(readArray("recents").mapNotNull { runCatching { Recent(Station.parse(it.getJSONObject("from")), Station.parse(it.getJSONObject("to"))) }.getOrNull() }); private set
@@ -41,7 +42,9 @@ class AppState(app: Application) : AndroidViewModel(app) {
     private data class Search(val from: Station, val to: Station, val time: LocalDateTime, val arrive: Boolean)
     private fun readArray(key: String) = runCatching { JSONArray(prefs.getString(key, "[]")).objects() }.getOrDefault(emptyList())
 
-    suspend fun stations(query: String) = mav.stations(query)
+    suspend fun cachedStations(query: String) = stationSearch.cached(query)
+    suspend fun stations(query: String) = stationSearch.search(query)
+    fun selectStation(station: Station) { viewModelScope.launch { stationSearch.selected(station) } }
     fun chooseTheme(value: String) { theme = value; prefs.edit().putString("theme", value).apply() }
     fun chooseRawGraphQl(enabled: Boolean) { showRawGraphQl=enabled; prefs.edit().putBoolean("show_raw_graphql",enabled).apply() }
     fun clearRecents() { recents = emptyList(); prefs.edit().remove("recents").apply() }

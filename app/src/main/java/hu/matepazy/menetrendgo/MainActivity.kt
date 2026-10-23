@@ -66,7 +66,9 @@ class MainActivity : ComponentActivity() {
         Locale.setDefault(Locale.forLanguageTag("hu"))
         PassNotifications.saved(this).forEach { PassNotifications.schedule(this,it) }
         enableEdgeToEdge()
-        setContent { val state: AppState = viewModel(); MenetrendTheme(state.theme) { MenetrendApp(state, intent.getStringExtra("tab")) } }
+        setContent { val state: AppState = viewModel(); MenetrendTheme(state.theme) {
+            StationFocusOverlay { MenetrendApp(state, intent.getStringExtra("tab")) }
+        } }
     }
 }
 

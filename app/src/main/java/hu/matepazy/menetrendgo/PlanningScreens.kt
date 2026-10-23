@@ -5,6 +5,21 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.shape.*
 import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.activity.compose.BackHandler
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.layout.boundsInWindow
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.dismiss
+import androidx.compose.ui.semantics.paneTitle
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowForward
 import androidx.compose.material.icons.automirrored.outlined.DirectionsWalk
@@ -50,6 +65,9 @@ import java.time.format.DateTimeFormatter
 @Composable fun SearchScreen(vm: AppState, onPasses: () -> Unit, onSearch: () -> Unit) {
     var picker by remember { mutableStateOf<String?>(null) }
     var datePicker by remember { mutableStateOf(false) }
+    val focus=LocalFocusManager.current
+    fun closePicker() { focus.clearFocus();picker=null }
+    BackHandler(picker!=null) { closePicker() }
     LazyColumn(Modifier.fillMaxSize(),contentPadding=PaddingValues(start=20.dp,top=20.dp,end=20.dp,bottom=20.dp+LocalBottomOverlayInset.current),verticalArrangement=Arrangement.spacedBy(20.dp)) {
         item { Row(Modifier.fillMaxWidth().padding(top=10.dp,bottom=4.dp),verticalAlignment=Alignment.CenterVertically) {
             Text("Hová indulunk?",style=MaterialTheme.typography.headlineMedium,fontWeight=FontWeight.Bold,modifier=Modifier.weight(1f))
@@ -57,16 +75,20 @@ import java.time.format.DateTimeFormatter
         } }
         item {
             Glass(Modifier.fillMaxWidth()) {
-                StopField("Honnan?",vm.from,Icons.Outlined.TripOrigin) { picker="from" }
+                if(picker=="from") StationAutocomplete(vm,"Honnan?",vm.from,Icons.Outlined.TripOrigin,::closePicker) {
+                    vm.from=it;vm.selectStation(it);closePicker()
+                } else StopField("Honnan?",vm.from,Icons.Outlined.TripOrigin) { picker="from" }
                 Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically) {
                     HorizontalDivider(Modifier.weight(1f),color=MaterialTheme.colorScheme.outlineVariant)
-                    IconButton(onClick={ val first=vm.from; vm.from=vm.to;vm.to=first }) {
+                    IconButton(onClick={ closePicker();val first=vm.from; vm.from=vm.to;vm.to=first }) {
                         Icon(Icons.Outlined.SwapVert,"Indulás és érkezés felcserélése",tint=MaterialTheme.colorScheme.primary)
                     }
                 }
-                StopField("Hová?",vm.to,Icons.Outlined.LocationOn) { picker="to" }
+                if(picker=="to") StationAutocomplete(vm,"Hová?",vm.to,Icons.Outlined.LocationOn,::closePicker) {
+                    vm.to=it;vm.selectStation(it);closePicker()
+                } else StopField("Hová?",vm.to,Icons.Outlined.LocationOn) { picker="to" }
                 Spacer(Modifier.height(14.dp))
-                Surface(onClick={datePicker=true},shape=RoundedCornerShape(20.dp),color=MaterialTheme.colorScheme.surfaceContainerLow,modifier=Modifier.fillMaxWidth()) {
+                Surface(onClick={closePicker();datePicker=true},shape=RoundedCornerShape(20.dp),color=MaterialTheme.colorScheme.surfaceContainerLow,modifier=Modifier.fillMaxWidth()) {
                     Row(Modifier.padding(16.dp).heightIn(min=24.dp),verticalAlignment=Alignment.CenterVertically) {
                         Icon(Icons.Outlined.CalendarToday,null,tint=MaterialTheme.colorScheme.primary)
                         Spacer(Modifier.width(12.dp))
@@ -96,44 +118,83 @@ import java.time.format.DateTimeFormatter
         }
         item { Text("MÁV-adatokkal · Nem hivatalos alkalmazás",style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant,modifier=Modifier.padding(top=12.dp,bottom=16.dp)) }
     }
-    if(picker!=null) StationPicker(vm,if(picker=="from") "Indulási megálló" else "Érkezési megálló",onDismiss={picker=null}) {
-        if(picker=="from") vm.from=it else vm.to=it;picker=null
-    }
     if(datePicker) JourneyDatePicker(vm) {datePicker=false}
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable private fun StationPicker(vm: AppState, title: String, onDismiss: () -> Unit, onSelected: (Station) -> Unit) {
-    var query by rememberSaveable {mutableStateOf("")}
+@OptIn(ExperimentalLayoutApi::class)
+@Composable private fun StationAutocomplete(vm: AppState, label: String, value: Station?, icon: ImageVector,
+    onDismiss: () -> Unit, onSelected: (Station) -> Unit) {
+    var input by rememberSaveable(label,stateSaver=TextFieldValue.Saver) {
+        mutableStateOf(TextFieldValue(value?.name.orEmpty(),TextRange(0,value?.name?.length ?: 0)))
+    }
+    val query=input.text.trim()
+    val requester=remember {FocusRequester()}
+    val spotlight=LocalStationFocus.current
+    val dismiss by rememberUpdatedState(onDismiss)
+    val keyboardVisible=WindowInsets.isImeVisible
+    var keyboardWasVisible by remember {mutableStateOf(false)}
+    LaunchedEffect(keyboardVisible) {
+        if(keyboardVisible) keyboardWasVisible=true
+        else if(keyboardWasVisible) dismiss()
+    }
+    DisposableEffect(label) {
+        spotlight.dismiss={dismiss()}
+        onDispose {spotlight.dismiss=null;spotlight.bounds=null}
+    }
     var results by remember { mutableStateOf<List<Station>>(emptyList()) }
     var loading by remember { mutableStateOf(false) }
     var error by remember {mutableStateOf<String?>(null)}
+    val listState=key(query) {rememberLazyListState()}
+    LaunchedEffect(Unit) {requester.requestFocus()}
     LaunchedEffect(query) {
         results=emptyList();error=null
-        if(query.trim().length>=2) {
-            loading=true;delay(350)
-            try {results=vm.stations(query.trim())}
+        if(query.length>=2) {
+            loading=true
+            try {
+                results=vm.cachedStations(query)
+                delay(300)
+                results=vm.stations(query)
+            }
             catch(e: CancellationException){throw e}
-            catch(e: Exception){error=e.message}
+            catch(e: Exception){error=if(results.isEmpty()) e.message ?: "A megállók nem tölthetők be. Próbáld újra." else "Mentett találatok · a frissítés nem sikerült."}
             finally {loading=false}
         } else loading=false
     }
-    ModalBottomSheet(onDismissRequest=onDismiss,shape=RoundedCornerShape(topStart=36.dp,topEnd=36.dp)) {
-        Column(Modifier.fillMaxWidth().fillMaxHeight(.85f).padding(horizontal=20.dp).imePadding()) {
-            Text(title,style=MaterialTheme.typography.headlineSmall,fontWeight=FontWeight.Bold)
-            Spacer(Modifier.height(18.dp))
-            OutlinedTextField(query,{query=it},Modifier.fillMaxWidth(),singleLine=true,shape=CircleShape,label={Text("Település vagy megálló")},leadingIcon={Icon(Icons.Outlined.Search,null)},trailingIcon={if(query.isNotEmpty()) IconButton(onClick={query=""}){Icon(Icons.Outlined.Close,"Keresés törlése")}})
-            Spacer(Modifier.height(12.dp))
-            if(loading) LinearProgressIndicator(Modifier.fillMaxWidth())
-            if(error!=null) Text(error!!,color=MaterialTheme.colorScheme.error,modifier=Modifier.padding(16.dp))
-            if(!loading && query.trim().length>=2 && results.isEmpty() && error==null) Text("Nincs ilyen megálló. Próbálj másik nevet.",Modifier.padding(16.dp))
-            if(query.length<2) Text("Írj be legalább két karaktert.",Modifier.padding(16.dp),color=MaterialTheme.colorScheme.onSurfaceVariant)
-            LazyColumn(Modifier.weight(1f),verticalArrangement=Arrangement.spacedBy(8.dp)) {
+    Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(28.dp)).background(MaterialTheme.colorScheme.surface)
+        .onGloballyPositioned {spotlight.bounds=it.boundsInWindow()}
+        .semantics {paneTitle="Megállókeresés";dismiss {dismiss();true}}
+        .padding(16.dp)) {
+        TextField(input,{input=it},Modifier.fillMaxWidth().focusRequester(requester),singleLine=true,
+            shape=RoundedCornerShape(28.dp),label={Text(label)},placeholder={Text("Település vagy megálló")},
+            leadingIcon={Icon(icon,null)},trailingIcon={IconButton(onClick=onDismiss){Icon(Icons.Outlined.Close,"Megállókeresés bezárása")}},
+            colors=TextFieldDefaults.colors(focusedContainerColor=MaterialTheme.colorScheme.surface,
+                unfocusedContainerColor=MaterialTheme.colorScheme.surface,focusedIndicatorColor=Color.Transparent,
+                unfocusedIndicatorColor=Color.Transparent),
+            keyboardOptions=KeyboardOptions(imeAction=ImeAction.Done),keyboardActions=KeyboardActions(onDone={onDismiss()}))
+        HorizontalDivider(Modifier.padding(horizontal=16.dp),color=MaterialTheme.colorScheme.outlineVariant)
+        if(loading) LinearProgressIndicator(Modifier.fillMaxWidth().padding(top=8.dp))
+        if(error!=null) Text(error!!,color=if(results.isEmpty()) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
+            style=MaterialTheme.typography.bodySmall,modifier=Modifier.padding(vertical=8.dp))
+        if(!loading && query.length>=2 && results.isEmpty() && error==null) Text("Nincs ilyen megálló. Próbálj másik nevet.",Modifier.padding(vertical=12.dp))
+        if(query.length<2) Text("Írj be legalább két karaktert.",Modifier.padding(vertical=12.dp),style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)
+        if(results.isNotEmpty()) {
+            val rowHeight=with(LocalDensity.current) {MaterialTheme.typography.bodyLarge.lineHeight.toDp()*2+16.dp}.coerceAtLeast(56.dp)
+            LazyColumn(Modifier.fillMaxWidth().height(rowHeight*minOf(4,results.size)),state=listState) {
                 items(results,key={it.id}) {station ->
-                    Surface(onClick={onSelected(station)},shape=RoundedCornerShape(24.dp),color=MaterialTheme.colorScheme.surface) {
-                        Row(Modifier.fillMaxWidth().padding(18.dp),verticalAlignment=Alignment.CenterVertically) {
-                            Icon(Icons.Outlined.LocationOn,null,tint=MaterialTheme.colorScheme.primary)
-                            Spacer(Modifier.width(12.dp));Text(station.name,Modifier.weight(1f));Icon(Icons.Outlined.ChevronRight,null)
+                    Surface(onClick={onSelected(station)},color=MaterialTheme.colorScheme.surface) {
+                        Row(Modifier.fillMaxWidth().height(rowHeight).padding(horizontal=16.dp),verticalAlignment=Alignment.CenterVertically) {
+                            val stationIcon=when {
+                                station.name.endsWith('*') -> Icons.Outlined.LocationCity
+                                "RAIL" in station.modes -> Icons.Outlined.Train
+                                "COACH" in station.modes || "BUS" in station.modes -> Icons.Outlined.DirectionsBus
+                                else -> Icons.Outlined.LocationOn
+                            }
+                            Icon(stationIcon,null,Modifier.size(22.dp),tint=MaterialTheme.colorScheme.primary)
+                            Spacer(Modifier.width(12.dp))
+                            Text(station.name,Modifier.weight(1f),style=MaterialTheme.typography.bodyLarge,
+                                fontWeight=if(station.name.endsWith('*')) FontWeight.SemiBold else FontWeight.Normal,
+                                maxLines=2,overflow=TextOverflow.Ellipsis)
+                            Icon(Icons.Outlined.ChevronRight,null,Modifier.padding(start=8.dp).size(20.dp),tint=MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
                 }

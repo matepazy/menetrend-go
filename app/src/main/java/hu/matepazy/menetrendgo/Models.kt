@@ -13,9 +13,15 @@ fun dayLabel(millis: Long, today: LocalDate = LocalDate.now(Budapest)): String {
 }
 fun JSONArray.objects(): List<JSONObject> = (0 until length()).mapNotNull { optJSONObject(it) }
 fun JSONObject.array(key: String): List<JSONObject> = optJSONArray(key)?.objects().orEmpty()
-data class Station(val id: String, val name: String, val lat: Double, val lon: Double) {
+data class Station(val id: String, val name: String, val lat: Double, val lon: Double,
+    val type: String = "", val modes: List<String> = emptyList()) {
     fun json() = JSONObject().put("id", id).put("name", name).put("lat", lat).put("lon", lon)
-    companion object { fun parse(o: JSONObject) = Station(o.optString("id"), o.getString("name"), o.getDouble("lat"), o.getDouble("lon")) }
+        .put("type", type).put("modes", JSONArray(modes))
+    companion object { fun parse(o: JSONObject): Station {
+        val modes=o.optJSONArray("modes")
+        return Station(o.optString("id"), o.getString("name"), o.getDouble("lat"), o.getDouble("lon"),
+            o.optString("type"), if(modes==null) emptyList() else (0 until modes.length()).map {modes.getString(it)})
+    } }
 }
 data class Recent(val from: Station, val to: Station) {
     fun json() = JSONObject().put("from", from.json()).put("to", to.json())

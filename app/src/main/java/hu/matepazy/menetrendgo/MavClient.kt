@@ -50,7 +50,10 @@ class MavClient {
         require(query.trim().length in 2..100)
         request("/geocode/stations?q="+URLEncoder.encode(query.trim(),"UTF-8")+"&limit=10").array("features").mapNotNull {feature->
             val coords=feature.optJSONObject("geometry")?.optJSONArray("coordinates")
-            if(coords==null || coords.length()<2) null else Station(feature.optString("id"),feature.optJSONObject("properties")?.optString("name",query) ?: query,coords.getDouble(1),coords.getDouble(0))
+            val properties=feature.optJSONObject("properties")
+            val modes=properties?.optJSONArray("modes")
+            if(coords==null || coords.length()<2) null else Station(feature.optString("id"),properties?.optString("name",query) ?: query,coords.getDouble(1),coords.getDouble(0),
+                properties?.optString("type").orEmpty(),if(modes==null) emptyList() else (0 until modes.length()).map {modes.getString(it)})
         }.distinctBy {it.id}
     }
     suspend fun plan(from: Station,to: Station,time: LocalDateTime,arrive: Boolean): List<Journey> = withContext(Dispatchers.IO) {
