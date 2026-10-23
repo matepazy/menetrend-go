@@ -66,9 +66,8 @@ import org.json.*
     DisposableEffect(Unit) {onDispose {web?.removeJavascriptInterface("NativeMap");web?.destroy();web=null}}
     Column(Modifier.fillMaxSize().padding(horizontal=16.dp).padding(bottom=LocalBottomOverlayInset.current)) {
         PageTitle(if(journey==null) "Térkép" else "Az utad a térképen", "Koppints egy járműre a megállókért")
-        Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(6.dp)) {
+        FlowRow(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(8.dp),verticalArrangement=Arrangement.spacedBy(4.dp)) {
             listOf("Összes","Vonat","Busz").forEach {label->FilterChip(filter==label,{filter=label},label={Text(label)},shape=CircleShape)}
-            Spacer(Modifier.weight(1f))
             IconButton(onClick={scope.launch {vm.refreshVehicles()}},enabled=!vm.vehiclesLoading) {Icon(Icons.Outlined.Refresh,"Járműadatok frissítése")}
         }
         val age=System.currentTimeMillis()/1000-vm.vehicleUpdated

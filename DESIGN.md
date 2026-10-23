@@ -25,11 +25,6 @@ colors:
   map-cluster: "#244C86"
   map-coach: "#0D687A"
 typography:
-  headline-large:
-    fontFamily: "Roboto"
-    fontSize: "32sp"
-    fontWeight: 700
-    lineHeight: "40sp"
   headline-medium:
     fontFamily: "Roboto"
     fontSize: "28sp"
@@ -72,6 +67,7 @@ typography:
     lineHeight: "16sp"
 rounded:
   extra-small: "16dp"
+  date-control: "20dp"
   small: "24dp"
   medium: "28dp"
   large: "32dp"
@@ -96,9 +92,11 @@ components:
     backgroundColor: "{colors.surface}"
     textColor: "{colors.ink}"
     rounded: "{rounded.medium}"
-    padding: "16dp 18dp"
+    padding: "12dp 4dp"
   glass-panel:
-    rounded: "{rounded.large}"
+    backgroundColor: "{colors.surface}"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.medium}"
     padding: "{spacing.page}"
   result-card:
     backgroundColor: "{colors.surface}"
@@ -110,7 +108,8 @@ components:
     rounded: "{rounded.pill}"
     padding: "7dp 12dp"
   bottom-navigation:
-    rounded: "{rounded.extra-large}"
+    backgroundColor: "{colors.surface}"
+    rounded: "{rounded.medium}"
 ---
 
 # Design System: MenetrendGO
@@ -119,7 +118,7 @@ components:
 
 **Creative North Star: "Icy blue ground, ink text, royal-blue actions, fully rounded milky panels"**
 
-MenetrendGO feels calm, legible and direct. Its slight glass character comes from pale tonal layers, a restrained vertical highlight and soft native elevation. Large rounded forms hold useful Hungarian text and familiar Material vector icons; the interface does not rely on decorative artwork.
+MenetrendGO feels calm, legible and direct. Its rounded character comes from solid themed panels and pale tonal separation. A feathered bottom blur softens content behind the floating phone navigation. Large rounded forms hold useful Hungarian text and familiar Material vector icons; the interface does not rely on decorative artwork.
 
 This records the implemented Android world, adapted from the approved concept A. Roboto, Material controls, system bars and platform interaction anatomy are intentional. The native source is authoritative when a reference image differs. Source: `MainActivity.kt`, `PlanningScreens.kt`, `UtilityScreens.kt`, `NearbyScreen.kt` and bundled `map.html` under `app/src/main`.
 
@@ -147,7 +146,7 @@ The primary blue draws attention to actions and selected states; cool neutrals c
 
 ### Neutral
 
-- **Icy Ground** (`background`), **Milky Surface** (`surface`) and **Blue Mist** (`surface-variant`): the screen, controls and tonal glass layering.
+- **Icy Ground** (`background`), **Milky Surface** (`surface`) and **Blue Mist** (`surface-variant`): the screen, solid panels and tonal controls.
 - **Ink** (`ink`) and **Slate Ink** (`muted-ink`): principal information and supporting labels. `outline` is the explicit scheme outline role.
 - The corresponding `dark-` tokens provide a deep blue ground, lifted blue surfaces and light text. Theme choice can follow Android or be set explicitly.
 - Additional Material surface-container tones are defined by the native theme for dialogs and controls. Use the existing scheme roles rather than sampling a screenshot. Errors use Material's error role; no separate custom error palette is established here.
@@ -158,7 +157,7 @@ The primary blue draws attention to actions and selected states; cool neutrals c
 
 **Display and body font:** Android's default Roboto through the unmodified Material 3 typography scale. There is no separate decorative display face. Sizes are Android `sp`, and spacing/radii are `dp`; the frontmatter preserves those native units.
 
-Headlines are bold and sentence case. The large headline carries the planning prompt; medium headlines carry page titles and prominent departure times; small headlines introduce sheets and supporting time values. Title-large is used for section/card headings, with semibold or bold emphasis where the source requests it. Title-medium carries station values, action labels and key rows; selected values often use semibold. Body roles carry supporting labels, descriptions and explanatory status. Label roles carry route badges and compact navigation labels.
+Headlines are bold and sentence case. Headline-medium carries the planning prompt and prominent departure times; headline-small carries shared page titles, sheets and supporting time values. Title-large is used for section/card headings, with semibold or bold emphasis where the source requests it. Title-medium carries station values, action labels and key rows; selected values often use semibold. Body roles carry supporting labels, descriptions and explanatory status. Label roles carry route badges and compact navigation labels.
 
 The frontmatter headline weights record the repeated heading treatment; individual arrival-time text can use semibold. Unspecified title/body weights retain Material defaults. Font scaling remains native, with wrapping and scrolling instead of fitting text into raster assets.
 
@@ -166,19 +165,21 @@ The frontmatter headline weights record the repeated heading treatment; individu
 
 Phone screens are single-column, vertically scrollable and inset from system bars. Most content lists use page padding (20dp) and gaps (16–20dp). The map uses a narrower horizontal inset (16dp), then fills the remaining height. Panels commonly use the page padding internally; the pass editor uses sheet padding (24dp).
 
-At the implemented wide-layout threshold (700dp), bottom navigation becomes a navigation rail. Main utility content is centered with a maximum width (760dp); the map can expand further (1600dp). The phone navigation surface has horizontal margins (10dp), vertical margins (8dp), inner padding (8dp) and gaps (4dp). Each item's inner content has a minimum height (52dp), growing to (72dp) above the font-scale threshold (1.15), with separate item padding (2dp horizontal, 10dp vertical). Labels may occupy two lines. Scrollable pages extend behind the floating navigation surface; its measured bottom inset is added to list content padding so final actions can scroll clear. The map retains safe control bounds. Safe drawing insets, navigation-bar padding and IME padding belong to the layout.
+At the implemented wide-layout threshold (700dp), bottom navigation becomes a navigation rail. Main utility content is centered with a maximum width (760dp); the map can expand further (1600dp). The phone navigation surface has horizontal margins (12dp), vertical margins (6dp), inner padding (6dp) and gaps (4dp). Each item's inner content has a minimum height (48dp), growing to (64dp) above the font-scale threshold (1.15), with separate item padding (2dp horizontal, 8dp vertical). Labels may occupy two lines. Scrollable pages extend behind the floating navigation surface; its measured bottom inset is added to list content padding so final actions can scroll clear. The map retains safe control bounds. Safe drawing insets, navigation-bar padding and IME padding belong to the layout.
 
 The planning surface opens with “Hová indulunk?” and the reminders bell on one row, followed by search and recents; there is no separate wordmark row. Results open as their own scrollable departure list. This is the approved surface flow, not a rule that every future screen must copy the planning composition.
 
 ## Elevation & Depth
 
-Depth is a restrained hybrid of tonal layering and native elevation. The reusable glass panel uses the current surface at alpha (.86), overlaid with a vertical gradient from surface alpha (.95) to surface-variant alpha (.32), with shadow elevation (3dp). Result cards use (2dp). The bottom navigation uses surface alpha (.96) and shadow elevation (5dp). This is translucent tonal styling, not backdrop-blurred text.
+Depth comes from solid themed surfaces and tonal separation. The reusable panel is still named `Glass` in code, but uses an opaque surface with no gradient or shadow. Result cards and the opaque bottom navigation also have no custom shadow.
+
+Phone content extends behind the floating bar, with no fixed background strip. A bottom-only display-list blur (18dp on Android 12+) covers the measured navigation inset plus 48dp. Its alpha mask goes from transparent at the top to opaque at fraction .55, with a background-color fade from alpha 0 to .82. Navigation controls remain sharp. Android 9–11 use the tonal fade fallback; rail layouts have no bottom veil.
 
 The map retains its own compact marker and zoom-control shadows; those CSS shadows do not define native Compose elevation. Dialogs, sheets, disabled states and pressed feedback continue to use Material behavior. No application-specific motion duration or easing scale has been established.
 
 ## Shapes
 
-The native theme's shape scale runs from softly rounded small controls to large containers, as recorded in frontmatter. Reusable glass panels, result cards, dialog surfaces and the map viewport use large rounded corners (32dp). Station rows use medium corners (28dp); autocomplete rows use small corners (24dp). Bottom navigation and sheet top corners use extra-large corners (36dp); each phone navigation item has its own rounded corners (26dp). Buttons, date rows, badges and filter chips use pill geometry; circular icon controls remain circular.
+The native theme's shape scale runs from softly rounded small controls to large containers, as recorded in frontmatter. Reusable panels, station rows and bottom navigation use medium corners (28dp). Result cards, dialog surfaces and the map viewport retain large corners (32dp); autocomplete rows use small corners (24dp). Sheet top corners retain extra-large corners (36dp); each phone navigation item has its own rounded corners (26dp). The planning date/time control uses 20dp corners. Buttons, badges and filter chips use pill geometry; circular icon controls remain circular.
 
 **The Rounded Continuity Rule.** New controls and containers should continue the existing rounded family, including overlays and selection states.
 
@@ -190,21 +191,21 @@ The primary action is a full-width native pill with a vector icon, a title-mediu
 
 ### Cards / Containers
 
-Glass panels group related controls or explanations. Their opacity, gradient and elevation follow Elevation & Depth. Departure cards place wrapping service badges at the top left, followed by equally bold departure/arrival times with station names beneath and an arrow between. Supporting date/duration text follows. Only available live data adds a status label; the scheduled-time label is omitted. Itineraries use a connected vertical timeline with solid provider-colored transit lines, dotted walking lines, time/stop nodes, transfer waits and expandable intermediate stops. Recent-search rows use solid surfaces and medium rounded corners, a history icon, two place names and a chevron.
+Solid `Glass` panels group related controls or explanations, with 20dp internal padding. Departure cards place wrapping service badges at the top left, followed by equally bold departure/arrival times with station names beneath and an arrow between. Supporting date/duration text follows. Only available live data adds a status label; the scheduled-time label is omitted. Detail surfaces fill the available content width. Full stop-list time columns use `64.sp.toDp()` through the current density to grow with font scale. Itineraries use a connected vertical timeline with solid provider-colored transit lines, dotted walking lines, time/stop nodes, transfer waits and expandable intermediate stops. Recent-search rows use solid surfaces and medium rounded corners, a history icon, two place names and a chevron.
 
 ### Inputs / Fields
 
-Station controls show the field label above the station value, with a blue functional icon and space for long Hungarian names. They open a native rounded bottom sheet containing a pill outlined query field and scrollable autocomplete rows. Settings present read-only data-source information rather than a backend URL field. Errors stay visible as text using the Material error role. Preserve native focus, labels and keyboard handling.
+Station controls are full-width rows on the panel surface, separated by a divider and swap control. They use 4dp horizontal and 12dp vertical padding around a minimum 48dp inner height, and show the field label above the station value, with a blue functional icon and space for long Hungarian names. They open a native rounded bottom sheet containing a pill outlined query field and scrollable autocomplete rows. Appearance settings use one selectable native radio row per option, sharing one touch target without a contrasting inner rectangle. Settings present read-only data-source information rather than a backend URL field. Errors stay visible as text using the Material error role. Preserve native focus, labels and keyboard handling.
 
-Date selection uses a rounded Material date dialog, followed by a rounded time dialog with 24-hour numeric entry. The pass editor is a scrollable rounded bottom sheet; type chips, date buttons and the save action follow the same native control family.
+The planning date/time control uses surfaceContainerLow with 20dp corners. Date selection uses a rounded Material date dialog, followed by a rounded time dialog with 24-hour numeric entry. The pass editor is a scrollable rounded bottom sheet; type chips, date buttons and the save action follow the same native control family.
 
 ### Chips
 
-Transport filters are pill-shaped Material filter chips with a tonal selected state and an outlined unselected state. Route badges pair a tonal surface and compact service number with a vehicle icon on the provider route color. Icon contrast chooses black or white from luminance; missing colors use the theme neutral. MÁVPlusz OTP route.color and trip.trainCategoryName supply service colors and category labels rather than guessing them from numeric route names. Wrapping groups use flow layouts rather than forcing a horizontal overflow of badges.
+Transport filters are pill-shaped Material filter chips with a tonal selected state and an outlined unselected state. Route badges pair a tonal surface and compact service number with a vehicle icon on the provider route color. Icon contrast chooses black or white from luminance; missing colors use the theme neutral. MÁVPlusz OTP route.color and trip.trainCategoryName supply service colors and category labels rather than guessing them from numeric route names. Vehicle filters and route badges wrap in FlowRows.
 
 ### Navigation
 
-Four persistent destinations use icons and Hungarian labels: Tervezés, Térkép, Bérletek and Beállítások. Phone navigation is a custom native Compose row inside a rounded milky surface; expanded layouts use the native rail. Each equal-width item is selectable with `Role.Tab` semantics. The active background covers the complete icon-and-label item using primary-container alpha (.65), with both icon and label tinted primary; inactive items are transparent with on-surface-variant content. Icons are (24dp), followed by a gap (5dp) and centered label-medium text. Back navigation follows native Android behavior, with a visible back action on subordinate screens. Labels remain visible and may wrap to two lines.
+Four persistent destinations use icons and Hungarian labels: Tervezés, Térkép, Bérletek and Beállítások. Phone navigation is a custom native Compose row inside a solid, opaque rounded milky surface; expanded layouts use the native rail. Each equal-width item is selectable with `Role.Tab` semantics. The active background covers the complete icon-and-label item using primary-container alpha (.65), with both icon and label tinted primary; inactive items are transparent with on-surface-variant content. Icons are (24dp), followed by a gap (5dp) and centered label-medium text. Back navigation uses `PredictiveBackPane`: gesture progress previews the previous screen and scales the current pane by up to .08 while translating it by up to .14 of its width away from either swipe edge. It commits on completion, resets on cancellation, and disables pane transformations when system animators are disabled. Native modal sheets retain their own back behavior. Subordinate screens also expose a visible back action. Labels remain visible and may wrap to two lines.
 
 ### Map
 

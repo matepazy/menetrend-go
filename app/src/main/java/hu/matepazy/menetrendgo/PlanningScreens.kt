@@ -31,7 +31,7 @@ import java.time.format.DateTimeFormatter
 
 @Composable private fun StopField(label: String, value: Station?, icon: ImageVector, onClick: () -> Unit) {
     Surface(onClick=onClick,shape=RoundedCornerShape(28.dp),color=MaterialTheme.colorScheme.surface,modifier=Modifier.fillMaxWidth()) {
-        Row(Modifier.padding(horizontal=18.dp,vertical=16.dp).heightIn(min=44.dp),verticalAlignment=Alignment.CenterVertically) {
+        Row(Modifier.padding(horizontal=4.dp,vertical=12.dp).heightIn(min=48.dp),verticalAlignment=Alignment.CenterVertically) {
             Icon(icon,null,tint=MaterialTheme.colorScheme.primary,modifier=Modifier.size(26.dp))
             Spacer(Modifier.width(16.dp))
             Column(Modifier.weight(1f)) {
@@ -48,20 +48,21 @@ import java.time.format.DateTimeFormatter
     var datePicker by remember { mutableStateOf(false) }
     LazyColumn(Modifier.fillMaxSize(),contentPadding=PaddingValues(start=20.dp,top=20.dp,end=20.dp,bottom=20.dp+LocalBottomOverlayInset.current),verticalArrangement=Arrangement.spacedBy(20.dp)) {
         item { Row(Modifier.fillMaxWidth().padding(top=10.dp,bottom=4.dp),verticalAlignment=Alignment.CenterVertically) {
-            Text("Hová indulunk?",style=MaterialTheme.typography.headlineLarge,fontWeight=FontWeight.Bold,modifier=Modifier.weight(1f))
+            Text("Hová indulunk?",style=MaterialTheme.typography.headlineMedium,fontWeight=FontWeight.Bold,modifier=Modifier.weight(1f))
             FilledTonalIconButton(onClick=onPasses,shape=CircleShape) {Icon(Icons.Outlined.NotificationsNone,"Bérletek és emlékeztetők")}
         } }
         item {
             Glass(Modifier.fillMaxWidth()) {
-                Row(verticalAlignment=Alignment.CenterVertically) {
-                    Column(Modifier.weight(1f),verticalArrangement=Arrangement.spacedBy(12.dp)) {
-                        StopField("Honnan?",vm.from,Icons.Outlined.TripOrigin) { picker="from" }
-                        StopField("Hová?",vm.to,Icons.Outlined.LocationOn) { picker="to" }
+                StopField("Honnan?",vm.from,Icons.Outlined.TripOrigin) { picker="from" }
+                Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically) {
+                    HorizontalDivider(Modifier.weight(1f),color=MaterialTheme.colorScheme.outlineVariant)
+                    IconButton(onClick={ val first=vm.from; vm.from=vm.to;vm.to=first }) {
+                        Icon(Icons.Outlined.SwapVert,"Indulás és érkezés felcserélése",tint=MaterialTheme.colorScheme.primary)
                     }
-                    IconButton(onClick={ val first=vm.from; vm.from=vm.to;vm.to=first },modifier=Modifier.padding(start=4.dp).size(48.dp)) { Icon(Icons.Outlined.SwapVert,"Indulás és érkezés felcserélése",tint=MaterialTheme.colorScheme.primary) }
                 }
+                StopField("Hová?",vm.to,Icons.Outlined.LocationOn) { picker="to" }
                 Spacer(Modifier.height(14.dp))
-                Surface(onClick={datePicker=true},shape=CircleShape,color=MaterialTheme.colorScheme.surface,modifier=Modifier.fillMaxWidth()) {
+                Surface(onClick={datePicker=true},shape=RoundedCornerShape(20.dp),color=MaterialTheme.colorScheme.surfaceContainerLow,modifier=Modifier.fillMaxWidth()) {
                     Row(Modifier.padding(16.dp).heightIn(min=24.dp),verticalAlignment=Alignment.CenterVertically) {
                         Icon(Icons.Outlined.CalendarToday,null,tint=MaterialTheme.colorScheme.primary)
                         Spacer(Modifier.width(12.dp))
@@ -215,13 +216,13 @@ private fun serviceType(leg: Leg): String = leg.category.ifBlank { when(leg.mode
     val results=vm.journeys.filter { j -> filter=="Összes" || j.legs.any {if(filter=="Vonat") it.mode in listOf("RAIL","SUBURBAN_RAILWAY","TRAMTRAIN") else it.mode in listOf("BUS","COACH","RAIL_REPLACEMENT_BUS")} }
     LazyColumn(Modifier.fillMaxSize(),contentPadding=PaddingValues(start=20.dp,top=20.dp,end=20.dp,bottom=20.dp+LocalBottomOverlayInset.current),verticalArrangement=Arrangement.spacedBy(16.dp)) {
         item { PageTitle("Indulások", "${vm.from?.name.orEmpty()} → ${vm.to?.name.orEmpty()}",back) }
-        item { Row(horizontalArrangement=Arrangement.spacedBy(8.dp)) { listOf("Összes","Vonat","Busz").forEach { label -> FilterChip(selected=filter==label,onClick={filter=label},label={Text(label)},shape=CircleShape) } } }
+        item { FlowRow(horizontalArrangement=Arrangement.spacedBy(8.dp)) { listOf("Összes","Vonat","Busz").forEach { label -> FilterChip(selected=filter==label,onClick={filter=label},label={Text(label)},shape=CircleShape) } } }
         if(vm.searchError!=null) item {InfoPanel("Nem sikerült a keresés",vm.searchError!!){vm.search(vm.journeys.isNotEmpty())}}
         if(vm.searching && vm.journeys.isEmpty()) item {LoadingRows()}
         if(!vm.searching && vm.searchError==null && results.isEmpty()) item {InfoPanel("Nincs megjeleníthető indulás","Módosítsd az időpontot, a megállókat vagy a járműszűrőt.")}
         items(results,key={it.key}) { journey ->
-            Surface(onClick={select(journey)},shape=RoundedCornerShape(32.dp),color=MaterialTheme.colorScheme.surface,shadowElevation=2.dp) {
-                Column(Modifier.padding(22.dp),verticalArrangement=Arrangement.spacedBy(14.dp)) {
+            Surface(onClick={select(journey)},shape=RoundedCornerShape(32.dp),color=MaterialTheme.colorScheme.surface,tonalElevation=0.dp) {
+                Column(Modifier.fillMaxWidth().padding(20.dp),verticalArrangement=Arrangement.spacedBy(14.dp)) {
                     Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically) {
                         val services=journey.legs.filterNot {it.walking}.distinctBy {it.mode to it.route}
                         FlowRow(Modifier.weight(1f),horizontalArrangement=Arrangement.spacedBy(6.dp),verticalArrangement=Arrangement.spacedBy(6.dp)) {
@@ -269,7 +270,7 @@ private fun serviceType(leg: Leg): String = leg.category.ifBlank { when(leg.mode
         item { MainButton("Útvonal a térképen",Icons.Outlined.Map,onClick=onMap) }
         item {
             Surface(shape=RoundedCornerShape(32.dp),color=MaterialTheme.colorScheme.surface) {
-                Column(Modifier.padding(20.dp)) {
+                Column(Modifier.fillMaxWidth().padding(16.dp)) {
                     journey.legs.forEachIndexed {index,leg ->
                         val color=serviceColor(leg)
                         val walking=leg.walking
@@ -300,7 +301,7 @@ private fun serviceType(leg: Leg): String = leg.category.ifBlank { when(leg.mode
                                     }
                                 }
                                 if(leg.tripId.isNotBlank()) TextButton(onClick={onTrip(leg)},contentPadding=PaddingValues(horizontal=0.dp),modifier=Modifier.heightIn(min=48.dp)) {
-                                    Text("Teljes járatmenetrend");Icon(Icons.Outlined.ChevronRight,null)
+                                    Text("Teljes járatmenetrend",Modifier.weight(1f));Icon(Icons.Outlined.ChevronRight,null)
                                 }
                             }
                         }
@@ -342,7 +343,7 @@ private fun serviceType(leg: Leg): String = leg.category.ifBlank { when(leg.mode
                 val epoch=if(stop.has("serviceDay")) stop.optLong("serviceDay")*1000L else LocalDate.parse(day).atStartOfDay(Budapest).toInstant().toEpochMilli()
                 Surface(shape=RoundedCornerShape(26.dp),color=MaterialTheme.colorScheme.surface) {
                     Row(Modifier.fillMaxWidth().padding(18.dp),verticalAlignment=Alignment.Top) {
-                        Column(Modifier.width(70.dp)) {
+                        Column(Modifier.width(with(LocalDensity.current) { 64.sp.toDp() })) {
                             Text(timeLabel(epoch+seconds*1000L),style=MaterialTheme.typography.titleMedium,fontWeight=FontWeight.Bold)
                             val late=stop.optInt("departureDelay")/60
                             if(late!=0) Text("${if(late>0) "+" else ""}$late perc",style=MaterialTheme.typography.labelSmall,color=MaterialTheme.colorScheme.error)

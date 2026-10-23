@@ -1,7 +1,17 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.plugin.compose")
 }
+
+val signingPropertiesFile = rootProject.file("signing/signing.properties")
+val signingProperties = Properties().apply {
+    if (signingPropertiesFile.isFile) {
+        signingPropertiesFile.inputStream().use { load(it) }
+    }
+}
+
 android {
     namespace = "hu.matepazy.menetrendgo"
     compileSdk = 37
@@ -11,6 +21,23 @@ android {
         targetSdk = 36
         versionCode = 1
         versionName = "0.1.0"
+    }
+    signingConfigs {
+        if (signingPropertiesFile.isFile) {
+            create("release") {
+                storeFile = rootProject.file(signingProperties.getProperty("storeFile"))
+                storePassword = signingProperties.getProperty("storePassword")
+                keyAlias = signingProperties.getProperty("keyAlias")
+                keyPassword = signingProperties.getProperty("keyPassword")
+            }
+        }
+    }
+    buildTypes {
+        release {
+            if (signingPropertiesFile.isFile) {
+                signingConfig = signingConfigs.getByName("release")
+            }
+        }
     }
     buildFeatures { compose = true; buildConfig = true }
     compileOptions { sourceCompatibility = JavaVersion.VERSION_17; targetCompatibility = JavaVersion.VERSION_17 }

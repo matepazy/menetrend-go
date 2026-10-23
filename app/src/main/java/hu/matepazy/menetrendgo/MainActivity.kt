@@ -8,7 +8,9 @@ import java.util.Locale
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.compose.BackHandler
+import androidx.activity.compose.PredictiveBackHandler
+import androidx.activity.BackEventCompat
+import android.animation.ValueAnimator
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.*
@@ -22,6 +24,11 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.*
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.layer.drawLayer
+import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
@@ -35,6 +42,8 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.core.view.WindowCompat
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.collect
 import java.time.Instant
 import java.time.LocalDate
 
@@ -96,22 +105,91 @@ private val Dark = darkColorScheme(primary=Color(0xFFA8C7FF), onPrimary=Color(0x
         content={CompositionLocalProvider(LocalContentColor provides scheme.onBackground,content=content)})
 }
 
-// Scrollable pages draw beneath the floating bar; trailing content remains reachable.
+// The rounded bar floats above content; list padding keeps final actions reachable.
 val LocalBottomOverlayInset = staticCompositionLocalOf { 0.dp }
+
+/** Reuses the page's display list, so the backdrop never composes a second interactive UI. */
+@Composable private fun FeatheredBottomContent(enabled: Boolean, height: Dp, content: @Composable () -> Unit) {
+    val backdrop=rememberGraphicsLayer()
+    val ground=MaterialTheme.colorScheme.background
+    Box(Modifier.fillMaxSize()) {
+        Box(Modifier.fillMaxSize().drawWithContent {
+            if(enabled) {
+                backdrop.record { this@drawWithContent.drawContent() }
+                drawLayer(backdrop)
+            } else drawContent()
+        }) { content() }
+        if(enabled) {
+            // Only the bottom slice is blurred. The alpha mask removes a hard top edge.
+            Box(Modifier.align(Alignment.BottomCenter).fillMaxWidth().height(height)
+                .graphicsLayer { compositingStrategy=CompositingStrategy.Offscreen }
+                .drawWithContent {
+                    drawContent()
+                    drawRect(Brush.verticalGradient(0f to Color.Transparent,.55f to Color.Black,1f to Color.Black),blendMode=BlendMode.DstIn)
+                }
+                .graphicsLayer {
+                    if(android.os.Build.VERSION.SDK_INT>=31) renderEffect=BlurEffect(18.dp.toPx(),18.dp.toPx(),TileMode.Clamp)
+                }
+                .drawWithContent {
+                    if(android.os.Build.VERSION.SDK_INT>=31) translate(top=-(backdrop.size.height-size.height)) { drawLayer(backdrop) }
+                    drawRect(Brush.verticalGradient(listOf(ground.copy(alpha=0f),ground.copy(alpha=.82f))))
+                })
+        }
+    }
+}
 
 @Composable fun Glass(modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {
     val colors = MaterialTheme.colorScheme
-    Surface(modifier=modifier,shape=RoundedCornerShape(32.dp),color=colors.surface.copy(alpha=.86f),shadowElevation=3.dp) {
-        Column(Modifier.background(Brush.verticalGradient(listOf(colors.surface.copy(alpha=.95f), colors.surfaceVariant.copy(alpha=.32f)))).padding(20.dp),content=content)
+    Surface(modifier=modifier,shape=RoundedCornerShape(28.dp),color=colors.surface) {
+        Column(Modifier.padding(20.dp),content=content)
     }
 }
 @Composable fun PageTitle(title: String, subtitle: String? = null, back: (() -> Unit)? = null) {
     Row(Modifier.fillMaxWidth().padding(vertical=12.dp),verticalAlignment=Alignment.CenterVertically) {
         if(back != null) IconButton(onClick=back) { Icon(Icons.AutoMirrored.Outlined.ArrowBack,"Vissza") }
         Column(Modifier.weight(1f)) {
-            Text(title,style=MaterialTheme.typography.headlineMedium,fontWeight=FontWeight.Bold)
+            Text(title,style=MaterialTheme.typography.headlineSmall,fontWeight=FontWeight.Bold)
             if(subtitle != null) Text(subtitle,style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)
         }
+    }
+}
+
+/** Navigation commits only after the gesture completes; cancellation leaves the route intact. */
+@Composable fun PredictiveBackPane(
+    enabled: Boolean,
+    onBack: () -> Unit,
+    preview: @Composable () -> Unit,
+    content: @Composable () -> Unit
+) {
+    var progress by remember { mutableFloatStateOf(0f) }
+    var edge by remember { mutableIntStateOf(BackEventCompat.EDGE_LEFT) }
+    var swiping by remember { mutableStateOf(false) }
+    val animate = ValueAnimator.areAnimatorsEnabled()
+    PredictiveBackHandler(enabled=enabled) { events ->
+        try {
+            events.collect { event ->
+                edge=event.swipeEdge
+                progress=event.progress.coerceIn(0f,1f)
+                swiping=true
+            }
+            onBack()
+        } catch(cancelled: CancellationException) {
+            throw cancelled
+        } finally {
+            progress=0f
+            swiping=false
+        }
+    }
+    Box(Modifier.fillMaxSize()) {
+        if(swiping && animate) Box(Modifier.fillMaxSize()) { preview() }
+        Box(Modifier.fillMaxSize().graphicsLayer {
+            val fraction=if(animate) progress else 0f
+            scaleX=1f-.08f*fraction
+            scaleY=1f-.08f*fraction
+            translationX=(if(edge==BackEventCompat.EDGE_LEFT) 1 else -1)*size.width*.14f*fraction
+            shape=RoundedCornerShape((28*fraction).dp)
+            clip=fraction>0f
+        }.background(MaterialTheme.colorScheme.background)) { content() }
     }
 }
 @Composable fun MainButton(label: String, icon: ImageVector, enabled: Boolean = true, onClick: () -> Unit) {
@@ -162,7 +240,6 @@ val LocalBottomOverlayInset = staticCompositionLocalOf { 0.dp }
             tab != 0 -> { tab=0; page="search" }
         }
     }
-    BackHandler(enabled=page != "search" || tab != 0) { back() }
     val destinations = listOf("Tervezés","Térkép","Bérletek","Beállítások")
     val icons = listOf(Icons.Outlined.Search,Icons.Outlined.Map,Icons.Outlined.CreditCard,Icons.Outlined.Settings)
     BoxWithConstraints(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
@@ -175,15 +252,15 @@ val LocalBottomOverlayInset = staticCompositionLocalOf { 0.dp }
             }
             Scaffold(containerColor=Color.Transparent,contentWindowInsets=WindowInsets(0),
                 bottomBar={ if(!wide) {
-                    Surface(Modifier.padding(horizontal=10.dp,vertical=8.dp).navigationBarsPadding(),shape=RoundedCornerShape(36.dp),color=MaterialTheme.colorScheme.surface.copy(alpha=.96f),shadowElevation=5.dp) {
-                        Row(Modifier.fillMaxWidth().padding(8.dp),horizontalArrangement=Arrangement.spacedBy(4.dp)) {
+                    Surface(Modifier.navigationBarsPadding().padding(horizontal=12.dp,vertical=6.dp),shape=RoundedCornerShape(28.dp),color=MaterialTheme.colorScheme.surface) {
+                        Row(Modifier.fillMaxWidth().padding(6.dp),horizontalArrangement=Arrangement.spacedBy(4.dp)) {
                             destinations.forEachIndexed { index,label ->
                                 val active=tab==index
                                 val tint=if(active) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                                 Column(Modifier.weight(1f).clip(RoundedCornerShape(26.dp))
                                     .background(if(active) MaterialTheme.colorScheme.primaryContainer.copy(alpha=.65f) else Color.Transparent)
                                     .selectable(selected=active,role=Role.Tab,onClick={tab=index;page="search";selected=null})
-                                    .padding(horizontal=2.dp,vertical=10.dp).heightIn(min=if(largeFont) 72.dp else 52.dp),
+                                    .padding(horizontal=2.dp,vertical=8.dp).heightIn(min=if(largeFont) 64.dp else 48.dp),
                                     horizontalAlignment=Alignment.CenterHorizontally,verticalArrangement=Arrangement.Center) {
                                     Icon(icons[index],null,Modifier.size(24.dp),tint=tint)
                                     Spacer(Modifier.height(5.dp))
@@ -196,7 +273,16 @@ val LocalBottomOverlayInset = staticCompositionLocalOf { 0.dp }
             ) { inset ->
                 Box(Modifier.fillMaxSize().padding(top=inset.calculateTopPadding()).imePadding(),contentAlignment=Alignment.TopCenter) {
                     CompositionLocalProvider(LocalBottomOverlayInset provides inset.calculateBottomPadding()) {
+                    FeatheredBottomContent(enabled=!wide,height=inset.calculateBottomPadding()+48.dp) {
                     Box(Modifier.widthIn(max=if(tab==1) 1600.dp else 760.dp).fillMaxSize()) {
+                        PredictiveBackPane(enabled=page!="search" || tab!=0,onBack=::back,preview={
+                            when {
+                                page=="trip" && selected!=null -> JourneyScreen(vm,selected!!,{},onTrip={},onMap={})
+                                page=="trip" && tab==1 -> NearbyScreen(vm,tracked,focusedVehicle,onClearRoute={}) {}
+                                page=="journey" -> ResultsScreen(vm,{}) {}
+                                else -> SearchScreen(vm,onPasses={}) {}
+                            }
+                        }) {
                         when {
                             page == "trip" -> TripScreen(vm, tripId, tripDay, ::back) { tab=1;page="search";tracked=selected;focusedVehicle=tripId }
                             tab==0 && page=="results" -> ResultsScreen(vm,::back) { selected=it; page="journey" }
@@ -208,6 +294,8 @@ val LocalBottomOverlayInset = staticCompositionLocalOf { 0.dp }
                             tab==2 -> PassesScreen(vm)
                             else -> SettingsScreen(vm)
                         }
+                        }
+                    }
                     }
                     }
                 }

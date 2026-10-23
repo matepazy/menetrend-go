@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-22T20:06:48.7001320Z",
+  "generatedAt": "2026-10-23T00:00:00+02:00",
   "title": "Design System: MenetrendGO",
   "extensions": {
     "colorMeta": {
@@ -318,27 +318,16 @@
         "displayName": "Key row text",
         "purpose": "Station values, action labels and key rows; weight follows the native component."
       },
-      "headline-large": {
-        "displayName": "Planning headline",
-        "purpose": "Bold Material headlineLarge, native Android sp scaling."
+      "headline-medium": {
+        "displayName": "Planning prompt and departure times",
+        "purpose": "Bold Material headlineMedium with native sp scaling."
+      },
+      "headline-small": {
+        "displayName": "Shared page and sheet titles",
+        "purpose": "Bold Material headlineSmall with native sp scaling."
       }
     },
     "shadows": [
-      {
-        "name": "result-card",
-        "value": "2dp",
-        "purpose": "Native Compose shadowElevation."
-      },
-      {
-        "name": "glass-panel",
-        "value": "3dp",
-        "purpose": "Native Compose shadowElevation."
-      },
-      {
-        "name": "bottom-navigation",
-        "value": "5dp",
-        "purpose": "Native Compose shadowElevation."
-      },
       {
         "name": "map-marker",
         "value": "0 2px 8px #1234",
@@ -360,32 +349,24 @@
       "Compose values use dp/sp; map CSS uses px.",
       "HTML component snippets are illustrative translations for the documentation panel, not production Android components or proof of native interaction. Preview hover/focus and CSS elevation approximations are panel affordances.",
       "Tonal ramps are synthesized documentation swatches, not additional implemented theme tokens.",
-      "No custom motion token scale is established.",
       "Native Material date/time dialogs, sheets, focus, press and disabled behavior remain authoritative.",
-      "The map is bundled Leaflet HTML in a WebView with native surrounding actions. Runtime tiles retain attribution."
+      "The map is bundled Leaflet HTML in a WebView with native surrounding actions. Runtime tiles retain attribution.",
+      "No general custom duration/easing scale; predictive back is gesture-progress driven. Station rows are full-width with divider/swap; date row is surfaceContainerLow at 20dp corners; detail surfaces fill content width; stop-list time width is 64.sp.toDp(); vehicle filters wrap in FlowRows. Appearance options share one selectable radio-row touch target."
     ],
-    "glass": {
-      "surfaceAlpha": 0.86,
-      "gradientStartRole": "surface",
-      "gradientStartAlpha": 0.95,
-      "gradientEndRole": "surfaceVariant",
-      "gradientEndAlpha": 0.32,
-      "bottomNavigationSurfaceAlpha": 0.96
-    },
     "nativeTypeNotes": "Unmodified Material 3 typography; headline sizes are selected roles, and explicit bold/semibold emphasis remains component-specific.",
     "phoneNavigation": {
       "implementation": "Custom native Compose selectable row",
       "semanticRole": "Role.Tab",
-      "outerCornerRadius": "36dp",
-      "horizontalMargin": "10dp",
-      "verticalMargin": "8dp",
-      "innerPadding": "8dp",
+      "outerCornerRadius": "28dp",
+      "horizontalMargin": "12dp",
+      "verticalMargin": "6dp",
+      "innerPadding": "6dp",
       "itemGap": "4dp",
       "itemCornerRadius": "26dp",
       "itemHorizontalPadding": "2dp",
-      "itemVerticalPadding": "10dp",
-      "itemMinimumInnerHeight": "52dp",
-      "largeFontMinimumInnerHeight": "72dp",
+      "itemVerticalPadding": "8dp",
+      "itemMinimumInnerHeight": "48dp",
+      "largeFontMinimumInnerHeight": "64dp",
       "largeFontThreshold": 1.15,
       "activeBackgroundRole": "primaryContainer",
       "activeBackgroundAlpha": 0.65,
@@ -393,10 +374,43 @@
       "inactiveContentRole": "onSurfaceVariant",
       "iconSize": "24dp",
       "iconLabelGap": "5dp",
-      "labelMaximumLines": 2
+      "labelMaximumLines": 2,
+      "surfaceRole": "surface",
+      "surfaceAlpha": 1,
+      "shadowElevation": "0dp",
+      "contentInset": "Measured navigation bottom inset added to trailing list padding; content continues behind floating bar."
     },
     "planningHeader": "Hová indulunk? headline and reminders bell share one row; no separate wordmark row.",
-    "settingsSource": "Read-only source information replaces backend URL input; direct HTTPS and local caches are product implementation facts, not visual tokens."
+    "settingsSource": "Read-only source information replaces backend URL input; direct HTTPS and local caches are product implementation facts, not visual tokens.",
+    "panels": {
+      "implementationName": "Glass",
+      "surfaceRole": "surface",
+      "surfaceAlpha": 1,
+      "cornerRadius": "28dp",
+      "padding": "20dp",
+      "gradient": false,
+      "shadowElevation": "0dp"
+    },
+    "bottomVeil": {
+      "scope": "Phone only; no fixed background strip or rail veil",
+      "source": "Reused page display list",
+      "blur": "18dp on Android 12+",
+      "height": "Measured navigation bottom inset + 48dp",
+      "mask": "Transparent at 0, opaque at .55 and 1",
+      "tonalFade": "Theme background alpha 0 to .82",
+      "fallback": "Tonal fade on Android 9–11",
+      "controls": "Navigation remains sharp"
+    },
+    "predictiveBack": {
+      "implementation": "PredictiveBackPane",
+      "scaleReduction": ".08 × gesture progress",
+      "horizontalTranslation": ".14 × pane width × progress, signed by swipe edge",
+      "preview": "Previous screen beneath current pane",
+      "completion": "Commit navigation",
+      "cancellation": "Reset progress and retain route",
+      "reducedMotion": "No pane transformations when Android animators are disabled",
+      "modals": "Native sheets retain platform back handling"
+    }
   },
   "components": [
     {
@@ -419,17 +433,17 @@
       "name": "Station field",
       "kind": "input",
       "refersTo": "station-field",
-      "description": "Station-selection row preview; the native row opens the autocomplete sheet.",
+      "description": "Full-width station-selection row on the shared panel surface; the native row opens autocomplete.",
       "html": "<button class=\"ds-station\"><span class=\"ds-station-label\">Honnan?</span><span class=\"ds-station-value\">Megálló kiválasztása</span></button>",
-      "css": ".ds-station{display:flex;flex-direction:column;align-items:flex-start;width:100%;min-height:76px;border:0;border-radius:28px;background:#f8fbff;color:#112d43;padding:16px 18px;text-align:left;font-family:Roboto,Arial,sans-serif}.ds-station-label{color:#4e6581;font-size:14px;line-height:20px}.ds-station-value{font-size:16px;line-height:24px;font-weight:600}.ds-station:hover,.ds-station:active{background:#e3edfa}.ds-station:focus-visible{outline:2px solid #2864d9;outline-offset:2px}"
+      "css": ".ds-station{display:flex;flex-direction:column;align-items:flex-start;width:100%;min-height:76px;border:0;border-radius:28px;background:#f8fbff;color:#112d43;padding:12px 4px;text-align:left;font-family:Roboto,Arial,sans-serif}.ds-station-label{color:#4e6581;font-size:14px;line-height:20px}.ds-station-value{font-size:16px;line-height:24px;font-weight:600}.ds-station:hover,.ds-station:active{background:#e3edfa}.ds-station:focus-visible{outline:2px solid #2864d9;outline-offset:2px}"
     },
     {
       "name": "Glass panel",
       "kind": "card",
       "refersTo": "glass-panel",
-      "description": "Tonal layering preview; CSS shadow approximates the native 3dp elevation only for this panel.",
+      "description": "Solid themed 28dp panel, still named Glass in native code; no gradient or shadow.",
       "html": "<section class=\"ds-glass\"><strong class=\"ds-glass-title\">Legutóbbi keresések</strong><p class=\"ds-glass-copy\">A kereséseidet itt találod majd.</p></section>",
-      "css": ".ds-glass{border-radius:32px;padding:20px;background:linear-gradient(#f8fbfff2,#e3edfa52),#f8fbffdb;box-shadow:0 3px 6px #112d4326;color:#112d43;font-family:Roboto,Arial,sans-serif}.ds-glass-title{font-size:16px;line-height:24px;font-weight:600}.ds-glass-copy{font-size:14px;line-height:20px;color:#4e6581;margin:8px 0 0}"
+      "css": ".ds-glass{border-radius:28px;padding:20px;background:#f8fbff;color:#112d43;font-family:Roboto,Arial,sans-serif}.ds-glass-title{font-size:16px;line-height:24px;font-weight:600}.ds-glass-copy{font-size:14px;line-height:20px;color:#4e6581;margin:8px 0 0}"
     },
     {
       "name": "Transport filter",
@@ -442,14 +456,14 @@
       "name": "Bottom destinations",
       "kind": "nav",
       "refersTo": "bottom-navigation",
-      "description": "HTML illustration of the custom native Role.Tab row: the selected background covers the complete icon and label. Production uses Compose semantics and ripple feedback.",
+      "description": "Opaque floating native Role.Tab row with complete icon-and-label selection. The native bottom veil is documented separately; this HTML preview illustrates the sharp controls.",
       "html": "<nav class=\"ds-nav\" aria-label=\"Fő navigáció\"><button class=\"ds-nav-item ds-nav-selected\" role=\"tab\" aria-selected=\"true\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><circle cx=\"10\" cy=\"10\" r=\"6\"/><path d=\"m15 15 6 6\"/></svg><span>Tervezés</span></button><button class=\"ds-nav-item\" role=\"tab\" aria-selected=\"false\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"m3 5 6-2 6 2 6-2v16l-6 2-6-2-6 2zM9 3v16M15 5v16\"/></svg><span>Térkép</span></button><button class=\"ds-nav-item\" role=\"tab\" aria-selected=\"false\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><rect x=\"3\" y=\"5\" width=\"18\" height=\"14\" rx=\"2\"/><path d=\"M3 10h18\"/></svg><span>Bérletek</span></button><button class=\"ds-nav-item\" role=\"tab\" aria-selected=\"false\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"m9 3-1 3-3 1-2 5 2 5 3 1 1 3h6l1-3 3-1 2-5-2-5-3-1-1-3z\"/><circle cx=\"12\" cy=\"12\" r=\"3\"/></svg><span>Beállítások</span></button></nav>",
-      "css": ".ds-nav{display:flex;align-items:stretch;gap:4px;border-radius:36px;background:#f8fbfff5;padding:8px;margin:8px 10px;box-shadow:0 5px 10px #112d4326}.ds-nav-item{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;flex:1;min-width:0;min-height:52px;border:0;border-radius:26px;background:transparent;color:#4e6581;padding:10px 2px;font:500 12px/16px Roboto,Arial,sans-serif;text-align:center}.ds-nav-item span{max-width:100%;overflow-wrap:anywhere}.ds-nav-selected{background:#dceaffa6;color:#2864d9}.ds-nav-item:hover,.ds-nav-item:active{background-color:#e3edfa}.ds-nav-item:focus-visible{outline:2px solid #2864d9;outline-offset:2px}"
+      "css": ".ds-nav{display:flex;align-items:stretch;gap:4px;border-radius:28px;background:#f8fbff;padding:6px;margin:6px 12px}.ds-nav-item{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;flex:1;min-width:0;min-height:48px;border:0;border-radius:26px;background:transparent;color:#4e6581;padding:8px 2px;font:500 12px/16px Roboto,Arial,sans-serif;text-align:center}.ds-nav-item span{max-width:100%;overflow-wrap:anywhere}.ds-nav-selected{background:#dceaffa6;color:#2864d9}.ds-nav-item:hover,.ds-nav-item:active{background-color:#e3edfa}.ds-nav-item:focus-visible{outline:2px solid #2864d9;outline-offset:2px}"
     }
   ],
   "narrative": {
     "northStar": "Icy blue ground, ink text, royal-blue actions, fully rounded milky panels",
-    "overview": "MenetrendGO feels calm, legible and direct. Its slight glass character comes from pale tonal layers, a restrained vertical highlight and soft native elevation. Large rounded forms hold useful Hungarian text and familiar Material vector icons; the interface does not rely on decorative artwork.\n\nThis records the implemented Android world, adapted from the approved concept A. Roboto, Material controls, system bars and platform interaction anatomy are intentional. The native source is authoritative when a reference image differs. Source: `MainActivity.kt`, `PlanningScreens.kt`, `UtilityScreens.kt`, `NearbyScreen.kt` and bundled `map.html` under `app/src/main`.",
+    "overview": "MenetrendGO feels calm, legible and direct. Its rounded character comes from solid themed panels and pale tonal separation. A feathered bottom blur softens content behind the floating phone navigation. Large rounded forms hold useful Hungarian text and familiar Material vector icons; the interface does not rely on decorative artwork.\n\nThis records the implemented Android world, adapted from the approved concept A. Roboto, Material controls, system bars and platform interaction anatomy are intentional. The native source is authoritative when a reference image differs. Source: `MainActivity.kt`, `PlanningScreens.kt`, `UtilityScreens.kt`, `NearbyScreen.kt` and bundled `map.html` under `app/src/main`.",
     "keyCharacteristics": [
       "Icy blue and milky surfaces with strong ink text.",
       "Fully rounded panels, fields, pills and navigation.",

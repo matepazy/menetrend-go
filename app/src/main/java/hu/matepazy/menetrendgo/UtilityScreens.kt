@@ -5,13 +5,17 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
-import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.shape.*
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.ui.semantics.Role
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
@@ -111,8 +115,8 @@ private val Counties=listOf("Baranya","Bács-Kiskun","Békés","Borsod-Abaúj-Ze
                 OutlinedButton(onClick={countyOpen=true},shape=CircleShape,modifier=Modifier.fillMaxWidth().heightIn(min=52.dp)){Text(county);Icon(Icons.Outlined.ExpandMore,null)}
                 DropdownMenu(expanded=countyOpen,onDismissRequest={countyOpen=false},modifier=Modifier.heightIn(max=300.dp)) {Counties.forEach {name->DropdownMenuItem(text={Text(name)},onClick={county=name;countyOpen=false})}}
             }
-            OutlinedButton(onClick={calendar="start"},shape=CircleShape,modifier=Modifier.fillMaxWidth().heightIn(min=54.dp)){Text("Érvényes ettől: $starts")}
-            OutlinedButton(onClick={calendar="end"},shape=CircleShape,modifier=Modifier.fillMaxWidth().heightIn(min=54.dp)){Text("Lejárat napja: $expires")}
+            OutlinedButton(onClick={calendar="start"},shape=RoundedCornerShape(24.dp),modifier=Modifier.fillMaxWidth().heightIn(min=54.dp)){Text("Érvényes ettől: $starts",Modifier.weight(1f));Icon(Icons.Outlined.CalendarToday,null)}
+            OutlinedButton(onClick={calendar="end"},shape=RoundedCornerShape(24.dp),modifier=Modifier.fillMaxWidth().heightIn(min=54.dp)){Text("Lejárat napja: $expires",Modifier.weight(1f));Icon(Icons.Outlined.CalendarToday,null)}
             Text("A bérleten feltüntetett dátumokat add meg. A lejárat napjának végéig számolunk.",style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
             if(expires.isBefore(starts)) Text("A lejárat nem előzheti meg a kezdőnapot.",color=MaterialTheme.colorScheme.error)
             MainButton("Bérlet mentése",Icons.Outlined.Check,!expires.isBefore(starts)) {save(Pass(pass?.id ?: UUID.randomUUID().toString(),if(country) null else county,starts,expires))}
@@ -129,16 +133,29 @@ private val Counties=listOf("Baranya","Bács-Kiskun","Békés","Borsod-Abaúj-Ze
 }
 
 @Composable fun SettingsScreen(vm: AppState) {
-    val context=LocalContext.current
     var developer by rememberSaveable {mutableStateOf(false)}
-    BackHandler(enabled=developer) {developer=false}
+    PredictiveBackPane(enabled=developer,onBack={developer=false},preview={SettingsContent(vm,false) {}}) {
+        SettingsContent(vm,developer) {developer=it}
+    }
+}
+
+@Composable private fun SettingsContent(vm: AppState, developer: Boolean, onDeveloper: (Boolean) -> Unit) {
+    val context=LocalContext.current
     LazyColumn(Modifier.fillMaxSize(),contentPadding=PaddingValues(start=20.dp,top=20.dp,end=20.dp,bottom=20.dp+LocalBottomOverlayInset.current),verticalArrangement=Arrangement.spacedBy(20.dp)) {
-        item {PageTitle(if(developer) "Fejlesztői beállítások" else "Beállítások",back=if(developer) ({developer=false}) else null)}
+        item {PageTitle(if(developer) "Fejlesztői beállítások" else "Beállítások",back=if(developer) ({onDeveloper(false)}) else null)}
         if(!developer) {
         item {Glass(Modifier.fillMaxWidth()) {
             Text("Megjelenés",style=MaterialTheme.typography.titleLarge,fontWeight=FontWeight.SemiBold)
-            listOf("system" to "Rendszer szerint","light" to "Világos","dark" to "Sötét").forEach {(value,label)->
-                Row(Modifier.fillMaxWidth().clickable {vm.chooseTheme(value)}.padding(vertical=3.dp),verticalAlignment=Alignment.CenterVertically){RadioButton(vm.theme==value,{vm.chooseTheme(value)});Text(label)}
+            Spacer(Modifier.height(8.dp))
+            Column(Modifier.selectableGroup()) {
+                listOf("system" to "Rendszer szerint","light" to "Világos","dark" to "Sötét").forEach {(value,label)->
+                    Row(Modifier.fillMaxWidth().heightIn(min=56.dp)
+                        .selectable(selected=vm.theme==value,role=Role.RadioButton,onClick={vm.chooseTheme(value)}),
+                        verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(12.dp)) {
+                        RadioButton(selected=vm.theme==value,onClick=null)
+                        Text(label,Modifier.weight(1f),style=MaterialTheme.typography.bodyLarge)
+                    }
+                }
             }
         }}
         } else {
@@ -158,7 +175,7 @@ private val Counties=listOf("Baranya","Bács-Kiskun","Békés","Borsod-Abaúj-Ze
             TextButton(onClick={context.startActivity(Intent(android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(android.provider.Settings.EXTRA_APP_PACKAGE,context.packageName))}){Text("Android értesítésbeállítások")}
         }}
         item {Text("MenetrendGO · ${BuildConfig.VERSION_NAME}\nNem hivatalos alkalmazás. Az adatok hiányozhatnak vagy késhetnek.",style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)}
-        item {TextButton(onClick={developer=true}){Text("Fejlesztői beállítások")}}
+        item {TextButton(onClick={onDeveloper(true)}){Text("Fejlesztői beállítások")}}
         }
     }
 }
