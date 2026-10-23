@@ -136,7 +136,6 @@ import java.time.format.DateTimeFormatter
                 }
             }
         }
-        item { Text("MÁV-adatokkal · Nem hivatalos alkalmazás",style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant,modifier=Modifier.padding(top=12.dp,bottom=16.dp)) }
     }
     if(datePicker) JourneyDatePicker(vm) {datePicker=false}
     if(timePicker) JourneyTimePicker(vm) {timePicker=false}
