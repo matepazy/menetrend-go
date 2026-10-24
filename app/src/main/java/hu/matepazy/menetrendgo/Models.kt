@@ -78,7 +78,7 @@ data class Journey(val duration: Int, val legs: List<Leg>, val rawGraphQl: Strin
 }
 data class Pass(val id: String, val county: String?, val starts: LocalDate, val expires: LocalDate,
                 val localCity: String? = null, val thirtyDays: Boolean = expires == starts.plusDays(29)) {
-    val name get() = localCity?.let { "$it · helyi bérlet" } ?: county?.let { "$it vármegyebérlet" } ?: "Országbérlet"
+    val name get() = localCity?.let { "$it · helyi bérlet" } ?: county?.let { "$it megyebérlet" } ?: "Országbérlet"
     fun json() = JSONObject().put("id", id).put("county", county ?: "").put("starts", starts.toString()).put("expires", expires.toString())
         .put("localCity", localCity ?: "").put("thirtyDays", thirtyDays)
     fun validAt(millis: Long): Boolean {

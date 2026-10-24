@@ -45,13 +45,13 @@ internal fun passDate(date: LocalDate): String = date.format(PassDateFormat)
             Column(verticalArrangement=Arrangement.spacedBy(8.dp)) {
                 Text("Bérlet típusa",style=MaterialTheme.typography.titleMedium,fontWeight=FontWeight.SemiBold)
                 FlowRow(horizontalArrangement=Arrangement.spacedBy(AppLayout.CompactGap),verticalArrangement=Arrangement.spacedBy(AppLayout.CompactGap)) {
-                    listOf("country" to "Ország", "county" to "Vármegye", "local" to "Helyi").forEach {(value,label)->
+                    listOf("country" to "Ország", "county" to "Megye", "local" to "Helyi").forEach {(value,label)->
                         FilterChip(type==value,{type=value},label={Text(label)},leadingIcon=if(type==value) ({Icon(Icons.Outlined.Check,null,Modifier.size(18.dp))}) else null,shape=CircleShape,modifier=Modifier.heightIn(min=48.dp))
                     }
                 }
                 if(type=="county") Box {
                     OutlinedButton(onClick={countyOpen=true},shape=RoundedCornerShape(24.dp),modifier=Modifier.fillMaxWidth().heightIn(min=56.dp)) {
-                        Text("$county vármegye",Modifier.weight(1f));Icon(Icons.Outlined.ExpandMore,"Vármegye kiválasztása")
+                        Text("$county megye",Modifier.weight(1f));Icon(Icons.Outlined.ExpandMore,"Megye kiválasztása")
                     }
                     DropdownMenu(expanded=countyOpen,onDismissRequest={countyOpen=false},modifier=Modifier.heightIn(max=300.dp)) {Counties.forEach {name->DropdownMenuItem(text={Text(name)},onClick={county=name;countyOpen=false})}}
                 }

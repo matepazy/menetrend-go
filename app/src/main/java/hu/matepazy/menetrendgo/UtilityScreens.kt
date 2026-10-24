@@ -63,7 +63,7 @@ internal val Counties=listOf("Baranya","Bács-Kiskun","Békés","Borsod-Abaúj-Z
     LazyColumn(Modifier.fillMaxSize(),contentPadding=screenContentPadding(),verticalArrangement=Arrangement.spacedBy(AppLayout.ItemGap)) {
         item {PageTitle("Bérletek","Lejárat és emlékeztetők, egy helyen")}
         item {MainButton("Bérlet hozzáadása",Icons.Outlined.Add){editingId=null;add=true}}
-        if(vm.passes.isEmpty()) item {InfoPanel("Mikor jár le a bérleted?","Ország-, vármegye- vagy helyi bérletet is menthetsz. Add meg a rajta szereplő dátumokat. Három és egy nappal a lejárat előtt, majd a lejárat után emlékeztetünk.")}
+        if(vm.passes.isEmpty()) item {InfoPanel("Mikor jár le a bérleted?","Ország-, megye- vagy helyi bérletet is menthetsz. Add meg a rajta szereplő dátumokat. Három és egy nappal a lejárat előtt, majd a lejárat után emlékeztetünk.")}
         items(vm.passes.sortedWith(compareBy<Pass> {it.expires.isBefore(today)}.thenBy {it.expires}),key={it.id}) {pass ->
             Glass(Modifier.fillMaxWidth()) {
                 Row(verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(12.dp)) {
@@ -96,7 +96,7 @@ internal val Counties=listOf("Baranya","Bács-Kiskun","Békés","Borsod-Abaúj-Z
             } else Text("Emlékeztetők: 3 és 1 nappal korábban, majd lejárat után, 9 órakor. Az Android energiatakarékossága késleltetheti őket.",style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
         }
         item {Text("Ez egy helyi bérletnyilvántartás, nem utazási igazolvány. A bérletet a hivatalos alkalmazásban vagy eredeti formájában mutasd be.",style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)}
-        item {TextButton(onClick={context.startActivity(Intent(Intent.ACTION_VIEW,Uri.parse("https://www.ujtarifa.hu/orszagberlet")))}){Text("Ország- és vármegyebérlet feltételei");Icon(Icons.Outlined.OpenInNew,null,Modifier.padding(start=8.dp).size(16.dp))}}
+        item {TextButton(onClick={context.startActivity(Intent(Intent.ACTION_VIEW,Uri.parse("https://www.ujtarifa.hu/orszagberlet")))}){Text("Ország- és megyebérlet feltételei");Icon(Icons.Outlined.OpenInNew,null,Modifier.padding(start=8.dp).size(16.dp))}}
     }
     if(add) PassEditor(editing,onDismiss={add=false}) {pass -> vm.addPass(pass);add=false;requestNotifications()}
     if(remove!=null) AlertDialog(onDismissRequest={remove=null},shape=RoundedCornerShape(32.dp),title={Text("Törlöd a bérletet?")},text={Text("A hozzá tartozó emlékeztetők is megszűnnek.")},confirmButton={TextButton(onClick={vm.removePass(remove!!);remove=null}){Text("Törlés")}},dismissButton={TextButton(onClick={remove=null}){Text("Mégse")}})

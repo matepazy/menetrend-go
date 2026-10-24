@@ -25,7 +25,7 @@ fun passAdvice(passes: List<Pass>, journey: Journey, geography: PassGeography?=n
         val regional=leg.mode in setOf("RAIL","COACH","SUBURBAN_RAILWAY","TRAMTRAIN","RAIL_REPLACEMENT_BUS")
         if((!supported || !regional) && !bkk) return PassAdvice("A szolgáltató elfogadását ellenőrizni kell",
             "${leg.route}: a mentett bérlet dátuma megfelelő, de erre a helyi vagy különleges járatra nincs igazolt elfogadási szabály.")
-        if(bkk && leg.route.trim().equals("100E",true)) return PassAdvice("A 100E-re külön jegy szükséges","Az ország- és vármegyebérlet nem érvényes a Repülőtéri Expresszre.")
+        if(bkk && leg.route.trim().equals("100E",true)) return PassAdvice("A 100E-re külön jegy szükséges","Az ország- és megyebérlet nem érvényes a Repülőtéri Expresszre.")
         val national=active.firstOrNull {it.county==null}
         val counties=active.mapNotNull {it.county}.toSet()
         val territory=geography?.coverage(leg,if(national!=null) null else counties) ?: Coverage.UNKNOWN
@@ -34,13 +34,13 @@ fun passAdvice(passes: List<Pass>, journey: Journey, geography: PassGeography?=n
         if(territory==Coverage.UNKNOWN) return PassAdvice("A területi érvényességet ellenőrizni kell",
             "${leg.route}: a dátum megfelelő, de az útvonal hiányzik vagy közel halad a bérlet területének határához. A határmegállók és kivételek feltételeit ellenőrizd a szolgáltatónál.")
         if(bkk && national==null && "Pest" !in counties) return PassAdvice("Ehhez a helyi járathoz másik jegy kell",
-            "A BKK járatain a mentett vármegyebérletek közül csak a Pest vármegyebérlet használható.")
+            "A BKK járatain a mentett megyebérletek közül csak a Pest megyebérlet használható.")
         if(leg.mode=="RAIL") {
             val name=hungarianServiceName(leg.category,leg.mode)
             val usuallyUnreserved=name in setOf("Személyvonat","Gyorsított személyvonat","Zónázó vonat","InterRégió","Sebesvonat") ||
                 Regex("^[SZG]\\d+$").matches(leg.route.trim())
             if(!usuallyUnreserved && national==null) return PassAdvice("A vonat helyjegymentességét ellenőrizni kell",
-                "${leg.route}: a vármegyebérlet csak a helyjegy nélkül igénybe vehető 2. osztályon használható. A vonatkategória alapján a kiválasztott szakasz vagy kocsi helyjegymentessége nem dönthető el.")
+                "${leg.route}: a megyebérlet csak a helyjegy nélkül igénybe vehető 2. osztályon használható. A vonatkategória alapján a kiválasztott szakasz vagy kocsi helyjegymentessége nem dönthető el.")
             reservationCheck=reservationCheck || !usuallyUnreserved
         }
         used+=national?.name ?: active.filter {it.county in counties}.joinToString(" + ") {it.name}

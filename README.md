@@ -9,7 +9,7 @@ A MenetrendGO független projekt, nem a MÁV hivatalos alkalmazása. A menetrend
 - **Tervezés:** megállókeresés, indulási vagy érkezési idő szerinti útvonaltervezés, helyben mentett keresési előzmények.
 - **Útvonalrészletek:** átszállások, köztes megállók, menetrendi és várható időpontok, késések, a kiválasztott útvonal megjelenítése térképen.
 - **Térkép:** élő járműpozíciók, járatrészletek és megállók, járműtípus és azonosítók, ha a szolgáltató megadja őket. Alap-, műholdas, hibrid és vasúti térképnézet.
-- **Bérletek:** ország-, vármegye- és helyi bérletek rögzítése, szerkesztése, lejárati emlékeztetők, tájékoztató jellegű érvényességi ellenőrzés az útvonalon.
+- **Bérletek:** ország-, megye- és helyi bérletek rögzítése, szerkesztése, lejárati emlékeztetők, tájékoztató jellegű érvényességi ellenőrzés az útvonalon.
 - **Beállítások:** világos, sötét vagy rendszer szerinti megjelenés, értesítések és helyi adatok kezelése, stabil és béta alkalmazásfrissítések.
 
 Az élő járműadatok és a megnyitott járat adatai előtérben 75 másodpercenként frissülnek. A keresési találatok új kereséssel frissíthetők. A működéshez internetkapcsolat szükséges, az alkalmazás nem tartalmaz offline menetrendi adatbázist.
@@ -84,7 +84,7 @@ Fork esetén a frissítési forrást a `VersionUpdater.kt` fájlban, a projekt h
 | Útvonal | Tartalom |
 | --- | --- |
 | `app/src/main/java/hu/matepazy/menetrendgo/` | Compose-felület, állapotkezelés, adatkapcsolat, bérletek és frissítések |
-| `app/src/main/assets/` | Leaflet-térkép, vármegyehatárok és a hozzájuk tartozó licencinformációk |
+| `app/src/main/assets/` | Leaflet-térkép, megyehatárok és a hozzájuk tartozó licencinformációk |
 | `app/src/main/res/` | Android-erőforrások és ikonok |
 | `app/src/test/` | JVM-egységtesztek |
 | `branding/` | Vektoros logók és ikonváltozatok |
