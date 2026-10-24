@@ -2,7 +2,7 @@
 version: 1
 slug: "main-java-hu-matepazy-menetrendgo-mainactivity-kt"
 primary_target: "app/src/main/java/hu/matepazy/menetrendgo/MainActivity.kt"
-related_targets: ["app/src/main/java/hu/matepazy/menetrendgo/PlanningScreens.kt","app/src/main/java/hu/matepazy/menetrendgo/UtilityScreens.kt","app/src/main/java/hu/matepazy/menetrendgo/NearbyScreen.kt","app/src/main/assets/map.html"]
+related_targets: ["app/src/main/java/hu/matepazy/menetrendgo/PlanningScreens.kt","app/src/main/java/hu/matepazy/menetrendgo/UtilityScreens.kt","app/src/main/java/hu/matepazy/menetrendgo/SettingsScreen.kt","app/src/main/java/hu/matepazy/menetrendgo/NearbyScreen.kt","app/src/main/assets/map.html"]
 ---
 
 # Android app · Operate
@@ -15,6 +15,10 @@ Comp pixel samples: ground #ebf5fb, panel #eaf3fb, action #3675f0. Compose roles
 
 Asset inventory: typography, controls, rounded panels and navigation are semantic Compose; icons are Material vector icons; launcher is an authored VectorDrawable. The map alone uses bundled Leaflet with runtime OpenStreetMap tiles. No generated image is shipped as interface content. Mockup prompts and approvals remain with each image.
 
+Settings composition (2026-10-24): the approved compact home list opens separate Appearance, Notifications, Data and About screens. Summaries show current theme, Android notification availability, saved-search count or empty state, and version. Flat rows share solid 28dp rounded groups with 20dp horizontal/16dp vertical padding. Supporting explanations live on the destination screens. Appearance uses native radio rows; notification availability refreshes on resume from Android settings. History deletion requires confirmation, preserves passes and is disabled when history is empty. About contains Developer; Back from Developer returns to About. The default-off raw-data switch is a single semantic toggle row. This local composition retains the established native Operate world, global tokens and blue rounded identity.
+
+Settings verification: `.impeccable/settings-verification.md` records build/lint, all destinations, dark appearance, font scale 1.3, expanded layout, Android notification settings return and deletion cancellation. Independent finish review: Ship across 13 native captures, no material findings. Existing search history was retained; actual deletion, notification delivery, independent TalkBack and physical gesture performance were outside this verification.
+
 Verification scope: Android phone plus expanded-width and larger-font checks on the emulator, light/dark. No claim about hardware performance, exact alarm delivery or complete fare entitlement. Unknown service eligibility remains explicit.
 
 Phone navigation: margins 12dp horizontally and 6dp vertically, inner padding 6dp, item gap 4dp, item corners 26dp, item padding 2dp horizontal/8dp vertical, inner minimum height 48dp (64dp above font scale 1.15). Content continues behind the floating bar; measured bottom padding lets final controls scroll clear. There is no fixed background strip. A bottom-only reused display-list blur (18dp, Android 12+) sits behind the sharp navigation controls, with veil height equal to measured navigation inset plus 48dp, transparent-to-opaque mask reaching opacity at .55 and a theme-background fade from alpha 0 to .82. Android 9–11 use the fade fallback; rail layouts have no bottom veil.
@@ -23,4 +27,4 @@ Predictive back: previous-screen preview under the current pane, progress-driven
 
 This simplification retains the inherited visual world and the approved concept A lineage; no new comp was generated. The independent finish review reported a scoped ship with no material visual defect across 15 native captures. This documentation refresh checks source values and does not add emulator or hardware-performance evidence.
 
-Developer inspection: The default-off developer setting “Nyers GraphQL adatok mutatása” reveals a top-right overflow menu on journey details. “Nyers adatok” opens a nearly full-height native bottom sheet with selectable, wrapping monospace JSON, copy and close controls. Formatting runs off the main thread and rows are lazy. The view describes the complete GraphQL response containing the selected journey; copy uses the exact original response body, preserved before normalization and attributed to that journey’s search batch. Raw responses stay in memory; only the toggle is saved locally.
+Developer inspection: The default-off developer setting “Nyers GraphQL adatok” reveals a top-right overflow menu on journey details. “Nyers adatok” opens a nearly full-height native bottom sheet with selectable, wrapping monospace JSON, copy and close controls. Formatting runs off the main thread and rows are lazy. The view describes the complete GraphQL response containing the selected journey; copy uses the exact original response body, preserved before normalization and attributed to that journey’s search batch. Raw responses stay in memory; only the toggle is saved locally.

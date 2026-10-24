@@ -120,7 +120,7 @@ components:
 
 MenetrendGO feels calm, legible and direct. Its rounded character comes from solid themed panels and pale tonal separation. A feathered bottom blur softens content behind the floating phone navigation. Large rounded forms hold useful Hungarian text and familiar Material vector icons; the interface does not rely on decorative artwork.
 
-This records the implemented Android world, adapted from the approved concept A. Roboto, Material controls, system bars and platform interaction anatomy are intentional. The native source is authoritative when a reference image differs. Source: `MainActivity.kt`, `PlanningScreens.kt`, `UtilityScreens.kt`, `NearbyScreen.kt` and bundled `map.html` under `app/src/main`.
+This records the implemented Android world, adapted from the approved concept A. Roboto, Material controls, system bars and platform interaction anatomy are intentional. The native source is authoritative when a reference image differs. Source: `MainActivity.kt`, `PlanningScreens.kt`, `UtilityScreens.kt`, `SettingsScreen.kt`, `NearbyScreen.kt` and bundled `map.html` under `app/src/main`.
 
 **Key Characteristics:**
 
@@ -209,9 +209,15 @@ Transport filters are pill-shaped Material filter chips with a tonal selected st
 
 Four persistent destinations use icons and Hungarian labels: Tervezés, Térkép, Bérletek and Beállítások. Phone navigation is a custom native Compose row inside a solid, opaque rounded milky surface; expanded layouts use the native rail. Each equal-width item is selectable with `Role.Tab` semantics. The active background covers the complete icon-and-label item using primary-container alpha (.65), with both icon and label tinted primary; inactive items are transparent with on-surface-variant content. Icons are (24dp), followed by a gap (5dp) and centered label-medium text. Back navigation uses `PredictiveBackPane`: gesture progress previews the previous screen and scales the current pane by up to .08 while translating it by up to .14 of its width away from either swipe edge. It commits on completion, resets on cancellation, and disables pane transformations when system animators are disabled. Native modal sheets retain their own back behavior. Subordinate screens also expose a visible back action. Labels remain visible and may wrap to two lines.
 
+### Settings
+
+Beállítások opens with a compact list linking to Megjelenés, Értesítések, Adatok és előzmények and Az alkalmazásról. Home summaries show the current theme, Android notification availability, saved-search count or empty state, and app version. Flat rows share solid 28dp rounded groups, with 20dp horizontal/16dp vertical row padding, title-medium labels, body-medium summaries and directional or external-link icons. Explanations belong on the destination screens. This is a local composition within the existing Android world, with no separate palette or token scale.
+
+Appearance offers System, Light and Dark as native radio rows. Notifications opens Android's app notification settings and refreshes availability on resume. Data requires confirmation before clearing search history, preserves passes and disables the action when history is empty. About holds version, source information and the Developer destination; Developer Back returns to About. The default-off raw-data switch uses one semantic toggle row. Settings retain visible Back actions, `PredictiveBackPane`, native text scaling and measured bottom-navigation clearance.
+
 ### Developer data viewer
 
-The default-off “Nyers GraphQL adatok mutatása” developer setting reveals a top-right overflow menu on journey details. “Nyers adatok” opens a native bottom sheet with selectable, wrapping monospace JSON, copy and close controls. Formatting runs off the main thread and rows are lazy. The viewer describes the complete response containing the selected journey; copy uses the exact original body, preserved before normalization and retained with that journey's search batch. Raw responses stay in memory; only the toggle is saved locally.
+The default-off “Nyers GraphQL adatok” developer setting reveals a top-right overflow menu on journey details. “Nyers adatok” opens a native bottom sheet with selectable, wrapping monospace JSON, copy and close controls. Formatting runs off the main thread and rows are lazy. The viewer describes the complete response containing the selected journey; copy uses the exact original body, preserved before normalization and retained with that journey's search batch. Raw responses stay in memory; only the toggle is saved locally.
 
 ### Map
 

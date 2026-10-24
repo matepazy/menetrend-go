@@ -11,12 +11,6 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.shape.*
-import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.selection.selectableGroup
-import androidx.compose.foundation.selection.toggleable
-import androidx.compose.ui.semantics.Role
-import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
@@ -106,62 +100,4 @@ internal val Counties=listOf("Baranya","Bács-Kiskun","Békés","Borsod-Abaúj-Z
     }
     if(add) PassEditor(editing,onDismiss={add=false}) {pass -> vm.addPass(pass);add=false;requestNotifications()}
     if(remove!=null) AlertDialog(onDismissRequest={remove=null},shape=RoundedCornerShape(32.dp),title={Text("Törlöd a bérletet?")},text={Text("A hozzá tartozó emlékeztetők is megszűnnek.")},confirmButton={TextButton(onClick={vm.removePass(remove!!);remove=null}){Text("Törlés")}},dismissButton={TextButton(onClick={remove=null}){Text("Mégse")}})
-}
-
-@Composable fun SettingsScreen(vm: AppState) {
-    var developer by rememberSaveable {mutableStateOf(false)}
-    PredictiveBackPane(enabled=developer,onBack={developer=false},preview={SettingsContent(vm,false) {}}) {
-        SettingsContent(vm,developer) {developer=it}
-    }
-}
-
-@Composable private fun SettingsContent(vm: AppState, developer: Boolean, onDeveloper: (Boolean) -> Unit) {
-    val context=LocalContext.current
-    LazyColumn(Modifier.fillMaxSize(),contentPadding=PaddingValues(start=20.dp,top=20.dp,end=20.dp,bottom=20.dp+LocalBottomOverlayInset.current),verticalArrangement=Arrangement.spacedBy(20.dp)) {
-        item {PageTitle(if(developer) "Fejlesztői beállítások" else "Beállítások",back=if(developer) ({onDeveloper(false)}) else null)}
-        if(!developer) {
-        item {Glass(Modifier.fillMaxWidth()) {
-            Text("Megjelenés",style=MaterialTheme.typography.titleLarge,fontWeight=FontWeight.SemiBold)
-            Spacer(Modifier.height(8.dp))
-            Column(Modifier.selectableGroup()) {
-                listOf("system" to "Rendszer szerint","light" to "Világos","dark" to "Sötét").forEach {(value,label)->
-                    Row(Modifier.fillMaxWidth().heightIn(min=56.dp)
-                        .selectable(selected=vm.theme==value,role=Role.RadioButton,onClick={vm.chooseTheme(value)}),
-                        verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(12.dp)) {
-                        RadioButton(selected=vm.theme==value,onClick=null)
-                        Text(label,Modifier.weight(1f),style=MaterialTheme.typography.bodyLarge)
-                    }
-                }
-            }
-        }}
-        } else {
-        item {Glass(Modifier.fillMaxWidth()) {
-            Row(Modifier.fillMaxWidth().heightIn(min=56.dp)
-                .toggleable(value=vm.showRawGraphQl,role=Role.Switch,onValueChange=vm::chooseRawGraphQl),
-                verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(16.dp)) {
-                Text("Nyers GraphQL adatok mutatása",Modifier.weight(1f),style=MaterialTheme.typography.titleMedium)
-                Switch(checked=vm.showRawGraphQl,onCheckedChange=null)
-            }
-            Spacer(Modifier.height(8.dp))
-            Text("Az utazás részleteinél megjelenik a Nyers adatok menüpont.",style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)
-        }}
-        item {Glass(Modifier.fillMaxWidth()) {
-            Text("Adatforrás",style=MaterialTheme.typography.titleLarge,fontWeight=FontWeight.SemiBold)
-            Spacer(Modifier.height(8.dp));Text("Közvetlen MÁV-kapcsolat · OTP GraphQL. Az adatfeldolgozás és a gyorsítótár ezen az eszközön fut. Nincs külön MenetrendGO-kiszolgáló.",color=MaterialTheme.colorScheme.onSurfaceVariant)
-            Spacer(Modifier.height(12.dp));Text("mavplusz.hu · HTTPS\nJárműadatok frissítése: 75 másodpercenként, amíg a térképet vagy a járatot nézed.",style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
-            Spacer(Modifier.height(12.dp));Text("Verzió: ${BuildConfig.VERSION_NAME}",style=MaterialTheme.typography.bodySmall)
-        }}
-        item {TextButton(onClick={context.startActivity(Intent(Intent.ACTION_VIEW,Uri.parse("https://github.com/matepazy/hovamegy.hu")))}){Text("Backend alapja: hovamegy.hu")}}
-        }
-        if(!developer) {
-        item {Glass(Modifier.fillMaxWidth()) {
-            Text("Adatok és értesítések",style=MaterialTheme.typography.titleLarge,fontWeight=FontWeight.SemiBold)
-            Spacer(Modifier.height(8.dp));Text("Bérleteid és keresési előzményeid ezen az eszközön maradnak. Nincs fiók vagy analitika. A keresett megállók és az időpont közvetlenül a MÁV-hoz kerülnek; a térképcsempéket az OpenStreetMap szolgáltatja.",color=MaterialTheme.colorScheme.onSurfaceVariant)
-            TextButton(onClick={vm.clearRecents()}){Text("Keresési előzmények törlése")}
-            TextButton(onClick={context.startActivity(Intent(android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(android.provider.Settings.EXTRA_APP_PACKAGE,context.packageName))}){Text("Android értesítésbeállítások")}
-        }}
-        item {Text("MenetrendGO · ${BuildConfig.VERSION_NAME}\nNem hivatalos alkalmazás. Az adatok hiányozhatnak vagy késhetnek.",style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)}
-        item {TextButton(onClick={onDeveloper(true)}){Text("Fejlesztői beállítások")}}
-        }
-    }
 }

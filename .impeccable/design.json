@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-23T12:53:23.406Z",
+  "generatedAt": "2026-10-24T09:59:56Z",
   "title": "Design System: MenetrendGO",
   "extensions": {
     "colorMeta": {
@@ -382,6 +382,18 @@
     },
     "planningHeader": "Hová indulunk? headline and reminders bell share one row; no separate wordmark row.",
     "settingsSource": "Read-only source information replaces backend URL input; direct HTTPS and local caches are product implementation facts, not visual tokens.",
+    "settings": {
+      "source": "app/src/main/java/hu/matepazy/menetrendgo/SettingsScreen.kt",
+      "scope": "Local composition within the existing Android Operate world; no global brand or token change.",
+      "home": "Compact grouped list for Appearance, Notifications, Data and About; summaries show current theme, Android notification availability, saved-search count or empty state, and version.",
+      "groups": "Flat surface-role containers with 28dp corners; rows use 20dp horizontal/16dp vertical padding, titleMedium labels, bodyMedium summaries and chevrons or external-link icons.",
+      "appearance": "One native selectable radio row per System, Light and Dark option.",
+      "notifications": "Native Android notification settings link; availability refreshes on ON_RESUME. Explanations stay on the detail screen.",
+      "data": "History deletion requires confirmation, preserves passes and is disabled for empty history.",
+      "about": "Version and source information; Developer is nested here and Back returns to About. Raw-data switch is default-off with Role.Switch semantics.",
+      "navigation": "Visible Back actions and PredictiveBackPane; native font scaling and measured bottom-navigation clearance.",
+      "verification": ".impeccable/settings-verification.md records 13 native emulator captures and independent Ship review; actual history deletion and notification delivery were not exercised."
+    },
     "panels": {
       "implementationName": "Glass",
       "surfaceRole": "surface",
@@ -463,7 +475,7 @@
   ],
   "narrative": {
     "northStar": "Icy blue ground, ink text, royal-blue actions, fully rounded milky panels",
-    "overview": "MenetrendGO feels calm, legible and direct. Its rounded character comes from solid themed panels and pale tonal separation. A feathered bottom blur softens content behind the floating phone navigation. Large rounded forms hold useful Hungarian text and familiar Material vector icons; the interface does not rely on decorative artwork.\n\nThis records the implemented Android world, adapted from the approved concept A. Roboto, Material controls, system bars and platform interaction anatomy are intentional. The native source is authoritative when a reference image differs. Source: `MainActivity.kt`, `PlanningScreens.kt`, `UtilityScreens.kt`, `NearbyScreen.kt` and bundled `map.html` under `app/src/main`. The default-off developer setting “Nyers GraphQL adatok mutatása” reveals a top-right overflow menu on journey details. “Nyers adatok” opens a nearly full-height native bottom sheet with selectable, wrapping monospace JSON, copy and close controls. Formatting runs off the main thread and rows are lazy. The view describes the complete GraphQL response containing the selected journey; copy uses the exact original response body, preserved before normalization and attributed to that journey’s search batch. Raw responses stay in memory; only the toggle is saved locally.",
+    "overview": "MenetrendGO feels calm, legible and direct. Its rounded character comes from solid themed panels and pale tonal separation. A feathered bottom blur softens content behind the floating phone navigation. Large rounded forms hold useful Hungarian text and familiar Material vector icons; the interface does not rely on decorative artwork.\n\nThis records the implemented Android world, adapted from the approved concept A. Roboto, Material controls, system bars and platform interaction anatomy are intentional. The native source is authoritative when a reference image differs. Source: `MainActivity.kt`, `PlanningScreens.kt`, `UtilityScreens.kt`, `SettingsScreen.kt`, `NearbyScreen.kt` and bundled `map.html` under `app/src/main`. The default-off developer setting “Nyers GraphQL adatok” reveals a top-right overflow menu on journey details. “Nyers adatok” opens a nearly full-height native bottom sheet with selectable, wrapping monospace JSON, copy and close controls. Formatting runs off the main thread and rows are lazy. The view describes the complete GraphQL response containing the selected journey; copy uses the exact original response body, preserved before normalization and attributed to that journey’s search batch. Raw responses stay in memory; only the toggle is saved locally.",
     "keyCharacteristics": [
       "Icy blue and milky surfaces with strong ink text.",
       "Fully rounded panels, fields, pills and navigation.",
