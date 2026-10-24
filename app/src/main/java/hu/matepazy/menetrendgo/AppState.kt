@@ -11,6 +11,7 @@ import java.time.Instant
 
 class AppState(app: Application) : AndroidViewModel(app) {
     private val prefs = app.getSharedPreferences("menetrendgo", 0)
+    val updates = UpdateController(app, viewModelScope)
     private val mav=MavClient()
     var passGeography by mutableStateOf<PassGeography?>(null); private set
     init {

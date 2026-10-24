@@ -36,6 +36,20 @@ Vehicle and open-service screens refresh every 75 seconds while foregrounded. Ba
 
 The map bundles [Leaflet 1.9.4](https://leafletjs.com/download.html) and loads OpenStreetMap tiles with visible attribution. The map fills the screen behind navigation, with zoom and a contextual recenter button. Country-scale positions are grouped into tappable count clusters; individual markers show the service color and vehicle icon. Tapping a vehicle opens a native bottom drawer with origin, destination and upcoming stops. The next stop is highlighted; a changed live arrival appears beneath its red struck-through scheduled time. The map requests optional location access on entry, centers once, and shows recenter only while the location is outside the unobscured viewport. Only the map is a WebView; the rest of the app is native Compose. Location permission is optional and coarse; coordinates stay on the device and center the map. Tile requests reveal the viewed region and IP address to the tile provider. No offline tile download or location history is implemented. Read the [OSM tile usage policy](https://operations.osmfoundation.org/policies/tiles/) before a public launch at scale.
 
+## App updates
+
+Beállítások → Frissítések offers startup checks enabled by default, manual checking, stable/beta selection, release notes, APK download progress, and version management. Its row is directly below Adatok és előzmények as the last row in the main Settings page's top group; About remains in its separate group. Users can turn automatic checking off. Checks query the public `matepazy/menetrend-go` GitHub Releases API without credentials. GitHub receives normal connection metadata; no passes, searches or location are sent. Downloads and Android installation require user action. Dismissed updates are deferred for 24 hours, including across restarts. Automatic checking runs when the app starts, with an in-process reminder while it remains open; there is no background polling service.
+
+Publish semver-tagged GitHub releases (`v1.0.1`, `v1.1.0-beta.1`), mark beta releases as prereleases, and attach a signed `menetrendgo-v1.0.1.apk`. The updater prefers this filename and retains Still's generic `.apk` fallback. Increase both `versionName` and `versionCode` before release, and retain the same application ID and signing key. Android can reject downgrades or incompatible signatures. A beta channel includes stable releases too; the highest semantic version wins.
+
+```powershell
+./gradlew.bat :app:exportReleaseApk
+```
+
+This builds the release APK and copies it into `artifacts/releases/menetrendgo-v<version>.apk`. Signing uses the existing ignored local configuration. Public releases must be available for update discovery; no GitHub token belongs in the APK.
+
+For UI verification without replacing an existing signed installation, build `:app:assembleDebug -PupdatePreview` and install the debug APK. This uses the separate `hu.matepazy.menetrendgo.updatepreview` package. Its debug-only `UpdatePreviewActivity` displays an explicitly synthetic beta release with an intentionally failing download URL. Normal builds never use the fixture, and release APKs omit that activity.
+
 ## Verification
 
 ```powershell

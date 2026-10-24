@@ -23,6 +23,7 @@ Find a journey, inspect its timetable and live vehicle position, and keep track 
 - Package: hu.matepazy.menetrendgo.
 - Bottom destinations: Tervezés (default), Térkép, Bérletek (proposed name), Beállítások.
 - Timetable search, service details and nearby vehicle map.
+- In-app updates use the public `matepazy/menetrend-go` GitHub Releases feed: automatic checks are on by default, with manual checking, stable or stable-and-beta channels, release notes, selectable APK versions and Android-approved installation. Frissítések is the last row of the main Settings top group, directly below Adatok és előzmények. Successful live download and installation remain unverified while the release endpoint returns HTTP 404.
 - Refresh every 60–90 seconds; implementation target 75 seconds.
 - User confirmed first-version support for ország- and vármegyebérlet.
 - Local passes can also be recorded with a city name and expiry reminders. Local service acceptance is unverified, so recording one does not confirm journey coverage.
@@ -46,4 +47,4 @@ Five supplied reference screenshots and the public hovamegy.hu backend source. N
 
 ## Open Decisions
 
-Release signing and distribution are undecided. The user requires standalone device operation without a separate server. User chose image concept approval, then approved concept A with recents and a separate departures list. Implemented reminder lead times are three and one days before expiry, then the morning after expiry, at 09:00 Budapest time.
+Release signing and APK export are implemented; public update delivery still needs a reachable GitHub release with an APK. The user requires standalone device operation without a separate server. User chose image concept approval, then approved concept A with recents and a separate departures list. Implemented reminder lead times are three and one days before expiry, then the morning after expiry, at 09:00 Budapest time.

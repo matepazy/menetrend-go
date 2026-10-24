@@ -30,9 +30,12 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 
 private enum class SettingsPage(val title: String) {
     Home("Beállítások"), Appearance("Megjelenés"), Notifications("Értesítések"),
-    Data("Adatok és előzmények"), About("Az alkalmazásról"), Developer("Fejlesztői beállítások");
+    Data("Adatok és előzmények"), Updates("Frissítések"), About("Az alkalmazásról"), Developer("Fejlesztői beállítások");
 
-    val parent: SettingsPage get() = if (this == Developer) About else Home
+    val parent: SettingsPage get() = when (this) {
+        Developer -> About
+        else -> Home
+    }
 }
 
 @Composable fun SettingsScreen(vm: AppState) {
@@ -83,6 +86,7 @@ private enum class SettingsPage(val title: String) {
                             SettingsRow("Megjelenés", themeLabel(vm.theme), onClick = { navigate(SettingsPage.Appearance) })
                             SettingsRow("Értesítések", if (notificationsEnabled) "Engedélyezve az Androidban" else "Kikapcsolva az Androidban", onClick = { navigate(SettingsPage.Notifications) })
                             SettingsRow("Adatok és előzmények", if (vm.recents.isEmpty()) "Nincs mentett keresés" else "${vm.recents.size} mentett keresés", onClick = { navigate(SettingsPage.Data) })
+                            SettingsRow("Frissítések", if (vm.updates.enabled) "Automatikus ellenőrzés bekapcsolva" else "Kézi ellenőrzés", onClick = { navigate(SettingsPage.Updates) })
                         }
                     }
                     item {
@@ -90,6 +94,9 @@ private enum class SettingsPage(val title: String) {
                             SettingsRow("Az alkalmazásról", "MenetrendGO · ${BuildConfig.VERSION_NAME}", onClick = { navigate(SettingsPage.About) })
                         }
                     }
+                }
+                SettingsPage.Updates -> {
+                    item { Column(verticalArrangement = Arrangement.spacedBy(AppLayout.ItemGap)) { UpdateSettings(vm.updates) } }
                 }
                 SettingsPage.Appearance -> {
                     item {

@@ -70,6 +70,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent { val state: AppState = viewModel(); MenetrendTheme(state.theme) {
             StationFocusOverlay { MenetrendApp(state, intent.getStringExtra("tab")) }
+            UpdateHost(state.updates)
         } }
     }
 }
