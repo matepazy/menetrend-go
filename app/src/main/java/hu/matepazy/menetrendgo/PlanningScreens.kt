@@ -25,6 +25,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.semantics.dismiss
 import androidx.compose.ui.semantics.paneTitle
 import androidx.compose.ui.platform.LocalFocusManager
@@ -44,6 +45,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.text.style.TextAlign
@@ -355,16 +359,59 @@ private fun serviceType(leg: Leg): String = hungarianServiceName(leg.category, l
 }
 
 @Composable fun ResultsScreen(vm: AppState, back: () -> Unit, select: (Journey) -> Unit) {
-    var filter by rememberSaveable {mutableStateOf("Összes")}
-    val results=vm.journeys.filter { j -> filter=="Összes" || j.legs.any {if(filter=="Vonat") it.mode in listOf("RAIL","SUBURBAN_RAILWAY","TRAMTRAIN") else it.mode in listOf("BUS","COACH","RAIL_REPLACEMENT_BUS")} }
-    LazyColumn(Modifier.fillMaxSize(),contentPadding=screenContentPadding(),verticalArrangement=Arrangement.spacedBy(AppLayout.ItemGap)) {
+    val listState=rememberLazyListState()
+    var earlierAnchor by remember {mutableStateOf<Pair<String,Int>?>(null)}
+    var now by remember {mutableLongStateOf(System.currentTimeMillis())}
+    LaunchedEffect(Unit) {
+        while (true) { now=System.currentTimeMillis(); delay(15_000) }
+    }
+    val results=vm.journeys.sortedBy {it.boardingLeg.start}
+    val firstUpcoming=results.indexOfFirst {it.boardingLeg.start>=now}.let {if(it<0) results.size else it}
+    val outline=MaterialTheme.colorScheme.outline
+    // Anchor a service rather than the header, which stays at index zero when pages are prepended.
+    fun rememberEarlierAnchor() {
+        val keys=results.mapTo(mutableSetOf()) {it.key}
+        earlierAnchor=listState.layoutInfo.visibleItemsInfo.firstOrNull {it.key in keys}?.let {it.key as String to -it.offset}
+    }
+    LaunchedEffect(vm.loadingEarlier,vm.journeys) {
+        if(!vm.loadingEarlier) earlierAnchor?.let { (key,offset) ->
+            val resultIndex=results.indexOfFirst {it.key==key}
+            if(resultIndex>=0) {
+                val headerCount=1+(if(vm.canLoadEarlier) 1 else 0)+(if(vm.searchError!=null) 1 else 0)
+                val dividerCount=if(vm.earlierRequested && firstUpcoming<=resultIndex) 1 else 0
+                listState.requestScrollToItem(headerCount+resultIndex+dividerCount,offset)
+            }
+            earlierAnchor=null
+        }
+    }
+    LazyColumn(Modifier.fillMaxSize(),state=listState,contentPadding=screenContentPadding(),verticalArrangement=Arrangement.spacedBy(AppLayout.ItemGap)) {
         item { PageTitle("Indulások", "${vm.from?.name.orEmpty()} → ${vm.to?.name.orEmpty()}",back) }
-        item { FlowRow(horizontalArrangement=Arrangement.spacedBy(AppLayout.CompactGap),verticalArrangement=Arrangement.spacedBy(AppLayout.CompactGap)) { listOf("Összes","Vonat","Busz").forEach { label -> FilterChip(selected=filter==label,onClick={filter=label},label={Text(label)},shape=CircleShape,modifier=Modifier.heightIn(min=48.dp)) } } }
-        if(vm.searchError!=null) item {InfoPanel("Nem sikerült a keresés",vm.searchError!!){vm.search(vm.journeys.isNotEmpty())}}
+        if(vm.canLoadEarlier || vm.loadingEarlier) item(key="earlier") {
+            TextButton(onClick={rememberEarlierAnchor();vm.loadEarlier()},enabled=!vm.searching,modifier=Modifier.fillMaxWidth().heightIn(min=52.dp)) {
+                if(vm.loadingEarlier) {
+                    CircularProgressIndicator(Modifier.size(18.dp),strokeWidth=2.dp)
+                    Spacer(Modifier.width(AppLayout.CompactGap))
+                }
+                Text(if(vm.loadingEarlier) "Korábbiak betöltése…" else "Korábbiak mutatása")
+            }
+        }
+        if(vm.searchError!=null) item {InfoPanel("Nem sikerült a keresés",vm.searchError!!){rememberEarlierAnchor();vm.retrySearch()}}
         if(vm.searching && vm.journeys.isEmpty()) item {LoadingRows()}
-        if(!vm.searching && vm.searchError==null && results.isEmpty()) item {InfoPanel("Nincs megjeleníthető indulás","Módosítsd az időpontot, a megállókat vagy a járműszűrőt.")}
-        items(results,key={it.key}) { journey ->
-            Surface(onClick={select(journey)},shape=RoundedCornerShape(32.dp),color=MaterialTheme.colorScheme.surface,tonalElevation=0.dp) {
+        if(!vm.searching && vm.searchError==null && results.isEmpty()) item {InfoPanel("Nincs megjeleníthető indulás","Módosítsd az időpontot vagy a megállókat.")}
+        results.forEachIndexed { index, journey ->
+            if(vm.earlierRequested && index==firstUpcoming) item(key="now") { NowDivider() }
+            item(key=journey.key) {
+            val earlier=journey.boardingLeg.start<now
+            Surface(onClick={select(journey)},shape=RoundedCornerShape(32.dp),color=MaterialTheme.colorScheme.surface,tonalElevation=0.dp,
+                modifier=Modifier.semantics {if(earlier) stateDescription="Korábbi indulás"}.drawWithContent {
+                    drawContent()
+                    if(earlier) {
+                        val width=1.5.dp.toPx()
+                        drawRoundRect(outline,topLeft=Offset(width/2,width/2),size=Size(size.width-width,size.height-width),
+                            cornerRadius=CornerRadius(32.dp.toPx()-width/2),
+                            style=Stroke(width=width,pathEffect=PathEffect.dashPathEffect(floatArrayOf(6.dp.toPx(),4.dp.toPx()))))
+                    }
+                }) {
                 Column(Modifier.fillMaxWidth().padding(AppLayout.PanelPadding),verticalArrangement=Arrangement.spacedBy(AppLayout.ItemGap)) {
                     Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically) {
                         val services=journey.legs.filterNot {it.walking}.distinctBy {it.mode to it.route}
@@ -378,10 +425,21 @@ private fun serviceType(leg: Leg): String = hungarianServiceName(leg.category, l
                     if(vm.passes.isNotEmpty()) Text(passAdvice(vm.passes,journey,vm.passGeography).title,style=MaterialTheme.typography.labelLarge,color=MaterialTheme.colorScheme.primary)
                 }
             }
+            }
         }
-        if(vm.searching && vm.journeys.isNotEmpty()) item {LinearProgressIndicator(Modifier.fillMaxWidth())}
-        if(vm.canLoadMore && !vm.searching) item {OutlinedButton(onClick={vm.search(true)},shape=CircleShape,modifier=Modifier.fillMaxWidth().heightIn(min=52.dp)){Text(if(vm.arriveBy) "Korábbi indulások" else "További indulások")}}
+        if(vm.earlierRequested && results.isNotEmpty() && firstUpcoming==results.size) item(key="now") { NowDivider() }
+        if(vm.searching && !vm.loadingEarlier && vm.journeys.isNotEmpty()) item {LinearProgressIndicator(Modifier.fillMaxWidth())}
+        if(vm.canLoadMore && !vm.searching) item {OutlinedButton(onClick={vm.search(true)},shape=CircleShape,modifier=Modifier.fillMaxWidth().heightIn(min=52.dp)){Text("További indulások")}}
         item {Text("A találatokat a MÁV útvonaltervezője adja. Az újabb keresés további időpontokat tölt be.",style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)}
+    }
+}
+
+@Composable private fun NowDivider() {
+    Row(Modifier.fillMaxWidth().semantics(mergeDescendants=true) {},verticalAlignment=Alignment.CenterVertically,
+        horizontalArrangement=Arrangement.spacedBy(AppLayout.CompactGap)) {
+        HorizontalDivider(Modifier.weight(1f),thickness=2.dp,color=MaterialTheme.colorScheme.error)
+        Text("Most",style=MaterialTheme.typography.labelLarge,color=MaterialTheme.colorScheme.error)
+        HorizontalDivider(Modifier.weight(1f),thickness=2.dp,color=MaterialTheme.colorScheme.error)
     }
 }
 

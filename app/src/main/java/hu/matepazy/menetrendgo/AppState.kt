@@ -39,6 +39,11 @@ class AppState(app: Application) : AndroidViewModel(app) {
     var searching by mutableStateOf(false); private set
     var searchError by mutableStateOf<String?>(null); private set
     var canLoadMore by mutableStateOf(false); private set
+    var canLoadEarlier by mutableStateOf(false); private set
+    var loadingEarlier by mutableStateOf(false); private set
+    var earlierRequested by mutableStateOf(false); private set
+    private var failedSearchMore = false
+    private var failedSearchEarlier = false
     var vehicles by mutableStateOf<List<Vehicle>>(emptyList()); private set
     var vehicleUpdated by mutableLongStateOf(0L); private set
     var vehicleError by mutableStateOf<String?>(null); private set
@@ -86,7 +91,15 @@ class AppState(app: Application) : AndroidViewModel(app) {
         passes = passes.filterNot { it.id == pass.id }; savePasses()
     }
     private fun savePasses() { prefs.edit().putString("passes", JSONArray(passes.map { it.json() }).toString()).apply() }
-    fun search(more: Boolean = false) {
+    fun retrySearch() = search(failedSearchMore, failedSearchEarlier)
+    fun loadEarlier() {
+        if (!searching && canLoadEarlier) {
+            earlierRequested = true
+            search(more = true, earlier = true)
+        }
+    }
+    fun search(more: Boolean = false, earlier: Boolean = false) {
+        if (more && searching) return
         val criteria = if (more) activeSearch else {
             val f = from ?: return; val t = to ?: return
             Search(f, t, if (useNow) LocalDateTime.now(Budapest) else dateTime, arriveBy).also {
@@ -97,20 +110,25 @@ class AppState(app: Application) : AndroidViewModel(app) {
         } ?: return
         searchJob?.cancel()
         searchJob = viewModelScope.launch {
-            searching = true; searchError = null
-            if (!more) { journeys = emptyList(); canLoadMore = false }
+            searching = true; loadingEarlier = earlier; searchError = null
+            failedSearchMore = more; failedSearchEarlier = earlier
+            if (!more) { journeys = emptyList(); canLoadMore = false; canLoadEarlier = false; earlierRequested = false }
             try {
                 val edge = if (more && journeys.isNotEmpty()) {
-                    val epoch = if (criteria.arrive) journeys.minOf { it.end } - 60_000 else journeys.maxOf { it.start } + 60_000
+                    val epoch = if (earlier) journeys.minOf { it.end } - 60_000 else journeys.maxOf { it.start } + 60_000
                     Instant.ofEpochMilli(epoch).atZone(Budapest).toLocalDateTime()
                 } else criteria.time
-                val next = mav.plan(criteria.from,criteria.to,edge,criteria.arrive)
+                val next = mav.plan(criteria.from,criteria.to,edge,if(more) earlier else criteria.arrive)
                 val fresh = next.filterNot { n -> journeys.any { it.key == n.key } }
                 journeys = (journeys + fresh).distinctBy { it.key }.sortedBy { it.start }
-                canLoadMore = fresh.isNotEmpty()
+                if (!more) {
+                    canLoadMore = fresh.isNotEmpty()
+                    canLoadEarlier = fresh.isNotEmpty()
+                } else if (earlier) canLoadEarlier = fresh.isNotEmpty()
+                else canLoadMore = fresh.isNotEmpty()
             } catch (e: CancellationException) { throw e }
             catch (e: Exception) { searchError = e.message ?: "Nem sikerült betölteni a járatokat." }
-            finally { searching = false }
+            finally { searching = false; loadingEarlier = false }
         }
     }
     suspend fun refreshVehicles() {
