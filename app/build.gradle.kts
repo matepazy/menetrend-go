@@ -33,9 +33,6 @@ android {
         }
     }
     buildTypes {
-        debug {
-            if (providers.gradleProperty("updatePreview").isPresent) applicationIdSuffix = ".updatepreview"
-        }
         release {
             if (signingPropertiesFile.isFile) {
                 signingConfig = signingConfigs.getByName("release")

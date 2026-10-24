@@ -120,7 +120,7 @@ components:
 
 MenetrendGO feels calm, legible and direct. Its rounded character comes from solid themed panels and pale tonal separation. A feathered bottom blur softens content behind the floating phone navigation. Large rounded forms hold useful Hungarian text and familiar Material vector icons; the interface does not rely on decorative artwork.
 
-This records the implemented Android world, adapted from the approved concept A. Roboto, Material controls, system bars and platform interaction anatomy are intentional. The native source is authoritative when a reference image differs. Source: `MainActivity.kt`, `PlanningScreens.kt`, `UtilityScreens.kt`, `SettingsScreen.kt`, `NearbyScreen.kt` and bundled `map.html` under `app/src/main`.
+This records the implemented Android interface. Roboto, Material controls, system bars and platform interaction anatomy are intentional. The native source is authoritative when a reference image differs. Source: `MainActivity.kt`, `PlanningScreens.kt`, `UtilityScreens.kt`, `SettingsScreen.kt`, `NearbyScreen.kt` and bundled `map.html` under `app/src/main`.
 
 **Key Characteristics:**
 
@@ -167,7 +167,7 @@ Phone screens are single-column, vertically scrollable and inset from system bar
 
 At the implemented wide-layout threshold (700dp), bottom navigation becomes a navigation rail. Main utility content is centered with a maximum width (760dp); the map can expand further (1600dp). The phone navigation surface has horizontal margins (12dp), vertical margins (6dp), inner padding (6dp) and gaps (4dp). Each item's inner content has a minimum height (48dp), growing to (64dp) above the font-scale threshold (1.15), with separate item padding (2dp horizontal, 8dp vertical). Labels may occupy two lines. Scrollable pages extend behind the floating navigation surface; its measured bottom inset is added to list content padding so final actions can scroll clear. The map retains safe control bounds. Safe drawing insets, navigation-bar padding and IME padding belong to the layout.
 
-The planning surface opens with “Hová indulunk?” and the reminders bell on one row, followed by search and recents; there is no separate wordmark row. Results open as their own scrollable departure list. This is the approved surface flow, not a rule that every future screen must copy the planning composition.
+The planning surface opens with “Hová indulunk?” and the reminders bell on one row, followed by search and recents; there is no separate wordmark row. Results open as their own scrollable departure list. Future screens should follow the same navigation conventions.
 
 ## Elevation & Depth
 
@@ -217,7 +217,7 @@ Appearance offers System, Light and Dark as native radio rows. Notifications ope
 
 ### Updates
 
-Frissítések is the last row of the main Settings top group, directly below Adatok és előzmények; its visible and predictive Back actions return to Settings home. It reuses solid rounded settings groups, the native semantic switch and radio rows, full-width pill actions and Material error text. Automatic checking starts enabled without an opt-in prompt; the default channel is Stabil. A status panel shows installed version, checking/result/error text and the manual check action, followed by automatic-check/channel controls and version management. The release sheet is scrollable and uses the existing rounded Material surface, blue version heading, release notes, explicit beta acknowledgement, progress and retry/install actions. “Emlékeztess holnap” defers that update for 24 hours; selected version switches use “Mégse”. Android owns installation permission and final installation approval. These are local compositions within the existing native world, with no new tokens or visual identity. Verification and delivery limits are recorded in `.impeccable/update-verification.md`.
+Frissítések is the last row of the main Settings top group, directly below Adatok és előzmények; its visible and predictive Back actions return to Settings home. It reuses solid rounded settings groups, the native semantic switch and radio rows, full-width pill actions and Material error text. Automatic checking starts enabled without an opt-in prompt; the default channel is Stabil. A status panel shows installed version, checking/result/error text and the manual check action, followed by automatic-check/channel controls and version management. The release sheet is scrollable and uses the existing rounded Material surface, blue version heading, release notes, explicit beta acknowledgement, progress and retry/install actions. “Emlékeztess holnap” defers that update for 24 hours; selected version switches use “Mégse”. Android owns installation permission and final installation approval. These are local compositions within the existing native world, with no new tokens or visual identity.
 
 ### Developer data viewer
 

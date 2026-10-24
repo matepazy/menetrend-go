@@ -1,0 +1,6 @@
+# Copy this file to signing/signing.properties and replace the example values.
+# Paths are relative to the repository root. Never commit the real file or keystore.
+storeFile=signing/release.jks
+storePassword=CHANGE_ME
+keyAlias=release
+keyPassword=CHANGE_ME

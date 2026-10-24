@@ -1,6 +1,6 @@
 # MenetrendGO logo
 
-The approved front-facing train, reconstructed as clean paths. Blue: `#2864D9`.
+The front-facing train logo, constructed from vector paths. Blue: `#2864D9`.
 The windshield and headlights are transparent cutouts. All SVGs are real vectors
 without embedded raster images, fonts or external dependencies.
 
@@ -35,6 +35,5 @@ mark files use a tighter canvas for general logo placement.
 
 Run `python scripts/generate_branding.py` from the repository root. Edit paths or
 sizing there, then regenerate to keep SVG masters and Android resources identical.
-The earlier `menetrendgo-logo-concept*.png` files are exploration references.
 
 Sizing reference: [Android adaptive icon guidance](https://developer.android.com/develop/ui/compose/system/icon_design_adaptive).
