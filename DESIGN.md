@@ -171,9 +171,11 @@ The planning surface opens with “Hová indulunk?” and the reminders bell on 
 
 ## Elevation & Depth
 
+The status bar is transparent. Maps and scrolling pages extend behind it, with initial list padding and map controls respecting the top safe-drawing inset. The top inset plus 24dp uses the same feathering as the bottom, mirrored vertically: an 18dp backdrop blur on Android 12+, a mask opaque through fraction .45 then fading to transparent, and a theme-background fade from alpha .82 to zero. Android 9–11 use the same tonal fallback as the bottom. Native pages share one full-page blurred display list, cropped only after blurring with transparent out-of-bounds sampling to avoid stretched edge bands, and crossfaded against the sharp page so dark content is not doubled; the map applies the equivalent CSS backdrop blur and mask inside its WebView to keep tiles live. System icons remain sharp. Expanded layouts retain safe rail controls; landscape display cutouts retain horizontal safe insets.
+
 Depth comes from solid themed surfaces and tonal separation. The reusable panel is still named `Glass` in code, but uses an opaque surface with no gradient or shadow. Result cards and the opaque bottom navigation also have no custom shadow.
 
-Phone content extends behind the floating bar, with no fixed background strip. A bottom-only display-list blur (18dp on Android 12+) is clipped to the navbar surface top edge (the measured navigation inset minus its 6dp top margin). Its alpha mask goes from transparent at the top to opaque at fraction .55, with a background-color fade from alpha 0 to .82. Navigation controls remain sharp. Android 9–11 use the tonal fade fallback; rail layouts have no bottom veil.
+Phone content extends behind the floating bar, with no fixed background strip. The bottom slice of the shared display-list blur (18dp on Android 12+) is clipped to the navbar surface top edge (the measured navigation inset minus its 6dp top margin). Its alpha mask goes from transparent at the top to opaque at fraction .55, with a background-color fade from alpha 0 to .82. Navigation controls remain sharp. Android 9–11 use the tonal fade fallback; rail layouts have no bottom veil.
 
 The map retains its own compact marker and zoom-control shadows; those CSS shadows do not define native Compose elevation. Dialogs, sheets, disabled states and pressed feedback continue to use Material behavior.
 

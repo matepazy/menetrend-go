@@ -8,6 +8,7 @@ import java.util.Locale
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.PredictiveBackHandler
 import androidx.activity.BackEventCompat
 import android.animation.ValueAnimator
@@ -67,7 +68,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         Locale.setDefault(Locale.forLanguageTag("hu"))
         PassNotifications.saved(this).forEach { PassNotifications.schedule(this,it) }
-        enableEdgeToEdge()
+        enableEdgeToEdge(statusBarStyle=SystemBarStyle.auto(
+            android.graphics.Color.TRANSPARENT,android.graphics.Color.TRANSPARENT))
         setContent { val state: AppState = viewModel(); MenetrendTheme(state.theme) {
             StationFocusOverlay { MenetrendApp(state, intent.getStringExtra("tab")) }
             UpdateHost(state.updates)
@@ -114,31 +116,58 @@ private val Dark = darkColorScheme(primary=Color(0xFFA8C7FF), onPrimary=Color(0x
 val LocalBottomOverlayInset = staticCompositionLocalOf { 0.dp }
 
 /** Reuses the page's display list, so the backdrop never composes a second interactive UI. */
-@Composable private fun FeatheredBottomContent(enabled: Boolean, height: Dp, content: @Composable () -> Unit) {
+@Composable private fun FeatheredContent(enabled: Boolean, bottomHeight: Dp, content: @Composable () -> Unit) {
     val backdrop=rememberGraphicsLayer()
+    val blurredBackdrop=rememberGraphicsLayer()
     val ground=MaterialTheme.colorScheme.background
+    val topInset=WindowInsets.safeDrawing.asPaddingValues().calculateTopPadding()
+    val topHeight=if(topInset>0.dp) topInset+24.dp else 0.dp
     Box(Modifier.fillMaxSize()) {
-        Box(Modifier.fillMaxSize().drawWithContent {
+        Box(Modifier.fillMaxSize()
+            .graphicsLayer { compositingStrategy=if(enabled) CompositingStrategy.Offscreen else CompositingStrategy.Auto }
+            .drawWithContent {
             if(enabled) {
                 backdrop.record { this@drawWithContent.drawContent() }
                 drawLayer(backdrop)
+                if(android.os.Build.VERSION.SDK_INT>=31) {
+                    // Blur the complete page before cropping either edge. Blurring a small
+                    // strip with Clamp stretches its boundary pixels into a visible band.
+                    blurredBackdrop.renderEffect=BlurEffect(18.dp.toPx(),18.dp.toPx(),TileMode.Decal)
+                    blurredBackdrop.record { drawLayer(backdrop) }
+                    // Crossfade the sharp and blurred page rather than stacking them.
+                    // Otherwise dark badges show twice and leave a shadow-like band.
+                    if(topHeight>0.dp) {
+                        val height=topHeight.toPx().coerceAtMost(size.height)
+                        drawRect(Brush.verticalGradient(0f to Color.Black,.45f to Color.Black,1f to Color.Transparent,endY=height),
+                            size=androidx.compose.ui.geometry.Size(size.width,height),blendMode=BlendMode.DstOut)
+                    }
+                    if(bottomHeight>0.dp) {
+                        val height=bottomHeight.toPx().coerceAtMost(size.height)
+                        translate(top=size.height-height) {
+                            drawRect(Brush.verticalGradient(0f to Color.Transparent,.55f to Color.Black,1f to Color.Black,endY=height),
+                                size=androidx.compose.ui.geometry.Size(size.width,height),blendMode=BlendMode.DstOut)
+                        }
+                    }
+                }
             } else drawContent()
         },contentAlignment=Alignment.TopCenter) { content() }
         if(enabled) {
-            // Only the bottom slice is blurred. The alpha mask removes a hard top edge.
-            Box(Modifier.align(Alignment.BottomCenter).fillMaxWidth().height(height)
+            // Both system-bar edges share one effect, mirrored vertically at the top.
+            listOf(true to topHeight,false to bottomHeight).forEach { (top,height) ->
+            if(height>0.dp) Box(Modifier.align(if(top) Alignment.TopCenter else Alignment.BottomCenter).fillMaxWidth().height(height)
                 .graphicsLayer { compositingStrategy=CompositingStrategy.Offscreen;clip=true }
                 .drawWithContent {
                     drawContent()
-                    drawRect(Brush.verticalGradient(0f to Color.Transparent,.55f to Color.Black,1f to Color.Black),blendMode=BlendMode.DstIn)
-                }
-                .graphicsLayer {
-                    if(android.os.Build.VERSION.SDK_INT>=31) renderEffect=BlurEffect(18.dp.toPx(),18.dp.toPx(),TileMode.Clamp)
+                    val mask=if(top) Brush.verticalGradient(0f to Color.Black,.45f to Color.Black,1f to Color.Transparent)
+                        else Brush.verticalGradient(0f to Color.Transparent,.55f to Color.Black,1f to Color.Black)
+                    drawRect(mask,blendMode=BlendMode.DstIn)
                 }
                 .drawWithContent {
-                    if(android.os.Build.VERSION.SDK_INT>=31) translate(top=-(backdrop.size.height-size.height)) { drawLayer(backdrop) }
-                    drawRect(Brush.verticalGradient(listOf(ground.copy(alpha=0f),ground.copy(alpha=.82f))))
+                    if(android.os.Build.VERSION.SDK_INT>=31) translate(top=if(top) 0f else -(backdrop.size.height-size.height)) { drawLayer(blurredBackdrop) }
+                    val colors=listOf(ground.copy(alpha=0f),ground.copy(alpha=.82f))
+                    drawRect(Brush.verticalGradient(if(top) colors.reversed() else colors))
                 })
+            }
         }
     }
 }
@@ -255,8 +284,8 @@ val LocalBottomOverlayInset = staticCompositionLocalOf { 0.dp }
     BoxWithConstraints(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         val wide = maxWidth >= 700.dp
         val largeFont=LocalDensity.current.fontScale>1.15f
-        Row(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing.only(if(wide || mapScreen) WindowInsetsSides.Top + WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom else WindowInsetsSides.Top + WindowInsetsSides.Horizontal))) {
-            if(wide && !mapScreen) NavigationRail(containerColor=MaterialTheme.colorScheme.surface) {
+        Row(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing.only(if(wide || mapScreen) WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom else WindowInsetsSides.Horizontal))) {
+            if(wide && !mapScreen) NavigationRail(modifier=Modifier.windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top)),containerColor=MaterialTheme.colorScheme.surface) {
                 Spacer(Modifier.height(30.dp))
                 destinations.forEachIndexed { index,label -> NavigationRailItem(selected=tab==index,onClick={tab=index;page="search";selected=null},icon={Icon(icons[index],null)},label={Text(label)}) }
             }
@@ -289,7 +318,7 @@ val LocalBottomOverlayInset = staticCompositionLocalOf { 0.dp }
                 Box(Modifier.fillMaxSize().padding(top=inset.calculateTopPadding()).imePadding(),contentAlignment=Alignment.TopCenter) {
                     CompositionLocalProvider(LocalBottomOverlayInset provides inset.calculateBottomPadding()) {
                     // The bar has a 6dp outer top margin; keep the feather below its surface edge.
-                    FeatheredBottomContent(enabled=!wide && tab!=1 && !mapScreen,height=(inset.calculateBottomPadding()-6.dp).coerceAtLeast(0.dp)) {
+                    FeatheredContent(enabled=tab!=1 && !mapScreen,bottomHeight=if(wide) 0.dp else (inset.calculateBottomPadding()-6.dp).coerceAtLeast(0.dp)) {
                     Box(Modifier.widthIn(max=if(mapScreen) Dp.Infinity else if(tab==1) 1600.dp else 760.dp).fillMaxSize()) {
                         PredictiveBackPane(enabled=(page!="search" || tab!=0) && vm.mapVehicle==null,onBack=::back,preview={
                             when {

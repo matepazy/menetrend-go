@@ -23,6 +23,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.*
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
@@ -43,6 +44,8 @@ import kotlinx.coroutines.withContext
 @Composable private fun TransportMap(vm: AppState, journey: Journey?, focusedId: String?, routeOnly: Boolean, back: () -> Unit={}) {
     val context=LocalContext.current
     val bottomInset=LocalBottomOverlayInset.current.value
+    val topInset=WindowInsets.safeDrawing.asPaddingValues().calculateTopPadding()
+    val featherColor=MaterialTheme.colorScheme.background.toArgb()
     var web by remember {mutableStateOf<WebView?>(null)}
     var ready by remember {mutableStateOf(false)}
     var center by remember {mutableStateOf<Pair<Double,Double>?>(null)}
@@ -133,6 +136,9 @@ import kotlinx.coroutines.withContext
         if(ready) web?.evaluateJavascript("window.setMapType(${JSONObject.quote(vm.effectiveMapType.id)},${JSONObject.quote(vm.customMapUrl)});",null)
     }
     LaunchedEffect(ready,bottomInset) {if(ready) web?.evaluateJavascript("window.setBottomInset($bottomInset);",null)}
+    LaunchedEffect(ready,topInset,featherColor) {
+        if(ready) web?.evaluateJavascript("window.setTopInset(${topInset.value},$featherColor,${android.os.Build.VERSION.SDK_INT>=31});",null)
+    }
     LaunchedEffect(ready,center,recenter) {
         val position=center
         if(ready && position!=null) {
@@ -166,7 +172,7 @@ import kotlinx.coroutines.withContext
                     },"NativeMap")
                     webViewClient=object:WebViewClient() {
                         override fun onPageFinished(view: WebView, url: String) {
-                            view.evaluateJavascript("window.resizeMap && window.resizeMap();window.setBottomInset($bottomInset);",null)
+                            view.evaluateJavascript("window.resizeMap && window.resizeMap();window.setBottomInset($bottomInset);window.setTopInset(${topInset.value},$featherColor,${android.os.Build.VERSION.SDK_INT>=31});",null)
                             ready=true
                         }
                         override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
@@ -183,8 +189,8 @@ import kotlinx.coroutines.withContext
             })
         if(!routeOnly) {
             MapSearch(searchQuery,{searchQuery=it},
-                modifier=Modifier.align(Alignment.TopEnd).fillMaxWidth())
-            Surface(modifier=Modifier.align(Alignment.TopEnd).padding(top=66.dp,end=10.dp),
+                modifier=Modifier.align(Alignment.TopEnd).padding(top=topInset).fillMaxWidth())
+            Surface(modifier=Modifier.align(Alignment.TopEnd).padding(top=topInset+66.dp,end=10.dp),
                 shape=androidx.compose.foundation.shape.CircleShape,color=MaterialTheme.colorScheme.surface) {
                 IconButton(onClick={mapTypesOpen=true},modifier=Modifier.size(48.dp)) {
                     Icon(Icons.Outlined.Layers,"Térképtípus")
@@ -197,7 +203,7 @@ import kotlinx.coroutines.withContext
             },modifier=Modifier.align(Alignment.BottomEnd).padding(end=14.dp,bottom=LocalBottomOverlayInset.current+52.dp).size(54.dp)) {
                 Icon(Icons.Outlined.MyLocation,"Saját helyzet mutatása")
             }
-        if(routeOnly) FilledTonalIconButton(onClick=back,modifier=Modifier.align(Alignment.TopStart).padding(12.dp).size(48.dp)) {
+        if(routeOnly) FilledTonalIconButton(onClick=back,modifier=Modifier.align(Alignment.TopStart).padding(top=topInset).padding(12.dp).size(48.dp)) {
             Icon(Icons.AutoMirrored.Outlined.ArrowBack,if(focusedId!=null) "Vissza a járat menetrendjéhez" else "Vissza az utazás részleteihez")
         }
         if(routeOnly && focusedId!=null && visibleVehicles.isEmpty()) Surface(

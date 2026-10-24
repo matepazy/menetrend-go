@@ -1,6 +1,9 @@
 package hu.matepazy.menetrendgo
 
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 
@@ -19,7 +22,7 @@ internal object AppLayout {
 @Composable
 internal fun screenContentPadding() = PaddingValues(
     start = AppLayout.PageGutter,
-    top = AppLayout.PageGutter,
+    top = AppLayout.PageGutter + WindowInsets.safeDrawing.asPaddingValues().calculateTopPadding(),
     end = AppLayout.PageGutter,
     bottom = AppLayout.PageGutter + LocalBottomOverlayInset.current
 )
