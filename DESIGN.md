@@ -114,6 +114,8 @@ components:
 
 # Design System: MenetrendGO
 
+Journey legs and full trip timetables request MÁV `infoServices`. The services disclosure shows the original MNR2007 pictograms, bundled from the official MÁVPlusz font URL, and expands into wrapping Hungarian descriptions with their original from/to sections. Different sections remain separate, including reservation exemptions alongside mandatory-reservation notices. Missing facilities remain unknown. Icon glyphs are hidden from accessibility text and announced using the service descriptions.
+
 ## Overview
 
 **Creative North Star: "Icy blue ground, ink text, royal-blue actions, fully rounded milky panels"**

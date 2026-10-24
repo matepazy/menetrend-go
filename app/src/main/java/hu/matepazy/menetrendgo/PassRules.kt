@@ -4,7 +4,8 @@ package hu.matepazy.menetrendgo
  * https://bkk.hu/jegyek-es-berletek/arak/orszagberlet-teljesaru/
  * https://bkk.hu/jegyek-es-berletek/arak/pest-varmegyeberlet-teljesaru/
  * https://www.mavcsoport.hu/mav-szemelyszallitas/belfoldi-utazas/dijszabasi-informaciok-vasuti-es-buszos-utazashoz
- * Reservation information is category-based: OTP does not expose a mandatory-seat flag.
+ * Pass advice remains conservative and category-based. OTP infoServices also supplies
+ * reservation descriptions with section/carriage exceptions, shown in journey details.
  */
 fun passAdvice(passes: List<Pass>, journey: Journey, geography: PassGeography?=null): PassAdvice {
     val transit=journey.legs.filterNot {it.walking}

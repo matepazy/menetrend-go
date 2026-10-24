@@ -505,6 +505,7 @@ private fun serviceType(leg: Leg): String = hungarianServiceName(leg.category, l
                                 }
                                 if(leg.headsign.isNotBlank()) Text("Irány: ${leg.headsign}",Modifier.padding(top=4.dp),style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)
                                 if(!leg.realTime) Text("Menetrend szerint · élő adat nem érhető el",Modifier.padding(top=8.dp),style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
+                                MavServices(leg.services,Modifier.padding(top=8.dp))
                                 var expanded by remember(journey.key,index) { mutableStateOf(false) }
                                 if(leg.intermediate.isNotEmpty()) {
                                     val disclosureRotation by animateFloatAsState(if(expanded) 180f else 0f,
@@ -599,6 +600,12 @@ private fun serviceType(leg: Leg): String = hungarianServiceName(leg.category, l
         if(detail!=null) {
             item {Text(if(vehicle==null) "Ehhez a járathoz most nincs élő járműpozíció." else "Élő járműpozíció elérhető · 75 mp-es frissítés",color=MaterialTheme.colorScheme.onSurfaceVariant)}
             if(vehicle!=null) item {OutlinedButton(onClick=onMap,shape=CircleShape,modifier=Modifier.fillMaxWidth()){Text("Jármű a térképen")}}
+            val services=MavService.parseAll(detail)
+            if(services.isNotEmpty()) item {
+                Surface(shape=MaterialTheme.shapes.medium,color=MaterialTheme.colorScheme.surface) {
+                    MavServices(services,Modifier.padding(AppLayout.PanelPadding))
+                }
+            }
             itemsIndexed(detail.array("stoptimes")) {index,stop ->
                 val s=stop.optJSONObject("stop")
                 val scheduled=stop.optInt("scheduledDeparture",stop.optInt("scheduledArrival"))
