@@ -52,6 +52,7 @@ class AppState(app: Application) : AndroidViewModel(app) {
     var detailError by mutableStateOf<String?>(null); private set
     var detailLoading by mutableStateOf(false); private set
     var selectedJourney by mutableStateOf<Journey?>(null)
+    var searchGeneration by mutableIntStateOf(0); private set
     var trackedJourney by mutableStateOf<Journey?>(null)
     var mapVehicle by mutableStateOf<Vehicle?>(null)
     private var searchJob: Job? = null
@@ -108,6 +109,7 @@ class AppState(app: Application) : AndroidViewModel(app) {
                 prefs.edit().putString("recents", JSONArray(recents.map { r -> r.json() }).toString()).apply()
             }
         } ?: return
+        if (!more) searchGeneration++
         searchJob?.cancel()
         searchJob = viewModelScope.launch {
             searching = true; loadingEarlier = earlier; searchError = null

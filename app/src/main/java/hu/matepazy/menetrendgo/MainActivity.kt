@@ -9,12 +9,10 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.SystemBarStyle
-import androidx.activity.compose.PredictiveBackHandler
-import androidx.activity.BackEventCompat
-import android.animation.ValueAnimator
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.*
 import androidx.compose.foundation.selection.selectable
@@ -45,8 +43,6 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.core.view.WindowCompat
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.flow.collect
 import java.time.Instant
 import java.time.LocalDate
 
@@ -189,44 +185,6 @@ val LocalBottomOverlayInset = staticCompositionLocalOf { 0.dp }
     }
 }
 
-/** Navigation commits only after the gesture completes; cancellation leaves the route intact. */
-@Composable fun PredictiveBackPane(
-    enabled: Boolean,
-    onBack: () -> Unit,
-    preview: @Composable () -> Unit,
-    content: @Composable () -> Unit
-) {
-    var progress by remember { mutableFloatStateOf(0f) }
-    var edge by remember { mutableIntStateOf(BackEventCompat.EDGE_LEFT) }
-    var swiping by remember { mutableStateOf(false) }
-    val animate = ValueAnimator.areAnimatorsEnabled()
-    PredictiveBackHandler(enabled=enabled) { events ->
-        try {
-            events.collect { event ->
-                edge=event.swipeEdge
-                progress=event.progress.coerceIn(0f,1f)
-                swiping=true
-            }
-            onBack()
-        } catch(cancelled: CancellationException) {
-            throw cancelled
-        } finally {
-            progress=0f
-            swiping=false
-        }
-    }
-    Box(Modifier.fillMaxSize()) {
-        if(swiping && animate) Box(Modifier.fillMaxSize()) { preview() }
-        Box(Modifier.fillMaxSize().graphicsLayer {
-            val fraction=if(animate) progress else 0f
-            scaleX=1f-.08f*fraction
-            scaleY=1f-.08f*fraction
-            translationX=(if(edge==BackEventCompat.EDGE_LEFT) 1 else -1)*size.width*.14f*fraction
-            shape=RoundedCornerShape((28*fraction).dp)
-            clip=fraction>0f
-        }.background(MaterialTheme.colorScheme.background)) { content() }
-    }
-}
 @Composable fun MainButton(label: String, icon: ImageVector, enabled: Boolean = true, onClick: () -> Unit) {
     Button(onClick=onClick,enabled=enabled,shape=CircleShape,modifier=Modifier.fillMaxWidth().heightIn(min=58.dp)) {
         Icon(icon,null,Modifier.size(22.dp)); Spacer(Modifier.width(10.dp)); Text(label,style=MaterialTheme.typography.titleMedium)
@@ -251,6 +209,12 @@ val LocalBottomOverlayInset = staticCompositionLocalOf { 0.dp }
     var tab by rememberSaveable { mutableIntStateOf(if(initialTab == "passes") 2 else 0) }
     var page by rememberSaveable { mutableStateOf("search") }
     var selected by vm::selectedJourney
+    var returning by remember { mutableStateOf(false) }
+    // The live destination and predictive preview share the retained scroll anchor.
+    val resultsNavigation = key(vm.searchGeneration) {
+        val listState = rememberLazyListState()
+        remember(listState) { ResultsNavigationState(listState) }
+    }
     LaunchedEffect(page,selected) {
         if(page=="routeMap" && selected==null) page="search"
     }
@@ -269,6 +233,7 @@ val LocalBottomOverlayInset = staticCompositionLocalOf { 0.dp }
         }
     }
     fun back() {
+        returning=true
         when {
             page == "vehicleMap" -> page="trip"
             page == "routeMap" -> page="journey"
@@ -287,7 +252,7 @@ val LocalBottomOverlayInset = staticCompositionLocalOf { 0.dp }
         Row(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing.only(if(wide || mapScreen) WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom else WindowInsetsSides.Horizontal))) {
             if(wide && !mapScreen) NavigationRail(modifier=Modifier.windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top)),containerColor=MaterialTheme.colorScheme.surface) {
                 Spacer(Modifier.height(30.dp))
-                destinations.forEachIndexed { index,label -> NavigationRailItem(selected=tab==index,onClick={tab=index;page="search";selected=null},icon={Icon(icons[index],null)},label={Text(label)}) }
+                destinations.forEachIndexed { index,label -> NavigationRailItem(selected=tab==index,onClick={returning=false;tab=index;page="search";selected=null},icon={Icon(icons[index],null)},label={Text(label)}) }
             }
             Scaffold(containerColor=Color.Transparent,contentWindowInsets=WindowInsets(0),
                 bottomBar={ if(!wide && !mapScreen) {
@@ -303,7 +268,7 @@ val LocalBottomOverlayInset = staticCompositionLocalOf { 0.dp }
                                     tween(AppMotion.Feedback),label="Navigation selection")
                                 Column(Modifier.weight(1f).clip(RoundedCornerShape(26.dp))
                                     .background(selection)
-                                    .selectable(selected=active,role=Role.Tab,onClick={tab=index;page="search";selected=null})
+                                    .selectable(selected=active,role=Role.Tab,onClick={returning=false;tab=index;page="search";selected=null})
                                     .padding(horizontal=2.dp,vertical=8.dp).heightIn(min=if(largeFont) 64.dp else 48.dp),
                                     horizontalAlignment=Alignment.CenterHorizontally,verticalArrangement=Arrangement.Center) {
                                     Icon(icons[index],null,Modifier.size(24.dp),tint=tint)
@@ -326,20 +291,20 @@ val LocalBottomOverlayInset = staticCompositionLocalOf { 0.dp }
                                 page=="routeMap" && selected!=null -> JourneyScreen(vm,selected!!,{},onTrip={},onMap={})
                                 page=="trip" && selected!=null -> JourneyScreen(vm,selected!!,{},onTrip={},onMap={})
                                 page=="trip" && tab==1 -> NearbyScreen(vm)
-                                page=="journey" -> ResultsScreen(vm,{}) {}
+                                page=="journey" -> ResultsScreen(vm,resultsNavigation,{}) {}
                                 else -> SearchScreen(vm,onPasses={}) {}
                             }
                         }) {
-                        ScreenArrival("$tab:$page") {
+                        ScreenArrival("$tab:$page",animate=!returning) {
                         when {
                             page=="vehicleMap" -> VehicleMapScreen(vm,tripId,::back)
                             page=="routeMap" && selected!=null -> JourneyMapScreen(vm,selected!!,::back)
-                            page == "trip" -> TripScreen(vm, tripId, tripDay, ::back) { vm.mapVehicle=null;page="vehicleMap" }
-                            tab==0 && page=="results" -> ResultsScreen(vm,::back) { selected=it; page="journey" }
+                            page == "trip" -> TripScreen(vm, tripId, tripDay, ::back) { returning=false;vm.mapVehicle=null;page="vehicleMap" }
+                            tab==0 && page=="results" -> ResultsScreen(vm,resultsNavigation,::back) { returning=false;selected=it; page="journey" }
                             tab==0 && page=="journey" && selected!=null -> JourneyScreen(vm,selected!!,::back,
-                                onTrip={ leg -> tripId=leg.tripId; tripDay=Instant.ofEpochMilli(leg.start).atZone(Budapest).toLocalDate().toString(); vm.loadTrip(tripId,tripDay); page="trip" },
-                                onMap={ vm.mapVehicle=null;page="routeMap" })
-                            tab==0 -> SearchScreen(vm,onPasses={tab=2}) { vm.search();page="results" }
+                                onTrip={ leg -> returning=false;tripId=leg.tripId; tripDay=Instant.ofEpochMilli(leg.start).atZone(Budapest).toLocalDate().toString(); vm.loadTrip(tripId,tripDay); page="trip" },
+                                onMap={ returning=false;vm.mapVehicle=null;page="routeMap" })
+                            tab==0 -> SearchScreen(vm,onPasses={returning=false;tab=2}) { returning=false;vm.search();page="results" }
                             tab==1 -> NearbyScreen(vm)
                             tab==2 -> PassesScreen(vm)
                             else -> SettingsScreen(vm)

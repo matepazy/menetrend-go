@@ -358,9 +358,13 @@ private fun serviceType(leg: Leg): String = hungarianServiceName(leg.category, l
     }
 }
 
-@Composable fun ResultsScreen(vm: AppState, back: () -> Unit, select: (Journey) -> Unit) {
-    val listState=rememberLazyListState()
-    var earlierAnchor by remember {mutableStateOf<Pair<String,Int>?>(null)}
+class ResultsNavigationState(val listState: LazyListState) {
+    var earlierAnchor by mutableStateOf<Pair<String,Int>?>(null)
+}
+
+@Composable fun ResultsScreen(vm: AppState, navigation: ResultsNavigationState, back: () -> Unit, select: (Journey) -> Unit) {
+    val listState=navigation.listState
+    var earlierAnchor by navigation::earlierAnchor
     var now by remember {mutableLongStateOf(System.currentTimeMillis())}
     LaunchedEffect(Unit) {
         while (true) { now=System.currentTimeMillis(); delay(15_000) }

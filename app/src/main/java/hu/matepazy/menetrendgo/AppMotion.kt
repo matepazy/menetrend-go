@@ -24,9 +24,9 @@ internal object AppMotion {
 }
 
 /** A small arrival cue, without keeping outgoing screens or their effects alive. */
-@Composable internal fun ScreenArrival(route: String, content: @Composable () -> Unit) {
+@Composable internal fun ScreenArrival(route: String, animate: Boolean = true, content: @Composable () -> Unit) {
     key(route) {
-        val arrival = remember { Animatable(0f) }
+        val arrival = remember { Animatable(if (animate) 0f else 1f) }
         LaunchedEffect(Unit) {
             arrival.animateTo(1f, tween(AppMotion.Reveal, easing = AppMotion.Arrival))
         }
