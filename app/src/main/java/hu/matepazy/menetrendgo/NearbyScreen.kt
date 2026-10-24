@@ -27,6 +27,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import org.json.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @Composable fun NearbyScreen(vm: AppState) =
     TransportMap(vm,null,null,routeOnly=false)
@@ -56,13 +58,21 @@ import org.json.*
     val onSelect by rememberUpdatedState<(Vehicle) -> Unit>({vehicle -> vm.loadTrip(vehicle.id,java.time.LocalDate.now(Budapest).toString());selectedVehicle=vehicle})
     var mapTypesOpen by rememberSaveable {mutableStateOf(false)}
     var searchQuery by rememberSaveable {mutableStateOf("")}
-    val search=remember(vm.vehicles) {VehicleSearch(vm.vehicles)}
-    val visibleVehicles=remember(routeOnly,journey,focusedId,vm.vehicles,vm.vehicleUpdated,searchQuery) {
+    val allVehicles=vm.vehicles
+    val search=remember(allVehicles) {VehicleSearch(allVehicles)}
+    val filteredVehicles by produceState(
+        initialValue=if(searchQuery.isBlank()) allVehicles else emptyList(),
+        allVehicles,searchQuery,routeOnly
+    ) {
+        value=if(routeOnly || searchQuery.isBlank()) allVehicles
+            else withContext(Dispatchers.Default) {search.filter(searchQuery)}
+    }
+    val visibleVehicles=remember(routeOnly,journey,focusedId,allVehicles,vm.vehicleUpdated,searchQuery,filteredVehicles) {
         when {
             routeOnly && focusedId!=null -> vehicleForTrip(vm.vehicles,focusedId)
             routeOnly && journey!=null -> routeVehicles(journey,vm.vehicles,System.currentTimeMillis())
             routeOnly -> emptyList()
-            else -> search.filter(searchQuery)
+            else -> if(searchQuery.isBlank()) allVehicles else filteredVehicles
         }
     }
     val currentVehicles by rememberUpdatedState(visibleVehicles)
@@ -108,13 +118,13 @@ import org.json.*
     }
     LaunchedEffect(ready,visibleVehicles,journey) {
         if(ready) {
-            val array=JSONArray(visibleVehicles.map { vehicle ->
+            val array=withContext(Dispatchers.Default) { JSONArray(visibleVehicles.map { vehicle ->
                 JSONObject().put("id",vehicle.id).put("name",vehicle.name).put("headsign",vehicle.headsign)
                     .put("lat",vehicle.lat).put("lon",vehicle.lon).put("mode",vehicle.mode)
                     .put("heading",vehicle.heading ?: JSONObject.NULL)
                     .put("color",serviceColorHex(vehicle.badgeLeg()))
                     .put("type",hungarianServiceName(vehicle.category,vehicle.mode))
-            })
+            }).toString() }
             val route=JSONArray(journey?.legs.orEmpty().map {leg->JSONObject().put("geometry",leg.geometry).put("from",leg.from.json()).put("to",leg.to.json()).put("walking",leg.walking)})
             web?.evaluateJavascript("window.setRouteMode($routeOnly);window.updateVehicles($array);window.updateRoute($route);",null)
         }
