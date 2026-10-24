@@ -28,7 +28,8 @@ data class Recent(val from: Station, val to: Station) {
 }
 data class Vehicle(val id: String, val name: String, val headsign: String, val mode: String, val lat: Double, val lon: Double,
     val routeColor: String = "", val category: String = "", val routeLongName: String = "",
-    val heading: Double? = null, val model: String = "", val registration: String = "", val uicCode: String = "") {
+    val heading: Double? = null, val model: String = "", val registration: String = "", val uicCode: String = "",
+    val routeShortName: String = "", val vehicleId: String = "") {
     fun badgeLeg(): Leg {
         val point = Station("", "", lat, lon)
         return Leg(mode, 0, 0, point, point, name, id, true, 0, emptyList(), "", routeColor, category, headsign, routeLongName)

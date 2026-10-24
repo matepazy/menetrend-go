@@ -20,6 +20,7 @@ import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.*
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -53,12 +54,14 @@ import org.json.*
     val snackbars=remember {SnackbarHostState()}
     var selectedVehicle by vm::mapVehicle
     val onSelect by rememberUpdatedState<(Vehicle) -> Unit>({vehicle -> vm.loadTrip(vehicle.id,java.time.LocalDate.now(Budapest).toString());selectedVehicle=vehicle})
-    val visibleVehicles=remember(routeOnly,journey,focusedId,vm.vehicles,vm.vehicleUpdated) {
+    var searchQuery by rememberSaveable {mutableStateOf("")}
+    val search=remember(vm.vehicles) {VehicleSearch(vm.vehicles)}
+    val visibleVehicles=remember(routeOnly,journey,focusedId,vm.vehicles,vm.vehicleUpdated,searchQuery) {
         when {
             routeOnly && focusedId!=null -> vehicleForTrip(vm.vehicles,focusedId)
             routeOnly && journey!=null -> routeVehicles(journey,vm.vehicles,System.currentTimeMillis())
             routeOnly -> emptyList()
-            else -> vm.vehicles
+            else -> search.filter(searchQuery)
         }
     }
     val currentVehicles by rememberUpdatedState(visibleVehicles)
@@ -164,6 +167,10 @@ import org.json.*
                     web=this
                 }
             })
+        if(!routeOnly) {
+            MapSearch(searchQuery,{searchQuery=it},
+                modifier=Modifier.align(Alignment.TopEnd).fillMaxWidth())
+        }
             if(!routeOnly && (center==null || !locationVisible)) FilledTonalIconButton(onClick={
                 if(allowed) {recenter=true;if(center==null) locationMessage="Várakozás a helymeghatározásra. Ellenőrizd, hogy be van-e kapcsolva."}
                 else permission.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
