@@ -1,12 +1,66 @@
 <!doctype html><html lang="hu"><head><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src https: data:; connect-src 'none';">
 <style>/* LEAFLET_CSS */
-html,body,#map{height:100%;margin:0;background:#e5edf3;font-family:Roboto,Arial,sans-serif}.leaflet-control-zoom{border-radius:24px!important;overflow:hidden;border:0!important;box-shadow:0 3px 16px #1233!important}.leaflet-control-zoom a{width:48px!important;height:48px!important;line-height:48px!important}.hit{width:48px;height:48px;display:flex;align-items:center;justify-content:center}.cluster{background:#244c86;color:white;border:3px solid white;border-radius:50%;width:34px;height:34px;display:flex;align-items:center;justify-content:center;font:bold 13px Roboto,Arial;box-shadow:0 2px 8px #1234}.vehicle.compact{width:28px;height:28px;min-width:0;padding:0;border-radius:50%}.vehicle svg{width:20px;height:20px;flex-shrink:0}.vehicle{display:flex;align-items:center;justify-content:center;gap:5px}.vehicle{flex-shrink:0;width:max-content;background:#2864d9;color:white;border:2px solid white;border-radius:22px;padding:6px 10px;white-space:nowrap;font:bold 13px Roboto,Arial;box-shadow:0 2px 8px #1234;min-width:20px;text-align:center}.bus{background:#0d687a}#status{position:absolute;z-index:1000;bottom:36px;left:12px;right:78px;background:#f8fbfff2;color:#112d43;border-radius:18px;padding:10px;font-size:12px;display:none}.leaflet-control-attribution{font-size:10px!important;max-width:240px;white-space:normal;margin-right:18px!important;margin-bottom:calc(var(--bottom-inset,0px) + 12px)!important;border-radius:12px;padding:4px 8px!important}.leaflet-tooltip{border-radius:16px;padding:10px}
+html,body,#map{height:100%;margin:0;background:#e5edf3;font-family:Roboto,Arial,sans-serif}.leaflet-tile-pane{pointer-events:none}.hit{width:48px;height:48px;display:flex;align-items:center;justify-content:center}.cluster{background:#244c86;color:white;border:3px solid white;border-radius:50%;width:34px;height:34px;display:flex;align-items:center;justify-content:center;font:bold 13px Roboto,Arial;box-shadow:0 2px 8px #1234}.vehicle.compact{width:28px;height:28px;min-width:0;padding:0;border-radius:50%}.vehicle svg{width:20px;height:20px;flex-shrink:0}.vehicle{display:flex;align-items:center;justify-content:center;gap:5px}.vehicle{flex-shrink:0;width:max-content;background:#2864d9;color:white;border:2px solid white;border-radius:22px;padding:6px 10px;white-space:nowrap;font:bold 13px Roboto,Arial;box-shadow:0 2px 8px #1234;min-width:20px;text-align:center}.bus{background:#0d687a}#status{position:absolute;z-index:1000;bottom:36px;left:12px;right:78px;background:#f8fbfff2;color:#112d43;border-radius:18px;padding:10px;font-size:12px;display:none}.leaflet-control-attribution{font-size:10px!important;max-width:240px;white-space:normal;margin-right:18px!important;margin-bottom:calc(var(--bottom-inset,0px) + 12px)!important;border-radius:12px;padding:4px 8px!important}.leaflet-tooltip{border-radius:16px;padding:10px}
 .hit{user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}.vehicle.compact{position:relative}.vehicle.directed{background:transparent!important;border-color:transparent;box-shadow:none}.vehicle .heading{position:absolute;width:48px;height:48px;overflow:visible;filter:drop-shadow(0 2px 4px #1234)}.vehicle.directed>svg:last-child{position:relative}
 .leaflet-top{top:var(--top-inset,0px)}
 #statusbar-feather{position:absolute;z-index:1100;top:0;left:0;right:0;height:var(--top-feather-height,0px);pointer-events:none;backdrop-filter:var(--top-feather-blur,none);-webkit-backdrop-filter:var(--top-feather-blur,none);background:linear-gradient(to bottom,rgba(var(--feather-rgb,237,244,250),.82),rgba(var(--feather-rgb,237,244,250),0));mask-image:linear-gradient(to bottom,#000 0%,#000 45%,transparent 100%);-webkit-mask-image:linear-gradient(to bottom,#000 0%,#000 45%,transparent 100%)}
 </style></head><body><div id="map" role="application" aria-label="Járművek térképe"></div><div id="status"></div><script>/* LEAFLET_JS */</script><script>
-const map=L.map('map',{zoomControl:true}).setView([47.17,19.5],7);
+L.Map.TouchZoom.prototype._onTouchEnd=function(){
+ if(!this._moved||!this._zooming){this._zooming=false;return}
+ this._zooming=false;L.Util.cancelAnimFrame(this._animRequest);
+ L.DomEvent.off(document,'touchmove',this._onTouchMove,this);
+ L.DomEvent.off(document,'touchend touchcancel',this._onTouchEnd,this);
+ const z=this._map._limitZoom(this._zoom);
+ this._map._move(this._center,z);this._map.fire('zoom');this._map._moveEnd(true);
+};
+const map=L.map('map',{zoomControl:false,doubleClickZoom:false,zoomSnap:0,bounceAtZoomLimits:false}).setView([47.17,19.5],7);
+(()=>{
+ const el=map.getContainer(),doubleTapMs=300,doubleTapSlop=48,tapSlop=12,swipeSlop=6,pxPerZoom=140;
+ let lastTapTime=0,lastTapPt=null,downTime=0,downPt=null,tapMoved=false,doubleTap=false,swiping=false,startZoom=0,startCenter=null,targetZoom=0,frame=0,lastTouchEnd=0;
+ function endSwipe(){
+  if(frame){cancelAnimationFrame(frame);frame=0}
+  if(swiping){swiping=false;map._move(startCenter,targetZoom);map.fire('zoom');map._moveEnd(true)}
+  doubleTap=false;
+ }
+ el.addEventListener('touchstart',e=>{
+  if(e.touches.length!==1){endSwipe();tapMoved=true;lastTapTime=0;return}
+  if(e.target.closest&&e.target.closest('.hit,.leaflet-control')){lastTapTime=0;doubleTap=false;return}
+  const pt=map.mouseEventToContainerPoint(e.touches[0]),now=Date.now();
+  downPt=pt;downTime=now;tapMoved=false;swiping=false;
+  if(lastTapPt&&now-lastTapTime<=doubleTapMs&&pt.distanceTo(lastTapPt)<=doubleTapSlop){
+   doubleTap=true;lastTapTime=0;lastTapPt=null;
+   map._stop();map.dragging?._draggable?.finishDrag(true);
+  }else doubleTap=false;
+ },{passive:true});
+ el.addEventListener('touchmove',e=>{
+  if(e.touches.length!==1){endSwipe();tapMoved=true;return}
+  const pt=map.mouseEventToContainerPoint(e.touches[0]);
+  if(!doubleTap){if(downPt&&pt.distanceTo(downPt)>tapSlop)tapMoved=true;return}
+  if(!swiping){
+   if(Math.abs(pt.y-downPt.y)<=swipeSlop&&pt.distanceTo(downPt)<=tapSlop)return;
+   swiping=true;startZoom=targetZoom=map.getZoom();startCenter=map.getCenter();downPt=pt;
+   map._moveStart(true,false);
+  }
+  if(e.cancelable)e.preventDefault();
+  targetZoom=map._limitZoom(startZoom+(pt.y-downPt.y)/pxPerZoom);
+  if(!frame)frame=requestAnimationFrame(()=>{frame=0;if(swiping)map._move(startCenter,targetZoom,{pinch:true,round:false})});
+ },{passive:false});
+ function onTouchEnd(e){
+  lastTouchEnd=Date.now();
+  if(doubleTap){
+   if(e.cancelable)e.preventDefault();
+   if(swiping)endSwipe();
+   else{doubleTap=false;if(e.type==='touchend'&&downPt)map.setZoomAround(downPt,map._limitZoom(map.getZoom()+1))}
+   return;
+  }
+  if(e.type==='touchend'&&!tapMoved&&downPt&&lastTouchEnd-downTime<=doubleTapMs){lastTapTime=lastTouchEnd;lastTapPt=downPt}
+  else{lastTapTime=0;lastTapPt=null}
+ }
+ el.addEventListener('touchend',onTouchEnd,{passive:false});
+ el.addEventListener('touchcancel',onTouchEnd,{passive:false});
+ map.on('dblclick',e=>{if(Date.now()-lastTouchEnd>500)map.setZoomAround(e.containerPoint,map._limitZoom(map.getZoom()+1))});
+})();
 const status=document.getElementById('status');let tileFailed=false;
 const osmAttribution='© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> közreműködők';
 const imageryAttribution='<a href="https://www.esri.com/">Esri</a>, Maxar, Earthstar Geographics, GIS User Community';
@@ -89,7 +143,7 @@ function draw(){
 // Compose parent is being measured. Use the measured visual viewport explicitly.
 window.resizeMap=()=>{const h=Math.max(1,innerHeight),w=Math.max(1,innerWidth);document.documentElement.style.height=h+'px';document.body.style.height=h+'px';const el=document.getElementById('map');el.style.height=h+'px';el.style.width=w+'px';map.invalidateSize({pan:false});draw()};
 window.addEventListener('resize',window.resizeMap);
-window.setRouteMode=enabled=>{routeMode=enabled;map.zoomControl.setPosition(enabled?'topright':'topleft')};
+window.setRouteMode=enabled=>{routeMode=enabled};
 window.updateVehicles=v=>{vehicles=v;window.resizeMap();
  const ids=v.map(item=>item.id).sort().join('|');
  if(routeMode&&routePoints.length&&ids&&ids!==fittedVehicleIds){map.fitBounds([...routePoints,...v.map(item=>[item.lat,item.lon])],{padding:[50,60]});fittedVehicleIds=ids}

@@ -21,4 +21,12 @@ class MapTypeTest {
         assertEquals(MapType.Standard, MapType.fromId(null))
         assertEquals(MapType.Rail, MapType.fromId("rail"))
     }
+    @Test fun mapHtmlDisablesZoomControlAndSupportsDoubleTapSwipeZoom() {
+        val html = java.io.File("src/main/assets/map.html").readText()
+        assertTrue(html.contains("zoomControl:false"))
+        assertFalse(html.contains("leaflet-control-zoom"))
+        assertFalse(html.contains("map.zoomControl"))
+        assertTrue(html.contains("zoomSnap:0"))
+        assertTrue(html.contains("startZoom+(pt.y-downPt.y)/pxPerZoom"))
+    }
 }

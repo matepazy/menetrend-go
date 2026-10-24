@@ -27,7 +27,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 
-/** The right edge stays fixed while the search grows toward the Leaflet zoom control. */
+/** The right edge stays fixed while the search grows across the top bar. */
 @Composable internal fun MapSearch(
     query: String, onQuery: (String) -> Unit, modifier: Modifier = Modifier
 ) {
@@ -55,7 +55,7 @@ import androidx.compose.ui.unit.dp
             keyboard?.show()
         }
     }
-    BoxWithConstraints(modifier.padding(start = 70.dp, end = 10.dp, top = 10.dp)) {
+    BoxWithConstraints(modifier.padding(start = 10.dp, end = 10.dp, top = 10.dp)) {
         val width by animateDpAsState(if (expanded) maxWidth else 48.dp,
             tween(if (expanded) AppMotion.Reveal else AppMotion.Dismiss, easing = AppMotion.State),
             label = "Map search width")
