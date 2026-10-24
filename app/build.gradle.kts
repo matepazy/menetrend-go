@@ -20,7 +20,7 @@ android {
         minSdk = 28
         targetSdk = 36
         versionCode = 1
-        versionName = "v1.0.0"
+        versionName = "v1.1.0"
     }
     signingConfigs {
         if (signingPropertiesFile.isFile) {

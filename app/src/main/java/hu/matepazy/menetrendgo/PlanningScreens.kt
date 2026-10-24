@@ -442,8 +442,8 @@ private fun serviceType(leg: Leg): String = hungarianServiceName(leg.category, l
                             } else {
                                 RouteBadge(leg)
                                 Text("${serviceType(leg)} · ${((leg.end-leg.start+59_999)/60_000)} perc",Modifier.padding(top=8.dp),style=MaterialTheme.typography.bodyMedium)
-                                journeyVehicles[leg.tripId]?.modelAndRegistration?.takeIf {it.isNotBlank()}?.let {vehicle ->
-                                    Text(vehicle,Modifier.padding(top=AppLayout.LabelGap),style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)
+                                journeyVehicles[leg.tripId]?.takeIf {it.modelAndRegistration.isNotBlank()}?.let {vehicle ->
+                                    VehicleModelLabel(vehicle,Modifier.padding(top=AppLayout.LabelGap))
                                 }
                                 if(leg.headsign.isNotBlank()) Text("Irány: ${leg.headsign}",Modifier.padding(top=4.dp),style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)
                                 if(!leg.realTime) Text("Menetrend szerint · élő adat nem érhető el",Modifier.padding(top=8.dp),style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
