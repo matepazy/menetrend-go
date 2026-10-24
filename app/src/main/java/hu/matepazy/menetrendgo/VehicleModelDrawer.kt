@@ -1,14 +1,24 @@
 package hu.matepazy.menetrendgo
 
 import android.graphics.BitmapFactory
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.ExpandMore
+import androidx.compose.material.icons.outlined.Link
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -21,12 +31,14 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -66,7 +78,8 @@ import kotlinx.coroutines.withContext
  * THESIS: Turn a reported model name into a small, sourced field guide.
  * OWN-WORLD: Existing icy-blue Material roles, rounded sheets and system typography.
  * STORY: Tap the dotted name, recognise the vehicle, read facts, return to the same journey.
- * FIRST VIEWPORT: Model heading and close control, full-width fleet photo and adjacent credit.
+ * FIRST VIEWPORT: Model name, familiar-name badge and close control; broad photo and quiet caption.
+ * REFERENCE: User's Desiro example guides article spacing and the compact source disclosure.
  * FORM: A local extension of the established native drawer; no replacement visual identity.
  * FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review,
  * the verdict, DESIGN.md, and every shipping raster carrying its provenance.
@@ -79,14 +92,28 @@ import kotlinx.coroutines.withContext
         value = withContext(Dispatchers.IO) { runCatching { VehicleModelCatalog.load(assets) } }
     }
     val profile = result?.getOrNull()?.let { findVehicleModel(it, model) }
+    val pager = rememberPagerState(pageCount = { profile?.photos?.size ?: 0 })
     ModalBottomSheet(onDismissRequest = dismiss,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
         shape = MaterialTheme.shapes.extraLarge) {
         Column(Modifier.fillMaxWidth().fillMaxHeight(.92f)) {
-            Row(Modifier.fillMaxWidth().padding(horizontal = AppLayout.SheetPadding),
-                verticalAlignment = Alignment.CenterVertically) {
-                Text(profile?.title ?: model, Modifier.weight(1f).semantics { heading() },
-                    style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+            Row(Modifier.fillMaxWidth().padding(start = AppLayout.ItemGap, end = AppLayout.CompactGap,
+                bottom = AppLayout.RelatedGap), verticalAlignment = Alignment.Top) {
+                FlowRow(Modifier.weight(1f).padding(top = AppLayout.CompactGap),
+                    horizontalArrangement = Arrangement.spacedBy(AppLayout.RelatedGap),
+                    verticalArrangement = Arrangement.spacedBy(AppLayout.CompactGap),
+                    itemVerticalAlignment = Alignment.CenterVertically) {
+                    val title = profile?.title ?: model
+                    Text(title.substringBefore(" · "), Modifier.semantics { heading() },
+                        style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+                    title.substringAfter(" · ", "").takeIf { it.isNotBlank() }?.let { familiarName ->
+                        Surface(shape = CircleShape, color = MaterialTheme.colorScheme.primaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onPrimaryContainer) {
+                            Text(familiarName, Modifier.padding(horizontal = AppLayout.RelatedGap, vertical = 6.dp),
+                                style = MaterialTheme.typography.labelLarge)
+                        }
+                    }
+                }
                 IconButton(onClick = dismiss) { Icon(Icons.Outlined.Close, "Járműtípus bemutatásának bezárása") }
             }
             when {
@@ -100,11 +127,9 @@ import kotlinx.coroutines.withContext
                     Text("A szolgáltató által jelzett típus: $model", style = MaterialTheme.typography.bodyMedium)
                 }
                 else -> LazyColumn(Modifier.weight(1f), contentPadding = PaddingValues(
-                    start = AppLayout.SheetPadding, end = AppLayout.SheetPadding,
-                    top = AppLayout.RelatedGap, bottom = AppLayout.SectionGap),
-                    verticalArrangement = Arrangement.spacedBy(AppLayout.RelatedGap)) {
+                    start = AppLayout.ItemGap, end = AppLayout.ItemGap,
+                    bottom = AppLayout.SectionGap)) {
                     if (profile.photos.isNotEmpty()) item {
-                        val pager = rememberPagerState(pageCount = { profile.photos.size })
                         Column(verticalArrangement = Arrangement.spacedBy(AppLayout.CompactGap)) {
                             HorizontalPager(pager, key = { profile.photos[it].asset }) { index ->
                                 FleetPhoto(profile.photos[index], profile.title)
@@ -114,7 +139,8 @@ import kotlinx.coroutines.withContext
                                 Text("Fotók · lapozz a képek között", style = MaterialTheme.typography.labelMedium)
                                 Text("${pager.currentPage + 1} / ${profile.photos.size}", style = MaterialTheme.typography.labelMedium)
                             }
-                            PhotoCredit(profile.photos[pager.currentPage])
+                            Text("${profile.title.substringBefore(" · ")} · Illusztráció",
+                                style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             Text("A fotó a típus egy hazai példányát mutatja, nem feltétlenül az érkező járművet.",
                                 style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
@@ -122,16 +148,16 @@ import kotlinx.coroutines.withContext
                         Text("Ehhez a típushoz még nincs szabadon felhasználható, ellenőrzött hazai fotónk.",
                             style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
-                    item { Text(profile.description, style = MaterialTheme.typography.bodyLarge) }
-                    item { Text("Jó tudni", Modifier.padding(top = AppLayout.RelatedGap).semantics { heading() },
+                    item { Text(profile.description, Modifier.padding(top = AppLayout.SectionGap),
+                        style = MaterialTheme.typography.bodyLarge) }
+                    item { Text("Jó tudni", Modifier.padding(top = 32.dp, bottom = AppLayout.RelatedGap).semantics { heading() },
                         style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold) }
-                    profile.facts.forEach { fact -> item { Text(fact, style = MaterialTheme.typography.bodyMedium) } }
-                    item { HorizontalDivider(Modifier.padding(top = AppLayout.RelatedGap)) }
+                    profile.facts.forEach { fact -> item {
+                        Text(fact, Modifier.padding(bottom = AppLayout.RelatedGap), style = MaterialTheme.typography.bodyLarge)
+                    } }
+                    item { HorizontalDivider(Modifier.padding(top = AppLayout.SectionGap)) }
                     item {
-                        Column {
-                            Text("Az ismertető forrásai", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-                            profile.sources.forEach { (label, url) -> SourceLink(label, url) }
-                        }
+                        ModelSources(profile, profile.photos.getOrNull(pager.currentPage))
                     }
                 }
             }
@@ -148,13 +174,55 @@ import kotlinx.coroutines.withContext
             } }
         }
     }
-    Surface(Modifier.fillMaxWidth().aspectRatio(1.5f).clip(MaterialTheme.shapes.medium),
+    Surface(Modifier.fillMaxWidth().aspectRatio(1.5f).clip(MaterialTheme.shapes.small),
         color = MaterialTheme.colorScheme.surfaceContainer) {
         bitmap?.getOrNull()?.let { Image(it, "$title · ${photo.caption}", Modifier.fillMaxSize(), contentScale = ContentScale.Fit) }
             ?: Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 if (bitmap == null) CircularProgressIndicator(Modifier.size(24.dp))
                 else Text("A fotó nem jeleníthető meg.", Modifier.padding(AppLayout.RelatedGap), style = MaterialTheme.typography.bodyMedium)
             }
+    }
+}
+
+@Composable private fun ModelSources(profile: VehicleModelProfile, currentPhoto: ModelPhoto?) {
+    var expanded by rememberSaveable(profile.id) { mutableStateOf(false) }
+    val rotation by animateFloatAsState(if (expanded) 180f else -90f,
+        tween(AppMotion.Reveal, easing = AppMotion.State), label = "Vehicle sources")
+    Column {
+        Row(Modifier.fillMaxWidth()
+            .clickable(role = Role.Button, onClickLabel = if (expanded) "Források elrejtése" else "Források megjelenítése") { expanded = !expanded }
+            .semantics { stateDescription = if (expanded) "Kibontva" else "Összecsukva" }
+            .padding(vertical = AppLayout.ItemGap),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(AppLayout.RelatedGap)) {
+            Surface(Modifier.size(44.dp), shape = CircleShape,
+                color = MaterialTheme.colorScheme.primaryContainer, contentColor = MaterialTheme.colorScheme.onPrimaryContainer) {
+                Box(contentAlignment = Alignment.Center) { Icon(Icons.Outlined.Link, null, Modifier.size(22.dp)) }
+            }
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(AppLayout.LabelGap)) {
+                Text("Fotó és források", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                Text(currentPhoto?.let { "${it.author} · Wikimedia Commons" } ?: "Az ismertető adatforrásai",
+                    style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                currentPhoto?.let { photo ->
+                    Surface(shape = CircleShape, color = MaterialTheme.colorScheme.primaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer) {
+                        Text(photo.license, Modifier.padding(horizontal = 10.dp, vertical = 3.dp),
+                            style = MaterialTheme.typography.labelSmall)
+                    }
+                }
+            }
+            Icon(Icons.Outlined.ExpandMore, null, Modifier.size(24.dp).graphicsLayer { rotationZ = rotation },
+                tint = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        AnimatedVisibility(expanded,
+            enter = expandVertically(tween(AppMotion.Reveal, easing = AppMotion.Arrival)) + fadeIn(tween(AppMotion.Feedback)),
+            exit = shrinkVertically(tween(AppMotion.Dismiss, easing = AppMotion.State)) + fadeOut(tween(AppMotion.Dismiss))) {
+            Column(Modifier.padding(bottom = AppLayout.CompactGap), verticalArrangement = Arrangement.spacedBy(AppLayout.RelatedGap)) {
+                currentPhoto?.let { PhotoCredit(it) }
+                Text("Az ismertető forrásai", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                profile.sources.forEach { (label, url) -> SourceLink(label, url) }
+            }
+        }
     }
 }
 
