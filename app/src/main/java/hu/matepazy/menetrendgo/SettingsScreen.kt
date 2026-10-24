@@ -1,7 +1,6 @@
 package hu.matepazy.menetrendgo
 
 import android.content.Intent
-import android.net.Uri
 import android.provider.Settings
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -154,24 +153,25 @@ private enum class SettingsPage(val title: String) {
                 SettingsPage.About -> {
                     item {
                         Glass(Modifier.fillMaxWidth()) {
-                            Text("MenetrendGO", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                            Text("MenetrendGO", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
                             Text("${BuildConfig.VERSION_NAME} verzió", Modifier.padding(top = 4.dp), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             Spacer(Modifier.height(16.dp))
-                            Text("Nem hivatalos alkalmazás. Az adatok hiányozhatnak vagy késhetnek.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text("Magyarországi közösségi közlekedés, könnyebben átláthatóan. Tervezz utazást, nézd meg a járatok megállóit és kövesd a járműveket a térképen.", style = MaterialTheme.typography.bodyLarge)
+                            Spacer(Modifier.height(12.dp))
+                            Text("Bérleteid érvényességét is nyilvántarthatod, és emlékeztetőt kérhetsz a lejáratukról.", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
                     item {
                         Glass(Modifier.fillMaxWidth()) {
-                            Text("Adatforrás", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                            Text("Adatok és függetlenség", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
                             Spacer(Modifier.height(8.dp))
-                            Text("Közvetlen MÁV-kapcsolat · mavplusz.hu", style = MaterialTheme.typography.bodyLarge)
-                            Spacer(Modifier.height(8.dp))
-                            Text("A járműadatok 75 másodpercenként frissülnek, amíg a térképet vagy a járatot nézed.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text("A menetrendi és járműadatok a MÁVPlusz rendszeréből származnak. A friss adatokhoz internetkapcsolat szükséges.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Spacer(Modifier.height(12.dp))
+                            Text("A MenetrendGO független, nem hivatalos alkalmazás, nem áll kapcsolatban a MÁV-val. Az adatok hiányozhatnak vagy késhetnek.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
                     item {
                         SettingsGroup {
-                            SettingsRow("Forrásprojekt: hovamegy.hu", external = true, onClick = { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/matepazy/hovamegy.hu"))) })
                             SettingsRow("Fejlesztői beállítások", onClick = { navigate(SettingsPage.Developer) })
                         }
                     }
