@@ -26,6 +26,7 @@ class AppState(app: Application) : AndroidViewModel(app) {
     var showRawGraphQl by mutableStateOf(prefs.getBoolean("show_raw_graphql", false)); private set
     var customMapEnabled by mutableStateOf(prefs.getBoolean("custom_map_enabled", false)); private set
     var mapType by mutableStateOf(MapType.fromId(prefs.getString("map_type", "standard"))); private set
+    var showLocalBuses by mutableStateOf(prefs.getBoolean("map_local_buses", false)); private set
     var customMapUrl by mutableStateOf(prefs.getString("custom_map_url", "").orEmpty()); private set
     val effectiveMapType get() = if (mapType == MapType.Custom && (!customMapEnabled || !validMapTileUrl(customMapUrl))) MapType.Standard else mapType
     var recents by mutableStateOf(readArray("recents").mapNotNull { runCatching { Recent(Station.parse(it.getJSONObject("from")), Station.parse(it.getJSONObject("to"))) }.getOrNull() }); private set
@@ -67,6 +68,7 @@ class AppState(app: Application) : AndroidViewModel(app) {
     fun selectStation(station: Station) { viewModelScope.launch { stationSearch.selected(station) } }
     fun chooseTheme(value: String) { theme = value; prefs.edit().putString("theme", value).apply() }
     fun chooseRawGraphQl(enabled: Boolean) { showRawGraphQl=enabled; prefs.edit().putBoolean("show_raw_graphql",enabled).apply() }
+    fun chooseLocalBuses(enabled: Boolean) { showLocalBuses=enabled; prefs.edit().putBoolean("map_local_buses",enabled).apply() }
     fun chooseMapType(value: MapType) {
         if (value == MapType.Custom && (!customMapEnabled || !validMapTileUrl(customMapUrl))) return
         mapType=value; prefs.edit().putString("map_type",value.id).apply()

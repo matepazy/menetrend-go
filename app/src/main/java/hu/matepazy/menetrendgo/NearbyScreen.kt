@@ -61,7 +61,9 @@ import kotlinx.coroutines.withContext
     val onSelect by rememberUpdatedState<(Vehicle) -> Unit>({vehicle -> vm.loadTrip(vehicle.id,java.time.LocalDate.now(Budapest).toString());selectedVehicle=vehicle})
     var mapTypesOpen by rememberSaveable {mutableStateOf(false)}
     var searchQuery by rememberSaveable {mutableStateOf("")}
-    val allVehicles=vm.vehicles
+    val allVehicles=remember(vm.vehicles,routeOnly,vm.showLocalBuses) {
+        if(routeOnly) vm.vehicles else mapLayerVehicles(vm.vehicles,vm.showLocalBuses)
+    }
     val search=remember(allVehicles) {VehicleSearch(allVehicles)}
     val filteredVehicles by produceState(
         initialValue=if(searchQuery.isBlank()) allVehicles else emptyList(),
@@ -193,7 +195,7 @@ import kotlinx.coroutines.withContext
             Surface(modifier=Modifier.align(Alignment.TopEnd).padding(top=topInset+66.dp,end=10.dp),
                 shape=androidx.compose.foundation.shape.CircleShape,color=MaterialTheme.colorScheme.surface) {
                 IconButton(onClick={mapTypesOpen=true},modifier=Modifier.size(48.dp)) {
-                    Icon(Icons.Outlined.Layers,"Térképtípus")
+                    Icon(Icons.Outlined.Layers,"Térképbeállítások")
                 }
             }
         }

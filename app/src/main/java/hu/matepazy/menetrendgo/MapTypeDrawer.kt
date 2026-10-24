@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -37,9 +38,21 @@ import androidx.compose.ui.unit.dp
             .padding(horizontal = AppLayout.SheetPadding).padding(bottom = 24.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)) {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                Text("Térképtípus", Modifier.weight(1f), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
-                IconButton(onClick = dismiss) { Icon(Icons.Outlined.Close, "Térképtípus bezárása") }
+                Text("Térképbeállítások", Modifier.weight(1f), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+                IconButton(onClick = dismiss) { Icon(Icons.Outlined.Close, "Térképbeállítások bezárása") }
             }
+            Row(Modifier.fillMaxWidth().toggleable(vm.showLocalBuses, role = Role.Switch,
+                onValueChange = vm::chooseLocalBuses).heightIn(min = 72.dp).padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                Icon(Icons.Outlined.DirectionsBus, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text("Helyi autóbuszok", style = MaterialTheme.typography.titleMedium)
+                    Text("Elérhető élő járműpozíciók megjelenítése", style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+                Switch(checked = vm.showLocalBuses, onCheckedChange = null)
+            }
+            Text("Térképtípus", style = MaterialTheme.typography.titleMedium)
             Column(Modifier.selectableGroup(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 MapType.entries.filter { it != MapType.Custom || (vm.customMapEnabled && validMapTileUrl(vm.customMapUrl)) }.forEach { type ->
                     val selected = vm.effectiveMapType == type

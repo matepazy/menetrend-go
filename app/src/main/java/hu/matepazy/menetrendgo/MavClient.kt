@@ -78,19 +78,7 @@ class MavClient {
             vehicleCache?.takeIf {now-it.second<75} ?: run {
                 val data=request("/index/graphql",MavQueries.vehicles)
                 check(data.has("vehiclePositions")) {"A MÁV járműadatai most nem érhetők el."}
-                val items=data.array("vehiclePositions").mapNotNull {v->
-                    fun text(key: String) = if(v.isNull(key)) "" else v.optString(key).trim().takeUnless {it.equals("null",ignoreCase=true)}.orEmpty()
-                    val trip=v.optJSONObject("trip")
-                    val id=trip?.optString("gtfsId").orEmpty()
-                    if(id.isBlank() || v.isNull("lat") || v.isNull("lon")) null else Vehicle(id,
-                        hungarianServiceLabel(trip!!.optString("tripShortName").ifBlank {v.optString("label").ifBlank {"Járat"}}),
-                        trip.optString("tripHeadsign"),trip.optJSONObject("route")?.optString("mode").orEmpty(),v.getDouble("lat"),v.getDouble("lon"),
-                        trip.optJSONObject("route")?.optString("color").orEmpty(),trip.optString("trainCategoryName"),
-                        trip.optJSONObject("route")?.optString("longName").orEmpty(),
-                        v.optDouble("heading").takeIf {it.isFinite() && it>=0 && it<=360}?.rem(360.0),
-                        text("vehicleModel"),text("licensePlate"),text("uicCode"),
-                        trip.optJSONObject("route")?.optString("shortName").orEmpty(),text("vehicleId"))
-                }
+                val items=data.array("vehiclePositions").mapNotNull(::parseVehiclePosition)
                 (items to System.currentTimeMillis()/1000).also {vehicleCache=it}
             }
         }
@@ -138,7 +126,7 @@ object MavQueries {
         $services
         route {shortName longName mode color agency {name}} trip {gtfsId tripShortName tripHeadsign trainCategoryName}}}}}
     """.trimIndent()
-    val vehicles="""{vehiclePositions(swLat:45.5,swLon:16.1,neLat:48.7,neLon:22.8,modes:[RAIL,RAIL_REPLACEMENT_BUS,COACH,SUBURBAN_RAILWAY,TRAMTRAIN]) {vehicleId lat lon speed heading label vehicleModel licensePlate uicCode trip {gtfsId tripShortName tripHeadsign trainCategoryName route {shortName mode color longName}}}}"""
+    val vehicles="""{vehiclePositions(swLat:45.5,swLon:16.1,neLat:48.7,neLon:22.8,modes:[RAIL,RAIL_REPLACEMENT_BUS,COACH,BUS,SUBURBAN_RAILWAY,TRAMTRAIN]) {vehicleId lat lon speed heading label vehicleModel licensePlate uicCode trip {gtfsId tripShortName tripHeadsign trainCategoryName route {shortName mode color longName}}}}"""
     fun trip(id: String,day: String): String {
         require(id.length in 1..250);LocalDate.parse(day)
         return """{trip(id:${quote(id)},serviceDay:${quote(day)}) {gtfsId tripHeadsign trainCategoryName trainName tripShortName $services route {shortName longName(language:"hu")} stoptimes {serviceDay realtime stop {name lat lon platformCode} realtimeArrival realtimeDeparture arrivalDelay departureDelay scheduledArrival scheduledDeparture}}}"""
