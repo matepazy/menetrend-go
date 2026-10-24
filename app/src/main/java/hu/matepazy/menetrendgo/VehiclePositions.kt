@@ -2,9 +2,42 @@ package hu.matepazy.menetrendgo
 
 import org.json.JSONObject
 
+enum class MapVehicleFilter(
+    val id: String,
+    val prefKey: String,
+    val title: String,
+    val summary: String,
+    val defaultEnabled: Boolean,
+    val modes: Set<String>
+) {
+    Rail("rail", "map_rail", "Vonatok", "Személy-, gyors- és InterCity-vonatok", true, setOf("RAIL")),
+    Coach("coach", "map_coaches", "Helyközi autóbuszok", "Regionális és távolsági autóbuszjáratok", true, setOf("COACH")),
+    LocalBus("local_bus", "map_local_buses", "Helyi autóbuszok", "Városi autóbuszjáratok élő pozíciói", false, setOf("BUS")),
+    SuburbanRailway("suburban_railway", "map_suburban_railway", "HÉV", "Budapesti elővárosi vasútvonalak", true, setOf("SUBURBAN_RAILWAY")),
+    TramTrain("tramtrain", "map_tramtrain", "TramTrain", "Szeged–Hódmezővásárhely vasútvillamos", true, setOf("TRAMTRAIN", "TRAM")),
+    ReplacementBus("replacement_bus", "map_replacement_buses", "Vonatpótló autóbuszok", "Vágányzári és rendkívüli pótlóbuszok", true, setOf("RAIL_REPLACEMENT_BUS"));
+
+    companion object {
+        val defaultFilters: Set<MapVehicleFilter> = entries.filter { it.defaultEnabled }.toSet()
+        fun forMode(mode: String): MapVehicleFilter? = entries.firstOrNull { mode in it.modes }
+    }
+}
+
+/** Filters general-map vehicles by the active mode switches while keeping unknown modes visible. */
+internal fun mapLayerVehicles(
+    vehicles: List<Vehicle>,
+    enabledFilters: Set<MapVehicleFilter>
+): List<Vehicle> = vehicles.filter { vehicle ->
+    val filter = MapVehicleFilter.forMode(vehicle.mode)
+    filter == null || filter in enabledFilters
+}
+
 /** The general map's optional layer never hides coaches or rail replacement buses. */
 internal fun mapLayerVehicles(vehicles: List<Vehicle>, showLocalBuses: Boolean): List<Vehicle> =
-    if (showLocalBuses) vehicles else vehicles.filter { it.mode != "BUS" }
+    mapLayerVehicles(
+        vehicles,
+        if (showLocalBuses) MapVehicleFilter.entries.toSet() else MapVehicleFilter.defaultFilters
+    )
 
 internal fun parseVehiclePosition(v: JSONObject): Vehicle? {
     fun JSONObject.text(key: String) = if (isNull(key)) "" else optString(key).trim()

@@ -27,6 +27,16 @@ class VehiclePositionsTest {
         assertEquals(listOf(vehicles.first()), vehicleForTrip(vehicles, "BUS"))
     }
 
+    @Test fun vehicleFiltersToggleIndividualModes() {
+        val vehicles = listOf("BUS", "COACH", "RAIL_REPLACEMENT_BUS", "RAIL", "SUBURBAN_RAILWAY", "TRAMTRAIN")
+            .map { mode -> parseVehiclePosition(position(mode))!!.copy(id = mode) }
+        assertEquals(
+            listOf("RAIL", "SUBURBAN_RAILWAY"),
+            mapLayerVehicles(vehicles, setOf(MapVehicleFilter.Rail, MapVehicleFilter.SuburbanRailway)).map { it.id }
+        )
+        assertTrue(mapLayerVehicles(vehicles, emptySet()).isEmpty())
+    }
+
     @Test fun positionsWithoutTripsOrCoordinatesAreIgnored() {
         assertNull(parseVehiclePosition(position().put("trip", JSONObject.NULL)))
         assertNull(parseVehiclePosition(position().put("lat", JSONObject.NULL)))

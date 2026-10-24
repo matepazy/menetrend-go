@@ -38,21 +38,9 @@ import androidx.compose.ui.unit.dp
             .padding(horizontal = AppLayout.SheetPadding).padding(bottom = 24.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)) {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                Text("Térképbeállítások", Modifier.weight(1f), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
-                IconButton(onClick = dismiss) { Icon(Icons.Outlined.Close, "Térképbeállítások bezárása") }
+                Text("Térképtípus", Modifier.weight(1f), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+                IconButton(onClick = dismiss) { Icon(Icons.Outlined.Close, "Térképtípus bezárása") }
             }
-            Row(Modifier.fillMaxWidth().toggleable(vm.showLocalBuses, role = Role.Switch,
-                onValueChange = vm::chooseLocalBuses).heightIn(min = 72.dp).padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                Icon(Icons.Outlined.DirectionsBus, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Text("Helyi autóbuszok", style = MaterialTheme.typography.titleMedium)
-                    Text("Elérhető élő járműpozíciók megjelenítése", style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-                Switch(checked = vm.showLocalBuses, onCheckedChange = null)
-            }
-            Text("Térképtípus", style = MaterialTheme.typography.titleMedium)
             Column(Modifier.selectableGroup(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 MapType.entries.filter { it != MapType.Custom || (vm.customMapEnabled && validMapTileUrl(vm.customMapUrl)) }.forEach { type ->
                     val selected = vm.effectiveMapType == type
@@ -90,6 +78,47 @@ import androidx.compose.ui.unit.dp
                 Text("A csempéket közvetlenül a megadott szolgáltatótól töltjük be. Az URL-t ezen az eszközön mentjük.",
                     style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Button(onClick = { apply() }, modifier = Modifier.fillMaxWidth()) { Text("Saját térkép használata") }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable fun MapFilterDrawer(vm: AppState, dismiss: () -> Unit) {
+    ModalBottomSheet(onDismissRequest = dismiss,
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+        shape = MaterialTheme.shapes.extraLarge) {
+        Column(Modifier.fillMaxWidth().navigationBarsPadding().verticalScroll(rememberScrollState())
+            .padding(horizontal = AppLayout.SheetPadding).padding(bottom = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                Text("Járműszűrők", Modifier.weight(1f), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+                IconButton(onClick = dismiss) { Icon(Icons.Outlined.Close, "Járműszűrők bezárása") }
+            }
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                MapVehicleFilter.entries.forEach { filter ->
+                    val checked = filter in vm.vehicleFilters
+                    Surface(shape = RoundedCornerShape(24.dp), color = MaterialTheme.colorScheme.surface) {
+                        Row(Modifier.fillMaxWidth().toggleable(checked, role = Role.Switch,
+                            onValueChange = { vm.chooseVehicleFilter(filter, it) }).heightIn(min = 72.dp).padding(16.dp),
+                            verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                            Icon(when (filter) {
+                                MapVehicleFilter.Rail -> Icons.Outlined.Train
+                                MapVehicleFilter.Coach -> Icons.Outlined.DirectionsBus
+                                MapVehicleFilter.LocalBus -> Icons.Outlined.DirectionsBus
+                                MapVehicleFilter.SuburbanRailway -> Icons.Outlined.DirectionsTransit
+                                MapVehicleFilter.TramTrain -> Icons.Outlined.Tram
+                                MapVehicleFilter.ReplacementBus -> Icons.Outlined.DirectionsBus
+                            }, null, tint = if (checked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant)
+                            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                Text(filter.title, style = MaterialTheme.typography.titleMedium)
+                                Text(filter.summary, style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                            Switch(checked = checked, onCheckedChange = null)
+                        }
+                    }
+                }
             }
         }
     }

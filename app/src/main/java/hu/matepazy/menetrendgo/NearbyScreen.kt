@@ -60,9 +60,10 @@ import kotlinx.coroutines.withContext
     var selectedVehicle by vm::mapVehicle
     val onSelect by rememberUpdatedState<(Vehicle) -> Unit>({vehicle -> vm.loadTrip(vehicle.id,java.time.LocalDate.now(Budapest).toString());selectedVehicle=vehicle})
     var mapTypesOpen by rememberSaveable {mutableStateOf(false)}
+    var filtersOpen by rememberSaveable {mutableStateOf(false)}
     var searchQuery by rememberSaveable {mutableStateOf("")}
-    val allVehicles=remember(vm.vehicles,routeOnly,vm.showLocalBuses) {
-        if(routeOnly) vm.vehicles else mapLayerVehicles(vm.vehicles,vm.showLocalBuses)
+    val allVehicles=remember(vm.vehicles,routeOnly,vm.vehicleFilters) {
+        if(routeOnly) vm.vehicles else mapLayerVehicles(vm.vehicles,vm.vehicleFilters)
     }
     val search=remember(allVehicles) {VehicleSearch(allVehicles)}
     val filteredVehicles by produceState(
@@ -190,14 +191,21 @@ import kotlinx.coroutines.withContext
                 }
             })
         if(!routeOnly) {
-            MapSearch(searchQuery,{searchQuery=it},
-                modifier=Modifier.align(Alignment.TopEnd).padding(top=topInset).fillMaxWidth())
-            Surface(modifier=Modifier.align(Alignment.TopEnd).padding(top=topInset+66.dp,end=10.dp),
-                shape=androidx.compose.foundation.shape.CircleShape,color=MaterialTheme.colorScheme.surface) {
-                IconButton(onClick={mapTypesOpen=true},modifier=Modifier.size(48.dp)) {
-                    Icon(Icons.Outlined.Layers,"Térképbeállítások")
+            Column(modifier=Modifier.align(Alignment.TopStart).padding(top=topInset+10.dp,start=10.dp),
+                verticalArrangement=Arrangement.spacedBy(AppLayout.CompactGap)) {
+                Surface(shape=androidx.compose.foundation.shape.CircleShape,color=MaterialTheme.colorScheme.surface) {
+                    IconButton(onClick={mapTypesOpen=true},modifier=Modifier.size(48.dp)) {
+                        Icon(Icons.Outlined.Layers,"Térképtípus")
+                    }
+                }
+                Surface(shape=androidx.compose.foundation.shape.CircleShape,color=MaterialTheme.colorScheme.surface) {
+                    IconButton(onClick={filtersOpen=true},modifier=Modifier.size(48.dp)) {
+                        Icon(Icons.Outlined.Tune,"Járműszűrők")
+                    }
                 }
             }
+            MapSearch(searchQuery,{searchQuery=it},
+                modifier=Modifier.align(Alignment.TopEnd).padding(top=topInset).fillMaxWidth())
         }
             if(!routeOnly && (center==null || !locationVisible)) FilledTonalIconButton(onClick={
                 if(allowed) {recenter=true;if(center==null) locationMessage="Várakozás a helymeghatározásra. Ellenőrizd, hogy be van-e kapcsolva."}
@@ -217,6 +225,7 @@ import kotlinx.coroutines.withContext
             }
         }
         if(mapTypesOpen) MapTypeDrawer(vm) {mapTypesOpen=false}
+        if(filtersOpen) MapFilterDrawer(vm) {filtersOpen=false}
         selectedVehicle?.let {selected -> VehicleDrawer(vm,currentVehicles.firstOrNull {it.id==selected.id} ?: selected) {selectedVehicle=null}}
         SnackbarHost(snackbars,Modifier.align(Alignment.BottomCenter).padding(bottom=LocalBottomOverlayInset.current+12.dp))
     }
