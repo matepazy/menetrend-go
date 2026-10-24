@@ -74,8 +74,7 @@ fun upcomingVehicleStops(stops: List<VehicleStop>, now: Long): List<VehicleStop>
                 color=MaterialTheme.colorScheme.onSurfaceVariant,modifier=Modifier.padding(top=AppLayout.CompactGap))
             if(vehicle.model.isNotBlank() || vehicle.registration.isNotBlank() || vehicle.uicCode.isNotBlank()) {
                 Column(Modifier.padding(top=AppLayout.RelatedGap),verticalArrangement=Arrangement.spacedBy(AppLayout.CompactGap)) {
-                    if(vehicle.model.isNotBlank()) VehicleMetadataRow(Icons.Outlined.Commute,"Járműtípus",vehicle.model)
-                    if(vehicle.registration.isNotBlank()) VehicleMetadataRow(Icons.Outlined.Badge,"Rendszám",vehicle.registration)
+                    if(vehicle.modelAndRegistration.isNotBlank()) VehicleMetadataRow(Icons.Outlined.Commute,"Jármű",vehicle.modelAndRegistration)
                     if(vehicle.uicCode.isNotBlank()) VehicleMetadataRow(Icons.Outlined.Badge,"Pályaszám",vehicle.uicCode)
                 }
             }
