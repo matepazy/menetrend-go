@@ -114,7 +114,7 @@ components:
 
 # Design System: MenetrendGO
 
-Journey legs and full trip timetables request MÁV `infoServices`. The services disclosure shows the original MNR2007 pictograms, bundled from the official MÁVPlusz font URL, and expands into wrapping Hungarian descriptions with their original from/to sections. Different sections remain separate, including reservation exemptions alongside mandatory-reservation notices. Missing facilities remain unknown. Icon glyphs are hidden from accessibility text and announced using the service descriptions.
+Journey legs and full trip timetables request MÁV `infoServices`. Journey services occupy a full-width panel after the itinerary, headed by the route badge and selected endpoints. Original MNR2007 pictograms align in a fixed leading column beside wrapping Hungarian descriptions and original validity sections, grouped into onboard facilities and ticket/pass rules; secondary operational notices expand separately. Indulások cards end with a divider and official acceptance/reservation icons, regardless of saved passes. Tapping an icon reveals all matching rules, routes and sections. Different sections remain separate, including reservation exemptions alongside mandatory-reservation notices. Missing facilities remain unknown. The bundled official font's glyphs are hidden from accessibility text and announced using service descriptions.
 
 ## Overview
 

@@ -422,7 +422,7 @@ private fun serviceType(leg: Leg): String = hungarianServiceName(leg.category, l
                     }
                     JourneyEndpoints(journey)
                     Text(listOf(dayLabel(journey.boardingLeg.start),"${journey.serviceMinutes} perc",if(journey.changes==0) "Közvetlen" else "${journey.changes} átszállás").filter {it.isNotBlank()}.joinToString(" · "),style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)
-                    if(vm.passes.isNotEmpty()) Text(passAdvice(vm.passes,journey,vm.passGeography).title,style=MaterialTheme.typography.labelLarge,color=MaterialTheme.colorScheme.primary)
+                    JourneyValidityIcons(journey)
                 }
             }
             }
@@ -505,7 +505,6 @@ private fun serviceType(leg: Leg): String = hungarianServiceName(leg.category, l
                                 }
                                 if(leg.headsign.isNotBlank()) Text("Irány: ${leg.headsign}",Modifier.padding(top=4.dp),style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)
                                 if(!leg.realTime) Text("Menetrend szerint · élő adat nem érhető el",Modifier.padding(top=8.dp),style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
-                                MavServices(leg.services,Modifier.padding(top=8.dp))
                                 var expanded by remember(journey.key,index) { mutableStateOf(false) }
                                 if(leg.intermediate.isNotEmpty()) {
                                     val disclosureRotation by animateFloatAsState(if(expanded) 180f else 0f,
@@ -542,6 +541,17 @@ private fun serviceType(leg: Leg): String = hungarianServiceName(leg.category, l
                                 Text("$wait perc várakozás",style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                         }
+                    }
+                }
+            }
+        }
+        journey.legs.filter { !it.walking && it.services.isNotEmpty() }.forEach {leg ->
+            item {
+                Surface(shape=MaterialTheme.shapes.large,color=MaterialTheme.colorScheme.surface) {
+                    Column(Modifier.fillMaxWidth().padding(AppLayout.PanelPadding),verticalArrangement=Arrangement.spacedBy(AppLayout.ItemGap)) {
+                        RouteBadge(leg)
+                        Text("${leg.from.name} → ${leg.to.name}",style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
+                        MavServices(leg.services)
                     }
                 }
             }

@@ -6,6 +6,13 @@ import org.junit.Test
 import java.time.LocalDateTime
 
 class MavServicesTest {
+    @Test fun cardFooterOnlyContainsPublishedTicketAndReservationRules() {
+        fun rule(name: String)=MavService(name,197,"MNR2007",0,10,"Budapest","Szeged").ticketRule
+        listOf("Országbérlettel igénybe vehető","Budapest-bérlettel igénybe vehető.",
+            "Helyjegy váltása kötelező","Helyjegy váltása nélkül igénybe vehető",
+            "Kerékpárhely foglalása kötelező.").forEach {assertTrue(it,rule(it))}
+        listOf("Bisztrószolgáltatás","A vonatban 1. osztályú kocsi is közlekedik","Csatlakozásra nem vár").forEach {assertFalse(it,rule(it))}
+    }
     @Test fun reservationAndSectionExemptionBothSurviveParsing() {
         val services=MavService.parseAll(JSONObject("""{"infoServices":[
           {"name":"Helyjegy váltása kötelező","fontCode":197,"fontCharSet":"MNR2007","fromStopIndex":0,"tillStopIndex":10,"fromStop":{"name":"Budapest-Nyugati"},"tillStop":{"name":"Szeged"}},
