@@ -54,6 +54,7 @@ import org.json.*
     val snackbars=remember {SnackbarHostState()}
     var selectedVehicle by vm::mapVehicle
     val onSelect by rememberUpdatedState<(Vehicle) -> Unit>({vehicle -> vm.loadTrip(vehicle.id,java.time.LocalDate.now(Budapest).toString());selectedVehicle=vehicle})
+    var mapTypesOpen by rememberSaveable {mutableStateOf(false)}
     var searchQuery by rememberSaveable {mutableStateOf("")}
     val search=remember(vm.vehicles) {VehicleSearch(vm.vehicles)}
     val visibleVehicles=remember(routeOnly,journey,focusedId,vm.vehicles,vm.vehicleUpdated,searchQuery) {
@@ -118,6 +119,9 @@ import org.json.*
             web?.evaluateJavascript("window.setRouteMode($routeOnly);window.updateVehicles($array);window.updateRoute($route);",null)
         }
     }
+    LaunchedEffect(ready,vm.effectiveMapType,vm.customMapUrl) {
+        if(ready) web?.evaluateJavascript("window.setMapType(${JSONObject.quote(vm.effectiveMapType.id)},${JSONObject.quote(vm.customMapUrl)});",null)
+    }
     LaunchedEffect(ready,bottomInset) {if(ready) web?.evaluateJavascript("window.setBottomInset($bottomInset);",null)}
     LaunchedEffect(ready,center,recenter) {
         val position=center
@@ -156,7 +160,7 @@ import org.json.*
                             ready=true
                         }
                         override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
-                            if(request.url.host=="www.openstreetmap.org") context.startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW,request.url))
+                            if(request.url.scheme=="https" && request.url.host in setOf("www.openstreetmap.org","www.openrailwaymap.org","creativecommons.org","www.esri.com")) context.startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW,request.url))
                             return true
                         }
                     }
@@ -170,6 +174,12 @@ import org.json.*
         if(!routeOnly) {
             MapSearch(searchQuery,{searchQuery=it},
                 modifier=Modifier.align(Alignment.TopEnd).fillMaxWidth())
+            Surface(modifier=Modifier.align(Alignment.TopEnd).padding(top=66.dp,end=10.dp),
+                shape=androidx.compose.foundation.shape.CircleShape,color=MaterialTheme.colorScheme.surface) {
+                IconButton(onClick={mapTypesOpen=true},modifier=Modifier.size(48.dp)) {
+                    Icon(Icons.Outlined.Layers,"Térképtípus")
+                }
+            }
         }
             if(!routeOnly && (center==null || !locationVisible)) FilledTonalIconButton(onClick={
                 if(allowed) {recenter=true;if(center==null) locationMessage="Várakozás a helymeghatározásra. Ellenőrizd, hogy be van-e kapcsolva."}
@@ -188,6 +198,7 @@ import org.json.*
                 Text(if(vm.vehiclesLoading) "Járműpozíció betöltése…" else "Ehhez a járathoz most nincs élő járműpozíció.",style=MaterialTheme.typography.bodyMedium)
             }
         }
+        if(mapTypesOpen) MapTypeDrawer(vm) {mapTypesOpen=false}
         selectedVehicle?.let {selected -> VehicleDrawer(vm,currentVehicles.firstOrNull {it.id==selected.id} ?: selected) {selectedVehicle=null}}
         SnackbarHost(snackbars,Modifier.align(Alignment.BottomCenter).padding(bottom=LocalBottomOverlayInset.current+12.dp))
     }

@@ -24,6 +24,10 @@ class AppState(app: Application) : AndroidViewModel(app) {
     private val stationSearch=StationSearch(app, mav::stations)
     var theme by mutableStateOf(prefs.getString("theme", "system").orEmpty()); private set
     var showRawGraphQl by mutableStateOf(prefs.getBoolean("show_raw_graphql", false)); private set
+    var customMapEnabled by mutableStateOf(prefs.getBoolean("custom_map_enabled", false)); private set
+    var mapType by mutableStateOf(MapType.fromId(prefs.getString("map_type", "standard"))); private set
+    var customMapUrl by mutableStateOf(prefs.getString("custom_map_url", "").orEmpty()); private set
+    val effectiveMapType get() = if (mapType == MapType.Custom && (!customMapEnabled || !validMapTileUrl(customMapUrl))) MapType.Standard else mapType
     var recents by mutableStateOf(readArray("recents").mapNotNull { runCatching { Recent(Station.parse(it.getJSONObject("from")), Station.parse(it.getJSONObject("to"))) }.getOrNull() }); private set
     var passes by mutableStateOf(readArray("passes").mapNotNull { runCatching { Pass.parse(it) }.getOrNull() }); private set
     var from by mutableStateOf<Station?>(null)
@@ -57,6 +61,21 @@ class AppState(app: Application) : AndroidViewModel(app) {
     fun selectStation(station: Station) { viewModelScope.launch { stationSearch.selected(station) } }
     fun chooseTheme(value: String) { theme = value; prefs.edit().putString("theme", value).apply() }
     fun chooseRawGraphQl(enabled: Boolean) { showRawGraphQl=enabled; prefs.edit().putBoolean("show_raw_graphql",enabled).apply() }
+    fun chooseMapType(value: MapType) {
+        if (value == MapType.Custom && (!customMapEnabled || !validMapTileUrl(customMapUrl))) return
+        mapType=value; prefs.edit().putString("map_type",value.id).apply()
+    }
+    fun chooseCustomMapEnabled(enabled: Boolean) {
+        customMapEnabled=enabled
+        if (!enabled && mapType == MapType.Custom) mapType=MapType.Standard
+        prefs.edit().putBoolean("custom_map_enabled",enabled).putString("map_type",mapType.id).apply()
+    }
+    fun applyCustomMapUrl(value: String) {
+        val url=value.trim()
+        if (!customMapEnabled || !validMapTileUrl(url)) return
+        customMapUrl=url; mapType=MapType.Custom
+        prefs.edit().putString("custom_map_url",url).putString("map_type",mapType.id).apply()
+    }
     fun clearRecents() { recents = emptyList(); prefs.edit().remove("recents").apply() }
     fun addPass(pass: Pass) {
         passes = passes.filterNot { it.id == pass.id } + pass

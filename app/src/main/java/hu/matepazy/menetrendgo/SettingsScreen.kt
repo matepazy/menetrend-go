@@ -149,7 +149,7 @@ private enum class SettingsPage(val title: String) {
                             }
                         }
                     }
-                    item { SettingsNote("A keresett megállók és az időpont közvetlenül a MÁV-hoz kerülnek. A térképcsempéket az OpenStreetMap szolgáltatja.") }
+                    item { SettingsNote("A keresett megállók és az időpont közvetlenül a MÁV-hoz kerülnek. A térképcsempéket a kiválasztott térképszolgáltató tölti be (OpenStreetMap, Esri, OpenRailwayMap vagy saját URL).") }
                 }
                 SettingsPage.About -> {
                     item {
@@ -188,6 +188,20 @@ private enum class SettingsPage(val title: String) {
                                     Text("Az utazás részleteinél megjelenik a Nyers adatok menüpont.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 }
                                 Switch(checked = vm.showRawGraphQl, onCheckedChange = null)
+                            }
+                        }
+                    }
+                    item {
+                        SettingsGroup {
+                            Row(
+                                Modifier.fillMaxWidth().toggleable(vm.customMapEnabled, role = Role.Switch, onValueChange = vm::chooseCustomMapEnabled).padding(AppLayout.PanelPadding),
+                                verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)
+                            ) {
+                                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    Text("Saját térkép URL", style = MaterialTheme.typography.titleMedium)
+                                    Text("Egyéni csempeforrás megadása a Térképtípus fiókban. Kikapcsolva az Alap térképre vált, ha saját forrást használsz.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                }
+                                Switch(checked = vm.customMapEnabled, onCheckedChange = null)
                             }
                         }
                     }
