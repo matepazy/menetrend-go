@@ -229,6 +229,8 @@ The map is locally bundled Leaflet HTML in a WebView, filling its screen with zo
 
 ## Do's and Don'ts
 
+The vehicle-model drawer is a Read surface within the native Material sheet. Its offline article presents “A járműről” for general information, then “Érdekesség” or “Érdekességek” for sourced curiosities. Both headings use bold title-large text, a 24dp top gap and 12dp bottom gap, followed by body-large copy. The existing proportional photo pager and source disclosure remain; the current photo's credit labels resizing and links to the license. Galleries contain up to three distinct verified MÁV/Volán photos, with an explicit missing-photo state where none could be verified.
+
 ### Do:
 
 - **Do** use theme role pairs for every surface and its text in light and dark modes.

@@ -31,6 +31,14 @@
         "license": "CC BY-SA 4.0",
         "caption": "MÁV-START Kék-fehér-sárga FLIRT motorvonat",
         "source": "https://commons.wikimedia.org/wiki/File:M%C3%81V-START_K%C3%A9k-feh%C3%A9r-s%C3%A1rga_FLIRT_motorvonat.jpg"
+      },
+      {
+        "asset": "flirt-4012390.jpg",
+        "caption": "MAV Stadler",
+        "author": "Diesirae (talk · contribs)",
+        "source": "https://commons.wikimedia.org/wiki/File:MAV_Stadler.jpg",
+        "license": "CC BY 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/3.0"
       }
     ]
   },
@@ -42,7 +50,8 @@
     ],
     "description": "Emeletes villamos motorvonat, két szinten elhelyezett utastérrel. A MÁV-nál a 815-ös sorozatba tartozik.",
     "facts": [
-      "A MÁV első KISS motorvonatai 2020-ban álltak forgalomba."
+      "A KISS neve német mozaikszó: kényelmes, innovatív, erős gyorsítású elővárosi vonatot jelent. Korábban DOSTO-nak hívták, a német „emeletes” szó rövidítéseként.",
+      "A MÁV első KISS-e 2020. március 15-én szállított először utasokat."
     ],
     "sources": [
       {
@@ -66,6 +75,14 @@
         "source": "https://commons.wikimedia.org/wiki/File:Stadler_KISS_Version_M%C3%81V.jpg",
         "license": "CC BY-SA 4.0",
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+      },
+      {
+        "asset": "kiss-149452822.jpg",
+        "caption": "Stadler KISS Szob Railway Station 2024",
+        "author": "VargaA",
+        "source": "https://commons.wikimedia.org/wiki/File:Stadler_KISS_Szob_Railway_Station_2024.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
       }
     ]
   },
@@ -77,7 +94,7 @@
     ],
     "description": "Könnyű, kéttengelyes dízelmotorkocsi a magyar mellékvonalakról, a csehszlovák Studénka gyárából.",
     "facts": [
-      "A „B” a másodosztályú utasteret, a „z” a két tengelyt, a „mot” a motorkocsit jelöli."
+      "A „B” a másodosztályú utasteret, a „z” a két tengelyt, a „mot” a motorkocsit jelöli. A rövidítésből született a „Bézé” becenév."
     ],
     "sources": [
       {
@@ -93,6 +110,22 @@
         "license": "CC BY-SA 4.0",
         "caption": "Bzmot motorvonatok Kaposváron",
         "source": "https://commons.wikimedia.org/wiki/File:Bzmot_motorvonatok_Kaposv%C3%A1ron.jpg"
+      },
+      {
+        "asset": "bz-2845335.jpg",
+        "caption": "Bzmot motorvonat",
+        "author": "Original uploader was user:BAlogh Zsolt at hu.wikipedia",
+        "source": "https://commons.wikimedia.org/wiki/File:Bzmot_motorvonat.jpg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/"
+      },
+      {
+        "asset": "bz-130034716.jpg",
+        "caption": "Bzmot Zalaegerszeg 2023",
+        "author": "VargaA",
+        "source": "https://commons.wikimedia.org/wiki/File:Bzmot_Zalaegerszeg_2023.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
       }
     ]
   },
@@ -102,9 +135,9 @@
     "aliases": [
       "Siemens-DESIRO"
     ],
-    "description": "Kétrészes dízelmotorvonat a Siemens Desiro Classic családjából. Mai sorozatjele 426, régebben 6342 volt.",
+    "description": "Kétrészes dízelmotorvonat a Siemens Desiro Classic családjából. Mai sorozatjele 426, régebben 6342 volt. A motorvonatok összekapcsolva, szinkronüzemben is közlekedhetnek.",
     "facts": [
-      "A vasutas beceneve „Dezső”. A motorvonatok összekapcsolva, szinkronüzemben is közlekedhetnek."
+      "A vasutasok „Dezsőnek” is becézik: a magyar név a Desiro elnevezés játékos átalakítása."
     ],
     "sources": [
       {
@@ -120,6 +153,22 @@
         "license": "Public domain",
         "caption": "MÁV Desiro",
         "source": "https://commons.wikimedia.org/wiki/File:M%C3%81V_Desiro.jpg"
+      },
+      {
+        "asset": "desiro-53844211.jpg",
+        "caption": "Esztergom, Siemens Desiro vonatok",
+        "author": "Christo",
+        "source": "https://commons.wikimedia.org/wiki/File:Esztergom%2C_Siemens_Desiro_vonatok.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+      },
+      {
+        "asset": "desiro-86794211.jpg",
+        "caption": "Desiro Hortobágy állomáson",
+        "author": "Kemenymate",
+        "source": "https://commons.wikimedia.org/wiki/File:Desiro_Hortob%C3%A1gy_%C3%A1llom%C3%A1son.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
       }
     ]
   },
@@ -131,7 +180,7 @@
     ],
     "description": "Kétrészes dízelmotorvonat, amelyet a MÁV 416-os, korábban 6341-es sorozatként tart nyilván.",
     "facts": [
-      "A közismert „Uzsgyi” mellett a gyári típusjel RA-V."
+      "Az „Uzsgyi” az orosz Metrovagonmas gyárban készült, ugyanannál a gyártónál, amelynek metrókocsijai Budapesten is ismerősek lehetnek."
     ],
     "sources": [
       {
@@ -147,6 +196,22 @@
         "license": "CC BY-SA 3.0",
         "caption": "MÁV 6341 at Szekszárd",
         "source": "https://commons.wikimedia.org/wiki/File:M%C3%81V_6341_at_Szeksz%C3%A1rd.jpg"
+      },
+      {
+        "asset": "uzsgyi-64337216.jpg",
+        "caption": "Bpmot kek",
+        "author": "Angyal Dénes",
+        "source": "https://commons.wikimedia.org/wiki/File:Bpmot_kek.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+      },
+      {
+        "asset": "uzsgyi-82432735.jpg",
+        "caption": "H-START 416-031 Somoskőújfalu 2019-09.21",
+        "author": "VargaA",
+        "source": "https://commons.wikimedia.org/wiki/File:H-START_416-031_Somosk%C5%91%C3%BAjfalu_2019-09.21.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
       }
     ]
   },
@@ -158,7 +223,7 @@
     ],
     "description": "Villamos mozdony a MÁV 480-as sorozatából. A mögötte futó személykocsik külön járművek.",
     "facts": [
-      "A MÁV 25 TRAXX mozdonyát 2011 nyara és 2012 februárja között szállították le."
+      "A magyar TRAXX első nagy sorozatú H0 modelljeinél három modellgyártó is ugyanazt, a 480 001-es pályaszámot választotta. A valódi sorozat így eleinte többféle dobozból is ugyanazzal a számmal kerülhetett a terepasztalra."
     ],
     "sources": [
       {
@@ -174,6 +239,22 @@
         "license": "CC BY 4.0",
         "caption": "MÁV-START 480 002 TRAXX",
         "source": "https://commons.wikimedia.org/wiki/File:M%C3%81V-START_480_002_TRAXX.jpg"
+      },
+      {
+        "asset": "traxx-102984287.jpg",
+        "caption": "MÁV 480 006",
+        "author": "Pedalito",
+        "source": "https://commons.wikimedia.org/wiki/File:M%C3%81V_480_006.jpg",
+        "license": "CC0",
+        "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en"
+      },
+      {
+        "asset": "traxx-137448203.jpg",
+        "caption": "MÁV 480 - Bombardier Traxx - Szent Márton werbelok",
+        "author": "Fmvh",
+        "source": "https://commons.wikimedia.org/wiki/File:M%C3%81V_480_-_Bombardier_Traxx_-_Szent_M%C3%A1rton_werbelok.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
       }
     ]
   },
@@ -185,7 +266,7 @@
     ],
     "description": "Új motorral korszerűsített M41-es dízelmozdony. A 418.3-as sorozat a Csörgő család felújított változata.",
     "facts": [
-      "A „Hörgő” a remotorizált Csörgők beceneve. Egyes példányokat szinkronüzemi vezérléssel is felszereltek."
+      "A korszerűsített Csörgők egy részét úgy alakították át, hogy két mozdonyt egyetlen vezetőállásról lehessen irányítani. A fejlesztést zarándokvonatok továbbításánál is használták."
     ],
     "sources": [
       {
@@ -201,6 +282,14 @@
         "license": "CC BY-SA 2.0",
         "caption": "07.11.14 Valea lui Mihai 418.333 (15156896973)",
         "source": "https://commons.wikimedia.org/wiki/File:07.11.14_Valea_lui_Mihai_418.333_(15156896973).jpg"
+      },
+      {
+        "asset": "horgo-26696730.jpg",
+        "caption": "13.10.07 Boba M41 2310 (5806346334)",
+        "author": "Phil Richards from London, UK",
+        "source": "https://commons.wikimedia.org/wiki/File:13.10.07_Boba_M41_2310_(5806346334).jpg",
+        "license": "CC BY-SA 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0"
       }
     ]
   },
@@ -228,6 +317,22 @@
         "license": "CC BY-SA 4.0",
         "caption": "MÁV Class V43 - Balatonföldvár",
         "source": "https://commons.wikimedia.org/wiki/File:M%C3%81V_Class_V43_-_Balatonf%C3%B6ldv%C3%A1r.jpg"
+      },
+      {
+        "asset": "szili-4625911.jpg",
+        "caption": "MAV V43-1103 02",
+        "author": "Fazekas Attila",
+        "source": "https://commons.wikimedia.org/wiki/File:MAV_V43-1103_02.JPG",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/"
+      },
+      {
+        "asset": "szili-144595237.jpg",
+        "caption": "MÁV-START 431 166",
+        "author": "Gabesz183",
+        "source": "https://commons.wikimedia.org/wiki/File:M%C3%81V-START_431_166.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
       }
     ]
   },
@@ -255,6 +360,22 @@
         "license": "CC BY-SA 4.0",
         "caption": "MÁV-TRAKCIO M41 2177",
         "source": "https://commons.wikimedia.org/wiki/File:M%C3%81V-TRAKCIO_M41_2177.jpg"
+      },
+      {
+        "asset": "csorgo-113167242.jpg",
+        "caption": "MÁV-START 418 112 \"Csörgő\"",
+        "author": "Gabesz183",
+        "source": "https://commons.wikimedia.org/wiki/File:M%C3%81V-START_418_112_%22Cs%C3%B6rg%C5%91%22.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+      },
+      {
+        "asset": "csorgo-147522871.jpg",
+        "caption": "MÁV-START 418 154 \"Csörgő\"",
+        "author": "Gabesz183",
+        "source": "https://commons.wikimedia.org/wiki/File:M%C3%81V-START_418_154_%22Cs%C3%B6rg%C5%91%22.jpg",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0"
       }
     ]
   },
@@ -266,7 +387,7 @@
     ],
     "description": "A Bzmot családból átépített dízelmotorkocsi, kisebb forgalmú vasútvonalakra.",
     "facts": [
-      "Az InterPici a Bzmot kéttengelyes alapjait örökölte, de az utasterét magasabb komfortú utazáshoz alakították át."
+      "Az InterPicihez eredetileg helyjegyet kellett váltani, akárcsak egy InterCityhez. A szolgáltatás 2010-ben megszűnt, de a motorkocsik személyvonatként tovább közlekedtek."
     ],
     "sources": [
       {
@@ -282,6 +403,22 @@
         "license": "CC BY-SA 3.0",
         "caption": "Bzmot IP",
         "source": "https://commons.wikimedia.org/wiki/File:Bzmot_IP.jpg"
+      },
+      {
+        "asset": "interpici-4627828.jpg",
+        "caption": "InterPici Békéscsaba állomáson",
+        "author": "The original uploader was B.Zsolt at Hungarian Wikipedia.",
+        "source": "https://commons.wikimedia.org/wiki/File:InterPici_B%C3%A9k%C3%A9scsaba_%C3%A1llom%C3%A1son.jpg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/"
+      },
+      {
+        "asset": "interpici-81301829.jpg",
+        "caption": "InterPici Békéscsaba",
+        "author": "Kemenymate",
+        "source": "https://commons.wikimedia.org/wiki/File:InterPici_B%C3%A9k%C3%A9scsaba.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
       }
     ]
   },
@@ -293,12 +430,16 @@
     ],
     "description": "Vasút és villamos egy járműben: a Szeged és Hódmezővásárhely közötti TramTrain Citylink motorvonata.",
     "facts": [
-      "Városi villamospályán és nagyvasúton is közlekedhet. A többcélú térben kerékpárok számára is van kijelölt hely."
+      "A városi villamosvonalakon felsővezetékről kap áramot, a két város közötti vasúti szakaszon viszont dízelmotorok termelik az energiát. Ugyanaz a jármű menet közben kétféle energiaellátáshoz alkalmazkodik."
     ],
     "sources": [
       {
         "label": "Típusismertető · en.wikipedia.org",
         "url": "https://en.wikipedia.org/wiki/Stadler_Citylink"
+      },
+      {
+        "label": "MÁV · a TramTrain működése",
+        "url": "https://www.mavcsoport.hu/mav-szemelyszallitas/szolgaltatasok/tramtrain/technikai-adatok"
       }
     ],
     "photos": [
@@ -309,6 +450,14 @@
         "license": "CC BY 4.0",
         "caption": "20250405 MÁV 406 006 Szeged Vörösmarty utca",
         "source": "https://commons.wikimedia.org/wiki/File:20250405_M%C3%81V_406_006_Szeged_V%C3%B6r%C3%B6smarty_utca.jpg"
+      },
+      {
+        "asset": "tramtrain-107748920.jpg",
+        "caption": "MÁV-Start Stadler Citylink 406 003 VTP",
+        "author": "Nohabfan618.629",
+        "source": "https://commons.wikimedia.org/wiki/File:M%C3%81V-Start_Stadler_Citylink_406_003_VTP.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
       }
     ]
   },
@@ -336,6 +485,22 @@
         "license": "CC BY-SA 4.0",
         "caption": "MAV 470",
         "source": "https://commons.wikimedia.org/wiki/File:MAV_470.jpg"
+      },
+      {
+        "asset": "taurus-17790604.jpg",
+        "caption": "MÁV 470 010-4 Aranycsapat háromnegyed-nézet",
+        "author": "HoremWeb",
+        "source": "https://commons.wikimedia.org/wiki/File:M%C3%81V_470_010-4_Aranycsapat_h%C3%A1romnegyed-n%C3%A9zet.jpg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
+      },
+      {
+        "asset": "taurus-188078761.jpg",
+        "caption": "470 002 \"75 éves a Gyermekvasút\" Taurus Keleti pu",
+        "author": "Gysev5047",
+        "source": "https://commons.wikimedia.org/wiki/File:470_002_%2275_%C3%A9ves_a_Gyermekvas%C3%BAt%22_Taurus_Keleti_pu.jpg",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0"
       }
     ]
   },
@@ -347,7 +512,7 @@
     ],
     "description": "Romániában gyártott dízelmozdony. A Dacia elnevezést a MÁV M43/M47 eredetű, korszerűsített mozdonyainál is hallhatod.",
     "facts": [
-      "Az M47-es „nagy Dácsia” mai sorozatszáma 478. A típust tolatási feladatokhoz és iparvágányok kiszolgálására is használják."
+      "A vasutas „nagy Dácsia” az M47-es, a „kis Dácsia” pedig az M43-as sorozatot jelöli. A becenév így két rokon, de különböző mozdonytípust is megkülönböztet."
     ],
     "sources": [
       {
@@ -363,6 +528,14 @@
         "license": "CC BY-SA 4.0",
         "caption": "MÁV M47 1240",
         "source": "https://commons.wikimedia.org/wiki/File:M%C3%81V_M47_1240.jpg"
+      },
+      {
+        "asset": "dacia-107891091.jpg",
+        "caption": "M47 Dacia Kiskunmajsán",
+        "author": "BBX52",
+        "source": "https://commons.wikimedia.org/wiki/File:M47_Dacia_Kiskunmajs%C3%A1n.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
       }
     ]
   },
@@ -374,12 +547,16 @@
     ],
     "description": "Vezetőállással ellátott személykocsi a Fecske ingavonatok végén. Önálló hajtása nincs, a mozdonyt távvezérli.",
     "facts": [
-      "Így a végállomáson a mozdony körüljárása nélkül is irányt válthat a szerelvény."
+      "A Fecske név a felújított kocsik oldalán megjelenő madármotívumra utal. Az arculatot később mozdonyok is megkapták, így a teljes szerelvény összeillő „fecskeruhában” közlekedhetett."
     ],
     "sources": [
       {
         "label": "Típusismertető · www.mavcsoport.hu",
         "url": "https://www.mavcsoport.hu/mav-szemelyszallitas/belfoldi-utazas/utazas-csaladdal-jarmutipusok"
+      },
+      {
+        "label": "MÁV · a Fecske arculat története",
+        "url": "https://www.mavcsoport.hu/mav-szemelyszallitas/belfoldi-utazas/forgalomban-az-elso-fecske-mozdony"
       }
     ],
     "photos": [
@@ -401,12 +578,16 @@
     ],
     "description": "Villamos motorvonat a MÁV flottájából, alacsonypadlós beszállórésszel és légkondicionált utastérrel.",
     "facts": [
-      "A MÁV tájékoztatója szerint a kijelölt többcélú térben hat kerékpár helyezhető el."
+      "A TALENT nem egyszerűen a tehetségre utal: a név a német „Talbot leichter Nahverkehrstriebwagen”, vagyis Talbot könnyű helyi motorvonata kifejezésből született."
     ],
     "sources": [
       {
         "label": "Típusismertető · www.mavcsoport.hu",
         "url": "https://www.mavcsoport.hu/mav-szemelyszallitas/szolgaltatasok/kerekparszallitas/belfold/jarmutipusok"
+      },
+      {
+        "label": "Keolis · a TALENT név eredete",
+        "url": "https://keolis.de/fahrzeuge/"
       }
     ],
     "photos": [
@@ -417,6 +598,14 @@
         "license": "CC BY-SA 4.0",
         "caption": "MAV Talent",
         "source": "https://commons.wikimedia.org/wiki/File:MAV_Talent.jpg"
+      },
+      {
+        "asset": "talent-122344334.jpg",
+        "caption": "Talent k",
+        "author": "Pelenczei Balázs",
+        "source": "https://commons.wikimedia.org/wiki/File:Talent_k.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
       }
     ]
   },
@@ -428,7 +617,7 @@
     ],
     "description": "A V43-as villamosmozdony-család korszerűsített, 3000-es alsorozata.",
     "facts": [
-      "A Cirmos és a Szili közös alapokra épül, mégis külön változat: a Cirmosra a V43 3xxx pályaszám is utal."
+      "A „Cirmos”, illetve „Zebra” becenév a vezetőfülke oldalának csíkos festéséből ered. A Szilivel rokon mozdony így kapott külön állatnevet."
     ],
     "sources": [
       {
@@ -455,7 +644,7 @@
     ],
     "description": "Nagy teljesítményű, hattengelyes magyar villamos mozdony. Régi sorozatjele V63, mai száma 630.",
     "facts": [
-      "A „Gigant” a MÁV legerősebb magyar gyártmányú villamosmozdony-sorozata."
+      "A Gigantok első két prototípusa 20 centiméterrel alacsonyabb volt a későbbi sorozatnál. Az áramszedő alá ezért külön kis magasítást, vasutas szóval „sámlit” kellett építeni."
     ],
     "sources": [
       {
@@ -471,6 +660,22 @@
         "license": "CC BY-SA 4.0",
         "caption": "V63",
         "source": "https://commons.wikimedia.org/wiki/File:V63.jpg"
+      },
+      {
+        "asset": "gigant-33196207.jpg",
+        "caption": "Kelenföld V63 049 2004-06-22",
+        "author": "O Sóhivatal at Hungarian Wikipedia",
+        "source": "https://commons.wikimedia.org/wiki/File:Kelenf%C3%B6ld_V63_049_2004-06-22.jpg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
+      },
+      {
+        "asset": "gigant-132657824.jpg",
+        "caption": "V63 001 VTP",
+        "author": "Pelenczei Balázs",
+        "source": "https://commons.wikimedia.org/wiki/File:V63_001_VTP.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
       }
     ]
   },
@@ -480,14 +685,18 @@
     "aliases": [
       "GANZ-MÁVAG-HERNYÓ"
     ],
-    "description": "BDVmot villamos motorvonat, ma 414-es sorozatszámmal. A magyar elővárosi járműgyártás egyik jellegzetes típusa.",
+    "description": "BDVmot villamos motorvonat, ma 414-es sorozatszámmal. A magyar elővárosi járműgyártás egyik jellegzetes típusa. A szerelvény másik végén vezérlőkocsi található.",
     "facts": [
-      "A szerelvény másik végén vezérlőkocsi található. A kerékpárokat a vezérlőkocsi kijelölt terében, kampókra akasztva szállítják."
+      "A Hernyó egyes szerelvényeibe eredetileg első osztályú kocsit is kapcsoltak. Ezeket a változatokat „Selyemhernyónak” becézték."
     ],
     "sources": [
       {
         "label": "Típusismertető · www.mavcsoport.hu",
         "url": "https://www.mavcsoport.hu/mav-szemelyszallitas/szolgaltatasok/kerekparszallitas/belfold/jarmutipusok"
+      },
+      {
+        "label": "BDVmot · típus- és névtörténet",
+        "url": "https://hu.wikipedia.org/wiki/BDVmot"
       }
     ],
     "photos": [
@@ -498,6 +707,14 @@
         "license": "CC BY-SA 3.0",
         "caption": "BDVmot 007",
         "source": "https://commons.wikimedia.org/wiki/File:BDVmot_007.jpg"
+      },
+      {
+        "asset": "hernyo-70421582.jpg",
+        "caption": "414006 Mezőkövesd",
+        "author": "Gajdos Márk",
+        "source": "https://commons.wikimedia.org/wiki/File:414006_Mez%C5%91k%C3%B6vesd.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
       }
     ]
   },
@@ -509,7 +726,7 @@
     ],
     "description": "Magyar gyártású, alacsony belépésű szóló autóbusz helyközi és elővárosi utazásokhoz.",
     "facts": [
-      "A 2011-ben bemutatott típus a későbbi Econell Next család elődje."
+      "Az Econellből nemcsak kétajtós helyközi, hanem háromajtós városi változat is született Econell 12 City néven."
     ],
     "sources": [
       {
@@ -525,6 +742,14 @@
         "license": "CC BY 4.0",
         "caption": "Credo Econell 12 (RTR-788) a 774-es vonalon",
         "source": "https://commons.wikimedia.org/wiki/File:Credo_Econell_12_(RTR-788)_a_774-es_vonalon.jpg"
+      },
+      {
+        "asset": "econell12-74617805.jpg",
+        "caption": "DDKK Credo Econell 12 busz, 2018 Dombóvár",
+        "author": "Globetrotter19",
+        "source": "https://commons.wikimedia.org/wiki/File:DDKK_Credo_Econell_12_busz%2C_2018_Domb%C3%B3v%C3%A1r.jpg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
       }
     ]
   },
@@ -537,12 +762,16 @@
     ],
     "description": "A magyar Econell család újabb, 12 méteres szóló változata, alacsony belépési magassággal.",
     "facts": [
-      "A buszokat Győrben és Mosonmagyaróváron gyártják. A Next családban 18 méteres csuklós változat is készült."
+      "A gyártó a szokatlanul kicsi, 19,5 colos kerekekkel és a könnyített vázzal spórol a tömegen. A Next így a gyártó összehasonlítása szerint legalább másfél tonnával könnyebb kategóriája átlagánál."
     ],
     "sources": [
       {
         "label": "Típusismertető · credobus.hu",
         "url": "https://credobus.hu/modellvalasztek/"
+      },
+      {
+        "label": "Econell 12 Next · gyártói ismertető",
+        "url": "https://credobus.hu/modellvalasztek/econell-12-next/"
       }
     ],
     "photos": [
@@ -553,6 +782,22 @@
         "license": "CC BY 4.0",
         "caption": "Credo Econell 12 Next (AO-SY-903) az Etele téren",
         "source": "https://commons.wikimedia.org/wiki/File:Credo_Econell_12_Next_(AO-SY-903)_az_Etele_t%C3%A9ren.jpg"
+      },
+      {
+        "asset": "econell12next-200973932.jpg",
+        "caption": "Credo Econell 12 Next (AO-IF-408)",
+        "author": "AO-FV-747",
+        "source": "https://commons.wikimedia.org/wiki/File:Credo_Econell_12_Next_(AO-IF-408).jpg",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0"
+      },
+      {
+        "asset": "econell12next-201075536.jpg",
+        "caption": "Credo Econell 12 Next (AO-SY-903) a 218-as vonalon",
+        "author": "AO-FV-747",
+        "source": "https://commons.wikimedia.org/wiki/File:Credo_Econell_12_Next_(AO-SY-903)_a_218-as_vonalon.jpg",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0"
       }
     ]
   },
@@ -565,12 +810,16 @@
     ],
     "description": "Az Econell Next család 18 méteres csuklós autóbusza, a nagyobb utasforgalmú vonalakhoz.",
     "facts": [
-      "A gyártó könnyűszerkezetes építéssel csökkentette a tömegét. A család szóló és csuklós tagjai közös műszaki alapokat használnak."
+      "A Credobus az Econell 18 Nextet a világ legkönnyebb, 18 méteres kategóriájú csuklós buszaként mutatta be. A tömegcsökkentés egyik kulcsa a kisebb, 19,5 colos kerékrendszer."
     ],
     "sources": [
       {
         "label": "Típusismertető · credobus.hu",
         "url": "https://credobus.hu/modellvalasztek/"
+      },
+      {
+        "label": "Econell 18 Next · gyártói ismertető",
+        "url": "https://credobus.hu/modellvalasztek/econell-18-next/"
       }
     ],
     "photos": [
@@ -581,6 +830,22 @@
         "license": "CC BY 4.0",
         "caption": "Credo Econell 18 Next (AA-JB-340) a 804 D vonalon Esztergom felé",
         "source": "https://commons.wikimedia.org/wiki/File:Credo_Econell_18_Next_(AA-JB-340)_a_804_D_vonalon_Esztergom_fel%C3%A9.jpg"
+      },
+      {
+        "asset": "econell18next-143649856.jpg",
+        "caption": "Credo Econell 18 Next Taksonyban (AA-JB-339)",
+        "author": "MSandor23",
+        "source": "https://commons.wikimedia.org/wiki/File:Credo_Econell_18_Next_Taksonyban_(AA-JB-339).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+      },
+      {
+        "asset": "econell18next-146861975.jpg",
+        "caption": "Credo Econell 18 Next (AA JB-330)",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:Credo_Econell_18_Next_(AA_JB-330).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
       }
     ]
   },
@@ -608,6 +873,22 @@
         "license": "CC BY 4.0",
         "caption": "Credo Inovell 12 (AA DS-203)",
         "source": "https://commons.wikimedia.org/wiki/File:Credo_Inovell_12_(AA_DS-203).jpg"
+      },
+      {
+        "asset": "inovell-147087620.jpg",
+        "caption": "Credo Inovell 12 (AA DS-254)",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:Credo_Inovell_12_(AA_DS-254).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+      },
+      {
+        "asset": "inovell-147092652.jpg",
+        "caption": "Credo Inovell 12 (AA DS-277)",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:Credo_Inovell_12_(AA_DS-277).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
       }
     ]
   },
@@ -619,7 +900,7 @@
     ],
     "description": "Normálpadlós, magyar gyártású elővárosi és helyközi autóbusz, a korábbi Credo családból.",
     "facts": [
-      "Az EC 12 és IC 12 közeli rokonok: a legszembetűnőbb eltérés az utasajtók kialakítása."
+      "Az EC 12 és az IC 12 szinte műszaki ikrek: az egyik legfeltűnőbb eltérésük az ajtó. Az EC szélesebb középső ajtaja a sűrűbb utascserét segíti."
     ],
     "sources": [
       {
@@ -635,6 +916,22 @@
         "license": "CC BY 4.0",
         "caption": "Credo EC 12 (FLR-243) pihen",
         "source": "https://commons.wikimedia.org/wiki/File:Credo_EC_12_(FLR-243)_pihen.jpg"
+      },
+      {
+        "asset": "ec12-67618870.jpg",
+        "caption": "KVT-852 Credo EC 12 in Sárospatak",
+        "author": "Tothh417",
+        "source": "https://commons.wikimedia.org/wiki/File:KVT-852_Credo_EC_12_in_S%C3%A1rospatak.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+      },
+      {
+        "asset": "ec12-146966297.jpg",
+        "caption": "Credo EC 12 (LSU-282)",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:Credo_EC_12_(LSU-282).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
       }
     ]
   },
@@ -646,7 +943,7 @@
     ],
     "description": "A korábbi Credo család rövidebb, helyközi forgalomra készült szóló autóbusza.",
     "facts": [
-      "A típust 2004 és 2011 között gyártották. Az EC 12-vel ellentétben nem kapott közvetlen modernizált utódot."
+      "Miközben a Credo 2011-től sorra megújította régi modelljeit, az EC 11 nem kapott közvetlen, modernizált utódot."
     ],
     "sources": [
       {
@@ -662,6 +959,22 @@
         "license": "CC BY-SA 3.0",
         "caption": "Busbahnhof, Buslinie 13, Credo EC 11, 2021 Hódmezővásárhely",
         "source": "https://commons.wikimedia.org/wiki/File:Busbahnhof,_Buslinie_13,_Credo_EC_11,_2021_H%C3%B3dmez%C5%91v%C3%A1s%C3%A1rhely.jpg"
+      },
+      {
+        "asset": "ec11-65185999.jpg",
+        "caption": "FKH-896 Credo EC 11 in Hernádbűd",
+        "author": "Tothh417",
+        "source": "https://commons.wikimedia.org/wiki/File:FKH-896_Credo_EC_11_in_Hern%C3%A1db%C5%B1d.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+      },
+      {
+        "asset": "ec11-82136832.jpg",
+        "caption": "Credo EC 11 (IZU-005), 2019 Csorna",
+        "author": "Globetrotter19",
+        "source": "https://commons.wikimedia.org/wiki/File:Credo_EC_11_(IZU-005)%2C_2019_Csorna.jpg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
       }
     ]
   },
@@ -673,7 +986,7 @@
     ],
     "description": "A Credo korábbi, távolabbi utazásokra is szánt normálpadlós autóbusza.",
     "facts": [
-      "Az EC 12 műszaki rokona, de keskenyebb ajtókkal és hosszabb utakhoz igazított utastérrel készült."
+      "Bár külön típusnevet kapott, az IC 12 műszakilag szinte megegyezik az EC 12-vel. A keskenyebb ajtók és az utastér kialakítása a hosszabb utakhoz igazodnak."
     ],
     "sources": [
       {
@@ -689,6 +1002,22 @@
         "license": "CC BY-SA 4.0",
         "caption": "Credo IC 12 (LNV-684)",
         "source": "https://commons.wikimedia.org/wiki/File:Credo_IC_12_(LNV-684).jpg"
+      },
+      {
+        "asset": "ic12-72680904.jpg",
+        "caption": "NOC-294 Credo IC 12 on line 3484",
+        "author": "Tothh417",
+        "source": "https://commons.wikimedia.org/wiki/File:NOC-294_Credo_IC_12_on_line_3484.jpg",
+        "license": "CC0",
+        "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en"
+      },
+      {
+        "asset": "ic12-72820732.jpg",
+        "caption": "NOC-295 Credo IC 12 in Eger",
+        "author": "Tothh417",
+        "source": "https://commons.wikimedia.org/wiki/File:NOC-295_Credo_IC_12_in_Eger.jpg",
+        "license": "CC0",
+        "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en"
       }
     ]
   },
@@ -700,12 +1029,16 @@
     ],
     "description": "Magyar gyártású, magasabb padlószintű Credo autóbusz, hosszabb távú utazásokhoz.",
     "facts": [
-      "Az LH 12 a Kravtex–Kühne csoport intercity kategóriájú típusa volt, a városi Credóknál nagyobb csomagtérrel."
+      "Az LH 12 kapta meg először azt az új formájú homlokfalat, amely később az EC 12-n és az IC 12-n is megjelent."
     ],
     "sources": [
       {
         "label": "Típusismertető · credobus.hu",
         "url": "https://credobus.hu/cegcsoportunk/"
+      },
+      {
+        "label": "Credo LH 12 · formatörténet",
+        "url": "https://hu.wikipedia.org/wiki/Credo_LH_12"
       }
     ],
     "photos": [
@@ -727,7 +1060,7 @@
     ],
     "description": "A korábbi Credo család alacsony belépésű szóló autóbusza, városi utazásokhoz.",
     "facts": [
-      "A BN 12 és a csuklós BN 18 ugyanahhoz a városi modellcsaládhoz tartozik."
+      "2010-ben egy BN 12 lett az első Rába futóművekkel felszerelt Credo. A példány a Kisalföld Volánhoz került."
     ],
     "sources": [
       {
@@ -743,6 +1076,22 @@
         "license": "CC BY 4.0",
         "caption": "Credo BN 12 (LSU-105)",
         "source": "https://commons.wikimedia.org/wiki/File:Credo_BN_12_(LSU-105).jpg"
+      },
+      {
+        "asset": "bn12-72044644.jpg",
+        "caption": "'Gyárváros vasúti megállóhely' buszmegálló, Credo BN 12, 2018 Győr",
+        "author": "Globetrotter19",
+        "source": "https://commons.wikimedia.org/wiki/File:'Gy%C3%A1rv%C3%A1ros_vas%C3%BAti_meg%C3%A1ll%C3%B3hely'_buszmeg%C3%A1ll%C3%B3%2C_Credo_BN_12%2C_2018_Gy%C5%91r.jpg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
+      },
+      {
+        "asset": "bn12-185158054.jpg",
+        "caption": "Credo BN 12 (LNV-794)",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:Credo_BN_12_(LNV-794).jpg",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0"
       }
     ]
   },
@@ -754,7 +1103,7 @@
     ],
     "description": "A korábbi Credo család csuklós, alacsony belépésű városi autóbusza.",
     "facts": [
-      "A szóló BN 12 nagyobb befogadóképességű párja: a két utastéri részt csukló köti össze."
+      "A Credo 2011-ben megkezdett modellmegújításából a BN 18 kimaradt: nem készült belőle közvetlenül modernizált változat."
     ],
     "sources": [
       {
@@ -770,6 +1119,22 @@
         "license": "CC BY-SA 4.0",
         "caption": "Várkerület, Line 10 (KZX-523), Sopron 11 42 52 898000",
         "source": "https://commons.wikimedia.org/wiki/File:V%C3%A1rker%C3%BClet,_Line_10_(KZX-523),_Sopron_11_42_52_898000.jpg"
+      },
+      {
+        "asset": "bn18-72528700.jpg",
+        "caption": "Credo BN 18, 'Mátyás király tér' bus stop, 2018 Győr",
+        "author": "Globetrotter19",
+        "source": "https://commons.wikimedia.org/wiki/File:Credo_BN_18%2C_'M%C3%A1ty%C3%A1s_kir%C3%A1ly_t%C3%A9r'_bus_stop%2C_2018_Gy%C5%91r.jpg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
+      },
+      {
+        "asset": "bn18-160742174.jpg",
+        "caption": "Kravtex Credo BN 18 Csepelen",
+        "author": "Vasas S. Zsombor",
+        "source": "https://commons.wikimedia.org/wiki/File:Kravtex_Credo_BN_18_Csepelen.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
       }
     ]
   },
@@ -781,7 +1146,7 @@
     ],
     "description": "Alacsony belépésű magyar szóló autóbusz, a korábbi Credo család elővárosi változata.",
     "facts": [
-      "Az EN 12 a városi BN 12 rokona, de elővárosi utakhoz igazított utastérrel készült."
+      "Az első EN 12 első ajtaja eltért a későbbi példányokétól: egyszárnyú lengőajtóval készült a sorozat kétszárnyú bolygóajtaja helyett."
     ],
     "sources": [
       {
@@ -806,14 +1171,18 @@
     "aliases": [
       "Credo EN 18"
     ],
-    "description": "Alacsony belépésű, csuklós elővárosi autóbusz a korábbi Credo modellcsaládból.",
+    "description": "Alacsony belépésű, csuklós elővárosi autóbusz a korábbi Credo modellcsaládból. A városi BN 18 elővárosi rokona, három utasajtóval.",
     "facts": [
-      "A hosszú, csuklós kialakítás több utasnak ad helyet, miközben a beszállórész alacsonyan marad."
+      "A városi BN 18-nak négy, az elővárosi EN 18-nak három utasajtaja van. A rokon karosszériában az üléselrendezést is a hosszabb utazásokhoz igazították."
     ],
     "sources": [
       {
         "label": "Típusismertető · bobalt.hu",
         "url": "https://bobalt.hu/photodb_hun/volanbusz/vb_credo_en.htm"
+      },
+      {
+        "label": "Credo EN 18 · típusismertető",
+        "url": "https://hu.wikipedia.org/wiki/Credo_EN_18"
       }
     ],
     "photos": []
@@ -827,12 +1196,16 @@
     ],
     "description": "Helyközi forgalomra tervezett autóbusz, a Mercedes-Benz távolsági és elővárosi kínálatából.",
     "facts": [
-      "Az Intouro család több hosszváltozatban készült. A régebbi típusoknál az O560 jelöléssel is találkozhatsz."
+      "Az Intouro 2020-ban bemutatott nemzedéke lett az első Mercedes-Benz busz, amelyhez az ABA 5 vészféksegédet kínálták. Ez a generációra vonatkozik, nem minden korábbi Intouro felszereltségére."
     ],
     "sources": [
       {
         "label": "Típusismertető · www.mercedes-benz-bus.com",
         "url": "https://www.mercedes-benz-bus.com/hu/hu/models/intouro/facts-intouro.pdf"
+      },
+      {
+        "label": "Intouro · a 2020-as nemzedék bemutatója",
+        "url": "https://www.daimlertruck.com/en/newsroom/pressrelease/all-rounder-with-the-three-pointed-star-the-new-mercedes-benz-intouro-sets-the-standard-for-flexibility-efficiency-and-safety-47518321"
       }
     ],
     "photos": [
@@ -843,6 +1216,22 @@
         "license": "CC BY-SA 4.0",
         "caption": "Mercedes-Benz Intouro (NTL-985)",
         "source": "https://commons.wikimedia.org/wiki/File:Mercedes-Benz_Intouro_(NTL-985).jpg"
+      },
+      {
+        "asset": "intouro-74617807.jpg",
+        "caption": "DDKK Mercedes-Benz Intouro busz, 2018 Dombóvár",
+        "author": "Globetrotter19",
+        "source": "https://commons.wikimedia.org/wiki/File:DDKK_Mercedes-Benz_Intouro_busz%2C_2018_Domb%C3%B3v%C3%A1r.jpg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
+      },
+      {
+        "asset": "intouro-148687071.jpg",
+        "caption": "Mercedes-Benz Intouro (NRL-950)",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:Mercedes-Benz_Intouro_(NRL-950).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
       }
     ]
   },
@@ -854,12 +1243,20 @@
     ],
     "description": "Az Intouro helyközi autóbusz hosszabb, M jelű változata.",
     "facts": [
-      "A hosszabb karosszéria több ülésnek ad helyet. Az Intouro a Tourismóval szemben elsősorban helyközi forgalomra készült."
+      "A 2020-ban bemutatott Intouro család radar és kamera együttesére épülő vészféksegédet is kapott. Az új nemzedék volt az első Mercedes-Benz buszcsalád az ABA 5 rendszerrel."
     ],
     "sources": [
       {
         "label": "Típusismertető · www.mercedes-benz-bus.com",
         "url": "https://www.mercedes-benz-bus.com/hu/hu/models/intouro/facts-intouro.pdf"
+      },
+      {
+        "label": "Intouro · a 2020-as nemzedék bemutatója",
+        "url": "https://www.daimlertruck.com/en/newsroom/pressrelease/all-rounder-with-the-three-pointed-star-the-new-mercedes-benz-intouro-sets-the-standard-for-flexibility-efficiency-and-safety-47518321"
+      },
+      {
+        "label": "Intouro M · hazai állományadatok",
+        "url": "https://hbweb.hu/jarmu/vb_tde301a.htm"
       }
     ],
     "photos": [
@@ -870,6 +1267,22 @@
         "license": "CC BY-SA 4.0",
         "caption": "Buslinie 1070 (AA IL-180), 2025 Rákosfalva",
         "source": "https://commons.wikimedia.org/wiki/File:Buslinie_1070_(AA_IL-180),_2025_R%C3%A1kosfalva.jpg"
+      },
+      {
+        "asset": "intourom-151848989.jpg",
+        "caption": "Mercedes-Benz Intouro (AA IL-183)",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:Mercedes-Benz_Intouro_(AA_IL-183).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+      },
+      {
+        "asset": "intourom-197117030.jpg",
+        "caption": "Mercedes-Benz Intouro (AA IL-178)",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:Mercedes-Benz_Intouro_(AA_IL-178).jpg",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0"
       }
     ]
   },
@@ -898,6 +1311,22 @@
         "license": "CC BY 4.0",
         "caption": "Mercedes-Benz Tourismo (NIJ-341)",
         "source": "https://commons.wikimedia.org/wiki/File:Mercedes-Benz_Tourismo_(NIJ-341).jpg"
+      },
+      {
+        "asset": "tourismo-162832793.jpg",
+        "caption": "Mercedes-Benz Tourismo (IBN-634)",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:Mercedes-Benz_Tourismo_(IBN-634).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+      },
+      {
+        "asset": "tourismo-178132139.jpg",
+        "caption": "Mercedes-Benz Tourismo (MAE-520)",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:Mercedes-Benz_Tourismo_(MAE-520).jpg",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0"
       }
     ]
   },
@@ -909,12 +1338,16 @@
     ],
     "description": "A Tourismo család helyközi és kirándulóforgalomhoz készült, RH jelű változata.",
     "facts": [
-      "A Tourismo név többféle karosszériát takar: az RH külön változat, ezért fotója nem helyettesíthető bármelyik Tourismóéval."
+      "A Tourismo RH-t a hagyományos helyközi és a magas turistabusz közötti átmenetnek tervezték: menetrendi járatként és rövidebb kirándulásokon is helytállhat."
     ],
     "sources": [
       {
         "label": "Típusismertető · bobalt.hu",
         "url": "https://bobalt.hu/photodb_hun/volanbusz/vb_mercedesbenz_tourismo2.htm"
+      },
+      {
+        "label": "Tourismo RH · gyártói prospektus (2010)",
+        "url": "https://wikibus.blob.core.windows.net/sources5668/Der%20Tourismo%20RH.pdf"
       }
     ],
     "photos": [
@@ -936,12 +1369,16 @@
     ],
     "description": "A Tourismo távolsági autóbusz hosszú, háromtengelyes változata.",
     "facts": [
-      "Az L a hosszabb kivitelre utal. A harmadik tengely a nagyobb karosszéria terhelését is segít elosztani."
+      "A Tourismo családot 1994-ben még O 350 néven vezették be. A ma is ismert név így több mint három évtizednyi modellfejlődést fog össze."
     ],
     "sources": [
       {
         "label": "Típusismertető · bobalt.hu",
         "url": "https://bobalt.hu/photodb_hun/volanbusz/vb_mercedesbenz_tourismo2.htm"
+      },
+      {
+        "label": "Tourismo · modelltörténet",
+        "url": "https://en.wikipedia.org/wiki/Mercedes-Benz_Tourismo"
       }
     ],
     "photos": []
@@ -954,12 +1391,16 @@
     ],
     "description": "Városi és elővárosi utazásokra szánt Mercedes-Benz autóbusz. A család több generációban készült.",
     "facts": [
-      "A Conecto szóló és csuklós változatban is létezik. A csuklós kivitelek neve mellett G jelölés is szerepelhet."
+      "A Conecto sokáig kizárólag a törökországi Hoşdere üzemben készült. A Mercedes-Benz márkájú busz gyártástörténete így szorosan kötődik Isztambulhoz."
     ],
     "sources": [
       {
         "label": "Típusismertető · hu.wikipedia.org",
         "url": "https://hu.wikipedia.org/wiki/Mercedes-Benz_Conecto"
+      },
+      {
+        "label": "Daimler Buses · a Conecto gyártása",
+        "url": "https://www.daimlertruck.com/en/newsroom/pressrelease/daimler-buses-expands-production-capacity-cooperation-agreement-signed-with-bus-manufacturer-otokar-53189617"
       }
     ],
     "photos": [
@@ -970,6 +1411,22 @@
         "license": "CC BY-SA 4.0",
         "caption": "Mercedes-Benz Conecto (FLZ-192)",
         "source": "https://commons.wikimedia.org/wiki/File:Mercedes-Benz_Conecto_(FLZ-192).jpg"
+      },
+      {
+        "asset": "conecto-148291298.jpg",
+        "caption": "Mercedes-Benz Conecto (HPE-339)",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:Mercedes-Benz_Conecto_(HPE-339).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+      },
+      {
+        "asset": "conecto-165615088.jpg",
+        "caption": "Mercedes-Benz Conecto (HPE-338)",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:Mercedes-Benz_Conecto_(HPE-338).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
       }
     ]
   },
@@ -981,7 +1438,7 @@
     ],
     "description": "Az első Conecto család csuklós, O345G típusjelű változata.",
     "facts": [
-      "Ez a régebbi Conecto-generáció: nem azonos a későbbi, teljesen alacsonypadlós Conecto G-vel."
+      "Az O345G a régebbi, lépcsős Conecto-generációhoz tartozik. A későbbi alacsonypadlós Conecto G hasonló neve ellenére más konstrukció."
     ],
     "sources": [
       {
@@ -997,6 +1454,22 @@
         "license": "CC BY-SA 4.0",
         "caption": "Mercedes-Benz Conecto G (JIW-415)",
         "source": "https://commons.wikimedia.org/wiki/File:Mercedes-Benz_Conecto_G_(JIW-415).jpg"
+      },
+      {
+        "asset": "conectog-147947184.jpg",
+        "caption": "Mercedes-Benz Conecto G (JIW-413)",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:Mercedes-Benz_Conecto_G_(JIW-413).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+      },
+      {
+        "asset": "conectog-150044171.jpg",
+        "caption": "Mercedes-Benz Conecto G (JIW-412)",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:Mercedes-Benz_Conecto_G_(JIW-412).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
       }
     ]
   },
@@ -1008,7 +1481,7 @@
     ],
     "description": "Kisbusz a Mercedes-Benz Sprinter alapjain, kisebb utasforgalmú járatokhoz.",
     "facts": [
-      "A Sprinter nem csak autóbuszként készül: ugyanennek a járműcsaládnak furgon és alvázas változata is létezik."
+      "A Sprinter neve autóbuszon, furgonon és alvázas járművön is feltűnhet: a minibusz ugyanannak a sokoldalú haszonjármű-családnak az egyik változata."
     ],
     "sources": [
       {
@@ -1051,6 +1524,22 @@
         "license": "CC BY-SA 4.0",
         "caption": "Busbahnhof, MAN NG363 Lion's City G (SRD-229), 2025 Vác",
         "source": "https://commons.wikimedia.org/wiki/File:Busbahnhof,_MAN_NG363_Lion%27s_City_G_(SRD-229),_2025_V%C3%A1c.jpg"
+      },
+      {
+        "asset": "mana23-148449703.jpg",
+        "caption": "MAN Lion's City A23 (SRD-346)",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:MAN_Lion's_City_A23_(SRD-346).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+      },
+      {
+        "asset": "mana23-199436246.jpg",
+        "caption": "MAN Lion's City A23 (SRD-305)",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:MAN_Lion's_City_A23_(SRD-305).jpg",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0"
       }
     ]
   },
@@ -1062,7 +1551,7 @@
     ],
     "description": "A Lion’s City újabb, 12 méteres szóló változata, földgázüzemű hajtással.",
     "facts": [
-      "Ennél a típusnál a G a gázhajtásra utal. Nem a régebbi Lion’s City G A23 csuklós változatáról van szó."
+      "Itt a G a gázhajtást jelöli, míg a régebbi Lion’s City G A23 nevében a csuklós kivitelre utal. Ugyanaz a betű két különböző dolgot jelent."
     ],
     "sources": [
       {
@@ -1078,6 +1567,22 @@
         "license": "CC BY-SA 4.0",
         "caption": "Busbahnhof, MAN NL320 Lion's City 12C CNG (AA GL-322), Buslinie 40B (STZ-861), 2025 Budaörs",
         "source": "https://commons.wikimedia.org/wiki/File:Busbahnhof,_MAN_NL320_Lion%27s_City_12C_CNG_(AA_GL-322),_Buslinie_40B_(STZ-861),_2025_Buda%C3%B6rs.jpg"
+      },
+      {
+        "asset": "man12g-150698395.jpg",
+        "caption": "MAN Lion's City 12 (AA GL-317)",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:MAN_Lion's_City_12_(AA_GL-317).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+      },
+      {
+        "asset": "man12g-200692520.jpg",
+        "caption": "MAN Lion's City 12C (AA GL-341)",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:MAN_Lion's_City_12C_(AA_GL-341).jpg",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0"
       }
     ]
   },
@@ -1089,7 +1594,7 @@
     ],
     "description": "A Lion’s City család alacsonypadlós szóló városi autóbusza.",
     "facts": [
-      "Az A21 gyári kód. A korábbi MAN-típusnevekben a szám a motorteljesítményre is utalhatott."
+      "A Lion’s City név 2004-ben fogta össze a korábban számos NL típusjel alatt árult MAN buszokat. Az A21 gyári kód az átnevezés után is megmaradt."
     ],
     "sources": [
       {
@@ -1105,6 +1610,22 @@
         "license": "CC BY 4.0",
         "caption": "MAN Lion's City A21 (MRP-076) Esztergomban",
         "source": "https://commons.wikimedia.org/wiki/File:MAN_Lion%27s_City_A21_(MRP-076)_Esztergomban.jpg"
+      },
+      {
+        "asset": "mana21-48754332.jpg",
+        "caption": "142-es busz (MRP-075)",
+        "author": "Kemenymate",
+        "source": "https://commons.wikimedia.org/wiki/File:142-es_busz_(MRP-075).JPG",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+      },
+      {
+        "asset": "mana21-139530331.jpg",
+        "caption": "Line 704, MAN Lion's City A21 (MRP-093), Szent István Straße, 2023 Ercsi",
+        "author": "Globetrotter19",
+        "source": "https://commons.wikimedia.org/wiki/File:Line_704%2C_MAN_Lion's_City_A21_(MRP-093)%2C_Szent_Istv%C3%A1n_Stra%C3%9Fe%2C_2023_Ercsi.jpg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
       }
     ]
   },
@@ -1116,7 +1637,7 @@
     ],
     "description": "Alacsony belépésű szóló autóbusz a MAN Lion’s City családjából.",
     "facts": [
-      "Az alacsony belépés nem feltétlenül jelent végig sík padlót: a hátsó utastér szintje magasabb lehet."
+      "Az A78-at korábban Lion’s City TÜ néven is árulták. Ugyanaz a gyári kód több kereskedelmi nevet is túlélt."
     ],
     "sources": [
       {
@@ -1159,6 +1680,22 @@
         "license": "CC BY-SA 4.0",
         "caption": "MAN Lion's Classic (JNF-315)",
         "source": "https://commons.wikimedia.org/wiki/File:MAN_Lion%27s_Classic_(JNF-315).jpg"
+      },
+      {
+        "asset": "manclassic-94192949.jpg",
+        "caption": "MAN Lion's Classic, Jókai Mór Street, 2020 Pápa",
+        "author": "Globetrotter19",
+        "source": "https://commons.wikimedia.org/wiki/File:MAN_Lion's_Classic%2C_J%C3%B3kai_M%C3%B3r_Street%2C_2020_P%C3%A1pa.jpg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
+      },
+      {
+        "asset": "manclassic-95353656.jpg",
+        "caption": "MAN Lion's Classic, Bus Station, 2020 Sárvár",
+        "author": "Globetrotter19",
+        "source": "https://commons.wikimedia.org/wiki/File:MAN_Lion's_Classic%2C_Bus_Station%2C_2020_S%C3%A1rv%C3%A1r.jpg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
       }
     ]
   },
@@ -1170,7 +1707,7 @@
     ],
     "description": "Helyközi és elővárosi forgalomra tervezett MAN autóbusz, magasabb padlószinttel.",
     "facts": [
-      "A típust Ankarában gyártották. Két- és háromtengelyes kivitelek is készültek belőle."
+      "A Lion’s Regiónak Neoplan márkájú közeli rokona is készült Trendliner néven: a két busz eltérő külső mögött közös műszaki alapokat használt."
     ],
     "sources": [
       {
@@ -1186,6 +1723,22 @@
         "license": "CC BY 4.0",
         "caption": "MAN Lion's Regio (MVE-191)",
         "source": "https://commons.wikimedia.org/wiki/File:MAN_Lion%27s_Regio_(MVE-191).jpg"
+      },
+      {
+        "asset": "manregio-114061789.jpg",
+        "caption": "Busbahnhof, MAN Lion’s Regio, Linie 5160, 2021 Orosháza",
+        "author": "Globetrotter19",
+        "source": "https://commons.wikimedia.org/wiki/File:Busbahnhof%2C_MAN_Lion%E2%80%99s_Regio%2C_Linie_5160%2C_2021_Orosh%C3%A1za.jpg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
+      },
+      {
+        "asset": "manregio-131947172.jpg",
+        "caption": "Busbahnhof, Bus Linie 5022 (LSW-553), 2023 Makó",
+        "author": "Globetrotter19",
+        "source": "https://commons.wikimedia.org/wiki/File:Busbahnhof%2C_Bus_Linie_5022_(LSW-553)%2C_2023_Mak%C3%B3.jpg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
       }
     ]
   },
@@ -1197,7 +1750,7 @@
     ],
     "description": "A MAN korábbi, normálpadlós helyközi autóbuszcsaládja.",
     "facts": [
-      "Az ÜL a német Überland, vagyis helyközi elnevezéshez kapcsolódik. A család a Lion’s Regio előtti korszakból származik."
+      "Az ÜL a német „Überland”, vagyis helyközi szó rövidítése. A típusjel így lényegében elárulja, milyen utakra szánták a buszt."
     ],
     "sources": [
       {
@@ -1207,12 +1760,12 @@
     ],
     "photos": [
       {
+        "asset": "manul-139206332.jpg",
+        "caption": "MAN ÜL313 (LHZ-027), Straße 82302, 2023 Bodajk",
         "author": "Globetrotter19",
-        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
-        "asset": "manul-0.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:MAN_%C3%9CL313_(LHZ-027)%2C_Stra%C3%9Fe_82302%2C_2023_Bodajk.jpg",
         "license": "CC BY-SA 3.0",
-        "caption": "Népliget-Busbahnhof, MAN Volánbusz (LLB-807), 2021 Ferencváros",
-        "source": "https://commons.wikimedia.org/wiki/File:N%C3%A9pliget-Busbahnhof,_MAN_Vol%C3%A1nbusz_(LLB-807),_2021_Ferencv%C3%A1ros.jpg"
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
       }
     ]
   },
@@ -1251,7 +1804,7 @@
     ],
     "description": "A Lion’s Coach hosszú távolsági változata, három tengellyel.",
     "facts": [
-      "Az L a hosszabb kivitelre utal. A Lion’s Coach család 2020-ban az Év Autóbusza díjat is elnyerte a turistabuszok között."
+      "A Lion’s Coach modellcsalád nyerte el a Coach of the Year 2020 díjat. A cím évszáma ellenére az elismerést már a 2019-es Busworld kiállításon átadták."
     ],
     "sources": [
       {
@@ -1267,6 +1820,14 @@
         "license": "CC BY-SA 4.0",
         "caption": "MAN Lion’s Coach 1020-as busz (NCX-770), Stadion",
         "source": "https://commons.wikimedia.org/wiki/File:MAN_Lion%E2%80%99s_Coach_1020-as_busz_(NCX-770),_Stadion.jpg"
+      },
+      {
+        "asset": "mancoachl-113209407.jpg",
+        "caption": "MAN Lion's Coach (FLN-600), 2021 Kőszeg",
+        "author": "Globetrotter19",
+        "source": "https://commons.wikimedia.org/wiki/File:MAN_Lion's_Coach_(FLN-600)%2C_2021_K%C5%91szeg.jpg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
       }
     ]
   },
@@ -1278,12 +1839,16 @@
     ],
     "description": "A Volvo helyközi és elővárosi autóbuszcsaládja, amely alacsony belépésű változatban is készült.",
     "facts": [
-      "Az 8900 egyszerre örökölte meg a korábbi 8500 és 8700 család helyét."
+      "Az elődöket eltérő anyagból készítették: a 8700 acél-, a 8500 alumíniumkarosszériát kapott. Az őket váltó 8900-ban alumíniumot, acélt, üvegszálas anyagot és műanyagot ötvöztek."
     ],
     "sources": [
       {
         "label": "Típusismertető · en.wikipedia.org",
         "url": "https://en.wikipedia.org/wiki/Volvo_8900"
+      },
+      {
+        "label": "Volvo · az 8900 bemutatója (2010)",
+        "url": "https://www.volvobuses.com/content/dam/volvo-buses/markets/global/classic/news/2010/OnTheMove_2-2010_ENG.pdf"
       }
     ],
     "photos": [
@@ -1294,6 +1859,22 @@
         "license": "CC BY 4.0",
         "caption": "Volvo 8900 (SWR-579) 4",
         "source": "https://commons.wikimedia.org/wiki/File:Volvo_8900_(SWR-579)_4.jpg"
+      },
+      {
+        "asset": "volvo8900-147089326.jpg",
+        "caption": "Volvo 8900 (SEW-725) 5",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:Volvo_8900_(SEW-725)_5.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+      },
+      {
+        "asset": "volvo8900-200973946.jpg",
+        "caption": "Volvo 8900 (SWR-556) a 7020-as járaton",
+        "author": "AO-FV-747",
+        "source": "https://commons.wikimedia.org/wiki/File:Volvo_8900_(SWR-556)_a_7020-as_j%C3%A1raton.jpg",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0"
       }
     ]
   },
@@ -1305,12 +1886,16 @@
     ],
     "description": "A Volvo korábbi városi és helyközi autóbuszcsaládja, többféle padlómagassággal.",
     "facts": [
-      "A típust 2002 és 2011 között gyártották. Utódja a Volvo 8900 lett."
+      "A vele párhuzamosan kínált Volvo 8500 alumíniumkarosszériás volt, a 8700 pedig acélból készült. Később mindkettő helyét a vegyes anyaghasználatú 8900 vette át."
     ],
     "sources": [
       {
         "label": "Típusismertető · en.wikipedia.org",
         "url": "https://en.wikipedia.org/wiki/Volvo_8700"
+      },
+      {
+        "label": "Volvo · az 8900 elődei (2010)",
+        "url": "https://www.volvobuses.com/content/dam/volvo-buses/markets/global/classic/news/2010/OnTheMove_2-2010_ENG.pdf"
       }
     ],
     "photos": [
@@ -1321,6 +1906,22 @@
         "license": "CC BY 4.0",
         "caption": "Volvo 8700 (NWX-325) 2",
         "source": "https://commons.wikimedia.org/wiki/File:Volvo_8700_(NWX-325)_2.jpg"
+      },
+      {
+        "asset": "volvo8700-66422146.jpg",
+        "caption": "NWX-314 Volvo 8700 in Nyíregyháza",
+        "author": "Tothh417",
+        "source": "https://commons.wikimedia.org/wiki/File:NWX-314_Volvo_8700_in_Ny%C3%ADregyh%C3%A1za.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+      },
+      {
+        "asset": "volvo8700-150150362.jpg",
+        "caption": "Volvo 8700 (NWX-334)",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:Volvo_8700_(NWX-334).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
       }
     ]
   },
@@ -1332,7 +1933,7 @@
     ],
     "description": "Távolsági és turistautakra tervezett Volvo autóbusz, magasított utastérrel.",
     "facts": [
-      "A 9700 család 2001-ben jelent meg, és több magasságú, illetve hosszúságú változatban készült."
+      "A 9700 második nemzedékét 2007-ben a következő év, 2008 Év Turistabuszának választották. A díj így egy évvel későbbi dátumot visel az átadásánál."
     ],
     "sources": [
       {
@@ -1348,6 +1949,14 @@
         "license": "CC BY-SA 4.0",
         "caption": "Volvo 9700 (PRF-925)",
         "source": "https://commons.wikimedia.org/wiki/File:Volvo_9700_(PRF-925).jpg"
+      },
+      {
+        "asset": "volvo9700-114580084.jpg",
+        "caption": "Busbahnhof, Volvo 9700 (PRF-944), 2021 Orosháza",
+        "author": "Globetrotter19",
+        "source": "https://commons.wikimedia.org/wiki/File:Busbahnhof%2C_Volvo_9700_(PRF-944)%2C_2021_Orosh%C3%A1za.jpg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
       }
     ]
   },
@@ -1359,7 +1968,7 @@
     ],
     "description": "A Volvo 7900 család csuklós autóbusza, városi és elővárosi utazásokhoz.",
     "facts": [
-      "A 7900 család többféle hajtással készült, ezért a típusnév önmagában nem jelenti azt, hogy a busz elektromos."
+      "A 7900A-ból a hagyományos hajtásúak mellett hibrid változat is készült. Ezért az A betű önmagában a csuklós kivitelt jelzi, a hajtást nem dönti el."
     ],
     "sources": [
       {
@@ -1375,6 +1984,14 @@
         "license": "CC BY-SA 3.0",
         "caption": "Kőrösi Straße, Volvo 7900A (MOS-281), 2021 Gyál",
         "source": "https://commons.wikimedia.org/wiki/File:K%C5%91r%C3%B6si_Stra%C3%9Fe,_Volvo_7900A_(MOS-281),_2021_Gy%C3%A1l.jpg"
+      },
+      {
+        "asset": "volvo7900a-35295200.jpg",
+        "caption": "Budapest, Volvo 7900A MOS 262, 1",
+        "author": "Aisano",
+        "source": "https://commons.wikimedia.org/wiki/File:Budapest%2C_Volvo_7900A_MOS_262%2C_1.jpeg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
       }
     ]
   },
@@ -1386,7 +2003,7 @@
     ],
     "description": "Alacsonypadlós, csuklós Volvo autóbusz a 7700 családból.",
     "facts": [
-      "Az A a csuklós kivitelre utal. A szóló és csuklós 7700-asokat a lengyelországi Wrocławban gyártották."
+      "A típus 2003-ban nevet váltott: a korábbi Volvo 7000A-ból 7700A lett. Az átnevezést akkor még nem kísérte új karosszéria."
     ],
     "sources": [
       {
@@ -1402,6 +2019,22 @@
         "license": "CC BY-SA 4.0",
         "caption": "884-es busz",
         "source": "https://commons.wikimedia.org/wiki/File:884-es_busz.jpg"
+      },
+      {
+        "asset": "volvo7700a-147092657.jpg",
+        "caption": "Volvo 7700A (KNL-244)",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:Volvo_7700A_(KNL-244).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+      },
+      {
+        "asset": "volvo7700a-149341756.jpg",
+        "caption": "Volvo 7700A (NWX-399)",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:Volvo_7700A_(NWX-399).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
       }
     ]
   },
@@ -1413,7 +2046,7 @@
     ],
     "description": "Alacsonypadlós, szóló városi autóbusz a Volvo korábbi modellcsaládjából.",
     "facts": [
-      "A Volvo 7000 utódja, és a későbbi 7900 elődje. A 7700 családban dízel-, gáz- és hibridváltozat is készült."
+      "A Volvo 7000-et 2003-ban keresztelték át 7700-ra, hogy neve illeszkedjen a 8500, 8700 és 9700 mellé. A névváltáskor maga a busz még változatlan maradt."
     ],
     "sources": [
       {
@@ -1429,6 +2062,22 @@
         "source": "https://commons.wikimedia.org/wiki/File:Volvo_7700_(KPN-485).jpg",
         "license": "CC BY-SA 4.0",
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+      },
+      {
+        "asset": "volvo7700-151321598.jpg",
+        "caption": "Volvo 7700 (NWX-371)",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:Volvo_7700_(NWX-371).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+      },
+      {
+        "asset": "volvo7700-151848996.jpg",
+        "caption": "Volvo 7700 (NWX-343)",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:Volvo_7700_(NWX-343).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
       }
     ]
   },
@@ -1440,12 +2089,16 @@
     ],
     "description": "Városi és helyközi autóbusz a Volvo svéd karosszériagyártási hagyományaiból.",
     "facts": [
-      "A 8500 normál és alacsony belépésű változatban is készült. A családhoz háromtengelyes kivitelek is tartoztak."
+      "A 8500 karosszériája alumíniumból készült, míg a párhuzamos 8700-é acélból. A két külön utat később a közös utód, a 8900 egyesítette."
     ],
     "sources": [
       {
         "label": "Típusismertető · hu.wikipedia.org",
         "url": "https://hu.wikipedia.org/wiki/Volvo_8500"
+      },
+      {
+        "label": "Volvo · az 8900 elődei (2010)",
+        "url": "https://www.volvobuses.com/content/dam/volvo-buses/markets/global/classic/news/2010/OnTheMove_2-2010_ENG.pdf"
       }
     ],
     "photos": [
@@ -1456,6 +2109,22 @@
         "license": "CC BY-SA 4.0",
         "caption": "VolvoSaffle8500",
         "source": "https://commons.wikimedia.org/wiki/File:VolvoSaffle8500.jpg"
+      },
+      {
+        "asset": "volvo8500-84967570.jpg",
+        "caption": "Dunaharaszti külső HÉV station, bus stop, Volvo 8500, 2019 Dunaharaszti",
+        "author": "Globetrotter19",
+        "source": "https://commons.wikimedia.org/wiki/File:Dunaharaszti_k%C3%BCls%C5%91_H%C3%89V_station%2C_bus_stop%2C_Volvo_8500%2C_2019_Dunaharaszti.jpg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
+      },
+      {
+        "asset": "volvo8500-149805239.jpg",
+        "caption": "Volvo 8500 (NWX-342)",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:Volvo_8500_(NWX-342).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
       }
     ]
   },
@@ -1467,7 +2136,7 @@
     ],
     "description": "Magyar karosszériával, Volvo alvázra épített helyközi autóbusz.",
     "facts": [
-      "A Regiót a székesfehérvári Alfa Busz készítette. Két- és háromtengelyes változatban is gyártották."
+      "A Volvo név itt az alvázra utal, a karosszéria viszont magyar: a székesfehérvári Alfa Busz készítette. A Regio városi testvére a Localo volt."
     ],
     "sources": [
       {
@@ -1483,6 +2152,22 @@
         "license": "CC BY-SA 4.0",
         "caption": "Volvo Alfa Regio (FKE-799)",
         "source": "https://commons.wikimedia.org/wiki/File:Volvo_Alfa_Regio_(FKE-799).jpg"
+      },
+      {
+        "asset": "alfaregio-127314646.jpg",
+        "caption": "Alfabusz Regio (FLM-521), Bahnübergang, Leiningenstrasse, 2022 Balassagyarmat",
+        "author": "Globetrotter19",
+        "source": "https://commons.wikimedia.org/wiki/File:Alfabusz_Regio_(FLM-521)%2C_Bahn%C3%BCbergang%2C_Leiningenstrasse%2C_2022_Balassagyarmat.jpg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
+      },
+      {
+        "asset": "alfaregio-139206308.jpg",
+        "caption": "Bahnhof, Volvo Alfa Regio (KXW-443), 2023 Bodajk",
+        "author": "Globetrotter19",
+        "source": "https://commons.wikimedia.org/wiki/File:Bahnhof%2C_Volvo_Alfa_Regio_(KXW-443)%2C_2023_Bodajk.jpg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
       }
     ]
   },
@@ -1492,9 +2177,9 @@
     "aliases": [
       "ITE Reform 501 LE"
     ],
-    "description": "Magyar gyártású, alacsony belépésű helyközi autóbusz, Mercedes-Benz műszaki alapokon.",
+    "description": "Magyar gyártású, alacsony belépésű helyközi autóbusz, Mercedes-Benz műszaki alapokon. Az LE az angol Low Entry, azaz alacsony belépés rövidítése; a hátsó utastér padlója magasabb.",
     "facts": [
-      "Az LE a Low Entry rövidítése: alacsony beszállórészt jelent, nem végig alacsony padlót."
+      "A Reform 501 LE magyar karosszériája Debrecenben készül, Mercedes-Benz műszaki alapokra. Egyetlen buszban találkozik a magyar felépítmény és a német alváz."
     ],
     "sources": [
       {
@@ -1510,6 +2195,22 @@
         "license": "CC BY 4.0",
         "caption": "ITK Reform 501 LE (AA-AT-971) a 774-esen",
         "source": "https://commons.wikimedia.org/wiki/File:ITK_Reform_501_LE_(AA-AT-971)_a_774-esen.jpg"
+      },
+      {
+        "asset": "reform-154097300.jpg",
+        "caption": "ITK Reform 501LE (TAS-322)",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:ITK_Reform_501LE_(TAS-322).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+      },
+      {
+        "asset": "reform-195909287.jpg",
+        "caption": "ITK Reform 501LE (TAS-376)",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:ITK_Reform_501LE_(TAS-376).jpg",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0"
       }
     ]
   },
@@ -1521,12 +2222,16 @@
     ],
     "description": "Távolsági autóbusz a Neoplan kínálatából, magas utastérrel és alsó csomagtérrel.",
     "facts": [
-      "A Neoplan és a MAN autóbuszai közös vállalatcsoporthoz tartoznak, de saját márkanevüket viselik."
+      "A Tourliner előtanulmánya 2002-ben még X-liner néven és feltűnő fluoreszkáló zöld fényezéssel jelent meg. A sorozatgyártású modell 2003-ban kapta meg a Tourliner nevet."
     ],
     "sources": [
       {
         "label": "Típusismertető · en.wikipedia.org",
         "url": "https://en.wikipedia.org/wiki/MAN_Truck_%26_Bus"
+      },
+      {
+        "label": "MAN · a Tourliner húsz éve",
+        "url": "https://press.mantruckandbus.com/corporate/the-neoplan-tourliner-a-fixture-on-european-roads-for-20-years/"
       }
     ],
     "photos": [
@@ -1537,6 +2242,22 @@
         "license": "CC BY 4.0",
         "caption": "NEOPLAN TOURLINER (SEF-383) a 774-es vonalon",
         "source": "https://commons.wikimedia.org/wiki/File:NEOPLAN_TOURLINER_(SEF-383)_a_774-es_vonalon.jpg"
+      },
+      {
+        "asset": "tourliner-147727566.jpg",
+        "caption": "Neoplan Tourliner (PNG-042)",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:Neoplan_Tourliner_(PNG-042).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+      },
+      {
+        "asset": "tourliner-149805229.jpg",
+        "caption": "Neoplan Tourliner (SEF-398)",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:Neoplan_Tourliner_(SEF-398).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
       }
     ]
   },
@@ -1548,12 +2269,20 @@
     ],
     "description": "A Tourliner hosszú, háromtengelyes változata, távolsági utazásokhoz.",
     "facts": [
-      "A hosszabb kivitel nagyobb utasteret kínál. A Neoplan márka a MAN Truck & Bus csoporthoz tartozik."
+      "A Tourliner már 2003-as indulásakor kétféle méretben jelent meg: a normál kéttengelyes mellett rögtön ott volt a hosszú, háromtengelyes SHD L is."
     ],
     "sources": [
       {
         "label": "Típusismertető · en.wikipedia.org",
         "url": "https://en.wikipedia.org/wiki/MAN_Truck_%26_Bus"
+      },
+      {
+        "label": "MAN · a Tourliner húsz éve",
+        "url": "https://press.mantruckandbus.com/corporate/the-neoplan-tourliner-a-fixture-on-european-roads-for-20-years/"
+      },
+      {
+        "label": "Tourliner L · hazai változatok",
+        "url": "https://hbweb.hu/jarmu/vb_kmkk_ddkk_enykk_pzw151a.htm"
       }
     ],
     "photos": [
@@ -1564,6 +2293,14 @@
         "license": "CC BY-SA 3.0",
         "caption": "Budapest-Salgótarján járat (PZW-151), 2019 Zugló",
         "source": "https://commons.wikimedia.org/wiki/File:Budapest-Salg%C3%B3tarj%C3%A1n_j%C3%A1rat_(PZW-151),_2019_Zugl%C3%B3.jpg"
+      },
+      {
+        "asset": "tourlinerl-176035286.jpg",
+        "caption": "Neoplan Tourliner (PZW-167)",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:Neoplan_Tourliner_(PZW-167).jpg",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0"
       }
     ]
   },
@@ -1591,6 +2328,22 @@
         "license": "CC BY-SA 4.0",
         "caption": "Setra S415 LE Business volanbusz RFW 426",
         "source": "https://commons.wikimedia.org/wiki/File:Setra_S415_LE_Business_volanbusz_RFW_426.jpg"
+      },
+      {
+        "asset": "setra415le-146634049.jpg",
+        "caption": "Bus 313 (RFW-472), Setra S 415 LE business, 2024 Angyalföld",
+        "author": "Globetrotter19",
+        "source": "https://commons.wikimedia.org/wiki/File:Bus_313_(RFW-472)%2C_Setra_S_415_LE_business%2C_2024_Angyalf%C3%B6ld.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+      },
+      {
+        "asset": "setra415le-167148642.jpg",
+        "caption": "Busbahnhof, Setra S415LE Business (RFW-471), 2025 Vác",
+        "author": "Globetrotter19",
+        "source": "https://commons.wikimedia.org/wiki/File:Busbahnhof%2C_Setra_S415LE_Business_(RFW-471)%2C_2025_V%C3%A1c.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
       }
     ]
   },
@@ -1602,12 +2355,16 @@
     ],
     "description": "Helyközi autóbusz a Setra 300-as generációjából.",
     "facts": [
-      "Az UL a német Überland, vagyis helyközi jelölés. A Setra márkanév eredetileg az önhordó felépítésre utal."
+      "A típus MultiClass 300 családja az 1994-es hannoveri IAA-n mutatkozott be. A MultiClass név a menetrendi és kirándulófeladatokra egyaránt szánt modellcsaládra utal."
     ],
     "sources": [
       {
         "label": "Típusismertető · en.wikipedia.org",
         "url": "https://en.wikipedia.org/wiki/Setra"
+      },
+      {
+        "label": "Setra · 70 év típustörténete",
+        "url": "https://www.daimlertruck.com/en/newsroom/pressrelease/70-years-of-setra-a-self-supporting-success-50243092"
       }
     ],
     "photos": [
@@ -1618,6 +2375,22 @@
         "license": "CC BY-SA 4.0",
         "caption": "Setra S315 UL (LLD-159)",
         "source": "https://commons.wikimedia.org/wiki/File:Setra_S315_UL_(LLD-159).jpg"
+      },
+      {
+        "asset": "setra315ul-55175544.jpg",
+        "caption": "628-as busz (LNK-235)",
+        "author": "Péter Tóth",
+        "source": "https://commons.wikimedia.org/wiki/File:628-as_busz_(LNK-235).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+      },
+      {
+        "asset": "setra315ul-55175545.jpg",
+        "caption": "626-os busz (LNK-236)",
+        "author": "Péter Tóth",
+        "source": "https://commons.wikimedia.org/wiki/File:626-os_busz_(LNK-236).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
       }
     ]
   },
@@ -1629,12 +2402,16 @@
     ],
     "description": "A Setra 300-as család rövidebb helyközi változata.",
     "facts": [
-      "Az UL a helyközi felhasználást jelzi. A rövidebb karosszéria szűkebb fordulóknál is előnyt jelenthet."
+      "Az S 313 UL ugyanahhoz a MultiClass 300 családhoz tartozik, amely 1994-ben Hannoverben mutatkozott be. A Setra a 300-as sorozatnál vezette be a TopClass, ComfortClass és MultiClass felosztást."
     ],
     "sources": [
       {
         "label": "Típusismertető · en.wikipedia.org",
         "url": "https://en.wikipedia.org/wiki/Setra"
+      },
+      {
+        "label": "Setra · 70 év típustörténete",
+        "url": "https://www.daimlertruck.com/en/newsroom/pressrelease/70-years-of-setra-a-self-supporting-success-50243092"
       }
     ],
     "photos": [
@@ -1656,12 +2433,12 @@
     ],
     "description": "Magasított távolsági autóbusz a Setra 500-as családból.",
     "facts": [
-      "A HD a német Hochdecker rövidítése: magasított utasteret és alatta kialakított csomagteret jelöl."
+      "A ComfortClass 500-at négyéves fejlesztés után, 2012-ben mutatták be. A karosszéria formáját hosszú szélcsatornás vizsgálatokkal csiszolták."
     ],
     "sources": [
       {
-        "label": "Típusismertető · www.setra-bus.com",
-        "url": "https://www.setra-bus.com/content/sbo/markets/en_DE/models/cc-hd-models/models.html"
+        "label": "Setra · 70 év típustörténete",
+        "url": "https://www.daimlertruck.com/en/newsroom/pressrelease/70-years-of-setra-a-self-supporting-success-50243092"
       }
     ],
     "photos": []
@@ -1674,12 +2451,16 @@
     ],
     "description": "A Setra 400-as család hosszú, helyközi változata. A szolgáltató rövidített típusa nem adja meg a teljes gyári utótagot.",
     "facts": [
-      "A 419-es UL változat akár 69 üléses gyári kialakítással is készült. Az ülőhelyek száma az adott példány felszerelésétől függ."
+      "Az S 419 a Setra 400-as nemzedékéhez tartozik. Ebben a sorozatban összesen 22 különböző modell készült, a helyközi buszoktól az emeletes turistabuszig."
     ],
     "sources": [
       {
         "label": "Típusismertető · bobalt.hu",
         "url": "https://bobalt.hu/photodb_hun/volanbusz/vb_setra_s400.htm"
+      },
+      {
+        "label": "Setra · a 300-as és 400-as sorozat története",
+        "url": "https://www.setra-bus.com/en_DE/brand/setraclassic/setra-history.html"
       }
     ],
     "photos": []
@@ -1692,12 +2473,16 @@
     ],
     "description": "Magasított utasterű távolsági autóbusz a Setra ComfortClass 400-as családjából.",
     "facts": [
-      "A család több hossz- és tengelyváltozatban készült. A HD jelölés a magasított építésre utal."
+      "A ComfortClass 400 család 2004-ben jelent meg, és 2014-ig több mint 6500 példányt adtak át belőle. Az S 416 GT-HD ennek a nagy családnak az egyik tagja."
     ],
     "sources": [
       {
         "label": "Típusismertető · bobalt.hu",
         "url": "https://bobalt.hu/photodb_hun/volanbusz/vb_setra_s400.htm"
+      },
+      {
+        "label": "Setra · a 300-as és 400-as sorozat története",
+        "url": "https://www.setra-bus.com/en_DE/brand/setraclassic/setra-history.html"
       }
     ],
     "photos": []
@@ -1710,12 +2495,16 @@
     ],
     "description": "Magasított távolsági autóbusz a Setra 400-as családjából, alsó csomagtérrel.",
     "facts": [
-      "A Setra név az önhordó karosszériát jelentő német szóból ered. A HD a magasított felépítést jelöli."
+      "A TopClass 400 család 2001-ben indult. Jellegzetes íves díszítővonalát a gyártó olaszul „La Linea”, vagyis „a vonal” névre keresztelte."
     ],
     "sources": [
       {
         "label": "Típusismertető · en.wikipedia.org",
         "url": "https://en.wikipedia.org/wiki/Setra"
+      },
+      {
+        "label": "Setra · 70 év típustörténete",
+        "url": "https://www.daimlertruck.com/en/newsroom/pressrelease/70-years-of-setra-a-self-supporting-success-50243092"
       }
     ],
     "photos": []
@@ -1744,6 +2533,22 @@
         "license": "CC BY 4.0",
         "caption": "Irisbus Crossway (NML-988)",
         "source": "https://commons.wikimedia.org/wiki/File:Irisbus_Crossway_(NML-988).jpg"
+      },
+      {
+        "asset": "crossway-147092653.jpg",
+        "caption": "Irisbus Crossway (NML-984)",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:Irisbus_Crossway_(NML-984).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+      },
+      {
+        "asset": "crossway-150150378.jpg",
+        "caption": "Irisbus Crossway (NHX-865)",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:Irisbus_Crossway_(NHX-865).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
       }
     ]
   },
@@ -1755,12 +2560,16 @@
     ],
     "description": "Helyközi és turistautakra készült magasított Irisbus autóbusz.",
     "facts": [
-      "Az Irisbus később Iveco Bus néven folytatta. A HD jelölés a magasított utastérre utal."
+      "Az Irisbus 2006-ban Párizsban az új Evadys H mellett a HD változatot is bemutatta új műszerfallal és Euro 4-es motorral. A család egyszerre célozta a menetrendi és a kirándulóforgalmat."
     ],
     "sources": [
       {
         "label": "Típusismertető · commons.wikimedia.org",
         "url": "https://commons.wikimedia.org/wiki/Category:Irisbus_Evadys"
+      },
+      {
+        "label": "Irisbus · a 2006-os párizsi bemutató",
+        "url": "https://www.iveco.com/global/Press/PressReleases/2006/Irisbus-Iveco-presents-the-new-Recreo-and-Evadys-H"
       }
     ],
     "photos": []
@@ -1789,6 +2598,22 @@
         "license": "CC BY 4.0",
         "caption": "Scania Touring (MHX-252) 2",
         "source": "https://commons.wikimedia.org/wiki/File:Scania_Touring_(MHX-252)_2.jpg"
+      },
+      {
+        "asset": "scaniatouring-68512645.jpg",
+        "caption": "MLG-012 Scania Higer A80T in Nagycsécs",
+        "author": "Tothh417",
+        "source": "https://commons.wikimedia.org/wiki/File:MLG-012_Scania_Higer_A80T_in_Nagycs%C3%A9cs.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+      },
+      {
+        "asset": "scaniatouring-72596456.jpg",
+        "caption": "MHX-252 Scania Higer A80T in Szarvas",
+        "author": "Tothh417",
+        "source": "https://commons.wikimedia.org/wiki/File:MHX-252_Scania_Higer_A80T_in_Szarvas.jpg",
+        "license": "CC0",
+        "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en"
       }
     ]
   },
@@ -1800,7 +2625,7 @@
     ],
     "description": "A Scania helyközi és távolsági autóbuszcsaládjának egyik típusa.",
     "facts": [
-      "A típust a finn Lahden Autokori karosszériagyárral együtt fejlesztették. Többféle magasságú változatban készült."
+      "Az OmniExpress Scania típusjelében megjelenő L a finn Lahtira utal: ott készült a busz karosszériája a Lahden Autokori üzemében."
     ],
     "sources": [
       {
@@ -1818,12 +2643,12 @@
     ],
     "description": "13,4 méteres, magyar gyártású, alacsony belépésű elővárosi autóbusz az ARC–Ikarus családból.",
     "facts": [
-      "Az E134 hosszabb a 12,7 méteres E127-nél, de továbbra is szóló busz, csukló nélkül."
+      "A 134-es szám a busz 13,4 méteres hosszára utal. Az E az elővárosi, a rokon V134 V betűje a városi kivitelt különbözteti meg."
     ],
     "sources": [
       {
-        "label": "Típusismertető · www.magyarbusz.info",
-        "url": "https://www.magyarbusz.info/2011/03/06/az-eselyegyenloseg-jegyeben-a-hazai-alacsonypadlos-buszok-fejlodese/"
+        "label": "Ikarus · a 2010-es buszcsalád bemutatója",
+        "url": "https://old-ikarus.hu/v134_187/ik134_187.htm"
       }
     ],
     "photos": [
@@ -1834,6 +2659,22 @@
         "license": "CC BY-SA 4.0",
         "caption": "Ikarus E134 (KXG-163)",
         "source": "https://commons.wikimedia.org/wiki/File:Ikarus_E134_(KXG-163).jpg"
+      },
+      {
+        "asset": "ikarus134-146396050.jpg",
+        "caption": "Ikarus E134 (LTG-508)",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:Ikarus_E134_(LTG-508).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+      },
+      {
+        "asset": "ikarus134-147090621.jpg",
+        "caption": "Ikarus E134 (LVJ-226) 4",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:Ikarus_E134_(LVJ-226)_4.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
       }
     ]
   },
@@ -1846,7 +2687,7 @@
     ],
     "description": "12,7 méteres, alacsony belépésű magyar elővárosi autóbusz, az ARC–Ikarus család tagja.",
     "facts": [
-      "A család ARC 127-ként indult, majd az Ikarus márkanévvel E127 néven is készült."
+      "Az ARC 127 később Ikarus E127 néven is készült. A 127-es szám a 12,7 méteres karosszériát jelöli, nem a férőhelyek számát."
     ],
     "sources": [
       {
@@ -1862,6 +2703,22 @@
         "license": "CC BY-SA 4.0",
         "caption": "Ikarus E127 (LMP-208) 2",
         "source": "https://commons.wikimedia.org/wiki/File:Ikarus_E127_(LMP-208)_2.jpg"
+      },
+      {
+        "asset": "ikarus127-146599172.jpg",
+        "caption": "Ikarus E127 (LMP-202)",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:Ikarus_E127_(LMP-202).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+      },
+      {
+        "asset": "ikarus127-147089644.jpg",
+        "caption": "Ikarus E127 (LKK-541) 2",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:Ikarus_E127_(LKK-541)_2.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
       }
     ]
   },
@@ -1873,7 +2730,7 @@
     ],
     "description": "A magyar Ikarus Egyedi távolsági autóbuszcsaládja, amely többféle alvázra épült.",
     "facts": [
-      "A későbbi E95 a 395-ös család továbbfejlesztése. A hasonló karosszéria alatt eltérő gyártók gépészete is lehet."
+      "Az E95 az Ikarus Egyedi gyárának távolsági modellje volt, és Express változatából katonai és polgári kivitel is készült."
     ],
     "sources": [
       {
@@ -1889,6 +2746,22 @@
         "license": "CC BY-SA 3.0",
         "caption": "Busbahnhof, Ikarus (HPD-085), 2021 Hódmezővásárhely",
         "source": "https://commons.wikimedia.org/wiki/File:Busbahnhof,_Ikarus_(HPD-085),_2021_H%C3%B3dmez%C5%91v%C3%A1s%C3%A1rhely.jpg"
+      },
+      {
+        "asset": "ikarus395-5908951.jpg",
+        "caption": "Ikarus-E95",
+        "author": "The original uploader was Szm orosh at Hungarian Wikipedia.",
+        "source": "https://commons.wikimedia.org/wiki/File:Ikarus-E95.jpg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/"
+      },
+      {
+        "asset": "ikarus395-84503626.jpg",
+        "caption": "Ikarus E95 (HGS-434), 2019 Tapolca",
+        "author": "Globetrotter19",
+        "source": "https://commons.wikimedia.org/wiki/File:Ikarus_E95_(HGS-434)%2C_2019_Tapolca.jpg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
       }
     ]
   },
@@ -1900,7 +2773,7 @@
     ],
     "description": "Az Ikarus Egyedi elővárosi és helyközi autóbuszcsaládja.",
     "facts": [
-      "Az E94 többféle hosszal és alvázzal készült, ezért nem minden E94-es busz műszaki felszerelése azonos."
+      "Az E94 név mögött nem egyetlen gépészet rejtőzik: Volvo, Scania, MAN, Csepel és Rába alvázra is építették. A hasonló külső ezért eltérő műszaki rokonokat takarhat."
     ],
     "sources": [
       {
@@ -1916,6 +2789,22 @@
         "license": "CC BY-SA 3.0",
         "caption": "Bus station, Ikarus (KIH-271), 2020 Marcali",
         "source": "https://commons.wikimedia.org/wiki/File:Bus_station,_Ikarus_(KIH-271),_2020_Marcali.jpg"
+      },
+      {
+        "asset": "ikarus94-6668173.jpg",
+        "caption": "Tisza Volán bus2",
+        "author": "User:Bartók Dániel",
+        "source": "https://commons.wikimedia.org/wiki/File:Tisza_Vol%C3%A1n_bus2.JPG",
+        "license": "CC BY 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/3.0"
+      },
+      {
+        "asset": "ikarus94-7635592.jpg",
+        "caption": "Tisza Volán busz in Nagymágocs",
+        "author": "Bartók Dániel",
+        "source": "https://commons.wikimedia.org/wiki/File:Tisza_Vol%C3%A1n_busz_in_Nagym%C3%A1gocs.JPG",
+        "license": "CC BY 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/3.0"
       }
     ]
   },
@@ -1927,7 +2816,7 @@
     ],
     "description": "Lengyel gyártású, normálpadlós helyközi autóbusz, a Lider család tagja.",
     "facts": [
-      "A hazai példányok egy része már a Szabolcs Volánnál szolgált, mielőtt a közlekedési központokhoz, majd a Volánbuszhoz került."
+      "A hazai Lider buszok közül több rendszámot is váltott: a KUU-155 például korábban FKS-455 volt. Egy régi fotón ezért ugyanazt a járművet más rendszámmal is felismerheted."
     ],
     "sources": [
       {
@@ -1954,7 +2843,7 @@
     ],
     "description": "Spanyol tervezésű turistabusz-karosszéria, különböző gyártók alvázaira építve.",
     "facts": [
-      "A Century Iveco, MAN, Mercedes-Benz, Scania és Volvo alvázon is készült: az Irizar név a karosszéria gyártóját jelöli."
+      "Az Irizar név a karosszéria gyártóját jelöli. A Century alatt többek között Iveco, MAN, Mercedes-Benz, Scania vagy Volvo alváz is lehet."
     ],
     "sources": [
       {
@@ -1981,7 +2870,7 @@
     ],
     "description": "Magyar fejlesztésű, helyközi autóbusz, a NABI hazai piacra készült típusai közül.",
     "facts": [
-      "A NABI neve a North American Bus Industries rövidítése. A vállalat az amerikai piacra is gyártott autóbuszokat."
+      "A 700SE brit rokonsággal is rendelkezik: az Optare Excelből származtatták, és Scania alvázra építették. A NABI neve közben a North American Bus Industries rövidítése."
     ],
     "sources": [
       {

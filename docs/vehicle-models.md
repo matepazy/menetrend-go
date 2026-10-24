@@ -10,7 +10,7 @@ This is a local extension of the native design system recorded in `DESIGN.md`, w
 
 The model label uses primary-colored body text, a dotted underline on each wrapped line and a minimum 48dp button target with the Hungarian action label “Járműtípus bemutatása”. The adjacent registration uses supporting text color. The sheet opens fully expanded with the existing extra-large shape and a height of 92% of the available space. Its fixed header pairs a bold headline-small model name with a labeled close icon. An existing familiar name or alternative name after the title's middle dot appears in a tonal, non-interactive pill; the wrapping header accommodates long names and larger fonts. The article scrolls independently below it, using 16dp horizontal insets to give the photograph more room.
 
-The user's Desiro reference guides the reading hierarchy: a broad fleet photograph and quiet illustration caption, a 24dp break before the introduction, then a generously separated “Jó tudni” heading and body-large facts. Photos fit proportionally inside a rounded 3:2 surface without cropping; multiple photos use a native horizontal pager with a visible page count. Body-small carries captions and attribution.
+The article has two explicit, accessible headings: “A járműről” introduces the vehicle and its general characteristics, followed by “Érdekesség” or “Érdekességek” according to the number of curiosities. The latter contains sourced naming stories, engineering details and model history rather than repeating the introduction. Both headings use bold title-large text, with 24dp above and 12dp below. Body text uses body-large. A broad fleet photograph and quiet illustration caption lead the article. Photos fit proportionally inside a rounded 3:2 surface without cropping; multiple photos use a native horizontal pager with a visible page count. Body-small carries captions and attribution.
 
 A divided “Fotó és források” disclosure finishes the article. Its collapsed row shows the current photo's photographer, Wikimedia Commons source and license badge. Expanding it reveals the full photo caption, direct file and license links, and article sources. The selection follows the photo pager. Native expansion motion honors Android's animation scale, and the disclosure exposes its expanded state to accessibility services. Source and license actions retain native text-button feedback and minimum 48dp targets. Loading, retry, unknown-model, missing-photo, image-error and link-error states use explicit Hungarian text or native progress indicators.
 
@@ -20,7 +20,7 @@ Keep the model sheet's state local to its label. Both entry points (`PlanningScr
 
 The catalog contains 76 profiles covering the model names observed in the MÁVPlusz live feed on 2026-10-24, including spelling aliases. `app/src/test/resources/vehicle-models-2026-10-24.txt` records these names. This is a dated observation, not a promise that the provider cannot add types later.
 
-There are 70 freely licensed photos for 68 profiles. **This feature is not release-ready:** the following eight profiles still require a verified, freely licensed photo of a MÁV/Volán fleet example:
+There are 168 catalogued, freely licensed photos for 68 profiles; 45 profiles have three distinct photos. The user stopped further photo research on 2026-10-24 and required Hungarian MÁV/Volán fleet examples, including predecessor Volán companies. The other profiles have one or two verified photos, except these eight with none:
 
 - Credo EN 18
 - Mercedes-Benz Tourismo L
@@ -37,15 +37,17 @@ Run `node tools/verify-vehicle-catalog.mjs` for integrity and `node tools/verify
 
 ## Verification and finish review
 
-The debug build, all 61 unit tests and Android lint passed. The asset audit passed for all 70 bundled photos, including complete attribution. These checks establish build, static and catalog integrity; they do not establish rendered UI behavior.
+The debug build, all 61 unit tests and Android lint passed. The catalog integrity check passed for all 168 photos, including complete attribution and distinct source pages within each gallery. The final debug APK was installed successfully with `adb install -r` on `emulator-5554` and MainActivity was launched. These checks do not establish rendered UI behavior.
 
-Native emulator interaction and screenshot verification remain pending because Computer Use permission for the emulator was denied. The user explicitly requested finishing with that verification pending. Opening and dismissing the nested sheet, preserving the underlying stop-list scroll position, photo paging, wrapping, font scaling and light/dark appearance still need a native UI check.
+Native emulator interaction and screenshot verification remain pending: Computer Use returned “Computer Use was not approved to use qemu-system-x86_64”. Installation and launch succeeded through ADB, but no rendered UI verification is claimed. Opening and dismissing the nested sheet, preserving the underlying stop-list scroll position, photo paging, wrapping, font scaling and light/dark appearance still need a native UI check.
 
-The independent review's disposition is **fix**, limited to the eight known photo gaps above. It found no additional static implementation defect and confirmed that the KISS and Volvo 7700 corrections were resolved. Missing-photo development states are documented limitations, not a completed release treatment. The feature remains blocked for release until all eight verified fleet photos are supplied and the release catalog gate passes; native UI verification also remains outstanding.
+The previous feature review recorded the eight known photo gaps. This update stops photo acquisition at the user's request; it does not claim those gaps are resolved or that a new independent review occurred. The existing `--release` gate still requires a photo for every profile; native UI verification remains outstanding.
 
 ## Photos and sources
 
 Each photo records its original Wikimedia file page, author, license name and license URL. The article's source disclosure visibly labels the photographer, source and license; its expanded content provides direct photo, license and article-source links. The source/author/license also travel inside each JPEG's COM metadata. Images display proportionally without cropping. Wikimedia thumbnail scaling does not imply ownership or endorsement by the photographer.
+
+The 99 newly added photos were checked visually and against their file descriptions. Municipal MVK examples, adjacent coach variants and unlicensed fleet-database photos were excluded. Intouro M and Tourliner L registrations were cross-checked with fleet records linked in the catalog. An earlier ÜL363 illustration was removed from the explicit ÜL313/353 profile and replaced with a verified ÜL313. New JPEGs preserve the full frame, are resized to at most 1000px and carry their source, author, license and transformation note in COM metadata. The in-app credit also labels resizing.
 
 The selected images depict Hungarian fleet examples of types observed in the live feed. A photo is a model illustration, not identification of the particular arriving vehicle, and is labelled accordingly. Historical photo dates do not establish that a particular photographed unit is still active. Do not make that claim.
 

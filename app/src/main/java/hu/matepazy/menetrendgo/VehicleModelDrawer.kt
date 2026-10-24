@@ -148,9 +148,12 @@ import kotlinx.coroutines.withContext
                         Text("Ehhez a típushoz még nincs szabadon felhasználható, ellenőrzött hazai fotónk.",
                             style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
-                    item { Text(profile.description, Modifier.padding(top = AppLayout.SectionGap),
+                    item { Text("A járműről", Modifier.padding(top = AppLayout.SectionGap, bottom = AppLayout.RelatedGap).semantics { heading() },
+                        style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold) }
+                    item { Text(profile.description,
                         style = MaterialTheme.typography.bodyLarge) }
-                    item { Text("Jó tudni", Modifier.padding(top = 32.dp, bottom = AppLayout.RelatedGap).semantics { heading() },
+                    item { Text(if (profile.facts.size == 1) "Érdekesség" else "Érdekességek",
+                        Modifier.padding(top = AppLayout.SectionGap, bottom = AppLayout.RelatedGap).semantics { heading() },
                         style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold) }
                     profile.facts.forEach { fact -> item {
                         Text(fact, Modifier.padding(bottom = AppLayout.RelatedGap), style = MaterialTheme.typography.bodyLarge)
@@ -230,7 +233,7 @@ import kotlinx.coroutines.withContext
     Column {
         Text(photo.caption, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         SourceLink("Fotó: ${photo.author} · Wikimedia Commons", photo.source)
-        SourceLink("${photo.license} · arányosan megjelenítve", photo.licenseUrl)
+        SourceLink("${photo.license} · átméretezett fotó", photo.licenseUrl)
     }
 }
 
