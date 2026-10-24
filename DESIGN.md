@@ -102,7 +102,7 @@ components:
     backgroundColor: "{colors.surface}"
     textColor: "{colors.ink}"
     rounded: "{rounded.large}"
-    padding: "22dp"
+    padding: "20dp"
   route-badge:
     backgroundColor: "{colors.primary-container}"
     rounded: "{rounded.pill}"
@@ -163,7 +163,7 @@ The frontmatter headline weights record the repeated heading treatment; individu
 
 ## Layout
 
-Phone screens are single-column, vertically scrollable and inset from system bars. Most content lists use page padding (20dp) and gaps (16–20dp). The map fills the available screen behind navigation without a page inset or rounded viewport. Panels commonly use the page padding internally; the pass editor uses sheet padding (24dp).
+Phone screens are single-column, vertically scrollable and inset from system bars. Content lists share `screenContentPadding()` with page padding (20dp), measured floating-navigation clearance and item gaps (16dp). `AppLayout` defines label gaps (4dp), compact gaps (8dp), related-content gaps (12dp), item gaps (16dp), page/panel insets (20dp), and section/sheet spacing (24dp). The recent-search heading uses a larger section separation, while the pass editor separates its field groups by 24dp. The map fills the available screen behind navigation without a page inset or rounded viewport. Panels and timetable cards use 20dp internal padding; compact vehicle-stop rows retain 16dp. The pass editor and vehicle drawer use sheet padding (24dp). Shared page headers have a 48dp minimum row height, 4dp between title and subtitle, and 8dp between back/title/actions, with no extra vertical padding. Timetable and vehicle rows separate time and stop columns by 12dp.
 
 At the implemented wide-layout threshold (700dp), bottom navigation becomes a navigation rail. Main utility content is centered with a maximum width (760dp); the map can expand further (1600dp). The phone navigation surface has horizontal margins (12dp), vertical margins (6dp), inner padding (6dp) and gaps (4dp). Each item's inner content has a minimum height (48dp), growing to (64dp) above the font-scale threshold (1.15), with separate item padding (2dp horizontal, 8dp vertical). Labels may occupy two lines. Scrollable pages extend behind the floating navigation surface; its measured bottom inset is added to list content padding so final actions can scroll clear. The map retains safe control bounds. Safe drawing insets, navigation-bar padding and IME padding belong to the layout.
 
@@ -173,7 +173,7 @@ The planning surface opens with “Hová indulunk?” and the reminders bell on 
 
 Depth comes from solid themed surfaces and tonal separation. The reusable panel is still named `Glass` in code, but uses an opaque surface with no gradient or shadow. Result cards and the opaque bottom navigation also have no custom shadow.
 
-Phone content extends behind the floating bar, with no fixed background strip. A bottom-only display-list blur (18dp on Android 12+) covers the measured navigation inset plus 48dp. Its alpha mask goes from transparent at the top to opaque at fraction .55, with a background-color fade from alpha 0 to .82. Navigation controls remain sharp. Android 9–11 use the tonal fade fallback; rail layouts have no bottom veil.
+Phone content extends behind the floating bar, with no fixed background strip. A bottom-only display-list blur (18dp on Android 12+) is clipped to the navbar surface top edge (the measured navigation inset minus its 6dp top margin). Its alpha mask goes from transparent at the top to opaque at fraction .55, with a background-color fade from alpha 0 to .82. Navigation controls remain sharp. Android 9–11 use the tonal fade fallback; rail layouts have no bottom veil.
 
 The map retains its own compact marker and zoom-control shadows; those CSS shadows do not define native Compose elevation. Dialogs, sheets, disabled states and pressed feedback continue to use Material behavior.
 

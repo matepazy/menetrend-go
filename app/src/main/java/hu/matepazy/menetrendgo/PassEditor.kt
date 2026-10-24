@@ -36,15 +36,15 @@ internal fun passDate(date: LocalDate): String = date.format(PassDateFormat)
     val expires=LocalDate.ofEpochDay(endDay)
     val valid=!expires.isBefore(starts) && (type!="local" || city.isNotBlank())
 
-    ModalBottomSheet(onDismissRequest=onDismiss,sheetState=rememberModalBottomSheetState(skipPartiallyExpanded=true),shape=RoundedCornerShape(topStart=36.dp,topEnd=36.dp)) {
-        Column(Modifier.fillMaxWidth().imePadding().verticalScroll(rememberScrollState()).padding(start=24.dp,end=24.dp,bottom=24.dp),verticalArrangement=Arrangement.spacedBy(20.dp)) {
+    ModalBottomSheet(onDismissRequest=onDismiss,sheetState=rememberModalBottomSheetState(skipPartiallyExpanded=true),shape=MaterialTheme.shapes.extraLarge) {
+        Column(Modifier.fillMaxWidth().imePadding().verticalScroll(rememberScrollState()).padding(start=AppLayout.SheetPadding,end=AppLayout.SheetPadding,bottom=AppLayout.SheetPadding),verticalArrangement=Arrangement.spacedBy(AppLayout.SectionGap)) {
             Row(verticalAlignment=Alignment.CenterVertically) {
                 Text(if(pass==null) "Új bérlet" else "Bérlet szerkesztése",Modifier.weight(1f),style=MaterialTheme.typography.headlineSmall,fontWeight=FontWeight.Bold)
                 IconButton(onClick=onDismiss) {Icon(Icons.Outlined.Close,"Bezárás")}
             }
             Column(verticalArrangement=Arrangement.spacedBy(8.dp)) {
                 Text("Bérlet típusa",style=MaterialTheme.typography.titleMedium,fontWeight=FontWeight.SemiBold)
-                FlowRow(horizontalArrangement=Arrangement.spacedBy(8.dp)) {
+                FlowRow(horizontalArrangement=Arrangement.spacedBy(AppLayout.CompactGap),verticalArrangement=Arrangement.spacedBy(AppLayout.CompactGap)) {
                     listOf("country" to "Ország", "county" to "Vármegye", "local" to "Helyi").forEach {(value,label)->
                         FilterChip(type==value,{type=value},label={Text(label)},leadingIcon=if(type==value) ({Icon(Icons.Outlined.Check,null,Modifier.size(18.dp))}) else null,shape=CircleShape,modifier=Modifier.heightIn(min=48.dp))
                     }
@@ -62,7 +62,7 @@ internal fun passDate(date: LocalDate): String = date.format(PassDateFormat)
             }
             Column(verticalArrangement=Arrangement.spacedBy(8.dp)) {
                 Text("Érvényesség",style=MaterialTheme.typography.titleMedium,fontWeight=FontWeight.SemiBold)
-                FlowRow(horizontalArrangement=Arrangement.spacedBy(8.dp)) {
+                FlowRow(horizontalArrangement=Arrangement.spacedBy(AppLayout.CompactGap),verticalArrangement=Arrangement.spacedBy(AppLayout.CompactGap)) {
                     FilterChip(thirtyDays,{thirtyDays=true;endDay=starts.plusDays(29).toEpochDay()},label={Text("30 napos")},leadingIcon=if(thirtyDays) ({Icon(Icons.Outlined.Link,null,Modifier.size(18.dp))}) else null,shape=CircleShape,modifier=Modifier.heightIn(min=48.dp))
                     FilterChip(!thirtyDays,{thirtyDays=false},label={Text("Egyéni")},shape=CircleShape,modifier=Modifier.heightIn(min=48.dp))
                 }

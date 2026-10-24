@@ -84,8 +84,8 @@ import java.time.format.DateTimeFormatter
     val focus=LocalFocusManager.current
     fun closePicker() { focus.clearFocus();picker=null }
     BackHandler(picker!=null) { closePicker() }
-    LazyColumn(Modifier.fillMaxSize(),contentPadding=PaddingValues(start=20.dp,top=20.dp,end=20.dp,bottom=20.dp+LocalBottomOverlayInset.current),verticalArrangement=Arrangement.spacedBy(20.dp)) {
-        item { Row(Modifier.fillMaxWidth().padding(top=10.dp,bottom=4.dp),verticalAlignment=Alignment.CenterVertically) {
+    LazyColumn(Modifier.fillMaxSize(),contentPadding=screenContentPadding(),verticalArrangement=Arrangement.spacedBy(AppLayout.ItemGap)) {
+        item { Row(Modifier.fillMaxWidth().heightIn(min=48.dp),verticalAlignment=Alignment.CenterVertically) {
             Text("Hová indulunk?",style=MaterialTheme.typography.headlineMedium,fontWeight=FontWeight.Bold,modifier=Modifier.weight(1f))
             FilledTonalIconButton(onClick=onPasses,shape=CircleShape) {Icon(Icons.Outlined.NotificationsNone,"Bérletek és emlékeztetők")}
         } }
@@ -103,7 +103,7 @@ import java.time.format.DateTimeFormatter
                 if(picker=="to") StationAutocomplete(vm,"Hová?",vm.to,Icons.Outlined.LocationOn,::closePicker) {
                     vm.to=it;vm.selectStation(it);closePicker()
                 } else StopField("Hová?",vm.to,Icons.Outlined.LocationOn) { picker="to" }
-                Spacer(Modifier.height(14.dp))
+                Spacer(Modifier.height(AppLayout.ItemGap))
                 val today=LocalDate.now(Budapest)
                 val selectedDate=if(vm.useNow) today else vm.dateTime.toLocalDate()
                 Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(12.dp)) {
@@ -120,14 +120,16 @@ import java.time.format.DateTimeFormatter
                 MainButton("Járatok keresése",Icons.Outlined.Search,vm.from!=null && vm.to!=null && vm.from!=vm.to,onSearch)
             }
         }
-        item { Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically) {
-            Text("Legutóbbi keresések",Modifier.weight(1f),style=MaterialTheme.typography.titleMedium,fontWeight=FontWeight.SemiBold)
-            if(vm.recents.isNotEmpty()) TextButton(onClick=vm::clearRecents) { Text("Törlés") }
+        item { Column(verticalArrangement=Arrangement.spacedBy(AppLayout.CompactGap)) {
+            Row(Modifier.fillMaxWidth().padding(top=AppLayout.SectionGap-AppLayout.ItemGap),verticalAlignment=Alignment.CenterVertically) {
+                Text("Legutóbbi keresések",Modifier.weight(1f),style=MaterialTheme.typography.titleMedium,fontWeight=FontWeight.SemiBold)
+                if(vm.recents.isNotEmpty()) TextButton(onClick=vm::clearRecents) { Text("Törlés") }
+            }
+            if(vm.recents.isEmpty()) Text("A kereséseidet itt találod majd. Egy koppintással újratervezheted az utat.",style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)
         } }
-        if(vm.recents.isEmpty()) item { Text("A kereséseidet itt találod majd. Egy koppintással újratervezheted az utat.",color=MaterialTheme.colorScheme.onSurfaceVariant,modifier=Modifier.padding(horizontal=4.dp)) }
         items(vm.recents,key={it.from.id+":"+it.to.id}) { recent ->
             Surface(onClick={vm.from=recent.from;vm.to=recent.to;vm.useNow=true;vm.arriveBy=false;onSearch()},shape=RoundedCornerShape(28.dp),color=MaterialTheme.colorScheme.surface) {
-                Row(Modifier.fillMaxWidth().padding(20.dp),verticalAlignment=Alignment.CenterVertically) {
+                Row(Modifier.fillMaxWidth().padding(AppLayout.PanelPadding),verticalAlignment=Alignment.CenterVertically) {
                     Icon(Icons.Outlined.History,null,tint=MaterialTheme.colorScheme.onSurfaceVariant)
                     Spacer(Modifier.width(16.dp));Column(Modifier.weight(1f)) {
                         Text(recent.from.name,style=MaterialTheme.typography.titleMedium)
@@ -290,7 +292,7 @@ import java.time.format.DateTimeFormatter
     ModalBottomSheet(onDismissRequest=dismiss,sheetState=rememberModalBottomSheetState(skipPartiallyExpanded=true),
         shape=RoundedCornerShape(topStart=36.dp,topEnd=36.dp)) {
         Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).imePadding().padding(horizontal=24.dp).padding(bottom=24.dp),
-            verticalArrangement=Arrangement.spacedBy(16.dp)) {
+            verticalArrangement=Arrangement.spacedBy(AppLayout.ItemGap)) {
             Text("Utazás időpontja",style=MaterialTheme.typography.titleLarge)
             TimeInput(timeState,modifier=Modifier.align(Alignment.CenterHorizontally))
             Row(verticalAlignment=Alignment.CenterVertically) {Checkbox(arrive,{arrive=it});Text("Ekkorra érkezzek meg")}
@@ -355,15 +357,15 @@ private fun serviceType(leg: Leg): String = hungarianServiceName(leg.category, l
 @Composable fun ResultsScreen(vm: AppState, back: () -> Unit, select: (Journey) -> Unit) {
     var filter by rememberSaveable {mutableStateOf("Összes")}
     val results=vm.journeys.filter { j -> filter=="Összes" || j.legs.any {if(filter=="Vonat") it.mode in listOf("RAIL","SUBURBAN_RAILWAY","TRAMTRAIN") else it.mode in listOf("BUS","COACH","RAIL_REPLACEMENT_BUS")} }
-    LazyColumn(Modifier.fillMaxSize(),contentPadding=PaddingValues(start=20.dp,top=20.dp,end=20.dp,bottom=20.dp+LocalBottomOverlayInset.current),verticalArrangement=Arrangement.spacedBy(16.dp)) {
+    LazyColumn(Modifier.fillMaxSize(),contentPadding=screenContentPadding(),verticalArrangement=Arrangement.spacedBy(AppLayout.ItemGap)) {
         item { PageTitle("Indulások", "${vm.from?.name.orEmpty()} → ${vm.to?.name.orEmpty()}",back) }
-        item { FlowRow(horizontalArrangement=Arrangement.spacedBy(8.dp)) { listOf("Összes","Vonat","Busz").forEach { label -> FilterChip(selected=filter==label,onClick={filter=label},label={Text(label)},shape=CircleShape) } } }
+        item { FlowRow(horizontalArrangement=Arrangement.spacedBy(AppLayout.CompactGap),verticalArrangement=Arrangement.spacedBy(AppLayout.CompactGap)) { listOf("Összes","Vonat","Busz").forEach { label -> FilterChip(selected=filter==label,onClick={filter=label},label={Text(label)},shape=CircleShape,modifier=Modifier.heightIn(min=48.dp)) } } }
         if(vm.searchError!=null) item {InfoPanel("Nem sikerült a keresés",vm.searchError!!){vm.search(vm.journeys.isNotEmpty())}}
         if(vm.searching && vm.journeys.isEmpty()) item {LoadingRows()}
         if(!vm.searching && vm.searchError==null && results.isEmpty()) item {InfoPanel("Nincs megjeleníthető indulás","Módosítsd az időpontot, a megállókat vagy a járműszűrőt.")}
         items(results,key={it.key}) { journey ->
             Surface(onClick={select(journey)},shape=RoundedCornerShape(32.dp),color=MaterialTheme.colorScheme.surface,tonalElevation=0.dp) {
-                Column(Modifier.fillMaxWidth().padding(20.dp),verticalArrangement=Arrangement.spacedBy(14.dp)) {
+                Column(Modifier.fillMaxWidth().padding(AppLayout.PanelPadding),verticalArrangement=Arrangement.spacedBy(AppLayout.ItemGap)) {
                     Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically) {
                         val services=journey.legs.filterNot {it.walking}.distinctBy {it.mode to it.route}
                         FlowRow(Modifier.weight(1f),horizontalArrangement=Arrangement.spacedBy(6.dp),verticalArrangement=Arrangement.spacedBy(6.dp)) {
@@ -379,7 +381,7 @@ private fun serviceType(leg: Leg): String = hungarianServiceName(leg.category, l
         }
         if(vm.searching && vm.journeys.isNotEmpty()) item {LinearProgressIndicator(Modifier.fillMaxWidth())}
         if(vm.canLoadMore && !vm.searching) item {OutlinedButton(onClick={vm.search(true)},shape=CircleShape,modifier=Modifier.fillMaxWidth().heightIn(min=52.dp)){Text(if(vm.arriveBy) "Korábbi indulások" else "További indulások")}}
-        item {Text("A találatokat a MÁV útvonaltervezője adja. Az újabb keresés további időpontokat tölt be.",style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant,modifier=Modifier.padding(bottom=16.dp))}
+        item {Text("A találatokat a MÁV útvonaltervezője adja. Az újabb keresés további időpontokat tölt be.",style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)}
     }
 }
 
@@ -409,7 +411,7 @@ private fun serviceType(leg: Leg): String = hungarianServiceName(leg.category, l
 @Composable fun JourneyScreen(vm: AppState, journey: Journey, back: () -> Unit, onTrip: (Leg) -> Unit, onMap: () -> Unit) {
     var menuOpen by remember(journey.key) { mutableStateOf(false) }
     var rawOpen by remember(journey.key) { mutableStateOf(false) }
-    LazyColumn(Modifier.fillMaxSize(),contentPadding=PaddingValues(start=20.dp,top=20.dp,end=20.dp,bottom=20.dp+LocalBottomOverlayInset.current),verticalArrangement=Arrangement.spacedBy(16.dp)) {
+    LazyColumn(Modifier.fillMaxSize(),contentPadding=screenContentPadding(),verticalArrangement=Arrangement.spacedBy(AppLayout.ItemGap)) {
         item {PageTitle("Utazás részletei", listOf(dayLabel(journey.start),"${journey.minutes} perc").filter {it.isNotBlank()}.joinToString(" · "),back) {
             if(vm.showRawGraphQl) Box {
                 IconButton(onClick={menuOpen=true}) {Icon(Icons.Outlined.MoreVert,"További lehetőségek")}
@@ -421,7 +423,7 @@ private fun serviceType(leg: Leg): String = hungarianServiceName(leg.category, l
         item { MainButton("Útvonal a térképen",Icons.Outlined.Map,onClick=onMap) }
         item {
             Surface(shape=RoundedCornerShape(32.dp),color=MaterialTheme.colorScheme.surface) {
-                Column(Modifier.fillMaxWidth().padding(16.dp)) {
+                Column(Modifier.fillMaxWidth().padding(AppLayout.PanelPadding)) {
                     journey.legs.forEachIndexed {index,leg ->
                         val color=serviceColor(leg)
                         val walking=leg.walking
@@ -528,7 +530,7 @@ private fun serviceType(leg: Leg): String = hungarianServiceName(leg.category, l
 @Composable fun TripScreen(vm: AppState, id: String, day: String, back: () -> Unit, onMap: () -> Unit) {
     val detail=vm.detail
     val vehicle=vm.vehicles.find {it.id==id}
-    LazyColumn(Modifier.fillMaxSize(),contentPadding=PaddingValues(start=20.dp,top=20.dp,end=20.dp,bottom=20.dp+LocalBottomOverlayInset.current),verticalArrangement=Arrangement.spacedBy(14.dp)) {
+    LazyColumn(Modifier.fillMaxSize(),contentPadding=screenContentPadding(),verticalArrangement=Arrangement.spacedBy(AppLayout.ItemGap)) {
         item {PageTitle(detail?.optJSONObject("route")?.optString("shortName")?.ifBlank {"Járat"} ?: "Járat", "$day · ${detail?.optString("tripHeadsign").orEmpty()}",back)}
         if(vm.detailLoading && detail==null) item {LoadingRows()}
         if(vm.detailError!=null) item {InfoPanel("A menetrend nem tölthető be",vm.detailError!!){vm.loadTrip(id,day)}}
@@ -540,8 +542,8 @@ private fun serviceType(leg: Leg): String = hungarianServiceName(leg.category, l
                 val scheduled=stop.optInt("scheduledDeparture",stop.optInt("scheduledArrival"))
                 val seconds=stop.optInt("realtimeDeparture",scheduled)
                 val epoch=if(stop.has("serviceDay")) stop.optLong("serviceDay")*1000L else LocalDate.parse(day).atStartOfDay(Budapest).toInstant().toEpochMilli()
-                Surface(shape=RoundedCornerShape(26.dp),color=MaterialTheme.colorScheme.surface) {
-                    Row(Modifier.fillMaxWidth().padding(18.dp),verticalAlignment=Alignment.Top) {
+                Surface(shape=MaterialTheme.shapes.medium,color=MaterialTheme.colorScheme.surface) {
+                    Row(Modifier.fillMaxWidth().padding(AppLayout.PanelPadding),verticalAlignment=Alignment.Top,horizontalArrangement=Arrangement.spacedBy(AppLayout.RelatedGap)) {
                         Column(Modifier.width(with(LocalDensity.current) { 64.sp.toDp() })) {
                             Text(timeLabel(epoch+seconds*1000L),style=MaterialTheme.typography.titleMedium,fontWeight=FontWeight.Bold)
                             val late=stop.optInt("departureDelay")/60

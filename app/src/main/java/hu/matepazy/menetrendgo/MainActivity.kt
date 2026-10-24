@@ -122,11 +122,11 @@ val LocalBottomOverlayInset = staticCompositionLocalOf { 0.dp }
                 backdrop.record { this@drawWithContent.drawContent() }
                 drawLayer(backdrop)
             } else drawContent()
-        }) { content() }
+        },contentAlignment=Alignment.TopCenter) { content() }
         if(enabled) {
             // Only the bottom slice is blurred. The alpha mask removes a hard top edge.
             Box(Modifier.align(Alignment.BottomCenter).fillMaxWidth().height(height)
-                .graphicsLayer { compositingStrategy=CompositingStrategy.Offscreen }
+                .graphicsLayer { compositingStrategy=CompositingStrategy.Offscreen;clip=true }
                 .drawWithContent {
                     drawContent()
                     drawRect(Brush.verticalGradient(0f to Color.Transparent,.55f to Color.Black,1f to Color.Black),blendMode=BlendMode.DstIn)
@@ -144,14 +144,14 @@ val LocalBottomOverlayInset = staticCompositionLocalOf { 0.dp }
 
 @Composable fun Glass(modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {
     val colors = MaterialTheme.colorScheme
-    Surface(modifier=modifier,shape=RoundedCornerShape(28.dp),color=colors.surface) {
-        Column(Modifier.padding(20.dp),content=content)
+    Surface(modifier=modifier,shape=MaterialTheme.shapes.medium,color=colors.surface) {
+        Column(Modifier.padding(AppLayout.PanelPadding),content=content)
     }
 }
 @Composable fun PageTitle(title: String, subtitle: String? = null, back: (() -> Unit)? = null, actions: @Composable RowScope.() -> Unit = {}) {
-    Row(Modifier.fillMaxWidth().padding(vertical=12.dp),verticalAlignment=Alignment.CenterVertically) {
+    Row(Modifier.fillMaxWidth().heightIn(min=48.dp),verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(AppLayout.CompactGap)) {
         if(back != null) IconButton(onClick=back) { Icon(Icons.AutoMirrored.Outlined.ArrowBack,"Vissza") }
-        Column(Modifier.weight(1f)) {
+        Column(Modifier.weight(1f),verticalArrangement=Arrangement.spacedBy(AppLayout.LabelGap)) {
             Text(title,style=MaterialTheme.typography.headlineSmall,fontWeight=FontWeight.Bold)
             if(subtitle != null) Text(subtitle,style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)
         }
@@ -206,12 +206,12 @@ val LocalBottomOverlayInset = staticCompositionLocalOf { 0.dp }
     Glass(Modifier.fillMaxWidth()) {
         Icon(Icons.Outlined.Info,null,tint=MaterialTheme.colorScheme.primary)
         Spacer(Modifier.height(12.dp)); Text(title,style=MaterialTheme.typography.titleMedium,fontWeight=FontWeight.SemiBold)
-        Spacer(Modifier.height(6.dp)); Text(message,color=MaterialTheme.colorScheme.onSurfaceVariant)
+        Spacer(Modifier.height(AppLayout.CompactGap)); Text(message,color=MaterialTheme.colorScheme.onSurfaceVariant)
         if(retry != null) TextButton(onClick=retry) { Text("Újrapróbálás") }
     }
 }
 @Composable fun LoadingRows() {
-    Column(verticalArrangement=Arrangement.spacedBy(14.dp)) {
+    Column(verticalArrangement=Arrangement.spacedBy(AppLayout.ItemGap)) {
         LinearProgressIndicator(Modifier.fillMaxWidth().clip(CircleShape))
         repeat(3) { Surface(Modifier.fillMaxWidth().height(100.dp),shape=RoundedCornerShape(28.dp),color=MaterialTheme.colorScheme.surfaceVariant.copy(alpha=.5f)) {} }
     }
@@ -287,7 +287,8 @@ val LocalBottomOverlayInset = staticCompositionLocalOf { 0.dp }
             ) { inset ->
                 Box(Modifier.fillMaxSize().padding(top=inset.calculateTopPadding()).imePadding(),contentAlignment=Alignment.TopCenter) {
                     CompositionLocalProvider(LocalBottomOverlayInset provides inset.calculateBottomPadding()) {
-                    FeatheredBottomContent(enabled=!wide && tab!=1 && !mapScreen,height=inset.calculateBottomPadding()+48.dp) {
+                    // The bar has a 6dp outer top margin; keep the feather below its surface edge.
+                    FeatheredBottomContent(enabled=!wide && tab!=1 && !mapScreen,height=(inset.calculateBottomPadding()-6.dp).coerceAtLeast(0.dp)) {
                     Box(Modifier.widthIn(max=if(mapScreen) Dp.Infinity else if(tab==1) 1600.dp else 760.dp).fillMaxSize()) {
                         PredictiveBackPane(enabled=(page!="search" || tab!=0) && vm.mapVehicle==null,onBack=::back,preview={
                             when {

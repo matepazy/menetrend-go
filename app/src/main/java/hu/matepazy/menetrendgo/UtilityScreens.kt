@@ -60,7 +60,7 @@ internal val Counties=listOf("Baranya","Bács-Kiskun","Békés","Borsod-Abaúj-Z
     fun requestNotifications() {
         if(Build.VERSION.SDK_INT>=33 && ContextCompat.checkSelfPermission(context,Manifest.permission.POST_NOTIFICATIONS)!=PackageManager.PERMISSION_GRANTED) permissions.launch(Manifest.permission.POST_NOTIFICATIONS)
     }
-    LazyColumn(Modifier.fillMaxSize(),contentPadding=PaddingValues(start=20.dp,top=20.dp,end=20.dp,bottom=20.dp+LocalBottomOverlayInset.current),verticalArrangement=Arrangement.spacedBy(18.dp)) {
+    LazyColumn(Modifier.fillMaxSize(),contentPadding=screenContentPadding(),verticalArrangement=Arrangement.spacedBy(AppLayout.ItemGap)) {
         item {PageTitle("Bérletek","Lejárat és emlékeztetők, egy helyen")}
         item {MainButton("Bérlet hozzáadása",Icons.Outlined.Add){editingId=null;add=true}}
         if(vm.passes.isEmpty()) item {InfoPanel("Mikor jár le a bérleted?","Ország-, vármegye- vagy helyi bérletet is menthetsz. Add meg a rajta szereplő dátumokat. Három és egy nappal a lejárat előtt, majd a lejárat után emlékeztetünk.")}

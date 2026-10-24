@@ -62,17 +62,17 @@ fun upcomingVehicleStops(stops: List<VehicleStop>, now: Long): List<VehicleStop>
     val detail=vm.detail?.takeIf {it.optString("gtfsId")==vehicle.id}
     val stops=remember(detail,day) {detail?.let {vehicleStops(it,day)}.orEmpty()}
     val upcoming=upcomingVehicleStops(stops,now)
-    ModalBottomSheet(onDismissRequest=dismiss,sheetState=rememberModalBottomSheetState(skipPartiallyExpanded=true)) {
-        Column(Modifier.fillMaxWidth().fillMaxHeight(.78f).padding(horizontal=20.dp)) {
+    ModalBottomSheet(onDismissRequest=dismiss,sheetState=rememberModalBottomSheetState(skipPartiallyExpanded=true),shape=MaterialTheme.shapes.extraLarge) {
+        Column(Modifier.fillMaxWidth().fillMaxHeight(.78f).padding(horizontal=AppLayout.SheetPadding)) {
             Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically) {
                 Box(Modifier.weight(1f)) {RouteBadge(vehicle.badgeLeg())}
                 IconButton(onClick=dismiss) {Icon(Icons.Outlined.Close,"Jármű részleteinek bezárása")}
             }
             Text(hungarianServiceName(vehicle.category,vehicle.mode),style=MaterialTheme.typography.bodyMedium,
-                color=MaterialTheme.colorScheme.onSurfaceVariant,modifier=Modifier.padding(top=6.dp))
+                color=MaterialTheme.colorScheme.onSurfaceVariant,modifier=Modifier.padding(top=AppLayout.CompactGap))
             Text(if(stops.isNotEmpty()) "${stops.first().name} → ${stops.last().name}"
                 else vehicle.headsign,style=MaterialTheme.typography.titleLarge,fontWeight=FontWeight.Bold,
-                modifier=Modifier.padding(top=12.dp,bottom=20.dp))
+                modifier=Modifier.padding(top=AppLayout.RelatedGap,bottom=AppLayout.ItemGap))
             when {
                 vm.detailLoading && detail==null -> LinearProgressIndicator(Modifier.fillMaxWidth())
                 vm.detailError!=null -> InfoPanel("A megállók nem tölthetők be",vm.detailError!!) {vm.loadTrip(vehicle.id,day)}
@@ -81,7 +81,7 @@ fun upcomingVehicleStops(stops: List<VehicleStop>, now: Long): List<VehicleStop>
                 else -> LazyColumn(Modifier.weight(1f),contentPadding=PaddingValues(bottom=24.dp),verticalArrangement=Arrangement.spacedBy(8.dp)) {
                     itemsIndexed(upcoming) {index,stop ->
                         Surface(shape=RoundedCornerShape(24.dp),color=if(index==0) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface) {
-                            Row(Modifier.fillMaxWidth().padding(16.dp),verticalAlignment=Alignment.Top) {
+                            Row(Modifier.fillMaxWidth().padding(AppLayout.ItemGap),verticalAlignment=Alignment.Top,horizontalArrangement=Arrangement.spacedBy(AppLayout.RelatedGap)) {
                                 Column(Modifier.width(with(LocalDensity.current) {72.sp.toDp()})) {
                                     ScheduledTime(ServiceTime(stop.scheduled,stop.arrival,stop.realtime),style=MaterialTheme.typography.titleMedium)
                                 }

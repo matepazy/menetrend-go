@@ -72,8 +72,8 @@ private enum class SettingsPage(val title: String) {
         val listState = rememberLazyListState()
         LazyColumn(
             modifier = Modifier.fillMaxSize(), state = listState,
-            contentPadding = PaddingValues(start = 20.dp, top = 20.dp, end = 20.dp, bottom = 24.dp + LocalBottomOverlayInset.current),
-            verticalArrangement = Arrangement.spacedBy(20.dp)
+            contentPadding = screenContentPadding(),
+            verticalArrangement = Arrangement.spacedBy(AppLayout.ItemGap)
         ) {
             item { PageTitle(page.title, back = if (page == SettingsPage.Home) null else ({ navigate(page.parent) })) }
             when (page) {
@@ -113,7 +113,7 @@ private enum class SettingsPage(val title: String) {
                 SettingsPage.Notifications -> {
                     item {
                         SettingsGroup {
-                            Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Column(Modifier.padding(AppLayout.PanelPadding), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                                 Text("Bérlet-emlékeztetők", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
                                 Text(if (notificationsEnabled) "Az értesítések engedélyezve vannak." else "Az értesítések ki vannak kapcsolva.", color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 Text("3 és 1 nappal a lejárat előtt, majd a lejárat után, 9 órakor.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -135,7 +135,7 @@ private enum class SettingsPage(val title: String) {
                     }
                     item {
                         SettingsGroup {
-                            Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Column(Modifier.padding(AppLayout.PanelPadding), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                                 Text("Keresési előzmények", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
                                 Text(if (vm.recents.isEmpty()) "Nincs mentett keresés." else "${vm.recents.size} korábbi útvonal a Tervezés oldalon.", color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 OutlinedButton(onClick = { confirmClear = true }, enabled = vm.recents.isNotEmpty()) { Text("Előzmények törlése") }
@@ -173,7 +173,7 @@ private enum class SettingsPage(val title: String) {
                     item {
                         SettingsGroup {
                             Row(
-                                Modifier.fillMaxWidth().toggleable(vm.showRawGraphQl, role = Role.Switch, onValueChange = vm::chooseRawGraphQl).padding(20.dp),
+                                Modifier.fillMaxWidth().toggleable(vm.showRawGraphQl, role = Role.Switch, onValueChange = vm::chooseRawGraphQl).padding(AppLayout.PanelPadding),
                                 verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)
                             ) {
                                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -217,7 +217,7 @@ private fun themeLabel(value: String) = when (value) {
         Modifier.fillMaxWidth().clickable(onClick = onClick).padding(horizontal = 20.dp, vertical = 16.dp).heightIn(min = 48.dp),
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(AppLayout.LabelGap)) {
             Text(title, style = MaterialTheme.typography.titleMedium)
             if (summary != null) Text(summary, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
