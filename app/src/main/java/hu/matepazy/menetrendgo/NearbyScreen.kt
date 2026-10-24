@@ -107,6 +107,7 @@ import org.json.*
             val array=JSONArray(visibleVehicles.map { vehicle ->
                 JSONObject().put("id",vehicle.id).put("name",vehicle.name).put("headsign",vehicle.headsign)
                     .put("lat",vehicle.lat).put("lon",vehicle.lon).put("mode",vehicle.mode)
+                    .put("heading",vehicle.heading ?: JSONObject.NULL)
                     .put("color",serviceColorHex(vehicle.badgeLeg()))
                     .put("type",hungarianServiceName(vehicle.category,vehicle.mode))
             })
@@ -180,7 +181,7 @@ import org.json.*
                 Text(if(vm.vehiclesLoading) "Járműpozíció betöltése…" else "Ehhez a járathoz most nincs élő járműpozíció.",style=MaterialTheme.typography.bodyMedium)
             }
         }
-        selectedVehicle?.let {VehicleDrawer(vm,it) {selectedVehicle=null}}
+        selectedVehicle?.let {selected -> VehicleDrawer(vm,currentVehicles.firstOrNull {it.id==selected.id} ?: selected) {selectedVehicle=null}}
         SnackbarHost(snackbars,Modifier.align(Alignment.BottomCenter).padding(bottom=LocalBottomOverlayInset.current+12.dp))
     }
 }

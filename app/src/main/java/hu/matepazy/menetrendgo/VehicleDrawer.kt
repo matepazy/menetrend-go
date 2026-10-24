@@ -6,6 +6,8 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.Commute
+import androidx.compose.material.icons.outlined.Badge
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -70,6 +72,13 @@ fun upcomingVehicleStops(stops: List<VehicleStop>, now: Long): List<VehicleStop>
             }
             Text(hungarianServiceName(vehicle.category,vehicle.mode),style=MaterialTheme.typography.bodyMedium,
                 color=MaterialTheme.colorScheme.onSurfaceVariant,modifier=Modifier.padding(top=AppLayout.CompactGap))
+            if(vehicle.model.isNotBlank() || vehicle.registration.isNotBlank() || vehicle.uicCode.isNotBlank()) {
+                Column(Modifier.padding(top=AppLayout.RelatedGap),verticalArrangement=Arrangement.spacedBy(AppLayout.CompactGap)) {
+                    if(vehicle.model.isNotBlank()) VehicleMetadataRow(Icons.Outlined.Commute,"Járműtípus",vehicle.model)
+                    if(vehicle.registration.isNotBlank()) VehicleMetadataRow(Icons.Outlined.Badge,"Rendszám",vehicle.registration)
+                    if(vehicle.uicCode.isNotBlank()) VehicleMetadataRow(Icons.Outlined.Badge,"Pályaszám",vehicle.uicCode)
+                }
+            }
             Text(if(stops.isNotEmpty()) "${stops.first().name} → ${stops.last().name}"
                 else vehicle.headsign,style=MaterialTheme.typography.titleLarge,fontWeight=FontWeight.Bold,
                 modifier=Modifier.padding(top=AppLayout.RelatedGap,bottom=AppLayout.ItemGap))
@@ -97,5 +106,12 @@ fun upcomingVehicleStops(stops: List<VehicleStop>, now: Long): List<VehicleStop>
                 }
             }
         }
+    }
+}
+
+@Composable private fun VehicleMetadataRow(icon: androidx.compose.ui.graphics.vector.ImageVector, label: String, value: String) {
+    Row(verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(AppLayout.RelatedGap)) {
+        Icon(icon,contentDescription=label,modifier=Modifier.size(20.dp),tint=MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(value,style=MaterialTheme.typography.bodyMedium)
     }
 }
