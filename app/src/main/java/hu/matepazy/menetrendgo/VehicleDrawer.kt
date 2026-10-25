@@ -25,27 +25,55 @@ import org.json.JSONObject
 import java.time.LocalDate
 
 data class VehicleStop(val name: String, val scheduled: Long, val arrival: Long, val departure: Long,
-    val realtime: Boolean, val platform: String) {
+    val realtime: Boolean, val platform: String, val id: String = "") {
     val changed get() = realtime && arrival / 60_000 != scheduled / 60_000
 }
 
 fun vehicleStops(detail: JSONObject, day: String): List<VehicleStop> = detail.array("stoptimes").mapNotNull { stop ->
     fun seconds(key: String): Long? = if(stop.isNull(key)) null else stop.optLong(key,-1).takeIf {it>=0}
     val scheduled=seconds("scheduledArrival") ?: seconds("scheduledDeparture") ?: return@mapNotNull null
-    val epoch=seconds("serviceDay")?.times(1000)
-        ?: LocalDate.parse(day).atStartOfDay(Budapest).toInstant().toEpochMilli()
+    val serviceDate=seconds("serviceDay")?.let {
+        java.time.Instant.ofEpochSecond(it).atZone(Budapest).toLocalDate()
+    } ?: LocalDate.parse(day)
     val realtime=stop.optBoolean("realtime")
     val arrival=if(realtime) seconds("realtimeArrival") ?: scheduled else scheduled
     val departure=if(realtime) seconds("realtimeDeparture") ?: seconds("scheduledDeparture") ?: arrival
         else seconds("scheduledDeparture") ?: scheduled
     val station=stop.optJSONObject("stop")
-    VehicleStop(station?.optString("name").orEmpty(),epoch+scheduled*1000,epoch+arrival*1000,
-        epoch+departure*1000,realtime,station?.optString("platformCode").orEmpty())
+    VehicleStop(station?.optString("name").orEmpty(),vehicleStopTime(serviceDate,scheduled),
+        vehicleStopTime(serviceDate,arrival),vehicleStopTime(serviceDate,departure),
+        realtime,station?.optString("platformCode").orEmpty(),station?.optString("gtfsId").orEmpty())
 }
+
+/** OTP returns local timetable seconds, not elapsed seconds across a clock change.
+ * Keep values over 24 hours on the following calendar day. */
+internal fun vehicleStopTime(day: LocalDate, seconds: Long): Long =
+    day.atStartOfDay().plusSeconds(seconds).atZone(Budapest).toInstant().toEpochMilli()
 
 /** Keep provider stop order, including dwell at the current stop; discard departed stops. */
 fun upcomingVehicleStops(stops: List<VehicleStop>, now: Long): List<VehicleStop> =
     stops.dropWhile {maxOf(it.arrival,it.departure)<now}
+
+/** Prefer the selected physical vehicle's live stop relationship over clock estimates.
+ * Exact stop IDs distinguish platforms and repeated station names. If a stop occurs
+ * more than once, the provider's arrival time identifies the visit. */
+internal fun upcomingVehicleStops(stops: List<VehicleStop>, now: Long, detail: JSONObject?, vehicle: Vehicle): List<VehicleStop> {
+    val positions=detail?.array("vehiclePositions").orEmpty()
+    val position=positions.firstOrNull {vehicle.vehicleId.isNotBlank() && it.optString("vehicleId")==vehicle.vehicleId}
+        ?: positions.singleOrNull()?.takeIf {vehicle.vehicleId.isBlank()}
+    val relationship=position?.optJSONObject("stopRelationship")
+    if(relationship?.optString("status") in listOf("IN_TRANSIT_TO","INCOMING_AT","STOPPED_AT")) {
+        val id=relationship?.optJSONObject("stop")?.optString("gtfsId").orEmpty()
+        val candidates=stops.indices.filter {id.isNotBlank() && stops[it].id==id}
+        val rawTimes=detail?.array("stoptimes").orEmpty()
+        val arrival=relationship?.optLong("arrivalTime",-1) ?: -1
+        val index=if(candidates.size>1 && arrival>=0 && rawTimes.size==stops.size)
+            candidates.minByOrNull {kotlin.math.abs(rawTimes[it].optLong("realtimeArrival",rawTimes[it].optLong("scheduledArrival"))-arrival)}
+            else candidates.singleOrNull()
+        if(index!=null) return stops.drop(index)
+    }
+    return upcomingVehicleStops(stops,now)
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable fun VehicleDrawer(vm: AppState, vehicle: Vehicle, dismiss: () -> Unit) {
@@ -64,7 +92,7 @@ fun upcomingVehicleStops(stops: List<VehicleStop>, now: Long): List<VehicleStop>
     LaunchedEffect(Unit) {while(true) {now=System.currentTimeMillis();delay(15_000)}}
     val detail=vm.detail?.takeIf {it.optString("gtfsId")==vehicle.id}
     val stops=remember(detail,day) {detail?.let {vehicleStops(it,day)}.orEmpty()}
-    val upcoming=upcomingVehicleStops(stops,now)
+    val upcoming=upcomingVehicleStops(stops,now,detail,vehicle)
     AppBottomSheet(onDismissRequest=dismiss,sheetState=rememberModalBottomSheetState(skipPartiallyExpanded=true),shape=MaterialTheme.shapes.extraLarge) {
         Column(Modifier.fillMaxWidth().fillMaxHeight(.78f).padding(horizontal=AppLayout.SheetPadding)) {
             Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically) {
@@ -96,7 +124,7 @@ fun upcomingVehicleStops(stops: List<VehicleStop>, now: Long): List<VehicleStop>
             when {
                 vm.detailLoading && detail==null -> LinearProgressIndicator(Modifier.fillMaxWidth())
                 vm.detailError!=null -> InfoPanel("A megállók nem tölthetők be",vm.detailError!!) {vm.loadTrip(vehicle.id,day)}
-                detail!=null && upcoming.isEmpty() -> Text(if(stops.isEmpty()) "Nincs elérhető megállóadat." else "A járat elérte a végállomást.",
+                detail!=null && upcoming.isEmpty() -> Text(if(stops.isEmpty()) "Nincs elérhető megállóadat." else "Nincs további várható megálló a menetrendben.",
                     modifier=Modifier.padding(bottom=24.dp))
                 else -> LazyColumn(Modifier.weight(1f),contentPadding=PaddingValues(bottom=24.dp),verticalArrangement=Arrangement.spacedBy(8.dp)) {
                     itemsIndexed(upcoming) {index,stop ->

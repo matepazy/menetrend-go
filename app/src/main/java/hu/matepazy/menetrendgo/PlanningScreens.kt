@@ -675,11 +675,11 @@ private data class TimelineTrack(val color: Color, val walking: Boolean=false)
                 val s=stop.optJSONObject("stop")
                 val scheduled=stop.optInt("scheduledDeparture",stop.optInt("scheduledArrival"))
                 val seconds=stop.optInt("realtimeDeparture",scheduled)
-                val epoch=if(stop.has("serviceDay")) stop.optLong("serviceDay")*1000L else LocalDate.parse(day).atStartOfDay(Budapest).toInstant().toEpochMilli()
+                val serviceDate=if(!stop.isNull("serviceDay")) java.time.Instant.ofEpochSecond(stop.optLong("serviceDay")).atZone(Budapest).toLocalDate() else LocalDate.parse(day)
                 Surface(shape=MaterialTheme.shapes.medium,color=MaterialTheme.colorScheme.surface) {
                     Row(Modifier.fillMaxWidth().padding(AppLayout.PanelPadding),verticalAlignment=Alignment.Top,horizontalArrangement=Arrangement.spacedBy(AppLayout.RelatedGap)) {
                         Column(Modifier.width(with(LocalDensity.current) { 64.sp.toDp() })) {
-                            Text(timeLabel(epoch+seconds*1000L),style=MaterialTheme.typography.titleMedium,fontWeight=FontWeight.Bold)
+                            Text(timeLabel(vehicleStopTime(serviceDate,seconds.toLong())),style=MaterialTheme.typography.titleMedium,fontWeight=FontWeight.Bold)
                             val late=stop.optInt("departureDelay")/60
                             if(late!=0) Text("${if(late>0) "+" else ""}$late perc",style=MaterialTheme.typography.labelSmall,color=MaterialTheme.colorScheme.error)
                         }
@@ -687,7 +687,7 @@ private data class TimelineTrack(val color: Color, val walking: Boolean=false)
                             Text(s?.optString("name").orEmpty(),style=MaterialTheme.typography.titleMedium)
                             val platform=s?.optString("platformCode").orEmpty()
                             if(platform.isNotBlank() && platform!="null") Text("Vágány / kocsiállás: $platform",style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
-                            Text(if(stop.optBoolean("realtime")) "Élő adat · menetrend: ${timeLabel(epoch+scheduled*1000L)}" else "Menetrendi adat",style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(if(stop.optBoolean("realtime")) "Élő adat · menetrend: ${timeLabel(vehicleStopTime(serviceDate,scheduled.toLong()))}" else "Menetrendi adat",style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
                 }
