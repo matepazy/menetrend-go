@@ -126,7 +126,7 @@ object MavQueries {
         $services
         route {shortName longName mode color agency {name}} trip {gtfsId tripShortName tripHeadsign trainCategoryName}}}}}
     """.trimIndent()
-    val vehicles="""{vehiclePositions(swLat:45.5,swLon:16.1,neLat:48.7,neLon:22.8,modes:[RAIL,RAIL_REPLACEMENT_BUS,COACH,BUS,SUBURBAN_RAILWAY,TRAMTRAIN]) {vehicleId lat lon speed heading label vehicleModel licensePlate uicCode trip {gtfsId tripShortName tripHeadsign trainCategoryName route {shortName mode color longName}}}}"""
+    val vehicles="""{vehiclePositions(swLat:45.5,swLon:16.1,neLat:48.7,neLon:22.8,modes:[RAIL,RAIL_REPLACEMENT_BUS,COACH,BUS,SUBURBAN_RAILWAY,TRAMTRAIN]) {vehicleId lat lon speed heading label vehicleModel licensePlate uicCode trip {gtfsId tripShortName tripHeadsign trainCategoryName route {shortName mode color longName agency {name}}}}}"""
     fun trip(id: String,day: String): String {
         require(id.length in 1..250);LocalDate.parse(day)
         return """{trip(id:${quote(id)},serviceDay:${quote(day)}) {gtfsId tripHeadsign trainCategoryName trainName tripShortName $services route {shortName longName(language:"hu")} stoptimes {serviceDay realtime stop {name lat lon platformCode} realtimeArrival realtimeDeparture arrivalDelay departureDelay scheduledArrival scheduledDeparture}}}"""

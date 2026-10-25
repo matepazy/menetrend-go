@@ -10,6 +10,10 @@ const aliases = new Map();
 const errors = [];
 for (const profile of catalog) {
   if (!profile.description?.trim() || !profile.facts?.length || !profile.sources?.length) errors.push(`${profile.id}: incomplete article`);
+  for (const [agency, target] of Object.entries(profile.agencyProfiles ?? {})) {
+    const variant = catalog.find(p => p.id === target);
+    if (!agency.trim() || !variant?.photos.length) errors.push(`${profile.id}: incomplete agency variant ${agency}`);
+  }
   for (const alias of profile.aliases) {
     const key = normalize(alias);
     if (aliases.has(key)) errors.push(`Ambiguous alias: ${alias}`);
@@ -26,16 +30,25 @@ for (const profile of catalog) {
       if (!photo[field]?.trim()) errors.push(`${profile.id}: missing photo ${field}`);
     }
     if (!photo.source.startsWith('https://commons.wikimedia.org/wiki/File:')) errors.push(`${profile.id}: unreviewed source`);
-    if (!/^(CC BY(?:-SA)? [234]\.0|Public domain|CC0)/.test(photo.license)) errors.push(`${profile.id}: unreviewed license ${photo.license}`);
+    if (!/^(CC BY(?:-SA)? [234]\.0|Public domain|CC0)$/.test(photo.license)) errors.push(`${profile.id}: unreviewed license ${photo.license}`);
+    if (!photo.licenseUrl.startsWith('https://')) errors.push(`${profile.id}: license link must use HTTPS`);
   }
 }
-const reported = fs.readFileSync(path.join(root, 'app/src/test/resources/vehicle-models-2026-10-24.txt'), 'utf8')
-  .replace(/^\uFEFF/, '').trim().split(/\r?\n/);
+const reported = ['vehicle-models-2026-10-24.txt', 'local-bus-models-2026-10-25.txt'].flatMap(file =>
+  fs.readFileSync(path.join(root, 'app/src/test/resources', file), 'utf8')
+    .replace(/^\uFEFF/, '').trim().split(/\r?\n/));
 for (const name of reported) if (!aliases.has(normalize(name))) errors.push(`Uncovered reported model: ${name}`);
 const pending = catalog.filter(p => !p.photos.length);
 console.log(`${catalog.length} profiles, ${reported.length} reported names, ${catalog.reduce((n, p) => n + p.photos.length, 0)} photos.`);
 console.log(`${catalog.filter(p => p.photos.length >= 3).length} profiles have at least three distinct photos.`);
 if (pending.length) console.log(`Photos still required before release (${pending.length}):\n${pending.map(p => `- ${p.title}`).join('\n')}`);
 if (process.argv.includes('--release')) errors.push(...pending.map(p => `${p.id}: release requires a verified, freely licensed fleet photo`));
+if (process.argv.includes('--local-buses')) {
+  const localNames = fs.readFileSync(path.join(root, 'app/src/test/resources/local-bus-models-2026-10-25.txt'), 'utf8').trim().split(/\r?\n/);
+  for (const name of localNames) {
+    const profile = catalog.find(p => p.id === aliases.get(normalize(name)));
+    if (!profile?.photos.length) errors.push(`${name}: local bus requires a freely licensed photo`);
+  }
+}
 if (errors.length) { console.error(errors.join('\n')); process.exitCode = 1; }
 else console.log('Catalog integrity passed.');

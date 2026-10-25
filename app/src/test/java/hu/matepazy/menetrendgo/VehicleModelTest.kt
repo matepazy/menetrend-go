@@ -22,6 +22,28 @@ class VehicleModelTest {
         assertNull(findVehicleModel(profiles, ""))
     }
 
+    @Test fun localBusPhotoPrefersExactAgencyAndKeepsRailGallery() {
+        fun photo(asset: String, vararg agencies: String) = ModelPhoto(asset, "", "", "", "", "", agencies.toList())
+        val general = photo("general.jpg")
+        val budapest = photo("budapest.jpg", "BKK")
+        val fehervar = photo("fehervar.jpg", "MÁV Személyszállítási Zrt. - Székesfehérvár")
+        val p = profile("test", "Test").copy(photos = listOf(general, budapest, fehervar))
+        assertEquals(listOf(fehervar), vehicleModelForContext(p, "BUS", "MÁV Személyszállítási Zrt. - Székesfehérvár").photos)
+        assertEquals(listOf(budapest), vehicleModelForContext(p, "BUS", "BKK").photos)
+        assertEquals(listOf(budapest), vehicleModelForContext(p, "BUS", "Unknown").photos)
+        assertEquals(p.photos, vehicleModelForContext(p, "RAIL", "BKK").photos)
+        assertTrue(vehicleModelForContext(p.copy(photos = emptyList()), "BUS", "BKK").photos.isEmpty())
+    }
+
+    @Test fun explicitOperatorCanResolveAnOtherwiseAmbiguousDriveVariant() {
+        val family = profile("urbino12", "Solaris Urbino 12").copy(agencyProfiles = mapOf("PAKS" to "electric"))
+        val electric = profile("electric")
+        val profiles = listOf(family, electric)
+        assertEquals(electric, findVehicleModel(profiles, "Solaris Urbino 12", "PAKS"))
+        assertEquals(family, findVehicleModel(profiles, "Solaris Urbino 12", "Unknown"))
+        assertNull(findVehicleModel(profiles, "Solaris Urbino 15", "PAKS"))
+    }
+
     @Test fun bundledCatalogHasUnambiguousAliasesAndCompleteOfflineAttribution() {
         val assets = File("src/main/assets/vehicle_models")
         @Suppress("UNCHECKED_CAST")
@@ -45,9 +67,17 @@ class VehicleModelTest {
                 }
                 assertTrue(p.getValue("source").startsWith("https://commons.wikimedia.org/"))
                 assertTrue(p.getValue("licenseUrl").startsWith("https://"))
+                assertTrue("$id must use a free photo license", p.getValue("license")
+                    .matches(Regex("CC BY(?:-SA)? [234]\\.0|Public domain|CC0")))
             }
         }
-        val reported = File("src/test/resources/vehicle-models-2026-10-24.txt").readLines().filter { it.isNotBlank() }
+        val reported = listOf("vehicle-models-2026-10-24.txt", "local-bus-models-2026-10-25.txt")
+            .flatMap { File("src/test/resources/$it").readLines() }.filter { it.isNotBlank() }
         reported.forEach { assertTrue("Live model not covered: $it", normalizedVehicleModel(it) in aliases) }
+        val local = File("src/test/resources/local-bus-models-2026-10-25.txt").readLines().filter { it.isNotBlank() }
+        local.forEach { name ->
+            val row = rows.first { row -> (row["aliases"] as List<*>).any { normalizedVehicleModel(it as String) == normalizedVehicleModel(name) } }
+            assertTrue("Local model needs a freely licensed photo: $name", (row["photos"] as List<*>).isNotEmpty())
+        }
     }
 }

@@ -71,7 +71,7 @@ import kotlinx.coroutines.withContext
         if (vehicle.registration.isNotBlank()) Text(vehicle.registration,
             style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
-    if (open) VehicleModelDrawer(vehicle.model) { open = false }
+    if (open) VehicleModelDrawer(vehicle.model, vehicle.mode, vehicle.agencyName) { open = false }
 }
 
 /**
@@ -85,13 +85,14 @@ import kotlinx.coroutines.withContext
  * the verdict, DESIGN.md, and every shipping raster carrying its provenance.
  */
 @OptIn(ExperimentalMaterial3Api::class)
-@Composable fun VehicleModelDrawer(model: String, dismiss: () -> Unit) {
+@Composable fun VehicleModelDrawer(model: String, mode: String = "", agencyName: String = "", dismiss: () -> Unit) {
     val assets = LocalContext.current.assets
     var attempt by remember { mutableIntStateOf(0) }
     val result by produceState<Result<List<VehicleModelProfile>>?>(null, attempt) {
         value = withContext(Dispatchers.IO) { runCatching { VehicleModelCatalog.load(assets) } }
     }
-    val profile = result?.getOrNull()?.let { findVehicleModel(it, model) }
+    val profile = result?.getOrNull()?.let { findVehicleModel(it, model, agencyName) }
+        ?.let { vehicleModelForContext(it, mode, agencyName) }
     val pager = rememberPagerState(pageCount = { profile?.photos?.size ?: 0 })
     ModalBottomSheet(onDismissRequest = dismiss,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
@@ -139,9 +140,9 @@ import kotlinx.coroutines.withContext
                                 Text("Fotók · lapozz a képek között", style = MaterialTheme.typography.labelMedium)
                                 Text("${pager.currentPage + 1} / ${profile.photos.size}", style = MaterialTheme.typography.labelMedium)
                             }
-                            Text("${profile.title.substringBefore(" · ")} · Illusztráció",
+                            Text(profile.photos[pager.currentPage].caption,
                                 style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            Text("A fotó a típus egy hazai példányát mutatja, nem feltétlenül az érkező járművet.",
+                            Text("A fotó típusillusztráció. Az érkező jármű festése és felszereltsége eltérhet.",
                                 style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     } else item {

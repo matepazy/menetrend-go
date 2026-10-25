@@ -1,0 +1,65 @@
+BYD K9UD
+BYD eBus B12 szóló autóbusz
+BYD eBus B19 csuklós autóbusz
+Credo BN 12
+Credo EC 12
+Credo EN 9,5
+Credo Econell 12
+Credo Econell 12 Next
+Ikarus 120e
+Ikarus 127V típusú szóló autóbusz
+Karsan ATAK típusú midi autóbusz
+MAN 10E
+MAN 12C
+MAN 12E
+MAN 18E
+MAN LIONS CITY LF (A21)
+MAN Lion's City 12 G
+MAN Lion's Classic
+MAN Lions City 12 CNG  autóbusz (Volán)
+MAN Lions City 12 szóló (3 ajtós)
+MAN Lions City 12 szóló autóbusz
+MAN Lions City A21 (ArrivaBus)
+MAN Lions City C18 csuklós autóbusz
+MAN Lion’s City A21
+MAN Lion’s City A21 CNG
+MAN Lion’s City GL A40 CNG
+MB Citaro C2-S1 szóló autóbusz
+MB Citaro C2-S1-G csuklós autóbusz
+MERCEDES Citaro C2 K maximidi (bérelt)
+MERCEDES Citaro O 530 (BKV spec.)
+MERCEDES Conecto 2 szóló autóbusz
+MERCEDES Conecto G 2 csuklós autóbusz
+MERCEDES Conecto G 3 csuklós busz(Volán)
+MERCEDES Conecto csuklós
+MERCEDES Conecto szóló (BKV)
+MERCEDES O530 Citaro G csuklós autóbusz
+MERCEDES O530 Citaro K maximidi autóbusz
+MERCEDES-BENZ 628 CITARO
+MERCEDES-BENZ 628 G CONECTO
+MODULO Medio C68E midi autóbusz
+Mercedes Conecto 2 szóló autóbusz
+Mercedes Conecto 2 szóló busz (bérelt)
+Mercedes Conecto 2G csuklós autóbusz
+Mercedes ConectoG 2 csukl. busz (bérelt)
+Mercedes-Benz Citaro C2G (C2-C4 szerz)
+Mercedes-Benz Citaro G
+Mercedes-Benz Conecto
+Mercedes-Benz Conecto G
+Mercedes-Benz eCitaro
+Modulo M108d szóló autóbusz
+Modulo M108d szóló autóbusz (rend.tart.)
+Modulo M168d csuklós autóbusz
+Setra S315 UL
+Solaris Urbino 12
+Solaris Urbino 8
+VanHool A330 CNG típusú szóló autóbusz
+VanHool NewA330 szóló autóbusz
+Volvo 7700A
+Volvo 7700A típusú csuklós autóbusz
+Volvo 7900 csuklós (Volán, helyi, 4 ajt)
+Volvo 7900 csuklós (Volán, helyk., 3 a )
+Volvo hibrid szóló (BKV, 2 ajt) autóbusz
+Volvo hibrid szóló (BKV, 3 ajt) autóbusz
+Volvo szóló autóbusz
+Volvo-Alfa Localo

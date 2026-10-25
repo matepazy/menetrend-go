@@ -55,5 +55,6 @@ internal fun parseVehiclePosition(v: JSONObject): Vehicle? {
         v.getDouble("lat"), v.getDouble("lon"), route?.text("color").orEmpty(),
         trip.text("trainCategoryName"), route?.text("longName").orEmpty(),
         v.optDouble("heading").takeIf { it.isFinite() && it >= 0 && it <= 360 }?.rem(360.0),
-        v.text("vehicleModel"), v.text("licensePlate"), v.text("uicCode"), routeName, v.text("vehicleId"))
+        v.text("vehicleModel"), v.text("licensePlate"), v.text("uicCode"), routeName, v.text("vehicleId"),
+        route?.optJSONObject("agency")?.text("name").orEmpty())
 }

@@ -117,7 +117,7 @@
         "author": "Original uploader was user:BAlogh Zsolt at hu.wikipedia",
         "source": "https://commons.wikimedia.org/wiki/File:Bzmot_motorvonat.jpg",
         "license": "CC BY-SA 3.0",
-        "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/"
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/"
       },
       {
         "asset": "bz-130034716.jpg",
@@ -246,7 +246,7 @@
         "author": "Pedalito",
         "source": "https://commons.wikimedia.org/wiki/File:M%C3%81V_480_006.jpg",
         "license": "CC0",
-        "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en"
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/deed.en"
       },
       {
         "asset": "traxx-137448203.jpg",
@@ -324,7 +324,7 @@
         "author": "Fazekas Attila",
         "source": "https://commons.wikimedia.org/wiki/File:MAV_V43-1103_02.JPG",
         "license": "CC BY-SA 3.0",
-        "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/"
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/"
       },
       {
         "asset": "szili-144595237.jpg",
@@ -410,7 +410,7 @@
         "author": "The original uploader was B.Zsolt at Hungarian Wikipedia.",
         "source": "https://commons.wikimedia.org/wiki/File:InterPici_B%C3%A9k%C3%A9scsaba_%C3%A1llom%C3%A1son.jpg",
         "license": "CC BY-SA 3.0",
-        "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/"
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/"
       },
       {
         "asset": "interpici-81301829.jpg",
@@ -1009,7 +1009,7 @@
         "author": "Tothh417",
         "source": "https://commons.wikimedia.org/wiki/File:NOC-294_Credo_IC_12_on_line_3484.jpg",
         "license": "CC0",
-        "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en"
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/deed.en"
       },
       {
         "asset": "ic12-72820732.jpg",
@@ -1017,7 +1017,7 @@
         "author": "Tothh417",
         "source": "https://commons.wikimedia.org/wiki/File:NOC-295_Credo_IC_12_in_Eger.jpg",
         "license": "CC0",
-        "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en"
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/deed.en"
       }
     ]
   },
@@ -1427,6 +1427,17 @@
         "source": "https://commons.wikimedia.org/wiki/File:Mercedes-Benz_Conecto_(HPE-338).jpg",
         "license": "CC BY-SA 4.0",
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+      },
+      {
+        "asset": "conecto-local-55070000.jpg",
+        "caption": "Mercedes-Benz Conecto · alacsonypadlós budapesti példány (általános helyi típusfotó)",
+        "author": "Nagy Bene",
+        "source": "https://commons.wikimedia.org/wiki/File:BKV_NWB_Mercedes_Conecto.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "agencies": [
+          "BKK"
+        ]
       }
     ]
   },
@@ -1547,7 +1558,8 @@
     "id": "man12g",
     "title": "MAN Lion’s City 12 G",
     "aliases": [
-      "MAN Lion's City 12 G"
+      "MAN Lion's City 12 G",
+      "MAN Lions City 12 CNG  autóbusz (Volán)"
     ],
     "description": "A Lion’s City újabb, 12 méteres szóló változata, földgázüzemű hajtással.",
     "facts": [
@@ -1590,7 +1602,9 @@
     "id": "mana21",
     "title": "MAN Lion’s City A21",
     "aliases": [
-      "MAN Lion’s City A21"
+      "MAN Lion’s City A21",
+      "MAN LIONS CITY LF (A21)",
+      "MAN Lions City A21 (ArrivaBus)"
     ],
     "description": "A Lion’s City család alacsonypadlós szóló városi autóbusza.",
     "facts": [
@@ -1964,7 +1978,9 @@
     "id": "volvo7900a",
     "title": "Volvo 7900A",
     "aliases": [
-      "Volvo 7900A"
+      "Volvo 7900A",
+      "Volvo 7900 csuklós (Volán, helyi, 4 ajt)",
+      "Volvo 7900 csuklós (Volán, helyk., 3 a )"
     ],
     "description": "A Volvo 7900 család csuklós autóbusza, városi és elővárosi utazásokhoz.",
     "facts": [
@@ -1999,7 +2015,8 @@
     "id": "volvo7700a",
     "title": "Volvo 7700A",
     "aliases": [
-      "Volvo 7700A"
+      "Volvo 7700A",
+      "Volvo 7700A típusú csuklós autóbusz"
     ],
     "description": "Alacsonypadlós, csuklós Volvo autóbusz a 7700 családból.",
     "facts": [
@@ -2042,7 +2059,8 @@
     "id": "volvo7700",
     "title": "Volvo 7700",
     "aliases": [
-      "Volvo 7700"
+      "Volvo 7700",
+      "Volvo szóló autóbusz"
     ],
     "description": "Alacsonypadlós, szóló városi autóbusz a Volvo korábbi modellcsaládjából.",
     "facts": [
@@ -2078,6 +2096,17 @@
         "source": "https://commons.wikimedia.org/wiki/File:Volvo_7700_(NWX-343).jpg",
         "license": "CC BY-SA 4.0",
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+      },
+      {
+        "asset": "volvo7700-local-51210866.jpg",
+        "caption": "Volvo 7700 · BKV, Budapest",
+        "author": "Kemenymate",
+        "source": "https://commons.wikimedia.org/wiki/File:277-es_busz_(MFW-508).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "agencies": [
+          "BKK"
+        ]
       }
     ]
   },
@@ -2613,7 +2642,7 @@
         "author": "Tothh417",
         "source": "https://commons.wikimedia.org/wiki/File:MHX-252_Scania_Higer_A80T_in_Szarvas.jpg",
         "license": "CC0",
-        "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en"
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/deed.en"
       }
     ]
   },
@@ -2753,7 +2782,7 @@
         "author": "The original uploader was Szm orosh at Hungarian Wikipedia.",
         "source": "https://commons.wikimedia.org/wiki/File:Ikarus-E95.jpg",
         "license": "CC BY-SA 3.0",
-        "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/"
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/"
       },
       {
         "asset": "ikarus395-84503626.jpg",
@@ -2886,6 +2915,1121 @@
         "license": "CC BY-SA 4.0",
         "caption": "Nabi 700 SE",
         "source": "https://commons.wikimedia.org/wiki/File:Nabi_700_SE.jpg"
+      }
+    ]
+  },
+  {
+    "id": "bydk9ud",
+    "title": "BYD K9UD",
+    "aliases": [
+      "BYD K9UD"
+    ],
+    "description": "Akkumulátoros, alacsonypadlós szóló városi autóbusz. Magyarország több városának helyi közlekedésében is megjelent.",
+    "facts": [
+      "A miskolci kivitel két kerékagymotorja együtt 250 kW teljesítményű.",
+      "A K9UD miskolci változata 12,2 méter hosszú, és az üléseknél USB-csatlakozókat is kínál."
+    ],
+    "sources": [
+      {
+        "label": "Üzemeltetői típusismertető",
+        "url": "https://mvkzrt.hu/az-mvk-rol/rolunk/jarmuallomany"
+      }
+    ],
+    "photos": [
+      {
+        "asset": "bydk9ud-local-195689013.jpg",
+        "caption": "BYD K9UD · Eger",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:BYD_K9UD_(AA_KZ-163).jpg",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+        "agencies": [
+          "MÁV Személyszállítási Zrt. - Eger"
+        ]
+      },
+      {
+        "asset": "bydk9ud-local-154819731.jpg",
+        "caption": "BYD K9UD · MVK, Miskolc",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:BYD_K9UD_(AA_CO-542).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "agencies": [
+          "MVK Zrt."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bydb12",
+    "title": "BYD eBus B12",
+    "aliases": [
+      "BYD eBus B12 szóló autóbusz"
+    ],
+    "description": "Tisztán elektromos hajtású, alacsonypadlós szóló autóbusz. Budapesten az ArrivaBus üzemelteti a BKK megrendelésére.",
+    "facts": [
+      "Az első budapesti példányok 2025 decemberében álltak forgalomba.",
+      "A B12 mellé csuklós B19-esek is érkeznek ugyanabba az elektromos flottába."
+    ],
+    "sources": [
+      {
+        "label": "Üzemeltetői típusismertető",
+        "url": "https://arrivahungary.hu/hirek/elindultak-az-arriva-csuklos-elektromos-buszai"
+      }
+    ],
+    "photos": [
+      {
+        "asset": "bydb12-local-193082822.jpg",
+        "caption": "BYD B12 · ArrivaBus, Budapest",
+        "author": "PMilán",
+        "source": "https://commons.wikimedia.org/wiki/File:154-es_busz_(AO-IB-811).jpg",
+        "license": "CC0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "agencies": [
+          "BKK"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bydb19",
+    "title": "BYD eBus B19",
+    "aliases": [
+      "BYD eBus B19 csuklós autóbusz"
+    ],
+    "description": "A BYD elektromos városi buszcsaládjának csuklós tagja. Budapesten az ArrivaBus flottájában közlekedik.",
+    "facts": [
+      "2026. április 1-jén indultak el az első budapesti példányok.",
+      "A B19 volt Budapest első menetrend szerinti elektromos csuklós autóbusztípusa."
+    ],
+    "sources": [
+      {
+        "label": "Üzemeltetői típusismertető",
+        "url": "https://arrivahungary.hu/hirek/elindultak-az-arriva-csuklos-elektromos-buszai"
+      }
+    ],
+    "photos": [
+      {
+        "asset": "bydb19-local-193082828.jpg",
+        "caption": "BYD B19 · ArrivaBus, Budapest",
+        "author": "PMilán",
+        "source": "https://commons.wikimedia.org/wiki/File:139-es_busz_(AO-NW-958).jpg",
+        "license": "CC0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "agencies": [
+          "BKK"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "en95",
+    "title": "Credo EN 9,5",
+    "aliases": [
+      "Credo EN 9,5"
+    ],
+    "description": "Kompakt, alacsonypadlós városi midibusz a magyar Credo családból. A nagyobb szóló buszoknál rövidebb karosszériát kapott.",
+    "facts": [
+      "A BKV által 2010-ben tesztelt példány 9,59 méter hosszú volt.",
+      "A budapesti próba a 39-es vonalon zajlott, 2010. augusztus 31. és szeptember 5. között."
+    ],
+    "sources": [
+      {
+        "label": "Üzemeltetői típusismertető",
+        "url": "https://www.bkv.hu/hu/korabbi_jarmutesztek/credo_en_95"
+      }
+    ],
+    "photos": [
+      {
+        "asset": "en95-local-147028654.jpg",
+        "caption": "Credo EN 9,5 · magyarországi példány",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:Credo_EN_9,5_(LVN-609).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+      }
+    ]
+  },
+  {
+    "id": "ikarus120e",
+    "title": "Ikarus 120e",
+    "aliases": [
+      "Ikarus 120e"
+    ],
+    "description": "Tisztán elektromos hajtású, teljes hosszban alacsonypadlós szóló városi autóbusz. Székesfehérvár után több kisebb város helyi közlekedésében is megjelent.",
+    "facts": [
+      "A MÁV-csoport 2025-ös beszerzésének járművei 30 ülő és 55 álló utasnak adnak helyet.",
+      "A székesfehérvári példányok 2022 nyara óta közlekednek."
+    ],
+    "sources": [
+      {
+        "label": "Üzemeltetői típusismertető",
+        "url": "https://www.mavcsoport.hu/mav-csoport/hat-telepulesen-osszesen-husz-elektromos-meghajtasu-buszt-allit-forgalomba-mav-csoport"
+      }
+    ],
+    "photos": [
+      {
+        "asset": "ikarus120e-local-200692538.jpg",
+        "caption": "Ikarus 120e · Hajdúszoboszló",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:Ikarus_120e_(AI_JJ-654).jpg",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+        "agencies": [
+          "MÁV Személyszállítási Zrt. - Hajdúszoboszló"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "ikarusv127",
+    "title": "Ikarus V127",
+    "aliases": [
+      "Ikarus 127V típusú szóló autóbusz"
+    ],
+    "description": "Az Ikarus városi, alacsonypadlós szóló autóbuszcsaládjának 12,7 méteres tagja. Az elővárosi E127-től külön típus.",
+    "facts": [
+      "A későbbi 127V2 változatból a BKV saját műhelyében is szereltek össze buszokat.",
+      "A PKD rövidítés a részben kész állapotban szállított, majd helyben befejezett járművek összeszerelési módját jelöli."
+    ],
+    "sources": [
+      {
+        "label": "Üzemeltetői típusismertető",
+        "url": "https://www.bkv.hu/ftp/mozgasban/2018.01.sz.pdf"
+      }
+    ],
+    "photos": [
+      {
+        "asset": "ikarusv127-local-53500535.jpg",
+        "caption": "Ikarus V127 · Budapest",
+        "author": "Kemenymate",
+        "source": "https://commons.wikimedia.org/wiki/File:102-es_busz_(MXJ-015).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "agencies": [
+          "BKK"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "karsanatak",
+    "title": "Karsan ATAK",
+    "aliases": [
+      "Karsan ATAK típusú midi autóbusz"
+    ],
+    "description": "Alacsonypadlós városi midibusz. Rövid karosszériája a szűkebb utcákon és kisebb forgalmú vonalakon is használható.",
+    "facts": [
+      "A BKV dízel ATAK-jai alig több mint nyolc méter hosszúak.",
+      "A második ajtónál kihajtható rámpa segíti a kerekesszékes felszállást."
+    ],
+    "sources": [
+      {
+        "label": "Üzemeltetői típusismertető",
+        "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/karsan-atak"
+      }
+    ],
+    "photos": [
+      {
+        "asset": "karsanatak-local-191729074.jpg",
+        "caption": "Karsan ATAK · BKV, Budapest",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:Karsan_ATAK_(NCV-285).jpg",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+        "agencies": [
+          "BKK"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "man10e",
+    "title": "MAN Lion’s City 10 E",
+    "aliases": [
+      "MAN 10E"
+    ],
+    "description": "A Lion’s City E család rövid, akkumulátoros városi busza. Veszprémben a V-Busz elektromos flottájának része.",
+    "facts": [
+      "A V-Busz 2026 nyarán bemutatott új midibusza a társaság ötvenedik autóbusza lett.",
+      "A veszprémi flotta nyolcadik elektromos járműveként érkezett."
+    ],
+    "sources": [
+      {
+        "label": "Üzemeltetői típusismertető",
+        "url": "https://vbusz.hu/megerkezett-a-otvenedik-autobusz-a-v-busz-kotelekebe/"
+      }
+    ],
+    "photos": [
+      {
+        "asset": "man10e-local-139457149.jpg",
+        "caption": "MAN Lion’s City 10 E · bemutatóbusz, Brüsszel",
+        "author": "MB-one",
+        "source": "https://commons.wikimedia.org/wiki/File:MAN,_Busworld_Europe_2023,_Brussels_(P1140054).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/deed.en"
+      }
+    ]
+  },
+  {
+    "id": "man12c",
+    "title": "MAN Lion’s City 12 C",
+    "aliases": [
+      "MAN 12C",
+      "MAN Lions City 12 szóló (3 ajtós)",
+      "MAN Lions City 12 szóló autóbusz"
+    ],
+    "description": "Az újabb Lion’s City család dízelüzemű, alacsonypadlós szóló városi autóbusza. Budapesten és Veszprémben is közlekedik.",
+    "facts": [
+      "Az EfficientHybrid rendszer fékezési energiát tárol, és segít csökkenteni a dízelmotor terhelését.",
+      "Az EfficientHybrid kivitelben a megállói várakozás alatt automatikusan leállhat a dízelmotor."
+    ],
+    "sources": [
+      {
+        "label": "MAN · Lion’s City",
+        "url": "https://www.man.eu/hu/hu/autobusz/az-man-lion_s-city/dizelhajtas/man-lion_s-city.html"
+      }
+    ],
+    "photos": [
+      {
+        "asset": "man12c-local-151844221.jpg",
+        "caption": "MAN Lion’s City 12 C · V-Busz, Veszprém",
+        "author": "Globetrotter19",
+        "source": "https://commons.wikimedia.org/wiki/File:Linie_11A,_MAN_Lion%27s_City_(TAF-805),_2024_Veszpr%C3%A9m.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "agencies": [
+          "V-Busz Kft."
+        ]
+      },
+      {
+        "asset": "man12c-local-131496044.jpg",
+        "caption": "MAN Lion’s City 12 C · ArrivaBus, Budapest",
+        "author": "Kemenymate",
+        "source": "https://commons.wikimedia.org/wiki/File:220-as_busz_(AA_HY-823).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "agencies": [
+          "BKK"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "man12e",
+    "title": "MAN Lion’s City 12 E",
+    "aliases": [
+      "MAN 12E"
+    ],
+    "description": "A Lion’s City elektromos, szóló városi változata. A veszprémi V-Busz is üzemelteti.",
+    "facts": [
+      "Az E család a rövid midibusztól a csuklósig több hosszban készül.",
+      "A hajtáshoz szükséges energiát a jármű fedélzeti akkumulátorai tárolják."
+    ],
+    "sources": [
+      {
+        "label": "MAN · elektromos autóbuszok",
+        "url": "https://www.man.eu/hu/hu/autobusz/elektromos-autobusz/attekintes.html"
+      }
+    ],
+    "photos": [
+      {
+        "asset": "man12e-local-164324643.jpg",
+        "caption": "MAN Lion’s City 12 E · általános típusfotó, külföldi példány",
+        "author": "Stiopa",
+        "source": "https://commons.wikimedia.org/wiki/File:Stiopa-MAN_Lion%60s_City_E.jpg",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0"
+      }
+    ]
+  },
+  {
+    "id": "man18e",
+    "title": "MAN Lion’s City 18 E",
+    "aliases": [
+      "MAN 18E"
+    ],
+    "description": "A MAN akkumulátoros városi buszcsaládjának csuklós változata. A szóló 12 E-nél hosszabb, nagyobb utasterű jármű.",
+    "facts": [
+      "Az elektromos Lion’s City család csuklós tagja a 18 méteres méretosztályba tartozik.",
+      "Az elektromos hajtás a fékezés energiájának egy részét is visszanyeri."
+    ],
+    "sources": [
+      {
+        "label": "MAN · elektromos autóbuszok",
+        "url": "https://www.man.eu/hu/hu/autobusz/elektromos-autobusz/attekintes.html"
+      }
+    ],
+    "photos": [
+      {
+        "asset": "man18e-local-175857054.jpg",
+        "caption": "MAN Lion’s City 18 E · V-Busz, Veszprém",
+        "author": "Per656",
+        "source": "https://commons.wikimedia.org/wiki/File:AIDU_-_168_csukl%C3%B3s_%C3%A9s_elektromos_busz_Veszpr%C3%A9m_vas%C3%BAt%C3%A1llom%C3%A1sn%C3%A1l.jpg",
+        "license": "CC0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "agencies": [
+          "V-Busz Kft."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "man18c",
+    "title": "MAN Lion’s City 18 C",
+    "aliases": [
+      "MAN Lions City C18 csuklós autóbusz"
+    ],
+    "description": "Az új Lion’s City generáció dízelüzemű, alacsonypadlós csuklós autóbusza. A budapesti adatfolyamban C18 néven is szerepel.",
+    "facts": [
+      "A csukló lehetővé teszi, hogy a hosszú utastér kanyarokban is kövesse az utat.",
+      "A típust a gyártó EfficientHybrid energiavisszanyerő rendszerrel is kínálja."
+    ],
+    "sources": [
+      {
+        "label": "MAN · Lion’s City",
+        "url": "https://www.man.eu/hu/hu/autobusz/az-man-lion_s-city/dizelhajtas/man-lion_s-city.html"
+      }
+    ],
+    "photos": [
+      {
+        "asset": "man18c-local-131424116.jpg",
+        "caption": "MAN Lion’s City 18 C · ArrivaBus, Budapest",
+        "author": "Kemenymate",
+        "source": "https://commons.wikimedia.org/wiki/File:20E_busz_(AA_MH-621).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "agencies": [
+          "BKK"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "mana21cng",
+    "title": "MAN Lion’s City A21 CNG",
+    "aliases": [
+      "MAN Lion’s City A21 CNG"
+    ],
+    "description": "Sűrített földgázzal működő, alacsonypadlós szóló városi autóbusz. A dízel A21-től eltérő hajtású változat.",
+    "facts": [
+      "A CNG sűrített földgázt jelent.",
+      "A miskolci kivitel 11,98 méter hosszú, motorja 200 kW teljesítményű."
+    ],
+    "sources": [
+      {
+        "label": "Üzemeltetői típusismertető",
+        "url": "https://mvkzrt.hu/az-mvk-rol/rolunk/jarmuallomany"
+      }
+    ],
+    "photos": [
+      {
+        "asset": "mana21cng-local-175112488.jpg",
+        "caption": "MAN Lion’s City A21 CNG · MVK, Miskolc",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:MAN_Lion%27s_City_A21_(NID-020).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "agencies": [
+          "MVK Zrt."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "mana40cng",
+    "title": "MAN Lion’s City GL A40 CNG",
+    "aliases": [
+      "MAN Lion’s City GL A40 CNG"
+    ],
+    "description": "A Lion’s City hosszú, földgázüzemű csuklós városi autóbusza. Nyíregyházán és Miskolcon is ismert típus.",
+    "facts": [
+      "A miskolci A40-esek 18,75 méter hosszúak.",
+      "A GL változat a szóló A21-nél hosszabb, háromtengelyes konstrukció."
+    ],
+    "sources": [
+      {
+        "label": "Üzemeltetői típusismertető",
+        "url": "https://mvkzrt.hu/az-mvk-rol/rolunk/jarmuallomany"
+      }
+    ],
+    "photos": [
+      {
+        "asset": "mana40cng-local-175112500.jpg",
+        "caption": "MAN Lion’s City GL A40 CNG · MVK, Miskolc",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:MAN_Lion%27s_City_A40_(NID-069).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "agencies": [
+          "MVK Zrt."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "citaro",
+    "title": "Mercedes-Benz O530 Citaro",
+    "aliases": [
+      "MERCEDES Citaro O 530 (BKV spec.)",
+      "MERCEDES-BENZ 628 CITARO"
+    ],
+    "description": "Alacsonypadlós szóló városi autóbusz a Citaro családból. Magyarország több városában is közlekednek különböző évjáratú példányai.",
+    "facts": [
+      "A BKV O530-as adatlapján a jármű 11,95 méter hosszú.",
+      "A Citaro név szóló, rövid és csuklós változatokat is takar, ezért a pontos változat jelölése is számít."
+    ],
+    "sources": [
+      {
+        "label": "Üzemeltetői típusismertető",
+        "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/mercedes-benz-o530-citaro"
+      }
+    ],
+    "photos": [
+      {
+        "asset": "citaro-local-119124038.jpg",
+        "caption": "Mercedes-Benz Citaro · Székesfehérvár",
+        "author": "Globetrotter19",
+        "source": "https://commons.wikimedia.org/wiki/File:Busterminal_%27Bahnhof%27,_Mercedes-Benz_Citaro_(NLF-433),_2022_Sz%C3%A9kesfeh%C3%A9rv%C3%A1r.jpg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+        "agencies": [
+          "MÁV Személyszállítási Zrt. - Székesfehérvár"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "citarog",
+    "title": "Mercedes-Benz O530 Citaro G",
+    "aliases": [
+      "Mercedes-Benz Citaro G",
+      "MERCEDES O530 Citaro G csuklós autóbusz"
+    ],
+    "description": "A Citaro család alacsonypadlós csuklós városi autóbusza. A G jelzés a csuklós kivitelre utal.",
+    "facts": [
+      "A csuklós utastérben a két karosszériarész között át lehet sétálni.",
+      "A BKV a szóló és a csuklós O530 Citarót külön típusként tartja nyilván."
+    ],
+    "sources": [
+      {
+        "label": "Üzemeltetői típusismertető",
+        "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/mercedes-benz-o530-citaro-g"
+      }
+    ],
+    "photos": [
+      {
+        "asset": "citarog-local-68331367.jpg",
+        "caption": "Mercedes-Benz Citaro G · BKV, Budapest",
+        "author": "Király213",
+        "source": "https://commons.wikimedia.org/wiki/File:BKV_Mercedes-Benz_0530_Citaro_G.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "agencies": [
+          "BKK"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "citarok",
+    "title": "Mercedes-Benz O530 Citaro K",
+    "aliases": [
+      "MERCEDES O530 Citaro K maximidi autóbusz"
+    ],
+    "description": "A Citaro család rövid, alacsonypadlós városi változata. A szóló és a hagyományos midibusz közötti méretosztályt képviseli.",
+    "facts": [
+      "A K a német kurz, vagyis rövid szó jelölése.",
+      "A rövidebb karosszéria kisebb helyigényű fordulást tesz lehetővé."
+    ],
+    "sources": [
+      {
+        "label": "Üzemeltetői típusismertető",
+        "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/mercedes-benz-citaro-k"
+      }
+    ],
+    "photos": [
+      {
+        "asset": "citarok-local-12448141.jpg",
+        "caption": "Mercedes-Benz Citaro K · Distribus, Franciaország (általános típusfotó)",
+        "author": "Pehaha",
+        "source": "https://commons.wikimedia.org/wiki/File:Citaro_K_Distribus_ligne_7.JPG",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+      }
+    ]
+  },
+  {
+    "id": "citaroc2",
+    "title": "Mercedes-Benz Citaro C2",
+    "aliases": [
+      "MB Citaro C2-S1 szóló autóbusz"
+    ],
+    "description": "A Citaro második generációjának alacsonypadlós szóló városi változata.",
+    "facts": [
+      "A C2 generáció megújult homlokfalat és vezetőteret kapott.",
+      "A BKV C2-es szóló buszaihoz a második utasajtónál rámpa tartozik."
+    ],
+    "sources": [
+      {
+        "label": "Üzemeltetői típusismertető",
+        "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/mercedes-benz-citaro-c2"
+      }
+    ],
+    "photos": [
+      {
+        "asset": "citaroc2-local-67819123.jpg",
+        "caption": "Mercedes-Benz Citaro C2 · Budapest",
+        "author": "Globetrotter19",
+        "source": "https://commons.wikimedia.org/wiki/File:MB_Citaro_C2-S1_a_Pest%C3%BAjhelyi_t%C3%A9r_buszmeg%C3%A1ll%C3%B3ban,_2018_Pest%C3%BAjhely.jpg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+        "agencies": [
+          "BKK"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "citaroc2g",
+    "title": "Mercedes-Benz Citaro C2 G",
+    "aliases": [
+      "MB Citaro C2-S1-G csuklós autóbusz",
+      "Mercedes-Benz Citaro C2G (C2-C4 szerz)"
+    ],
+    "description": "A második generációs Citaro csuklós, alacsonypadlós városi kivitele. A szóló C2-től hosszában és utasterének kialakításában is eltér.",
+    "facts": [
+      "A BKV Citaro G C2 adatlapja 18,125 méteres hosszúságot ad meg.",
+      "A budapesti példányok utas- és vezetőtéri légkondicionálást is kaptak."
+    ],
+    "sources": [
+      {
+        "label": "Üzemeltetői típusismertető",
+        "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/mercedes-benz-citaro-g-c2"
+      }
+    ],
+    "photos": [
+      {
+        "asset": "citaroc2g-local-174571123.jpg",
+        "caption": "Mercedes-Benz Citaro C2 G · Budapest",
+        "author": "Zsombor Vasas",
+        "source": "https://commons.wikimedia.org/wiki/File:V%C3%A1rosi_Vag%C3%A1ny_a_BAH_csom%C3%B3pontn%C3%A1l.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "agencies": [
+          "BKK"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "citaroc2k",
+    "title": "Mercedes-Benz Citaro C2 K",
+    "aliases": [
+      "MERCEDES Citaro C2 K maximidi (bérelt)"
+    ],
+    "description": "A második generációs Citaro rövid, alacsonypadlós maximidi változata. Budapesten bérelt példányok is közlekednek.",
+    "facts": [
+      "A K betű a rövid karosszériaváltozatot jelzi.",
+      "A Citaro K ugyanahhoz a családhoz tartozik, mint a hosszabb szóló és csuklós Citarók."
+    ],
+    "sources": [
+      {
+        "label": "Üzemeltetői típusismertető",
+        "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/mercedes-benz-citaro-k"
+      }
+    ],
+    "photos": [
+      {
+        "asset": "citaroc2k-local-193082786.jpg",
+        "caption": "Mercedes-Benz Citaro C2 K · ArrivaBus, Budapest",
+        "author": "PMilán",
+        "source": "https://commons.wikimedia.org/wiki/File:102-es_busz_(AO-FL-223).jpg",
+        "license": "CC0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "agencies": [
+          "BKK"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "conectolf",
+    "title": "Mercedes-Benz Conecto · alacsonypadlós",
+    "aliases": [
+      "MERCEDES Conecto szóló (BKV)"
+    ],
+    "description": "A Conecto alacsonypadlós szóló városi generációja. A régi, lépcsős O345-től különböző konstrukció.",
+    "facts": [
+      "A BKV ezt a változatot külön tartja nyilván az újabb Conecto 2-től.",
+      "A második ajtónál rámpa segíti a kerekesszékes utasokat."
+    ],
+    "sources": [
+      {
+        "label": "Üzemeltetői típusismertető",
+        "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/mercedes-benz-conecto"
+      }
+    ],
+    "photos": [
+      {
+        "asset": "conectolf-local-55070000.jpg",
+        "caption": "Mercedes-Benz Conecto · BKV, Budapest",
+        "author": "Nagy Bene",
+        "source": "https://commons.wikimedia.org/wiki/File:BKV_NWB_Mercedes_Conecto.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "agencies": [
+          "BKK"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "conectoglf",
+    "title": "Mercedes-Benz Conecto G · alacsonypadlós",
+    "aliases": [
+      "MERCEDES Conecto csuklós",
+      "Mercedes-Benz Conecto G",
+      "MERCEDES-BENZ 628 G CONECTO"
+    ],
+    "description": "Alacsonypadlós csuklós városi autóbusz. Budapesten és több vidéki városban is használják. Az O345G jelzésű régi Conectótól eltérő változat.",
+    "facts": [
+      "A G a csuklós kivitelt jelöli.",
+      "A BKV külön adatlapot vezet erről és az újabb Conecto G 2-ről."
+    ],
+    "sources": [
+      {
+        "label": "Üzemeltetői típusismertető",
+        "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/mercedes-benz-conecto-g"
+      }
+    ],
+    "photos": [
+      {
+        "asset": "conectoglf-local-119124041.jpg",
+        "caption": "Mercedes-Benz Conecto G · Székesfehérvár",
+        "author": "Globetrotter19",
+        "source": "https://commons.wikimedia.org/wiki/File:Busterminal_%27Bahnhof%27,_Mercedes-Benz_Conecto_(RVY-637),_2022_Sz%C3%A9kesfeh%C3%A9rv%C3%A1r.jpg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+        "agencies": [
+          "MÁV Személyszállítási Zrt. - Székesfehérvár"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "conecto2",
+    "title": "Mercedes-Benz Conecto 2",
+    "aliases": [
+      "MERCEDES Conecto 2 szóló autóbusz",
+      "Mercedes Conecto 2 szóló busz (bérelt)"
+    ],
+    "description": "A Conecto újabb, alacsonypadlós szóló városi változata. A budapesti járműadatokban Conecto 2 néven szerepel.",
+    "facts": [
+      "A BKV Conecto 2 adatlapján 12,134 méteres hosszúság szerepel.",
+      "Az új generáció Euro VI-os dízelmotorral is készült."
+    ],
+    "sources": [
+      {
+        "label": "Üzemeltetői típusismertető",
+        "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/mercedes-benz-conecto-2"
+      }
+    ],
+    "photos": [
+      {
+        "asset": "conecto2-local-108256742.jpg",
+        "caption": "Mercedes-Benz Conecto 2 · BKV, Budapest",
+        "author": "Krepper",
+        "source": "https://commons.wikimedia.org/wiki/File:185-%C3%B6s_busz_(SKR-832).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "agencies": [
+          "BKK"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "conecto2g",
+    "title": "Mercedes-Benz Conecto G 2",
+    "aliases": [
+      "MERCEDES Conecto G 2 csuklós autóbusz",
+      "MERCEDES Conecto G 3 csuklós busz(Volán)",
+      "Mercedes Conecto 2G csuklós autóbusz",
+      "Mercedes ConectoG 2 csukl. busz (bérelt)"
+    ],
+    "description": "Az újabb Conecto generáció alacsonypadlós csuklós változata. A budapesti szolgáltatói elnevezésekben több számozással is szerepel.",
+    "facts": [
+      "A BKV adatlapja 18,124 méteres hosszúságot ad meg.",
+      "A második utasajtónál rámpa segíti a kerekesszékes felszállást."
+    ],
+    "sources": [
+      {
+        "label": "Üzemeltetői típusismertető",
+        "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/mercedes-benz-conecto-g-2"
+      }
+    ],
+    "photos": [
+      {
+        "asset": "conecto2g-local-174520275.jpg",
+        "caption": "Mercedes-Benz Conecto G 2 · BKV, Budapest",
+        "author": "LaSza",
+        "source": "https://commons.wikimedia.org/wiki/File:23E_busz,_Budapest_(SKR-731,_20230317).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "agencies": [
+          "BKK"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "moduloc68",
+    "title": "Modulo C68E",
+    "aliases": [
+      "MODULO Medio C68E midi autóbusz"
+    ],
+    "description": "Elektromos hajtású, alacsonypadlós magyar városi midibusz. A BKV típuslapján EP 080 ES néven is szerepel.",
+    "facts": [
+      "A BKV adatlapján 7,982 méteres hossz és 141 kWh akkumulátorkapacitás szerepel.",
+      "A villanymotor névleges teljesítménye az adatlapon 160 kW."
+    ],
+    "sources": [
+      {
+        "label": "Üzemeltetői típusismertető",
+        "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/modulo-ep-080-es-c68e"
+      }
+    ],
+    "photos": [
+      {
+        "asset": "moduloc68-local-49717151.jpg",
+        "caption": "Modulo C68E · BKV, Budapest",
+        "author": "Kemenymate",
+        "source": "https://commons.wikimedia.org/wiki/File:115-%C3%B6s_busz_(NLE-854).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "agencies": [
+          "BKK"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "modulo108",
+    "title": "Modulo M108D",
+    "aliases": [
+      "Modulo M108d szóló autóbusz (rend.tart.)",
+      "Modulo M108d szóló autóbusz"
+    ],
+    "description": "Magyar, alacsonypadlós városi szóló autóbusz. A BKV állományában a normál forgalmú és tartalék példányok eltérő szolgáltatói névvel is megjelennek.",
+    "facts": [
+      "A karosszéria 12,745 méter hosszú.",
+      "A BKV adatlapján Cummins dízelmotor és Allison automata sebességváltó szerepel."
+    ],
+    "sources": [
+      {
+        "label": "Üzemeltetői típusismertető",
+        "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/modulo-m108d"
+      }
+    ],
+    "photos": [
+      {
+        "asset": "modulo108-local-54279881.jpg",
+        "caption": "Modulo M108D · BKV, Budapest",
+        "author": "Tóth Péter",
+        "source": "https://commons.wikimedia.org/wiki/File:195-%C3%B6s_busz_(NTM-420).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "agencies": [
+          "BKK"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "modulo168",
+    "title": "Modulo M168D",
+    "aliases": [
+      "Modulo M168d csuklós autóbusz"
+    ],
+    "description": "A Modulo család alacsonypadlós csuklós városi autóbusza. Hosszú, átjárható utasterét nagy forgalmú városi vonalakhoz tervezték.",
+    "facts": [
+      "A BKV adatlapja két kerekesszék elhelyezési lehetőségét jelzi.",
+      "A BKV-nál bemutatott kivitel DAF–PACCAR motorral és ZF automata sebességváltóval készült."
+    ],
+    "sources": [
+      {
+        "label": "Üzemeltetői típusismertető",
+        "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/modulo-m168d"
+      }
+    ],
+    "photos": [
+      {
+        "asset": "modulo168-local-193082809.jpg",
+        "caption": "Modulo M168D · BKV, Budapest",
+        "author": "PMilán",
+        "source": "https://commons.wikimedia.org/wiki/File:107-es_busz_(SGY-982).jpg",
+        "license": "CC0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "agencies": [
+          "BKK"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "ecitaro",
+    "title": "Mercedes-Benz eCitaro",
+    "aliases": [
+      "Mercedes-Benz eCitaro"
+    ],
+    "description": "A Citaro család akkumulátoros, elektromos hajtású szóló városi autóbusza. Budapest helyi járatain is közlekedik.",
+    "facts": [
+      "A Citaro bevált városi karosszériáját elektromos hajtással társítja.",
+      "A fedélzeti energiamenedzsment a hajtás mellett az utastér hűtését és fűtését is összehangolja."
+    ],
+    "sources": [
+      {
+        "label": "Mercedes-Benz · eCitaro",
+        "url": "https://www.mercedes-benz-bus.com/hu_HU/models/ecitaro.html"
+      }
+    ],
+    "photos": [
+      {
+        "asset": "ecitaro-local-142126972.jpg",
+        "caption": "Mercedes-Benz eCitaro · Budapest",
+        "author": "Globetrotter19",
+        "source": "https://commons.wikimedia.org/wiki/File:Autofreier_Tag,_Mercedes-Benz_eCitaro_(STZ-865),_2023_Belv%C3%A1ros-Lip%C3%B3tv%C3%A1ros.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "agencies": [
+          "BKK"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "urbino12",
+    "title": "Solaris Urbino 12",
+    "aliases": [
+      "Solaris Urbino 12"
+    ],
+    "description": "A Solaris 12 méteres városi autóbuszcsaládja. A szolgáltató rövid típusneve dízel és elektromos járműveknél is megjelenik, ezért önmagában nem azonosítja a hajtást.",
+    "facts": [
+      "Paks hat Urbino 12 electric autóbuszt rendelt a Solaristól.",
+      "A paksi elektromos kivitel mellett Nyíregyházán dízel Urbino 12-esek is közlekednek."
+    ],
+    "sources": [
+      {
+        "label": "Solaris · a paksi elektromos flotta",
+        "url": "https://www.solarisbus.com/en/press/electric-solaris-buses-will-go-to-paks-in-hungary-1215"
+      },
+      {
+        "label": "Nyíregyháza · üzemeltetői beszámoló, 2016",
+        "url": "https://varoshaza.nyiregyhaza.hu/lib/adattar/hatarozatok/2017/170510_h_100.pdf"
+      }
+    ],
+    "photos": [
+      {
+        "asset": "urbino12-local-64637844.jpg",
+        "caption": "Solaris Urbino 12 · Nyíregyháza",
+        "author": "Tothh417",
+        "source": "https://commons.wikimedia.org/wiki/File:Ny%C3%ADregyh%C3%A1za_line_23.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "agencies": [
+          "MÁV Személyszállítási Zrt. - Nyíregyháza"
+        ]
+      }
+    ],
+    "agencyProfiles": {
+      "PAKS": "urbino12electric"
+    }
+  },
+  {
+    "id": "urbino8",
+    "title": "Solaris Urbino 8,9 LE electric",
+    "aliases": [
+      "Solaris Urbino 8"
+    ],
+    "description": "Kompakt, alacsony belépésű elektromos városi autóbusz. A paksi járművek a szolgáltató adatfolyamában röviden Urbino 8 néven jelennek meg.",
+    "facts": [
+      "Paks négy 8,9 méteres elektromos midibuszt rendelt a gyártótól.",
+      "A kisebb buszok ugyanabban a beszerzésben érkeztek, mint a város hat 12 méteres elektromos Solarisa."
+    ],
+    "sources": [
+      {
+        "label": "Solaris · a paksi elektromos flotta",
+        "url": "https://www.solarisbus.com/en/press/electric-solaris-buses-will-go-to-paks-in-hungary-1215"
+      }
+    ],
+    "photos": [
+      {
+        "asset": "urbino8-local-69211467.jpg",
+        "caption": "Solaris Urbino 8,9 LE electric · Sète, Franciaország (általános típusfotó)",
+        "author": "Anthony Levrot",
+        "source": "https://commons.wikimedia.org/wiki/File:Solaris_Urbino_8.9_LE_Electric_(vue_avant_gauche)_-_S%C3%A8te_Agglop%C3%B4le_Mobilit%C3%A9_(S%C3%A8te).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+      }
+    ]
+  },
+  {
+    "id": "vanhoolcng",
+    "title": "Van Hool New A330 CNG",
+    "aliases": [
+      "VanHool A330 CNG típusú szóló autóbusz"
+    ],
+    "description": "Belga gyártású, alacsonypadlós, sűrített földgázzal működő szóló városi autóbusz.",
+    "facts": [
+      "A budapesti kivitel MAN gázmotort használ.",
+      "A CNG-változat tetőn elhelyezett tartályai miatt magasabb a hagyományos dízelváltozatnál."
+    ],
+    "sources": [
+      {
+        "label": "Üzemeltetői típusismertető",
+        "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/van-hool-new-a330-cng"
+      }
+    ],
+    "photos": [
+      {
+        "asset": "vanhoolcng-local-113658397.jpg",
+        "caption": "Van Hool New A330 CNG · BKV, Budapest",
+        "author": "Sir Morosus",
+        "source": "https://commons.wikimedia.org/wiki/File:Van_Hool_A330_CNG_bus_(reg._MPW-616).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "agencies": [
+          "BKK"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "vanhool",
+    "title": "Van Hool New A330",
+    "aliases": [
+      "VanHool NewA330 szóló autóbusz"
+    ],
+    "description": "Alacsonypadlós, dízelüzemű szóló városi autóbusz a belga Van Hool gyártótól. A CNG-jelzésű rokonától eltérő hajtású változat.",
+    "facts": [
+      "A BKV adatlapja 11,995 méteres hosszúságot ad meg.",
+      "A BKV-nál nyilvántartott kivitel DAF motorral és Voith automata sebességváltóval készült."
+    ],
+    "sources": [
+      {
+        "label": "Üzemeltetői típusismertető",
+        "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/van-hool-new-a330"
+      }
+    ],
+    "photos": [
+      {
+        "asset": "vanhool-local-70931297.jpg",
+        "caption": "Van Hool New A330 · BKV, Budapest",
+        "author": "Kemenymate",
+        "source": "https://commons.wikimedia.org/wiki/File:266-os_busz_(MKL-981).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "agencies": [
+          "BKK"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "volvohybrid",
+    "title": "Volvo 7700 / 7900 Hybrid",
+    "aliases": [
+      "Volvo hibrid szóló (BKV, 2 ajt) autóbusz",
+      "Volvo hibrid szóló (BKV, 3 ajt) autóbusz"
+    ],
+    "description": "Dízel-elektromos hajtású szóló Volvo városi buszok. A szolgáltató által használt közös név nem választja külön a 7700H és 7900H változatot.",
+    "facts": [
+      "A BKV külön típuslapot vezet a 7700H-ról és a 7900H-ról.",
+      "A 7900H-nál a második ajtóhoz tartozik a kerekesszékes rámpa."
+    ],
+    "sources": [
+      {
+        "label": "Üzemeltetői típusismertető",
+        "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/volvo-7900h"
+      },
+      {
+        "label": "BKV · Volvo 7700H",
+        "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/volvo-7700h"
+      }
+    ],
+    "photos": [
+      {
+        "asset": "volvohybrid-local-129738650.jpg",
+        "caption": "Volvo 7900 Hybrid · BKV, Budapest",
+        "author": "Nohabfan618.629",
+        "source": "https://commons.wikimedia.org/wiki/File:BKV_Volvo_7905_Hybrid_PHG-650_Budapest,_R%C3%A1kosszentmih%C3%A1ly_vas%C3%BAt%C3%A1llom%C3%A1s.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "agencies": [
+          "BKK"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "localo",
+    "title": "Volvo-Alfa Localo",
+    "aliases": [
+      "Volvo-Alfa Localo"
+    ],
+    "description": "Volvo főegységekre épülő, magyar karosszériás, alacsony belépésű helyi autóbusz. Salgótarján helyi járatain is közlekedik.",
+    "facts": [
+      "A Localo a magyar Alfa Busz városi típusa volt, a Regio a helyközi feladatokra készült testvére.",
+      "A Localo B7RLE változatjelében az LE az alacsony belépésű kialakítást jelöli."
+    ],
+    "sources": [
+      {
+        "label": "Wikimedia Commons · Alfa Localo típuskategória",
+        "url": "https://commons.wikimedia.org/wiki/Category:Alfa_Localo"
+      },
+      {
+        "label": "Alfa Busz · gyártástörténet",
+        "url": "https://iho.hu/hirek/megszunt-buszgyarak-nyomaban-alfa-busz-111113"
+      }
+    ],
+    "photos": [
+      {
+        "asset": "localo-local-94545502.jpg",
+        "caption": "Volvo-Alfa Localo · Salgótarján",
+        "author": "Globetrotter19",
+        "source": "https://commons.wikimedia.org/wiki/File:Bus_terminus,_Alfa_Localo_(LUF-887),_2020_Salg%C3%B3tarj%C3%A1n.jpg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+        "agencies": [
+          "MÁV Személyszállítási Zrt. - Salgótarján"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "urbino12electric",
+    "title": "Solaris Urbino 12 electric",
+    "aliases": [],
+    "description": "A Solaris Urbino 12 akkumulátoros, elektromos változata. Pakson a szolgáltató egyszerűen Urbino 12 néven jelenti, de az ottani flotta elektromos hajtású.",
+    "facts": [
+      "Paks hat 12 méteres elektromos buszt rendelt a Solaristól.",
+      "A paksi beszerzésben a nagyobb buszokhoz négy rövidebb, 8,9 méteres elektromos midi is társult."
+    ],
+    "sources": [
+      {
+        "label": "Solaris · a paksi elektromos flotta",
+        "url": "https://www.solarisbus.com/en/press/electric-solaris-buses-will-go-to-paks-in-hungary-1215"
+      }
+    ],
+    "photos": [
+      {
+        "asset": "urbino12electric-local-81751924.jpg",
+        "caption": "Solaris Urbino 12 electric · Inowrocław, Lengyelország (általános típusfotó)",
+        "author": "Piotras18",
+        "source": "https://commons.wikimedia.org/wiki/File:Solaris_Urbino_12_Electric_Inowroc%C5%82aw.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
       }
     ]
   }

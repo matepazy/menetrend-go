@@ -25,3 +25,5 @@ artifacts/
 .DS_Store
 Thumbs.db
 docs/
+tools/
+scripts/

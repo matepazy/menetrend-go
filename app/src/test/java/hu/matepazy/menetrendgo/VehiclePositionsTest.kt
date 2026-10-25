@@ -19,6 +19,14 @@ class VehiclePositionsTest {
         assertEquals("1234", parseVehiclePosition(position("RAIL", "1234"))!!.name)
     }
 
+    @Test fun operatorNameSurvivesForCitySpecificModelPhotos() {
+        val json = position()
+        json.getJSONObject("trip").getJSONObject("route")
+            .put("agency", JSONObject().put("name", "MÁV Személyszállítási Zrt. - Székesfehérvár"))
+        assertEquals("MÁV Személyszállítási Zrt. - Székesfehérvár", parseVehiclePosition(json)!!.agencyName)
+        assertEquals("", parseVehiclePosition(position())!!.agencyName)
+    }
+
     @Test fun localBusLayerPreservesOtherModesAndExactTripLookup() {
         val vehicles = listOf("BUS", "COACH", "RAIL_REPLACEMENT_BUS", "RAIL", "SUBURBAN_RAILWAY", "TRAMTRAIN")
             .map { mode -> parseVehiclePosition(position(mode))!!.copy(id = mode) }
