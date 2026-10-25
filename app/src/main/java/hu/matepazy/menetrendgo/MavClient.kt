@@ -72,10 +72,10 @@ class MavClient {
             Journey.parse(itinerary).copy(rawGraphQl=rawResponse)
         }.filter {it.legs.isNotEmpty()}.sortedBy {it.start}
     }
-    suspend fun vehicles(forceRefresh: Boolean = false): Pair<List<Vehicle>,Long> = withContext(Dispatchers.IO) {
+    suspend fun vehicles(forceRefresh: Boolean = false, refreshSeconds: Int = 75): Pair<List<Vehicle>,Long> = withContext(Dispatchers.IO) {
         vehicleLock.withLock {
             val now=System.currentTimeMillis()/1000
-            vehicleCache?.takeIf {!forceRefresh && now-it.second<75} ?: run {
+            vehicleCache?.takeIf {!forceRefresh && now-it.second<refreshSeconds.coerceIn(15,90)} ?: run {
                 val data=request("/index/graphql",MavQueries.vehicles)
                 check(data.has("vehiclePositions")) {"A MÁV járműadatai most nem érhetők el."}
                 val items=data.array("vehiclePositions").mapNotNull(::parseVehiclePosition)

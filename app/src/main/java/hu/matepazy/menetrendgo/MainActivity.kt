@@ -221,13 +221,13 @@ val LocalBottomOverlayInset = staticCompositionLocalOf { 0.dp }
     var tripId by rememberSaveable { mutableStateOf("") }
     var tripDay by rememberSaveable { mutableStateOf(LocalDate.now(Budapest).toString()) }
     val owner = LocalLifecycleOwner.current
-    LaunchedEffect(tab, page, tripId, tripDay) {
+    LaunchedEffect(tab, page, tripId, tripDay, vm.mapRefreshSeconds) {
         owner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
             if(tab == 1 || page == "trip" || page == "journey" || page == "routeMap" || page == "vehicleMap") {
                 while(true) {
                     vm.refreshVehicles()
                     if(page == "trip" && tripId.isNotEmpty()) vm.loadTrip(tripId,tripDay)
-                    delay(75_000)
+                    delay(vm.mapRefreshSeconds * 1_000L)
                 }
             }
         }

@@ -13,6 +13,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.OpenInNew
+import androidx.compose.material.icons.outlined.WarningAmber
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -20,12 +21,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.app.NotificationManagerCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import kotlin.math.roundToInt
 
 private enum class SettingsPage(val title: String) {
     Home("Beállítások"), Appearance("Megjelenés"), Notifications("Értesítések"),
@@ -178,6 +183,9 @@ private enum class SettingsPage(val title: String) {
                 }
                 SettingsPage.Developer -> {
                     item {
+                        MapRefreshSetting(vm.mapRefreshSeconds, vm::chooseMapRefreshSeconds)
+                    }
+                    item {
                         SettingsGroup {
                             Row(
                                 Modifier.fillMaxWidth().toggleable(vm.showRawGraphQl, role = Role.Switch, onValueChange = vm::chooseRawGraphQl).padding(AppLayout.PanelPadding),
@@ -225,6 +233,41 @@ private fun themeLabel(value: String) = when (value) {
     "light" -> "Világos"
     "dark" -> "Sötét"
     else -> "Rendszer szerint"
+}
+
+@Composable private fun MapRefreshSetting(seconds: Int, onChange: (Int) -> Unit) {
+    var value by remember(seconds) { mutableFloatStateOf(seconds.toFloat()) }
+    val selectedSeconds = value.roundToInt()
+    SettingsGroup {
+        Column(Modifier.padding(AppLayout.PanelPadding), verticalArrangement = Arrangement.spacedBy(AppLayout.CompactGap)) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                Text("Frissítési gyakoriság", Modifier.weight(1f), style = MaterialTheme.typography.titleMedium)
+                Text("$selectedSeconds s", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
+            }
+            Text("Az élő térkép járműadatainak automatikus frissítése.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Slider(
+                value = value,
+                onValueChange = { value = it },
+                onValueChangeFinished = { onChange(selectedSeconds) },
+                valueRange = 15f..90f,
+                steps = 74,
+                modifier = Modifier.fillMaxWidth().semantics {
+                    contentDescription = "Frissítési gyakoriság"
+                    stateDescription = "$selectedSeconds másodperc"
+                }
+            )
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                Text("15 s", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text("90 s", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            if (selectedSeconds < 45) {
+                Row(horizontalArrangement = Arrangement.spacedBy(AppLayout.CompactGap)) {
+                    Icon(Icons.Outlined.WarningAmber, null, Modifier.size(20.dp), tint = MaterialTheme.colorScheme.error)
+                    Text("A 45 másodpercnél gyakoribb frissítés növelheti az adatforgalmat és az akkumulátor fogyasztását.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.error)
+                }
+            }
+        }
+    }
 }
 
 @Composable private fun SettingsGroup(content: @Composable ColumnScope.() -> Unit) {

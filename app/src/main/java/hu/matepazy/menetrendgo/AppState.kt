@@ -24,6 +24,7 @@ class AppState(app: Application) : AndroidViewModel(app) {
     private val stationSearch=StationSearch(app, mav::stations)
     var theme by mutableStateOf(prefs.getString("theme", "system").orEmpty()); private set
     var showRawGraphQl by mutableStateOf(prefs.getBoolean("show_raw_graphql", false)); private set
+    var mapRefreshSeconds by mutableIntStateOf(prefs.getInt("map_refresh_seconds", 75).coerceIn(15, 90)); private set
     var customMapEnabled by mutableStateOf(prefs.getBoolean("custom_map_enabled", false)); private set
     var mapType by mutableStateOf(MapType.fromId(prefs.getString("map_type", "standard"))); private set
     var vehicleFilters by mutableStateOf(MapVehicleFilter.entries.filter { prefs.getBoolean(it.prefKey, it.defaultEnabled) }.toSet()); private set
@@ -80,6 +81,10 @@ class AppState(app: Application) : AndroidViewModel(app) {
     fun selectStation(station: Station) { viewModelScope.launch { stationSearch.selected(station) } }
     fun chooseTheme(value: String) { theme = value; prefs.edit().putString("theme", value).apply() }
     fun chooseRawGraphQl(enabled: Boolean) { showRawGraphQl=enabled; prefs.edit().putBoolean("show_raw_graphql",enabled).apply() }
+    fun chooseMapRefreshSeconds(seconds: Int) {
+        mapRefreshSeconds = seconds.coerceIn(15, 90)
+        prefs.edit().putInt("map_refresh_seconds", mapRefreshSeconds).apply()
+    }
     fun chooseVehicleFilter(filter: MapVehicleFilter, enabled: Boolean) { vehicleFilters = if (enabled) vehicleFilters + filter else vehicleFilters - filter; prefs.edit().putBoolean(filter.prefKey, enabled).apply() }
     fun chooseLocalBuses(enabled: Boolean) = chooseVehicleFilter(MapVehicleFilter.LocalBus, enabled)
     fun chooseMapType(value: MapType) {
@@ -152,7 +157,7 @@ class AppState(app: Application) : AndroidViewModel(app) {
         if (vehiclesLoading) return
         vehiclesLoading = true
         try {
-            val snapshot=mav.vehicles(forceRefresh)
+            val snapshot=mav.vehicles(forceRefresh, mapRefreshSeconds)
             vehicles=snapshot.first
             vehicleUpdated=snapshot.second
             vehicleError = null
