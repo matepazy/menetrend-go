@@ -5,6 +5,45 @@ import org.junit.Test
 import java.time.LocalDateTime
 
 class MavQueriesTest {
+    private val searchTime = LocalDateTime.of(2026,10,26,11,0)
+    private val budapest = Station("OSM:Budapest","BUDAPEST*",47.4978789,19.0402383,
+        "MetaStation",listOf("RAIL","COACH"))
+    private val fehervar = Station("OSM:Székesfehérvár","SZÉKESFEHÉRVÁR*",47.1910169,18.410811,
+        "MetaStation",listOf("RAIL","COACH"))
+
+    @Test fun cityWideEndpointsUseProviderGroupsInsteadOfCityCenterCoordinates() {
+        listOf(fehervar to budapest, budapest to fehervar).forEach { (from,to) ->
+            listOf(false,true).forEach { arrive ->
+                val query = MavQueries.plan(from,to,searchTime,arrive)
+                assertTrue(query.contains("fromPlace:${MavQueries.quote("${from.name}::${from.id}")}"))
+                assertTrue(query.contains("toPlace:${MavQueries.quote("${to.name}::${to.id}")}"))
+                assertFalse(query.contains("from:{lat:"))
+                assertFalse(query.contains("to:{lat:"))
+                assertTrue(query.contains("arriveBy:$arrive"))
+            }
+        }
+    }
+
+    @Test fun savedCitySelectionsKeepTheirRoutingIdentity() {
+        val restored = Station.parse(budapest.json())
+        assertEquals(MavQueries.plan(budapest,fehervar,searchTime,false),
+            MavQueries.plan(restored,fehervar,searchTime,false))
+    }
+
+    @Test fun specificStationsKeepTheirIdentityAndUnnamedPointsUseCoordinates() {
+        val deli = Station("1:005510025_0","Budapest-Déli",47.500278,19.024444)
+        val point = Station("","My location",47.2,18.4)
+        val query = MavQueries.plan(deli,point,searchTime,false)
+        assertTrue(query.contains("fromPlace:\"Budapest-Déli::1:005510025_0\""))
+        assertTrue(query.contains("to:{lat:47.2,lon:18.4}"))
+    }
+
+    @Test fun endpointNamesAndIdentifiersAreEscaped() {
+        val station = Station("id\"\\\n","name\"\\\n",47.0,19.0)
+        val query = MavQueries.plan(station,budapest,searchTime,false)
+        assertTrue(query.contains("fromPlace:${MavQueries.quote("${station.name}::${station.id}")}"))
+    }
+
     @Test fun literalsEscapeProviderIdentifiers() {
         assertEquals("\"a\\\"b\\\\c\\n\\t\\u0001\"",MavQueries.quote("a\"b\\c\n\t\u0001"))
         val query=MavQueries.trip("a\"} injected", "2026-10-22")

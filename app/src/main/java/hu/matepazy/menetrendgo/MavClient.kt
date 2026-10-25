@@ -58,7 +58,7 @@ class MavClient {
     }
     suspend fun plan(from: Station,to: Station,time: LocalDateTime,arrive: Boolean): List<Journey> = withContext(Dispatchers.IO) {
         var rawResponse: String? = null
-        val data=request("/index/graphql",MavQueries.plan(from.lat,from.lon,to.lat,to.lon,time,arrive)) {rawResponse=it}
+        val data=request("/index/graphql",MavQueries.plan(from,to,time,arrive)) {rawResponse=it}
         data.optJSONObject("plan")?.array("itineraries").orEmpty().map {itinerary->
             itinerary.array("legs").forEach {leg->
                 normalizeRoute(leg.optJSONObject("route"),leg.optJSONObject("trip")?.optString("tripShortName"))
@@ -118,8 +118,21 @@ object MavQueries {
         require(lat.isFinite() && lon.isFinite() && lat in -90.0..90.0 && lon in -180.0..180.0)
         return "{lat:$lat,lon:$lon}"
     }
-    fun plan(fromLat: Double,fromLon: Double,toLat: Double,toLon: Double,time: LocalDateTime,arrive: Boolean): String = """
-        {plan(from:${point(fromLat,fromLon)},to:${point(toLat,toLon)},date:${quote(time.toLocalDate().toString())},time:${quote(time.format(DateTimeFormatter.ofPattern("HH:mm")))},arriveBy:$arrive,numItineraries:12,
+    // Preserve provider identity: a MetaStation (CITY*) denotes all of a city's
+    // stations. Its coordinates are only a display point, not a routing endpoint.
+    // This is the same name::id format used by the MÁVPlusz planner.
+    private fun endpoint(key: String,station: Station): String =
+        if(station.id.isNotBlank()) "${key}Place:${quote("${station.name}::${station.id}")}"
+        else "$key:${point(station.lat,station.lon)}"
+
+    fun plan(from: Station,to: Station,time: LocalDateTime,arrive: Boolean): String =
+        planEndpoints(endpoint("from",from),endpoint("to",to),time,arrive)
+
+    fun plan(fromLat: Double,fromLon: Double,toLat: Double,toLon: Double,time: LocalDateTime,arrive: Boolean): String =
+        planEndpoints("from:${point(fromLat,fromLon)}","to:${point(toLat,toLon)}",time,arrive)
+
+    private fun planEndpoints(from: String,to: String,time: LocalDateTime,arrive: Boolean): String = """
+        {plan($from,$to,date:${quote(time.toLocalDate().toString())},time:${quote(time.format(DateTimeFormatter.ofPattern("HH:mm")))},arriveBy:$arrive,numItineraries:12,
         transportModes:[{mode:RAIL},{mode:COACH},{mode:BUS},{mode:SUBURBAN_RAILWAY},{mode:TRAMTRAIN},{mode:WALK}],minTransferTime:120,maxWalkDistance:2000) {
         itineraries {duration walkTime waitingTime legs {mode startTime endTime duration distance realTime departureDelay arrivalDelay
         from {name lat lon} to {name lat lon} intermediateStops {name lat lon} legGeometry {points}
