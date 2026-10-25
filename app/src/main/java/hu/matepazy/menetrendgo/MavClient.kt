@@ -98,6 +98,8 @@ class MavClient {
         }
     }
     private fun normalizeRoute(route: JSONObject?,fallback: String?) {
+        if(route?.optString("shortName")?.contains("MNR2007")==true)
+            route.put("logoShortName",route.optString("shortName"))
         if(route?.optString("shortName")?.contains('<')==true) route.put("shortName",fallback?.takeIf {it.isNotBlank()} ?: "Vonat")
         route?.put("shortName",hungarianServiceLabel(route.optString("shortName")))
     }
@@ -137,9 +139,9 @@ object MavQueries {
         itineraries {duration walkTime waitingTime legs {mode startTime endTime duration distance realTime departureDelay arrivalDelay
         from {name lat lon} to {name lat lon} intermediateStops {name lat lon} legGeometry {points}
         $services
-        route {shortName longName mode color agency {name}} trip {gtfsId tripShortName tripHeadsign trainCategoryName}}}}}
+        route {shortName longName mode color textColor agency {name}} trip {gtfsId tripShortName tripHeadsign trainCategoryName}}}}}
     """.trimIndent()
-    val vehicles="""{vehiclePositions(swLat:45.5,swLon:16.1,neLat:48.7,neLon:22.8,modes:[RAIL,RAIL_REPLACEMENT_BUS,COACH,BUS,SUBURBAN_RAILWAY,TRAMTRAIN]) {vehicleId lat lon speed heading label vehicleModel licensePlate uicCode trip {gtfsId tripShortName tripHeadsign trainCategoryName route {shortName mode color longName agency {name}}}}}"""
+    val vehicles="""{vehiclePositions(swLat:45.5,swLon:16.1,neLat:48.7,neLon:22.8,modes:[RAIL,RAIL_REPLACEMENT_BUS,COACH,BUS,SUBURBAN_RAILWAY,TRAMTRAIN]) {vehicleId lat lon speed heading label vehicleModel licensePlate uicCode trip {gtfsId tripShortName tripHeadsign trainCategoryName route {shortName mode color textColor longName agency {name}}}}}"""
     fun trip(id: String,day: String): String {
         require(id.length in 1..250);LocalDate.parse(day)
         return """{trip(id:${quote(id)},serviceDay:${quote(day)}) {gtfsId tripHeadsign trainCategoryName trainName tripShortName $services route {shortName longName(language:"hu")} stoptimes {serviceDay realtime stop {name lat lon platformCode} realtimeArrival realtimeDeparture arrivalDelay departureDelay scheduledArrival scheduledDeparture}}}"""

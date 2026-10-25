@@ -29,7 +29,7 @@ data class Recent(val from: Station, val to: Station) {
 data class Vehicle(val id: String, val name: String, val headsign: String, val mode: String, val lat: Double, val lon: Double,
     val routeColor: String = "", val category: String = "", val routeLongName: String = "",
     val heading: Double? = null, val model: String = "", val registration: String = "", val uicCode: String = "",
-    val routeShortName: String = "", val vehicleId: String = "", val agencyName: String = "") {
+    val routeShortName: String = "", val vehicleId: String = "", val agencyName: String = "", val routeLogo: RouteLogo? = null) {
     val modelAndRegistration: String get() {
         val modelName=model.trim()
         val plate=registration.trim()
@@ -41,14 +41,14 @@ data class Vehicle(val id: String, val name: String, val headsign: String, val m
     }
     fun badgeLeg(): Leg {
         val point = Station("", "", lat, lon)
-        return Leg(mode, 0, 0, point, point, name, id, true, 0, emptyList(), "", routeColor, category, headsign, routeLongName)
+        return Leg(mode, 0, 0, point, point, name, id, true, 0, emptyList(), "", routeColor, category, headsign, routeLongName, routeLogo=routeLogo)
     }
 }
 data class Leg(val mode: String, val start: Long, val end: Long, val from: Station, val to: Station,
     val route: String, val tripId: String, val realTime: Boolean, val departureDelay: Int,
     val intermediate: List<Station>, val geometry: String,
     val routeColor: String = "", val category: String = "", val headsign: String = "", val routeLongName: String = "", val agencyName: String = "", val arrivalDelay: Int = 0,
-    val services: List<MavService> = emptyList()) {
+    val services: List<MavService> = emptyList(), val routeLogo: RouteLogo? = null) {
     val walking get() = mode == "WALK"
     val departureTime get() = ServiceTime.fromEstimate(start, departureDelay, realTime && !walking)
     val arrivalTime get() = ServiceTime.fromEstimate(end, arrivalDelay, realTime && !walking)
@@ -61,7 +61,7 @@ data class Leg(val mode: String, val start: Long, val end: Long, val from: Stati
                 route.optString("shortName").ifBlank { trip.optString("tripShortName").ifBlank { o.optString("mode") } },
                 trip.optString("gtfsId"), o.optBoolean("realTime"), o.optInt("departureDelay"),
                 o.array("intermediateStops").map(Station::parse), o.optJSONObject("legGeometry")?.optString("points").orEmpty(),
-                route.optString("color"), trip.optString("trainCategoryName"), trip.optString("tripHeadsign"), route.optString("longName"), route.optJSONObject("agency")?.optString("name").orEmpty(),o.optInt("arrivalDelay"),MavService.parseAll(o))
+                route.optString("color"), trip.optString("trainCategoryName"), trip.optString("tripHeadsign"), route.optString("longName"), route.optJSONObject("agency")?.optString("name").orEmpty(),o.optInt("arrivalDelay"),MavService.parseAll(o),RouteLogo.parse(route))
         }
     }
 }

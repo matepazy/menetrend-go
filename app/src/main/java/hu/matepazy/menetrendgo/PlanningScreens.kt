@@ -331,14 +331,18 @@ private fun serviceIcon(leg: Leg): ImageVector = when(leg.mode) {
 private fun serviceType(leg: Leg): String = hungarianServiceName(leg.category, leg.mode)
 
 @Composable fun RouteBadge(leg: Leg) {
-    val color=serviceColor(leg)
-    val foreground=if(color.luminance()>.179f) Color.Black else Color.White
+    val logo=leg.routeLogo
+    val color=if(logo!=null) Color.Transparent else serviceColor(leg)
+    val foreground=if(logo!=null) MaterialTheme.colorScheme.onSurface else if(color.luminance()>.179f) Color.Black else Color.White
     Surface(shape=CircleShape,color=color,contentColor=foreground,
         modifier=Modifier.semantics(mergeDescendants=true) { contentDescription="${serviceType(leg)} ${if(leg.walking) "" else leg.route}" }) {
         Row(Modifier.padding(start=6.dp,end=12.dp,top=5.dp,bottom=5.dp),verticalAlignment=Alignment.CenterVertically) {
-            Icon(serviceIcon(leg),null,Modifier.padding(5.dp).size(18.dp),tint=foreground)
+            if(logo!=null) {
+                RouteLogoIcon(logo)
+            } else Icon(serviceIcon(leg),null,Modifier.padding(5.dp).size(18.dp),tint=foreground)
             Spacer(Modifier.width(7.dp))
-            Text(if(leg.walking) "Gyalog" else leg.route,style=MaterialTheme.typography.labelLarge,fontWeight=FontWeight.Bold)
+            Text(if(leg.walking) "Gyalog" else leg.route,modifier=Modifier.weight(1f,fill=false),
+                style=MaterialTheme.typography.labelLarge,fontWeight=FontWeight.Bold)
         }
     }
 }
