@@ -1,10 +1,30 @@
 package hu.matepazy.menetrendgo
 
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.Types
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class VersionUpdaterTest {
+    @Test
+    fun parsesReleaseApiFieldsAndKotlinDefaults() {
+        val adapter = Moshi.Builder().addLast(KotlinJsonAdapterFactory()).build()
+            .adapter<List<GitHubRelease>>(Types.newParameterizedType(List::class.java, GitHubRelease::class.java))
+        val releases = adapter.fromJson("""
+            [{"tag_name":"v1.5.4","prerelease":false,"name":null,"body":"Release notes",
+              "assets":[{"name":"menetrendgo-v1.5.4.apk",
+                "browser_download_url":"https://example.com/menetrendgo-v1.5.4.apk"}],
+              "unknown_api_field":true}]
+        """.trimIndent())!!
+        assertEquals(false, releases.single().draft)
+        val result = check(releases, current = "1.5.3") as UpdateState.UpdateAvailable
+        assertEquals("v1.5.4", result.version)
+        assertEquals("Release notes", result.notes)
+        assertEquals("https://example.com/menetrendgo-v1.5.4.apk", result.downloadUrl)
+    }
+
     @Test
     fun selectsLatestVersionRegardlessOfApiOrder() {
         val latest = release("v1.5.4")

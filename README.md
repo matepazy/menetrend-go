@@ -60,6 +60,16 @@ A fejlesztői APK helye: `app/build/outputs/apk/debug/app-debug.apk`. Csatlakozt
 
 A JVM-tesztek többek között az időpontkezelést, a bérletszabályokat, az állomás- és járműkeresést, a járatadatok feldolgozását és a verzió-összehasonlítást ellenőrzik.
 
+A debug APK fejlesztői eszközöket és optimalizálatlan könyvtárakat is tartalmaz.
+Terjesztéshez a release APK-t használd: az R8 eltávolítja a nem használt kódot
+és erőforrásokat, köztük a fel nem használt Material ikonokat. A járműfotók
+továbbra is a csomag részei, offline is elérhetők. Az `app/proguard-rules.pro`
+megőrzi a frissítéskezelő reflektíven olvasott adatmodelljeit és a térkép
+JavaScript-hídjának metódusait. Kiadás előtt a release buildben is ellenőrizd
+a frissítéslistát, a térképes járműkiválasztást és a fotók megjelenítését.
+A hibakereséshez őrizd meg az adott buildhez tartozó
+`app/build/outputs/mapping/release/mapping.txt` fájlt.
+
 ### Saját kiadási APK
 
 1. Hozz létre saját kiadási kulcsot az Android Studio **Generate Signed App Bundle or APK** eszközével vagy a JDK `keytool` parancsával.
