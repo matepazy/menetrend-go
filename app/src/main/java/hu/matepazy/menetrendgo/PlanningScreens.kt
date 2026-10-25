@@ -84,6 +84,7 @@ import java.time.format.DateTimeFormatter
     var picker by remember { mutableStateOf<String?>(null) }
     var datePicker by remember { mutableStateOf(false) }
     var timePicker by remember { mutableStateOf(false) }
+    var searchOptions by rememberSaveable { mutableStateOf(false) }
     var swaps by remember { mutableIntStateOf(0) }
     val swapRotation by animateFloatAsState(swaps*180f,
         tween(AppMotion.Reveal,easing=AppMotion.State),label="Swap stations")
@@ -123,7 +124,19 @@ import java.time.format.DateTimeFormatter
                         Icons.Outlined.Schedule,Modifier.weight(1f)) {closePicker();timePicker=true}
                 }
                 Spacer(Modifier.height(16.dp))
-                MainButton("Járatok keresése",Icons.Outlined.Search,vm.from!=null && vm.to!=null && vm.from!=vm.to,onSearch)
+                Row(Modifier.fillMaxWidth(), horizontalArrangement=Arrangement.spacedBy(12.dp), verticalAlignment=Alignment.CenterVertically) {
+                    FilledTonalIconButton(onClick={closePicker();searchOptions=true},shape=CircleShape,
+                        modifier=Modifier.size(58.dp).semantics {
+                            stateDescription=if(vm.searchFilters.isEmpty()) "Nincs aktív feltétel" else "${vm.searchFilters.size} aktív feltétel"
+                        }) {
+                        BadgedBox(badge={if(vm.searchFilters.isNotEmpty()) Badge {Text(vm.searchFilters.size.toString())}}) {
+                            Icon(Icons.Outlined.Settings,"Keresési feltételek")
+                        }
+                    }
+                    Box(Modifier.weight(1f)) {MainButton("Járatok keresése",Icons.Outlined.Search,vm.from!=null && vm.to!=null && vm.from!=vm.to,onSearch)}
+                }
+                if(vm.searchFilters.isNotEmpty()) Text(vm.searchFilters.sortedBy {it.ordinal}.joinToString(" · ") {it.title},
+                    Modifier.padding(top=12.dp),style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
         item { Column(verticalArrangement=Arrangement.spacedBy(AppLayout.CompactGap)) {
@@ -147,6 +160,7 @@ import java.time.format.DateTimeFormatter
     }
     if(datePicker) JourneyDatePicker(vm) {datePicker=false}
     if(timePicker) JourneyTimePicker(vm) {timePicker=false}
+    if(searchOptions) SearchFilterDrawer(vm) {searchOptions=false}
 }
 
 @Composable private fun JourneyPickerControl(label: String, value: String, icon: ImageVector,
@@ -375,7 +389,7 @@ class ResultsNavigationState(val listState: LazyListState) {
     LaunchedEffect(Unit) {
         while (true) { now=System.currentTimeMillis(); delay(15_000) }
     }
-    val results=vm.journeys.sortedBy {it.boardingLeg.start}
+    val results=vm.filteredJourneys.sortedBy {it.boardingLeg.start}
     val firstUpcoming=results.indexOfFirst {it.boardingLeg.start>=now}.let {if(it<0) results.size else it}
     val outline=MaterialTheme.colorScheme.outline
     // Anchor a service rather than the header, which stays at index zero when pages are prepended.
@@ -407,7 +421,9 @@ class ResultsNavigationState(val listState: LazyListState) {
         }
         if(vm.searchError!=null) item {InfoPanel("Nem sikerült a keresés",vm.searchError!!){rememberEarlierAnchor();vm.retrySearch()}}
         if(vm.searching && vm.journeys.isEmpty()) item {LoadingRows()}
-        if(!vm.searching && vm.searchError==null && results.isEmpty()) item {InfoPanel("Nincs megjeleníthető indulás","Módosítsd az időpontot vagy a megállókat.")}
+        if(!vm.searching && vm.searchError==null && results.isEmpty()) item {InfoPanel("Nincs megjeleníthető indulás",
+            if(vm.activeSearchFilters.isEmpty()) "Módosítsd az időpontot vagy a megállókat."
+            else "A betöltött járatok között nincs minden feltételnek megfelelő találat. Tölts be további indulásokat, vagy lépj vissza a keresési feltételek módosításához.")}
         results.forEachIndexed { index, journey ->
             if(vm.earlierRequested && index==firstUpcoming) item(key="now") { NowDivider() }
             item(key=journey.key) {
@@ -440,7 +456,8 @@ class ResultsNavigationState(val listState: LazyListState) {
         if(vm.earlierRequested && results.isNotEmpty() && firstUpcoming==results.size) item(key="now") { NowDivider() }
         if(vm.searching && !vm.loadingEarlier && vm.journeys.isNotEmpty()) item {LinearProgressIndicator(Modifier.fillMaxWidth())}
         if(vm.canLoadMore && !vm.searching) item {OutlinedButton(onClick={vm.search(true)},shape=CircleShape,modifier=Modifier.fillMaxWidth().heightIn(min=52.dp)){Text("További indulások")}}
-        item {Text("A találatokat a MÁV útvonaltervezője adja. Az újabb keresés további időpontokat tölt be.",style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)}
+        item {Text(listOf("A találatokat a MÁV útvonaltervezője adja. Az újabb keresés további időpontokat tölt be.",
+            vm.activeSearchFilters.sortedBy {it.ordinal}.joinToString(" · ") {it.title}).filter {it.isNotBlank()}.joinToString("\n"),style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)}
     }
 }
 

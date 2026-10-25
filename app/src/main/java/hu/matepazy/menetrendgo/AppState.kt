@@ -37,6 +37,17 @@ class AppState(app: Application) : AndroidViewModel(app) {
     var dateTime by mutableStateOf(LocalDateTime.now(Budapest).withSecond(0).withNano(0))
     var useNow by mutableStateOf(true)
     var arriveBy by mutableStateOf(false)
+    var searchFilters by mutableStateOf(SearchFilter.entries.filter { prefs.getBoolean("search_filter_${it.name}", false) }.toSet()); private set
+    var activeSearchFilters by mutableStateOf<Set<SearchFilter>>(emptySet()); private set
+    val filteredJourneys get() = filterJourneys(journeys, activeSearchFilters)
+    fun chooseSearchFilter(filter: SearchFilter, enabled: Boolean) {
+        searchFilters = if (enabled) searchFilters + filter else searchFilters - filter
+        prefs.edit().putBoolean("search_filter_${filter.name}", enabled).apply()
+    }
+    fun clearSearchFilters() {
+        searchFilters = emptySet()
+        prefs.edit().also { editor -> SearchFilter.entries.forEach { editor.remove("search_filter_${it.name}") } }.apply()
+    }
     var journeys by mutableStateOf<List<Journey>>(emptyList()); private set
     var searching by mutableStateOf(false); private set
     var searchError by mutableStateOf<String?>(null); private set
@@ -113,7 +124,7 @@ class AppState(app: Application) : AndroidViewModel(app) {
                 prefs.edit().putString("recents", JSONArray(recents.map { r -> r.json() }).toString()).apply()
             }
         } ?: return
-        if (!more) searchGeneration++
+        if (!more) { searchGeneration++; activeSearchFilters = searchFilters.toSet() }
         searchJob?.cancel()
         searchJob = viewModelScope.launch {
             searching = true; loadingEarlier = earlier; searchError = null
