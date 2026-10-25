@@ -97,7 +97,7 @@ import kotlinx.coroutines.withContext
     ModalBottomSheet(onDismissRequest = dismiss,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
         shape = MaterialTheme.shapes.extraLarge) {
-        Column(Modifier.fillMaxWidth().fillMaxHeight(.92f)) {
+        Column(Modifier.fillMaxWidth().fillMaxHeight(.78f)) {
             Row(Modifier.fillMaxWidth().padding(start = AppLayout.ItemGap, end = AppLayout.CompactGap,
                 bottom = AppLayout.RelatedGap), verticalAlignment = Alignment.Top) {
                 FlowRow(Modifier.weight(1f).padding(top = AppLayout.CompactGap),
