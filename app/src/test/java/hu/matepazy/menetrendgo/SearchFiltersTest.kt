@@ -47,4 +47,28 @@ class SearchFiltersTest {
         val results = listOf(journey(leg()), journey(leg(), leg()))
         assertEquals(results, filterJourneys(results, emptySet()))
     }
+
+    @Test fun additionalFacilitiesRequirePositiveEvidenceOnEveryTransitLeg() {
+        val examples = mapOf(
+            SearchFilter.SecondClass to listOf("A vonat 2. osztályú kocsikkal közlekedik", "Másodosztályú kocsi"),
+            SearchFilter.Wifi to listOf("Wi-Fi szolgáltatás", "WIFI", "Vezeték nélküli internet"),
+            SearchFilter.Power to listOf("230 V csatlakozóaljzat", "USB töltő", "Konnektor"),
+            SearchFilter.Dining to listOf("Bisztrószolgáltatás", "Étkezőkocsi", "Büfékocsi"),
+            SearchFilter.Sleeper to listOf("Hálókocsi", "Fekvőhelyes kocsi", "Kusett")
+        )
+        examples.forEach { (filter, descriptions) ->
+            descriptions.forEach { description ->
+                assertTrue("$filter: $description", filter.matches(journey(leg(description))))
+                assertFalse("Missing second-leg evidence: $filter", filter.matches(journey(leg(description), leg())))
+                assertFalse("Negated evidence: $filter", filter.matches(journey(leg("Nincs $description"))))
+                assertFalse("Conflicting evidence: $filter", filter.matches(journey(leg(description, "Nincs $description"))))
+                assertFalse("Partial section: $filter", filter.matches(journey(leg().copy(
+                    services = listOf(service(description).copy(from = "Kistelek", till = b.name))))))
+            }
+        }
+        assertFalse(SearchFilter.SecondClass.matches(journey(leg("1. osztályú kocsi"))))
+        assertFalse(SearchFilter.Sleeper.matches(journey(leg("Alvószékes kocsi"))))
+        val allFacilities = leg(*examples.values.map { it.first() }.toTypedArray())
+        assertEquals(1, filterJourneys(listOf(journey(allFacilities), journey(leg())), examples.keys).size)
+    }
 }

@@ -6,9 +6,14 @@ enum class SearchFilter(val title: String, val summary: String, val pattern: Reg
     Direct("Közvetlen járatok", "Átszállás nélküli utazások."),
     AirConditioning("Légkondicionálás", "Légkondicionált jármű minden szakaszon.", Regex("légkondicion|klimatiz|klím")),
     FirstClass("1. osztály", "Első osztályú kocsi minden szakaszon.", Regex("1\\.\\s*(?:kocsi)?osztály|első osztály")),
+    SecondClass("2. osztály", "Másodosztályú kocsi minden szakaszon.", Regex("2\\.\\s*(?:kocsi)?osztály|másod(?:ik)?osztály|második osztály")),
     CountryPass("Országbérlettel", "A szolgáltató által jelzett elfogadás. Helyjegy szükséges lehet.", Regex("ország.?bérlet")),
     Bicycle("Kerékpárszállítás", "Kerékpár szállítható minden szakaszon. Foglalás szükséges lehet.", Regex("kerékpár|bicikli")),
-    Accessible("Akadálymentes utazás", "Kerekesszékes utazásra jelzett járművek. Előzetes bejelentés szükséges lehet.", Regex("kerekesszék|mozgáskorlátozott|akadályment|alacsonypadló"));
+    Accessible("Akadálymentes utazás", "Kerekesszékes utazásra jelzett járművek. Előzetes bejelentés szükséges lehet.", Regex("kerekesszék|mozgáskorlátozott|akadályment|alacsonypadló")),
+    Wifi("Wi-Fi", "Jelzett fedélzeti internet minden szakaszon.", Regex("wi[\\s‐‑–-]?fi|wlan|internet")),
+    Power("Konnektor / USB", "Jelzett töltési lehetőség minden szakaszon.", Regex("konnektor|csatlakozóaljzat|dugalj|töltő|usb|230\\s*v")),
+    Dining("Étkezés / bisztró", "Jelzett étkezési szolgáltatás minden szakaszon.", Regex("büfé|bisztró|étkezőkocsi|étterem|étkezési|vendéglát")),
+    Sleeper("Háló- / fekvőhely", "Háló- vagy fekvőhelyes kocsi minden szakaszon.", Regex("hálókocsi|fekvőhely|hálóhely|kusett"));
 
     fun matches(journey: Journey): Boolean {
         val transit = journey.legs.filterNot { it.walking }
