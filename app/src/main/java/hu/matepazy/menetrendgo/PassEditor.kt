@@ -36,7 +36,7 @@ internal fun passDate(date: LocalDate): String = date.format(PassDateFormat)
     val expires=LocalDate.ofEpochDay(endDay)
     val valid=!expires.isBefore(starts) && (type!="local" || city.isNotBlank())
 
-    ModalBottomSheet(onDismissRequest=onDismiss,sheetState=rememberModalBottomSheetState(skipPartiallyExpanded=true),shape=MaterialTheme.shapes.extraLarge) {
+    AppBottomSheet(onDismissRequest=onDismiss,sheetState=rememberModalBottomSheetState(skipPartiallyExpanded=true),shape=MaterialTheme.shapes.extraLarge) {
         Column(Modifier.fillMaxWidth().imePadding().verticalScroll(rememberScrollState()).padding(start=AppLayout.SheetPadding,end=AppLayout.SheetPadding,bottom=AppLayout.SheetPadding),verticalArrangement=Arrangement.spacedBy(AppLayout.SectionGap)) {
             Row(verticalAlignment=Alignment.CenterVertically) {
                 Text(if(pass==null) "Új bérlet" else "Bérlet szerkesztése",Modifier.weight(1f),style=MaterialTheme.typography.headlineSmall,fontWeight=FontWeight.Bold)

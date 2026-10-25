@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable fun SearchFilterDrawer(vm: AppState, dismiss: () -> Unit) {
-    ModalBottomSheet(onDismissRequest = dismiss,
+    AppBottomSheet(onDismissRequest = dismiss,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
         shape = MaterialTheme.shapes.extraLarge) {
         Column(Modifier.fillMaxWidth().navigationBarsPadding()) {

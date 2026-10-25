@@ -94,7 +94,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
     LaunchedEffect(updates.state) {
         if (updates.state is UpdateState.Completed && ApkInstaller.canInstallPackages(context)) updates.install()
     }
-    ModalBottomSheet(onDismissRequest = updates::later, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true, confirmValueChange = { it != SheetValue.Hidden || !updates.busy }), sheetGesturesEnabled = !updates.busy, containerColor = MaterialTheme.colorScheme.surface) {
+    AppBottomSheet(onDismissRequest = updates::later, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true, confirmValueChange = { it != SheetValue.Hidden || !updates.busy }), sheetGesturesEnabled = !updates.busy, containerColor = MaterialTheme.colorScheme.surface) {
         Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(horizontal = AppLayout.PanelPadding).padding(bottom = 24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
             PageTitle(if (update.isVersionSwitch) "Verzióváltás" else "Új verzió érhető el")
             Text(update.version, style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)

@@ -65,7 +65,7 @@ fun upcomingVehicleStops(stops: List<VehicleStop>, now: Long): List<VehicleStop>
     val detail=vm.detail?.takeIf {it.optString("gtfsId")==vehicle.id}
     val stops=remember(detail,day) {detail?.let {vehicleStops(it,day)}.orEmpty()}
     val upcoming=upcomingVehicleStops(stops,now)
-    ModalBottomSheet(onDismissRequest=dismiss,sheetState=rememberModalBottomSheetState(skipPartiallyExpanded=true),shape=MaterialTheme.shapes.extraLarge) {
+    AppBottomSheet(onDismissRequest=dismiss,sheetState=rememberModalBottomSheetState(skipPartiallyExpanded=true),shape=MaterialTheme.shapes.extraLarge) {
         Column(Modifier.fillMaxWidth().fillMaxHeight(.78f).padding(horizontal=AppLayout.SheetPadding)) {
             Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically) {
                 Box(Modifier.weight(1f)) {RouteBadge(vehicle.badgeLeg())}

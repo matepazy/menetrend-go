@@ -94,10 +94,10 @@ import kotlinx.coroutines.withContext
     val profile = result?.getOrNull()?.let { findVehicleModel(it, model, agencyName) }
         ?.let { vehicleModelForContext(it, mode, agencyName) }
     val pager = rememberPagerState(pageCount = { profile?.photos?.size ?: 0 })
-    ModalBottomSheet(onDismissRequest = dismiss,
+    AppBottomSheet(onDismissRequest = dismiss,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
         shape = MaterialTheme.shapes.extraLarge) {
-        Column(Modifier.fillMaxWidth().fillMaxHeight(.78f)) {
+        Column(Modifier.fillMaxWidth().fillMaxHeight()) {
             Row(Modifier.fillMaxWidth().padding(start = AppLayout.ItemGap, end = AppLayout.CompactGap,
                 bottom = AppLayout.RelatedGap), verticalAlignment = Alignment.Top) {
                 FlowRow(Modifier.weight(1f).padding(top = AppLayout.CompactGap),

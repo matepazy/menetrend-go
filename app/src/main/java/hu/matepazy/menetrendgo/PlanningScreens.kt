@@ -283,7 +283,7 @@ import java.time.format.DateTimeFormatter
 @Composable private fun JourneyDatePicker(vm: AppState, dismiss: () -> Unit) {
     val initial=remember {if(vm.useNow) LocalDateTime.now(Budapest).withSecond(0).withNano(0) else vm.dateTime}
     val dateState = rememberDatePickerState(initialSelectedDateMillis=initial.toLocalDate().atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli())
-    ModalBottomSheet(onDismissRequest=dismiss,sheetState=rememberModalBottomSheetState(skipPartiallyExpanded=true),
+    AppBottomSheet(onDismissRequest=dismiss,sheetState=rememberModalBottomSheetState(skipPartiallyExpanded=true),
         shape=RoundedCornerShape(topStart=36.dp,topEnd=36.dp)) {
         Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(bottom=24.dp)) {
             DatePicker(dateState,showModeToggle=false,
@@ -309,7 +309,7 @@ import java.time.format.DateTimeFormatter
     val initial=remember {if(vm.useNow) LocalDateTime.now(Budapest).withSecond(0).withNano(0) else vm.dateTime}
     val timeState = rememberTimePickerState(initial.hour,initial.minute,is24Hour=true)
     var arrive by remember {mutableStateOf(vm.arriveBy)}
-    ModalBottomSheet(onDismissRequest=dismiss,sheetState=rememberModalBottomSheetState(skipPartiallyExpanded=true),
+    AppBottomSheet(onDismissRequest=dismiss,sheetState=rememberModalBottomSheetState(skipPartiallyExpanded=true),
         shape=RoundedCornerShape(topStart=36.dp,topEnd=36.dp)) {
         Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).imePadding().padding(horizontal=24.dp).padding(bottom=24.dp),
             verticalArrangement=Arrangement.spacedBy(AppLayout.ItemGap)) {
@@ -627,7 +627,7 @@ private data class TimelineTrack(val color: Color, val walking: Boolean=false)
             runCatching {JSONObject(response).toString(2)}.getOrDefault(response).lines()
         }}
     }
-    ModalBottomSheet(onDismissRequest=dismiss,sheetState=rememberModalBottomSheetState(skipPartiallyExpanded=true)) {
+    AppBottomSheet(onDismissRequest=dismiss,sheetState=rememberModalBottomSheetState(skipPartiallyExpanded=true)) {
         Column(Modifier.fillMaxWidth().fillMaxHeight(.94f).padding(horizontal=20.dp),verticalArrangement=Arrangement.spacedBy(12.dp)) {
             Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically) {
                 Text("Nyers adatok",Modifier.weight(1f),style=MaterialTheme.typography.titleLarge,fontWeight=FontWeight.Bold)

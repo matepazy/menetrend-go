@@ -135,7 +135,7 @@ internal fun departureAmenities(services: List<MavService>): List<MavService> = 
         }
     }
     selected?.let {entries ->
-        ModalBottomSheet(onDismissRequest={selected=null},
+        AppBottomSheet(onDismissRequest={selected=null},
             sheetState=rememberModalBottomSheetState(skipPartiallyExpanded=true)) {
             Column(Modifier.fillMaxWidth().heightIn(max=600.dp)
                 .verticalScroll(androidx.compose.foundation.rememberScrollState())

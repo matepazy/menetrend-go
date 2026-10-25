@@ -33,7 +33,7 @@ import androidx.compose.ui.unit.dp
         attempted = true
         if (valid) { vm.applyCustomMapUrl(draft); dismiss() }
     }
-    ModalBottomSheet(onDismissRequest = dismiss,
+    AppBottomSheet(onDismissRequest = dismiss,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
         shape = MaterialTheme.shapes.extraLarge) {
         Column(Modifier.fillMaxWidth().navigationBarsPadding().verticalScroll(rememberScrollState())
@@ -87,7 +87,7 @@ import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable fun MapFilterDrawer(vm: AppState, dismiss: () -> Unit) {
-    ModalBottomSheet(onDismissRequest = dismiss,
+    AppBottomSheet(onDismissRequest = dismiss,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
         shape = MaterialTheme.shapes.extraLarge) {
         Column(Modifier.fillMaxWidth().navigationBarsPadding().verticalScroll(rememberScrollState())
