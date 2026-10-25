@@ -1,5 +1,6 @@
 package hu.matepazy.menetrendgo
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
@@ -16,6 +17,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -102,14 +104,16 @@ import androidx.compose.ui.unit.dp
                         Row(Modifier.fillMaxWidth().toggleable(checked, role = Role.Switch,
                             onValueChange = { vm.chooseVehicleFilter(filter, it) }).heightIn(min = 72.dp).padding(16.dp),
                             verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                            Icon(when (filter) {
-                                MapVehicleFilter.Rail -> Icons.Outlined.Train
-                                MapVehicleFilter.Coach -> Icons.Outlined.DirectionsBus
-                                MapVehicleFilter.LocalBus -> Icons.Outlined.DirectionsBus
-                                MapVehicleFilter.SuburbanRailway -> Icons.Outlined.DirectionsTransit
-                                MapVehicleFilter.TramTrain -> Icons.Outlined.Tram
-                                MapVehicleFilter.ReplacementBus -> Icons.Outlined.DirectionsBus
-                            }, null, tint = if (checked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant)
+                            // Keep the mode identity visible in both switch states. The native
+                            // switch, rather than a change of category color, communicates selection.
+                            Image(painterResource(when (filter) {
+                                MapVehicleFilter.Rail -> R.drawable.ic_mode_rail
+                                MapVehicleFilter.Coach -> R.drawable.ic_mode_coach
+                                MapVehicleFilter.LocalBus -> R.drawable.ic_mode_local_bus
+                                MapVehicleFilter.SuburbanRailway -> R.drawable.ic_mode_hev
+                                MapVehicleFilter.TramTrain -> R.drawable.ic_mode_tramtrain
+                                MapVehicleFilter.ReplacementBus -> R.drawable.ic_mode_replacement_bus
+                            }), contentDescription = null, modifier = Modifier.size(40.dp))
                             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                                 Text(filter.title, style = MaterialTheme.typography.titleMedium)
                                 Text(filter.summary, style = MaterialTheme.typography.bodyMedium,

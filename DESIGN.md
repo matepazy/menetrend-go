@@ -144,6 +144,7 @@ The primary blue draws attention to actions and selected states; cool neutrals c
 ### Secondary
 
 - **Service colors**: rail categories use the shared MÁV category palette; other modes use provider route colors, with green for HÉV when its provider color is generic white.
+- **Vehicle filter identities**: the filter sheet uses 40dp original MÁVPlusz mode pictograms, converted to bundled Android vector drawables from the saved `main.56c42ecd9e04ed9c.js` source. Rail is navy (`#003A7E`), coaches yellow (`#FDC300`), local buses blue (`#009EE3`), HÉV green (`#005E3B`), TramTrain orange (`#F29101`), and replacement buses magenta (`#C4146E`) with the original yellow/white combined rail-and-bus symbol. These are the mode selector pictograms, distinct from map marker/category colors. Preserve their artwork in both themes and switch states; labels and native switches communicate category and selection independently of color. Filter behavior and provider route colors remain unchanged.
 - **Map Cluster Blue** (`map-cluster`): count clusters at wider geographic scales. These are map-specific roles, not additional application action colors.
 
 ### Neutral
