@@ -5,6 +5,24 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class VehiclePositionsTest {
+    @Test fun providerTimestampSurvivesParsingWithoutInventingMissingTimes() {
+        assertEquals(1_792_924_339L, parseVehiclePosition(position().put("lastUpdated",1_792_924_339L))!!.positionUpdatedSeconds)
+        assertNull(parseVehiclePosition(position())!!.positionUpdatedSeconds)
+        assertNull(parseVehiclePosition(position().put("lastUpdated",JSONObject.NULL))!!.positionUpdatedSeconds)
+        assertNull(parseVehiclePosition(position().put("lastUpdated",0))!!.positionUpdatedSeconds)
+    }
+
+    @Test fun positionAgeUsesHungarianUnitsAndKeepsAgingWhenRefreshFails() {
+        val reported=1_792_924_339L
+        assertEquals("Pozíció frissítve: most",vehiclePositionAge(reported,reported+59))
+        assertEquals("Pozíció frissítve: 1 perccel ezelőtt",vehiclePositionAge(reported,reported+60))
+        assertEquals("Pozíció frissítve: 59 perccel ezelőtt",vehiclePositionAge(reported,reported+3599))
+        assertEquals("Pozíció frissítve: 1 órával ezelőtt",vehiclePositionAge(reported,reported+3600))
+        assertEquals("Pozíció frissítve: 2 nappal ezelőtt",vehiclePositionAge(reported,reported+172800))
+        assertEquals("Pozíció frissítve: most",vehiclePositionAge(reported,reported-10))
+        assertEquals("A pozíció frissítési ideje ismeretlen",vehiclePositionAge(null,reported))
+    }
+
     private fun position(mode: String = "BUS", tripName: Any = JSONObject.NULL) = JSONObject()
         .put("lat", 47.5).put("lon", 19.1).put("label", "internal-label")
         .put("trip", JSONObject().put("gtfsId", "BKK:trip").put("tripShortName", tripName)

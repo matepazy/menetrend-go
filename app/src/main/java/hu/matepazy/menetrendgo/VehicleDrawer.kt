@@ -8,6 +8,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Commute
 import androidx.compose.material.icons.outlined.Badge
+import androidx.compose.material.icons.outlined.Update
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -72,6 +73,13 @@ fun upcomingVehicleStops(stops: List<VehicleStop>, now: Long): List<VehicleStop>
             }
             if(vehicle.routeLogo==null) Text(hungarianServiceName(vehicle.category,vehicle.mode),style=MaterialTheme.typography.bodyMedium,
                 color=MaterialTheme.colorScheme.onSurfaceVariant,modifier=Modifier.padding(top=AppLayout.CompactGap))
+            Row(Modifier.padding(top=AppLayout.CompactGap),verticalAlignment=Alignment.CenterVertically,
+                horizontalArrangement=Arrangement.spacedBy(AppLayout.CompactGap)) {
+                Icon(Icons.Outlined.Update,contentDescription=null,modifier=Modifier.size(16.dp),
+                    tint=MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(vehiclePositionAge(vehicle.positionUpdatedSeconds,now/1000),
+                    style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
+            }
             if(vehicle.model.isNotBlank() || vehicle.registration.isNotBlank() || vehicle.uicCode.isNotBlank()) {
                 Column(Modifier.padding(top=AppLayout.RelatedGap),verticalArrangement=Arrangement.spacedBy(AppLayout.CompactGap)) {
                     if(vehicle.modelAndRegistration.isNotBlank()) Row(verticalAlignment=Alignment.CenterVertically,

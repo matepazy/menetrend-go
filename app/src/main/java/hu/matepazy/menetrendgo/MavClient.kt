@@ -72,10 +72,10 @@ class MavClient {
             Journey.parse(itinerary).copy(rawGraphQl=rawResponse)
         }.filter {it.legs.isNotEmpty()}.sortedBy {it.start}
     }
-    suspend fun vehicles(): Pair<List<Vehicle>,Long> = withContext(Dispatchers.IO) {
+    suspend fun vehicles(forceRefresh: Boolean = false): Pair<List<Vehicle>,Long> = withContext(Dispatchers.IO) {
         vehicleLock.withLock {
             val now=System.currentTimeMillis()/1000
-            vehicleCache?.takeIf {now-it.second<75} ?: run {
+            vehicleCache?.takeIf {!forceRefresh && now-it.second<75} ?: run {
                 val data=request("/index/graphql",MavQueries.vehicles)
                 check(data.has("vehiclePositions")) {"A MÁV járműadatai most nem érhetők el."}
                 val items=data.array("vehiclePositions").mapNotNull(::parseVehiclePosition)
@@ -141,7 +141,7 @@ object MavQueries {
         $services
         route {shortName longName mode color textColor agency {name}} trip {gtfsId tripShortName tripHeadsign trainCategoryName}}}}}
     """.trimIndent()
-    val vehicles="""{vehiclePositions(swLat:45.5,swLon:16.1,neLat:48.7,neLon:22.8,modes:[RAIL,RAIL_REPLACEMENT_BUS,COACH,BUS,SUBURBAN_RAILWAY,TRAMTRAIN]) {vehicleId lat lon speed heading label vehicleModel licensePlate uicCode trip {gtfsId tripShortName tripHeadsign trainCategoryName route {shortName mode color textColor longName agency {name}}}}}"""
+    val vehicles="""{vehiclePositions(swLat:45.5,swLon:16.1,neLat:48.7,neLon:22.8,modes:[RAIL,RAIL_REPLACEMENT_BUS,COACH,BUS,SUBURBAN_RAILWAY,TRAMTRAIN]) {vehicleId lastUpdated lat lon speed heading label vehicleModel licensePlate uicCode trip {gtfsId tripShortName tripHeadsign trainCategoryName route {shortName mode color textColor longName agency {name}}}}}"""
     fun trip(id: String,day: String): String {
         require(id.length in 1..250);LocalDate.parse(day)
         return """{trip(id:${quote(id)},serviceDay:${quote(day)}) {gtfsId tripHeadsign trainCategoryName trainName tripShortName $services route {shortName longName(language:"hu")} stoptimes {serviceDay realtime stop {name lat lon platformCode} realtimeArrival realtimeDeparture arrivalDelay departureDelay scheduledArrival scheduledDeparture}}}"""

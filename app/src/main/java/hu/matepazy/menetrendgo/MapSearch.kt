@@ -11,6 +11,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -29,7 +30,8 @@ import androidx.compose.ui.unit.dp
 
 /** The right edge stays fixed while the search grows toward the top-left controls. */
 @Composable internal fun MapSearch(
-    query: String, onQuery: (String) -> Unit, modifier: Modifier = Modifier
+    query: String, onQuery: (String) -> Unit, refreshing: Boolean, onRefresh: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     var expanded by rememberSaveable { mutableStateOf(false) }
     val requester = remember { FocusRequester() }
@@ -84,6 +86,14 @@ import androidx.compose.ui.unit.dp
                             })
                         IconButton(onClick = { close() }) { Icon(Icons.Outlined.Close, "Keresés bezárása") }
                     }
+                }
+            }
+            Spacer(Modifier.height(AppLayout.CompactGap))
+            Surface(shape = CircleShape, color = MaterialTheme.colorScheme.surface) {
+                IconButton(onClick = onRefresh, enabled = !refreshing, modifier = Modifier.size(48.dp)
+                    .semantics { contentDescription = if (refreshing) "Járműpozíciók frissítése folyamatban" else "Járműpozíciók frissítése" }) {
+                    if (refreshing) CircularProgressIndicator(Modifier.size(24.dp), strokeWidth = 2.dp)
+                    else Icon(Icons.Outlined.Refresh, contentDescription = null)
                 }
             }
         }

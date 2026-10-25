@@ -137,11 +137,11 @@ class AppState(app: Application) : AndroidViewModel(app) {
             finally { searching = false; loadingEarlier = false }
         }
     }
-    suspend fun refreshVehicles() {
+    suspend fun refreshVehicles(forceRefresh: Boolean = false) {
         if (vehiclesLoading) return
         vehiclesLoading = true
         try {
-            val snapshot=mav.vehicles()
+            val snapshot=mav.vehicles(forceRefresh)
             vehicles=snapshot.first
             vehicleUpdated=snapshot.second
             vehicleError = null

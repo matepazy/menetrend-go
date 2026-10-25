@@ -29,6 +29,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import org.json.*
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @Composable fun NearbyScreen(vm: AppState) =
@@ -57,6 +58,7 @@ import kotlinx.coroutines.withContext
     val manager=remember {context.getSystemService(LocationManager::class.java)}
     val lifecycle=LocalLifecycleOwner.current.lifecycle
     val snackbars=remember {SnackbarHostState()}
+    val scope=rememberCoroutineScope()
     var selectedVehicle by vm::mapVehicle
     val onSelect by rememberUpdatedState<(Vehicle) -> Unit>({vehicle -> vm.loadTrip(vehicle.id,java.time.LocalDate.now(Budapest).toString());selectedVehicle=vehicle})
     var mapTypesOpen by rememberSaveable {mutableStateOf(false)}
@@ -204,7 +206,8 @@ import kotlinx.coroutines.withContext
                     }
                 }
             }
-            MapSearch(searchQuery,{searchQuery=it},
+            MapSearch(searchQuery,{searchQuery=it},refreshing=vm.vehiclesLoading,
+                onRefresh={scope.launch {vm.refreshVehicles(forceRefresh=true)}},
                 modifier=Modifier.align(Alignment.TopEnd).padding(top=topInset).fillMaxWidth())
         }
             if(!routeOnly && (center==null || !locationVisible)) FilledTonalIconButton(onClick={
