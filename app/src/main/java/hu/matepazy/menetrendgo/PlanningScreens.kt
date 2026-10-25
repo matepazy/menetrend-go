@@ -428,7 +428,7 @@ class ResultsNavigationState(val listState: LazyListState) {
                     }
                     JourneyEndpoints(journey)
                     Text(listOf(dayLabel(journey.boardingLeg.start),"${journey.serviceMinutes} perc",if(journey.changes==0) "Közvetlen" else "${journey.changes} átszállás").filter {it.isNotBlank()}.joinToString(" · "),style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)
-                    JourneyValidityIcons(journey)
+                    JourneyAmenityIcons(journey)
                 }
             }
             }

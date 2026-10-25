@@ -6,12 +6,34 @@ import org.junit.Test
 import java.time.LocalDateTime
 
 class MavServicesTest {
-    @Test fun cardFooterOnlyContainsPublishedTicketAndReservationRules() {
+    @Test fun ticketClassificationStillSeparatesRulesFromFacilitiesInDetails() {
         fun rule(name: String)=MavService(name,197,"MNR2007",0,10,"Budapest","Szeged").ticketRule
         listOf("Országbérlettel igénybe vehető","Budapest-bérlettel igénybe vehető.",
             "Helyjegy váltása kötelező","Helyjegy váltása nélkül igénybe vehető",
             "Kerékpárhely foglalása kötelező.").forEach {assertTrue(it,rule(it))}
         listOf("Bisztrószolgáltatás","A vonatban 1. osztályú kocsi is közlekedik","Csatlakozásra nem vár").forEach {assertFalse(it,rule(it))}
+    }
+
+    private fun amenity(name: String,code: Int)=MavService(name,code,"MNR2007",0,10,"Budapest","Szeged")
+
+    @Test fun footerPrioritizesDecisionMakingAmenitiesAndLimitsVisualNoise() {
+        val names=listOf("Wi-Fi","Légkondicionált kocsi","Kerékpár szállítható",
+            "Kerékpárhely foglalása kötelező.","Kerekesszékkel igénybe vehető",
+            "Bisztrószolgáltatás","Országbérlettel igénybe vehető","Helyjegy váltása kötelező")
+        val services=names.mapIndexed {i,name->amenity(name,190+i)}
+        assertEquals(names.reversed().take(6),departureAmenities(services).map {it.name})
+        assertEquals(AmenityPriority.BicycleReservation,AmenityPriority.of(services[3]))
+    }
+
+    @Test fun footerKeepsExemptionsDistinctAndDoesNotInventUnknownAmenities() {
+        val mandatory=amenity("Helyjegy váltása kötelező",197)
+        val exempt=amenity("Helyjegy nélkül igénybe vehető",200)
+        val duplicate=mandatory.copy(from="Kistelek",fromIndex=8)
+        val unknown=amenity("Csatlakozásra nem vár",199)
+        val notes=listOf(168,339,406).map {amenity("Bérlettel kapcsolatos tájékoztatás",it)}
+        val noGlyph=amenity("Bisztrószolgáltatás",198).copy(fontCharSet="Unknown")
+        assertEquals(listOf(mandatory,exempt),departureAmenities(listOf(exempt,unknown,noGlyph,mandatory,duplicate)+notes))
+        assertTrue(departureAmenities(listOf(amenity("Országbérlettel kapcsolatos információ",406))).isEmpty())
     }
     @Test fun reservationAndSectionExemptionBothSurviveParsing() {
         val services=MavService.parseAll(JSONObject("""{"infoServices":[

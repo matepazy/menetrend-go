@@ -1,6 +1,7 @@
 package hu.matepazy.menetrendgo
 
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ExpandMore
@@ -11,6 +12,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -55,6 +57,40 @@ data class MavService(val name: String, val fontCode: Int?, val fontCharSet: Str
 
 private val mavServiceFont = FontFamily(Font(R.font.mav_services))
 
+/** Declaration order is the departure-card priority. Unclassified notes stay in details. */
+enum class AmenityPriority(val pattern: Regex) {
+    RequiredReservation(Regex("^(?=.*(?:helyjegy|helyfoglal|pótjegy|nemzetközi jegy))(?=.*kötelező)(?!.*kerékpár)")),
+    CountryPass(Regex("országbérlet|ország.?bérlet|országnapijegy|magyarország24")),
+    Catering(Regex("büfé|büfékocsi|bisztró|étkezőkocsi|étterem|étkezési|vendéglát|italautomata")),
+    Accessibility(Regex("kerekesszék|mozgáskorlátozott|akadályment|emelő|alacsonypadló")),
+    BicycleReservation(Regex("(?=.*kerékpár)(?=.*(?:foglal|helyjegy|kötelező))")),
+    Bicycle(Regex("kerékpár|bicikli")),
+    Sleeper(Regex("hálókocsi|fekvőhely|hálóhely|kusett")),
+    Wifi(Regex("wi.?fi|wlan|internet")),
+    Power(Regex("konnektor|csatlakozóaljzat|dugalj|töltő|usb|230\\s*v")),
+    AirConditioning(Regex("légkondicion|klimatiz|klím")),
+    Family(Regex("családi|gyermek|játszó|pelenkáz|babakocsi")),
+    Quiet(Regex("csendes|csendkocsi")),
+    Class(Regex("1\\.\\s*(?:kocsi)?osztály|első osztály|prémium|business")),
+    OtherPass(Regex("bérlet|napijegy")),
+    OptionalReservation(Regex("helyjegy|helyfoglal|foglalása|pótjegy|nemzetközi jegy")),
+    OtherFacility(Regex("poggyász|csomag|mosdó|wc|állatszáll|kutya"));
+
+    companion object {
+        fun of(service: MavService): AmenityPriority? {
+            if(service.fontCode in setOf(168,339,406)) return null // Provider notes, including the boxed [i] glyph (406).
+            val name=service.name.lowercase(java.util.Locale.ROOT)
+            return entries.firstOrNull {it.pattern.containsMatchIn(name)}
+        }
+    }
+}
+
+internal fun departureAmenities(services: List<MavService>): List<MavService> = services
+    .filter {it.glyph!=null && AmenityPriority.of(it)!=null}
+    .sortedBy {AmenityPriority.of(it)!!.ordinal}
+    .distinctBy {Triple(AmenityPriority.of(it),it.fontCharSet,it.fontCode)}
+    .take(6)
+
 @Composable private fun MavServiceIcon(service: MavService, modifier: Modifier = Modifier) {
     service.glyph?.let {glyph ->
         Text(glyph,modifier=modifier.widthIn(min=28.dp).clearAndSetSemantics {},fontFamily=mavServiceFont,
@@ -62,22 +98,39 @@ private val mavServiceFont = FontFamily(Font(R.font.mav_services))
     }
 }
 
-/** Official acceptance/reservation pictograms, independent of locally saved passes. */
+/** A single accessible target keeps the row usable even when its pictograms shrink. */
 @OptIn(ExperimentalMaterial3Api::class)
-@Composable fun JourneyValidityIcons(journey: Journey) {
+@Composable fun JourneyAmenityIcons(journey: Journey) {
     val rules=journey.legs.filterNot {it.walking}.flatMap {leg ->
-        leg.services.filter {it.ticketRule && it.glyph!=null}.map {leg.route to it}
+        leg.services.map {leg.route to it}
     }
-    if(rules.isEmpty()) return
+    val amenities=departureAmenities(rules.map {it.second})
+    if(amenities.isEmpty()) return
     var selected by remember(journey.key) {mutableStateOf<List<Pair<String,MavService>>?>(null)}
     Column {
         HorizontalDivider(color=MaterialTheme.colorScheme.outlineVariant)
-        FlowRow(Modifier.fillMaxWidth().padding(top=AppLayout.CompactGap),horizontalArrangement=Arrangement.spacedBy(AppLayout.CompactGap)) {
-            rules.distinctBy {it.second.fontCharSet to it.second.fontCode}.forEach {(_,service) ->
-                val matches=rules.filter {it.second.fontCharSet==service.fontCharSet && it.second.fontCode==service.fontCode}
-                IconButton(onClick={selected=matches},modifier=Modifier.semantics {
-                    contentDescription=matches.joinToString(". ") {(route,rule)-> "$route: ${rule.name}. ${rule.section}"}
-                }) {MavServiceIcon(service)}
+        BoxWithConstraints(Modifier.fillMaxWidth().padding(top=AppLayout.CompactGap)
+            .heightIn(min=48.dp).clickable(onClickLabel="Szolgáltatások részletei",onClick={
+                selected=amenities.flatMap {service -> rules.filter {
+                    it.second.fontCharSet==service.fontCharSet && it.second.fontCode==service.fontCode &&
+                        AmenityPriority.of(it.second)==AmenityPriority.of(service)
+                }}
+            }).semantics(mergeDescendants=true) {
+                contentDescription=amenities.joinToString(". ") {it.name}
+            },contentAlignment=Alignment.CenterStart) {
+            // Symbols behave like vector icons, independently of the system text scale.
+            val slotWidth=minOf(56.dp,maxWidth/amenities.size)
+            val iconSize=minOf(24f,slotWidth.value/2)
+            val fontScale=LocalDensity.current.fontScale
+            Row(verticalAlignment=Alignment.CenterVertically) {
+                amenities.forEach {service ->
+                    Box(Modifier.width(slotWidth).height(48.dp),contentAlignment=Alignment.Center) {
+                        Text(service.glyph.orEmpty(),fontFamily=mavServiceFont,
+                            fontSize=(iconSize/fontScale).sp,lineHeight=(iconSize*1.25f/fontScale).sp,
+                            maxLines=1,softWrap=false,modifier=Modifier.clearAndSetSemantics {},
+                            color=MaterialTheme.colorScheme.onSurface)
+                    }
+                }
             }
         }
     }
@@ -89,7 +142,7 @@ private val mavServiceFont = FontFamily(Font(R.font.mav_services))
                 .padding(horizontal=AppLayout.SheetPadding).padding(bottom=AppLayout.SheetPadding),
                 verticalArrangement=Arrangement.spacedBy(AppLayout.ItemGap)) {
                 Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically) {
-                    Text("Jegyek és bérletek",Modifier.weight(1f),style=MaterialTheme.typography.titleLarge)
+                    Text("Szolgáltatások",Modifier.weight(1f),style=MaterialTheme.typography.titleLarge)
                     IconButton(onClick={selected=null}) {Icon(Icons.Outlined.Close,"Bezárás")}
                 }
                 entries.distinct().forEach {(route,service)->
