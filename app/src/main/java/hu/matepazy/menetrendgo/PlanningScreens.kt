@@ -24,6 +24,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.semantics.dismiss
@@ -48,6 +49,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.text.style.TextAlign
@@ -447,22 +449,41 @@ class ResultsNavigationState(val listState: LazyListState) {
     }
 }
 
-/** A continuous stop/time column with solid transit lines and dotted walking connections. */
-@Composable private fun TimelineRow(time: ServiceTime?, color: Color, stop: Boolean=false, first: Boolean=false, last: Boolean=false,
-    walking: Boolean=false, content: @Composable ColumnScope.() -> Unit) {
+private data class TimelineTrack(val color: Color, val walking: Boolean=false)
+
+/** Each stop joins its incoming and outgoing tracks at the marker, never at a row boundary. */
+@Composable private fun TimelineRow(time: ServiceTime?, track: TimelineTrack, stop: Boolean=false,
+    incoming: TimelineTrack?=track, outgoing: TimelineTrack?=track,
+    content: @Composable ColumnScope.() -> Unit) {
     val surface=MaterialTheme.colorScheme.surface
-    Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min)) {
+    val nodeOffset=with(LocalDensity.current) { MaterialTheme.typography.titleMedium.lineHeight.toDp()/2 }
+    var rowTop by remember { mutableFloatStateOf(0f) }
+    Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min).onGloballyPositioned {
+        rowTop=it.positionInParent().y
+    }) {
         Box(Modifier.width(with(LocalDensity.current) { 64.sp.toDp() }).padding(top=2.dp,end=8.dp)) {
             time?.let {ScheduledTime(it,style=MaterialTheme.typography.labelLarge)}
         }
         Canvas(Modifier.width(24.dp).fillMaxHeight()) {
             val x=size.width/2
-            val nodeY=12.dp.toPx()
-            drawLine(color,Offset(x,if(first) nodeY else 0f),Offset(x,if(last) nodeY else size.height),
-                strokeWidth=if(walking) 3.dp.toPx() else 4.dp.toPx(),cap=StrokeCap.Round,
-                pathEffect=if(walking) PathEffect.dashPathEffect(floatArrayOf(2.dp.toPx(),6.dp.toPx())) else null)
+            val nodeY=nodeOffset.toPx()
+            fun segment(style: TimelineTrack?, top: Float, bottom: Float) {
+                if(style==null || bottom<=top) return
+                // Clip rounded dots at row edges; solid tracks meet flush without protruding caps.
+                clipRect(top=top,bottom=bottom) {
+                    drawLine(style.color,Offset(x,top),Offset(x,bottom),
+                        strokeWidth=if(style.walking) 3.dp.toPx() else 4.dp.toPx(),
+                        cap=if(style.walking) StrokeCap.Round else StrokeCap.Butt,
+                        pathEffect=if(style.walking) PathEffect.dashPathEffect(
+                            floatArrayOf(2.dp.toPx(),6.dp.toPx()),(rowTop+top)%8.dp.toPx()) else null)
+                }
+            }
             if(stop) {
-                drawCircle(color,6.dp.toPx(),Offset(x,nodeY))
+                segment(incoming,0f,nodeY)
+                segment(outgoing,nodeY,size.height)
+            } else segment(track,0f,size.height)
+            if(stop) {
+                drawCircle(track.color,6.dp.toPx(),Offset(x,nodeY))
                 drawCircle(surface,3.dp.toPx(),Offset(x,nodeY))
             }
         }
@@ -487,14 +508,23 @@ class ResultsNavigationState(val listState: LazyListState) {
         item {
             Surface(shape=RoundedCornerShape(32.dp),color=MaterialTheme.colorScheme.surface) {
                 Column(Modifier.fillMaxWidth().padding(AppLayout.PanelPadding)) {
+                    val connection=TimelineTrack(MaterialTheme.colorScheme.onSurfaceVariant,walking=true)
                     journey.legs.forEachIndexed {index,leg ->
                         val color=serviceColor(leg)
                         val walking=leg.walking
-                        TimelineRow(leg.departureTime,color,stop=true,first=index==0,walking=walking) {
+                        val track=TimelineTrack(color,walking)
+                        val previous=journey.legs.getOrNull(index-1)
+                        val sharedDeparture=previous!=null && previous.to.name==leg.from.name && previous.end==leg.start && previous.arrivalTime==leg.departureTime
+                        val incoming=when {
+                            previous==null -> null
+                            sharedDeparture -> TimelineTrack(serviceColor(previous),previous.walking)
+                            else -> connection
+                        }
+                        TimelineRow(leg.departureTime,track,stop=true,incoming=incoming) {
                             Text(leg.from.name,style=MaterialTheme.typography.titleMedium,fontWeight=FontWeight.SemiBold)
                             if(index>0 && dayLabel(leg.start)!=dayLabel(journey.start)) Text(dayLabel(leg.start),style=MaterialTheme.typography.labelMedium)
                         }
-                        TimelineRow(null,color,walking=walking) {
+                        TimelineRow(null,track) {
                             if(walking) {
                                 Row(verticalAlignment=Alignment.CenterVertically) {
                                     Icon(Icons.AutoMirrored.Outlined.DirectionsWalk,null,Modifier.size(20.dp))
@@ -535,13 +565,13 @@ class ResultsNavigationState(val listState: LazyListState) {
                         val next=journey.legs.getOrNull(index+1)
                         // A shared stop at the same time is one interchange node, not two repeated rows.
                         val sharedStop=next!=null && next.from.name==leg.to.name && next.start==leg.end && next.departureTime==leg.arrivalTime
-                        if(!sharedStop) TimelineRow(leg.arrivalTime,color,stop=true,last=next==null,walking=next?.walking ?: walking) {
+                        if(!sharedStop) TimelineRow(leg.arrivalTime,track,stop=true,outgoing=if(next==null) null else connection) {
                             Text(leg.to.name,style=MaterialTheme.typography.titleMedium,fontWeight=FontWeight.SemiBold)
                             if(dayLabel(leg.end)!=dayLabel(journey.start)) Text(dayLabel(leg.end),style=MaterialTheme.typography.labelMedium)
                         }
                         if(next!=null) {
                             val wait=(next.start-leg.end)/60_000
-                            if(wait>=1) TimelineRow(null,MaterialTheme.colorScheme.onSurfaceVariant,walking=true) {
+                            if(wait>=1) TimelineRow(null,connection) {
                                 Text("$wait perc várakozás",style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                         }
