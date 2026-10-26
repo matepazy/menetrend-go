@@ -8,7 +8,7 @@ enum class SearchFilter(val title: String, val summary: String, val pattern: Reg
     FirstClass("1. osztály", "Első osztályú kocsi minden szakaszon.", Regex("1\\.\\s*(?:kocsi)?osztály|első osztály")),
     PremiumClass("1+ osztály", "Prémium osztály minden szakaszon.", Regex("prémium|1\\s*\\+\\.?\\s*(?:kocsi)?osztály")),
     SecondClass("2. osztály", "Másodosztályú kocsi minden szakaszon.", Regex("2\\.\\s*(?:kocsi)?osztály|másod(?:ik)?osztály|második osztály")),
-    CountryPass("Országbérlettel", "A szolgáltató által jelzett elfogadás. Helyjegy szükséges lehet.", Regex("ország.?bérlet")),
+    CountryPass("Országbérlettel", "Jelzett elfogadás és Volán helyközi buszok. Vonaton helyjegy szükséges lehet.", Regex("ország.?bérlet")),
     Bicycle("Kerékpárszállítás", "Kerékpár szállítható minden szakaszon. Foglalás szükséges lehet.", Regex("kerékpár|bicikli")),
     Accessible("Akadálymentes utazás", "Kerekesszékes utazásra jelzett járművek. Előzetes bejelentés szükséges lehet.", Regex("kerekesszék|mozgáskorlátozott|akadályment|alacsonypadló")),
     Dining("Étkezés / bisztró", "Jelzett étkezési szolgáltatás minden szakaszon.", Regex("büfé|bisztró|étkezőkocsi|étterem|étkezési|vendéglát")),
@@ -28,7 +28,8 @@ enum class SearchFilter(val title: String, val summary: String, val pattern: Reg
         return transit.isNotEmpty() && transit.all { leg ->
             val statements = leg.services.filter { pattern!!.containsMatchIn(it.name.lowercase(Locale.ROOT)) }
             val coverage = ServiceCoverage(leg)
-            statements.any { positive(it.name) && coverage.covers(it) } &&
+            (statements.any { positive(it.name) && coverage.covers(it) } ||
+                (this == CountryPass && leg.isVolanCoach())) &&
                 statements.none { !positive(it.name) && coverage.overlaps(it) }
         }
     }
@@ -42,6 +43,18 @@ enum class SearchFilter(val title: String, val summary: String, val pattern: Reg
             else -> true
         }
     }
+}
+
+/** OTP's COACH mode identifies regional/long-distance buses; BUS also includes
+ * municipal Volán services, whose pass acceptance varies. MÁV's Volán FAQ:
+ * https://www.mavcsoport.hu/mav-szemelyszallitas/gyik/jegy-es-berletvaltas
+ * These coaches accept the country pass even when infoServices omits it.
+ * Keep provider reservation notices intact: this only supplies fare acceptance.
+ */
+private fun Leg.isVolanCoach(): Boolean {
+    val operator = agencyName.trim().uppercase(Locale.ROOT)
+    return mode == "COACH" && (operator.startsWith("VOLÁNBUSZ") ||
+        operator.startsWith("MÁV SZEMÉLYSZÁLLÍTÁSI"))
 }
 
 /** Resolve trip indices only from provider notices anchored to the selected stops.

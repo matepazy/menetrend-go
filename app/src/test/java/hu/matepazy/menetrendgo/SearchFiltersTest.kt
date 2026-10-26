@@ -31,6 +31,42 @@ class SearchFiltersTest {
         assertFalse(SearchFilter.FirstClass.matches(journey(leg("Prémium szolgáltatás"))))
     }
 
+    @Test fun volanCoachesAcceptCountryPassWithoutProviderNotice() {
+        listOf("VOLÁNBUSZ Zrt.", "MÁV Személyszállítási Zrt.", "MÁV Személyszállítási Zrt. - Helyközi busz",
+            " máv személyszállítási Zrt. - Székesfehérvár ").forEach { operator ->
+            val coach = leg().copy(mode = "COACH", agencyName = operator)
+            assertTrue(operator, SearchFilter.CountryPass.matches(journey(coach)))
+            assertTrue(SearchFilter.CountryPass.matches(journey(coach, leg().copy(mode = "WALK"))))
+            assertTrue(SearchFilter.CountryPass.matches(journey(coach, leg("Országbérlettel igénybe vehető"))))
+            assertFalse(SearchFilter.CountryPass.matches(journey(coach, leg())))
+            assertFalse(SearchFilter.FirstClass.matches(journey(coach)))
+        }
+    }
+
+    @Test fun countryPassFallbackDoesNotAssumeLocalOrUnknownBusAcceptance() {
+        val coach = leg().copy(mode = "COACH", agencyName = "VOLÁNBUSZ Zrt.")
+        listOf("BUS", "RAIL", "RAIL_REPLACEMENT_BUS").forEach { mode ->
+            assertFalse(mode, SearchFilter.CountryPass.matches(journey(coach.copy(mode = mode))))
+        }
+        listOf("", "BKK", "Other operator").forEach { operator ->
+            assertFalse(operator, SearchFilter.CountryPass.matches(journey(coach.copy(agencyName = operator))))
+        }
+        assertTrue(SearchFilter.CountryPass.matches(journey(coach.copy(mode = "BUS",
+            services = listOf(service("Országbérlettel igénybe vehető"))))))
+    }
+
+    @Test fun coachFallbackRespectsRestrictionsAndPreservesReservationNotices() {
+        val reservation = service("Helyjegy váltása kötelező")
+        val coach = leg().copy(mode = "COACH", agencyName = "VOLÁNBUSZ Zrt.", services = listOf(reservation))
+        val result = journey(coach)
+        assertEquals(listOf(result), filterJourneys(listOf(result), setOf(SearchFilter.CountryPass)))
+        assertEquals(listOf(reservation), result.legs.single().services)
+        val restriction = service("Országbérlet nem érvényes").copy(from = "Kistelek", till = b.name)
+        assertFalse(SearchFilter.CountryPass.matches(journey(coach.copy(services = listOf(restriction)))))
+        assertFalse(SearchFilter.CountryPass.matches(journey(coach.copy(services = listOf(
+            service("Országbérlettel igénybe vehető"), restriction)))))
+    }
+
     @Test fun sectionDataMustCoverTheSelectedLegAndConflictingStatementsFail() {
         val acceptance = service("Országbérlettel igénybe vehető")
         fun matches(vararg services: MavService) = SearchFilter.CountryPass.matches(journey(leg().copy(services = services.toList())))
@@ -96,6 +132,8 @@ class SearchFiltersTest {
         assertTrue(query.contains("searchParameters:[\"ESZKOZ_KERESESI_FELTETEL#10907842\"]"))
         assertTrue(MavQueries.plan(a, b, time, true, filters).contains("searchParameters:[\"ESZKOZ_KERESESI_FELTETEL#10907842\"]"))
         assertTrue(MavQueries.plan(a, b, time, false).contains("searchParameters:[]"))
+        assertTrue(MavQueries.plan(a, b, time, false, setOf(SearchFilter.CountryPass))
+            .contains("searchParameters:[]"))
     }
 
     @Test fun widerServiceSectionCoversSubjourneyButPartialRestrictionStillRejectsIt() {
