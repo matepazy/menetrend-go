@@ -9,6 +9,15 @@ enum class MapType(val id: String, val title: String, val summary: String) {
     Rail("rail", "Vasúti", "Vasútvonalak és állomások · OpenRailwayMap"),
     Custom("custom", "Saját térkép", "A megadott csempeforrás");
 
+    fun summary(unofficialGoogleMapEnabled: Boolean): String = if (unofficialGoogleMapEnabled) {
+        when (this) {
+            Standard -> "Utcák és települések · Google"
+            Satellite -> "Műhold- és légifelvételek · Google"
+            Hybrid -> "Műholdkép utakkal és feliratokkal · Google"
+            else -> summary
+        }
+    } else summary
+
     companion object {
         fun fromId(id: String?) = entries.firstOrNull { it.id == id } ?: Standard
     }

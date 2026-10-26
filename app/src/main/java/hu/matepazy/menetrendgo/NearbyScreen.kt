@@ -137,8 +137,8 @@ import kotlinx.coroutines.withContext
             web?.evaluateJavascript("window.setRouteMode($routeOnly);window.updateVehicles($array);window.updateRoute($route);",null)
         }
     }
-    LaunchedEffect(ready,vm.effectiveMapType,vm.customMapUrl) {
-        if(ready) web?.evaluateJavascript("window.setMapType(${JSONObject.quote(vm.effectiveMapType.id)},${JSONObject.quote(vm.customMapUrl)});",null)
+    LaunchedEffect(ready,vm.effectiveMapType,vm.customMapUrl,vm.unofficialGoogleMapEnabled) {
+        if(ready) web?.evaluateJavascript("window.setMapType(${JSONObject.quote(vm.effectiveMapType.id)},${JSONObject.quote(vm.customMapUrl)},${vm.unofficialGoogleMapEnabled});",null)
     }
     LaunchedEffect(ready,bottomInset) {if(ready) web?.evaluateJavascript("window.setBottomInset($bottomInset);",null)}
     LaunchedEffect(ready,topInset,featherColor) {

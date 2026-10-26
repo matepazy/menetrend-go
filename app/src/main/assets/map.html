@@ -66,7 +66,7 @@ const osmAttribution='© <a href="https://www.openstreetmap.org/copyright">OpenS
 const imageryAttribution='<a href="https://www.esri.com/">Esri</a>, Maxar, Earthstar Geographics, GIS User Community';
 const imagery='https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
 let mapLayers=[],mapTypeKey='',activeMapType='standard';
-window.setMapType=(type,customUrl='')=>{
+window.setMapType=(type,customUrl='',unofficialGoogleMap=false)=>{
  if(!['standard','satellite','hybrid','rail','custom'].includes(type))type='standard';
  if(type==='custom'){
   try{
@@ -74,7 +74,8 @@ window.setMapType=(type,customUrl='')=>{
    if(u.protocol!=='https:'||u.username||u.password||u.hash||/[\s\x00-\x1f]/.test(customUrl)||!['{z}','{x}','{y}'].every(k=>customUrl.includes(k)))type='standard';
   }catch(e){type='standard'}
  }
- const key=type+(type==='custom'?customUrl:'');if(key===mapTypeKey)return;
+ const googleLayer=unofficialGoogleMap?({standard:'m',satellite:'s',hybrid:'y'})[type]:null;
+ const key=type+(type==='custom'?customUrl:'')+(googleLayer?'google:'+googleLayer:'');if(key===mapTypeKey)return;
  mapLayers.forEach(layer=>map.removeLayer(layer));mapLayers=[];mapTypeKey=key;activeMapType=type;
  tileFailed=false;status.textContent='';status.style.display='none';
  function add(url,attribution,zIndex){
@@ -92,6 +93,7 @@ window.setMapType=(type,customUrl='')=>{
   mapLayers.push(layer);layer.addTo(map);
  }
  if(type==='custom')add(customUrl,'Saját csempeforrás',1);
+ else if(googleLayer)add('https://mt1.google.com/vt/lyrs='+googleLayer+'&x={x}&y={y}&z={z}','© Google',1);
  else if(type==='satellite'||type==='hybrid'){
   add(imagery,imageryAttribution,1);
   if(type==='hybrid'){

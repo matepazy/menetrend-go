@@ -59,7 +59,7 @@ import androidx.compose.ui.unit.dp
                             }, null, tint = if (selected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant)
                             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                                 Text(type.title, style = MaterialTheme.typography.titleMedium)
-                                Text(type.summary, style = MaterialTheme.typography.bodyMedium,
+                                Text(type.summary(vm.unofficialGoogleMapEnabled), style = MaterialTheme.typography.bodyMedium,
                                     color = if (selected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                             RadioButton(selected = selected, onClick = null)

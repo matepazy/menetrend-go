@@ -155,7 +155,7 @@ private enum class SettingsPage(val title: String) {
                             }
                         }
                     }
-                    item { SettingsNote("A keresett megállók és az időpont közvetlenül a MÁV-hoz kerülnek. A térképcsempéket a kiválasztott térképszolgáltató tölti be (OpenStreetMap, Esri, OpenRailwayMap vagy saját URL).") }
+                    item { SettingsNote("A keresett megállók és az időpont közvetlenül a MÁV-hoz kerülnek. A térképcsempéket a kiválasztott térképszolgáltató tölti be (OpenStreetMap, Esri, OpenRailwayMap, Google vagy saját URL).") }
                 }
                 SettingsPage.About -> {
                     item {
@@ -195,6 +195,20 @@ private enum class SettingsPage(val title: String) {
                     }
                 }
                 SettingsPage.Developer -> {
+                    item {
+                        SettingsGroup {
+                            Row(
+                                Modifier.fillMaxWidth().toggleable(vm.unofficialGoogleMapEnabled, role = Role.Switch, onValueChange = vm::chooseUnofficialGoogleMapEnabled).padding(AppLayout.PanelPadding),
+                                verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)
+                            ) {
+                                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    Text("Nem hivatalos Google térkép használata", style = MaterialTheme.typography.titleMedium)
+                                    Text("Az Alap, Műhold és Hibrid térkép csempéit közvetlenül a Google-tól tölti be. Kikapcsolva az eredeti térképszolgáltatókat használja.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                }
+                                Switch(checked = vm.unofficialGoogleMapEnabled, onCheckedChange = null)
+                            }
+                        }
+                    }
                     item {
                         MapRefreshSetting(vm.mapRefreshSeconds, vm::chooseMapRefreshSeconds)
                     }
