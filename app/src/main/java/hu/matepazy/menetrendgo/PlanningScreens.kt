@@ -404,8 +404,21 @@ class ResultsNavigationState(val listState: LazyListState) {
     var earlierAnchor by mutableStateOf<Pair<String,Int>?>(null)
 }
 
+internal const val DeparturePaginationKey = "later-departures"
+
+@Composable internal fun DepartureAutoLoading(listState: LazyListState, enabled: Boolean, loadMore: () -> Unit) {
+    val currentEnabled by rememberUpdatedState(enabled)
+    val currentLoadMore by rememberUpdatedState(loadMore)
+    LaunchedEffect(listState) {
+        snapshotFlow {
+            currentEnabled && listState.layoutInfo.visibleItemsInfo.any { it.key == DeparturePaginationKey }
+        }.collect { visible -> if (visible) currentLoadMore() }
+    }
+}
+
 @Composable fun ResultsScreen(vm: AppState, navigation: ResultsNavigationState, back: () -> Unit, select: (Journey) -> Unit) {
     val listState=navigation.listState
+    DepartureAutoLoading(listState, enabled=vm.canLoadMore && !vm.searching && vm.searchError==null) {vm.search(true)}
     var earlierAnchor by navigation::earlierAnchor
     var now by remember {mutableLongStateOf(System.currentTimeMillis())}
     LaunchedEffect(Unit) {
@@ -476,8 +489,15 @@ class ResultsNavigationState(val listState: LazyListState) {
             }
         }
         if(vm.earlierRequested && results.isNotEmpty() && firstUpcoming==results.size) item(key="now") { NowDivider() }
-        if(vm.searching && !vm.loadingEarlier && vm.journeys.isNotEmpty()) item {LinearProgressIndicator(Modifier.fillMaxWidth())}
-        if(vm.canLoadMore && !vm.searching) item {OutlinedButton(onClick={vm.search(true)},shape=CircleShape,modifier=Modifier.fillMaxWidth().heightIn(min=52.dp)){Text("További indulások")}}
+        if(vm.canLoadMore || (vm.searching && !vm.loadingEarlier && vm.journeys.isNotEmpty())) item(key=DeparturePaginationKey) {
+            if(vm.searching && !vm.loadingEarlier) {
+                Row(Modifier.fillMaxWidth().heightIn(min=52.dp),horizontalArrangement=Arrangement.Center,verticalAlignment=Alignment.CenterVertically) {
+                    CircularProgressIndicator(Modifier.size(18.dp),strokeWidth=2.dp)
+                    Spacer(Modifier.width(AppLayout.CompactGap))
+                    Text("További indulások betöltése…",style=MaterialTheme.typography.bodyMedium)
+                }
+            } else OutlinedButton(onClick={vm.search(true)},enabled=!vm.searching,shape=CircleShape,modifier=Modifier.fillMaxWidth().heightIn(min=52.dp)){Text("További indulások")}
+        }
         item {Text(listOf("A találatokat a MÁV útvonaltervezője adja. Az újabb keresés további időpontokat tölt be.",
             vm.activeSearchFilters.sortedBy {it.ordinal}.joinToString(" · ") {it.title}).filter {it.isNotBlank()}.joinToString("\n"),style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)}
     }
