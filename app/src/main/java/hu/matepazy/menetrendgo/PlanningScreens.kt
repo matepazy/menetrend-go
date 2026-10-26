@@ -32,6 +32,9 @@ import androidx.compose.ui.semantics.dismiss
 import androidx.compose.ui.semantics.paneTitle
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
@@ -404,14 +407,24 @@ private fun serviceType(leg: Leg): String = hungarianServiceName(leg.category, l
     }
 }
 
-@Composable private fun StationLabel(station: Station, rightAligned: Boolean = false) {
+@Composable private fun StationLabel(station: Station, rightAligned: Boolean = false, inlineName: Boolean = false) {
     Column(horizontalAlignment=if(rightAligned) Alignment.End else Alignment.Start) {
-        Text(station.townName,style=MaterialTheme.typography.titleMedium,fontWeight=FontWeight.Bold,
+        if(inlineName) Text(buildAnnotatedString {
+            withStyle(SpanStyle(fontWeight=FontWeight.Bold,color=MaterialTheme.colorScheme.onSurface)) {
+                append(station.townName)
+                if(station.stopName.isNotBlank()) append(", ")
+            }
+            if(station.stopName.isNotBlank()) withStyle(SpanStyle(fontWeight=FontWeight.Normal,
+                color=MaterialTheme.colorScheme.onSurfaceVariant)) {append(station.stopName)}
+        },style=MaterialTheme.typography.titleMedium,
             textAlign=if(rightAligned) TextAlign.End else TextAlign.Start)
-        if(station.stopName.isNotBlank() || station.platform.isNotBlank()) {
+        else Text(station.townName,style=MaterialTheme.typography.titleMedium.copy(lineHeight=20.sp),fontWeight=FontWeight.Bold,
+            textAlign=if(rightAligned) TextAlign.End else TextAlign.Start)
+        if((!inlineName && station.stopName.isNotBlank()) || station.platform.isNotBlank()) {
             Row(horizontalArrangement=Arrangement.spacedBy(AppLayout.LabelGap),verticalAlignment=Alignment.CenterVertically) {
-                if(station.stopName.isNotBlank()) Text(station.stopName,Modifier.weight(1f,fill=false),
+                if(!inlineName && station.stopName.isNotBlank()) Text(station.stopName,Modifier.weight(1f,fill=false),
                     style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines=1,softWrap=false,overflow=TextOverflow.Ellipsis,
                     textAlign=if(rightAligned) TextAlign.End else TextAlign.Start)
                 if(station.platform.isNotBlank()) Surface(shape=CircleShape,
                     color=MaterialTheme.colorScheme.primary,contentColor=MaterialTheme.colorScheme.onPrimary,
@@ -658,7 +671,7 @@ private data class TimelineTrack(val color: Color, val walking: Boolean=false)
                                         enter=expandVertically(tween(AppMotion.Reveal,easing=AppMotion.Arrival),expandFrom=Alignment.Top)+fadeIn(tween(AppMotion.Feedback)),
                                         exit=shrinkVertically(tween(AppMotion.Dismiss,easing=AppMotion.State),shrinkTowards=Alignment.Top)+fadeOut(tween(AppMotion.Dismiss))) {
                                     Column { leg.intermediate.forEach {stop ->
-                                        Box(Modifier.padding(vertical=AppLayout.CompactGap)) {StationLabel(stop)}
+                                        Box(Modifier.padding(vertical=AppLayout.CompactGap)) {StationLabel(stop,inlineName=true)}
                                     } }
                                     }
                                 }
