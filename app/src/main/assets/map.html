@@ -93,7 +93,8 @@ window.setMapType=(type,customUrl='',unofficialGoogleMap=false)=>{
   mapLayers.push(layer);layer.addTo(map);
  }
  if(type==='custom')add(customUrl,'Saját csempeforrás',1);
- else if(googleLayer)add('https://mt1.google.com/vt/lyrs='+googleLayer+'&x={x}&y={y}&z={z}','© Google',1);
+ // Match the Hungarian UI instead of letting Google choose the tile language.
+ else if(googleLayer)add('https://mt1.google.com/vt/lyrs='+googleLayer+'&hl=hu&x={x}&y={y}&z={z}','© Google',1);
  else if(type==='satellite'||type==='hybrid'){
   add(imagery,imageryAttribution,1);
   if(type==='hybrid'){
