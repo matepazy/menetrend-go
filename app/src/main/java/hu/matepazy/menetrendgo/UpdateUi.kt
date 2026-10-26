@@ -12,6 +12,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -94,11 +96,19 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
     LaunchedEffect(updates.state) {
         if (updates.state is UpdateState.Completed && ApkInstaller.canInstallPackages(context)) updates.install()
     }
-    AppBottomSheet(onDismissRequest = updates::later, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true, confirmValueChange = { it != SheetValue.Hidden || !updates.busy }), sheetGesturesEnabled = !updates.busy, containerColor = MaterialTheme.colorScheme.surface) {
-        Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(horizontal = AppLayout.PanelPadding).padding(bottom = 24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-            PageTitle(if (update.isVersionSwitch) "Verzióváltás" else "Új verzió érhető el")
-            Text(update.version, style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
-            if (update.isBeta) Text("Béta kiadás: hibák és váratlan működés előfordulhatnak.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+    AppBottomSheet(onDismissRequest = updates::later,
+        modifier = Modifier.testTag("update-drawer"),
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true, confirmValueChange = { it != SheetValue.Hidden || !updates.busy }), sheetGesturesEnabled = !updates.busy, containerColor = MaterialTheme.colorScheme.surface) {
+        Column(Modifier.fillMaxWidth().heightIn(max = LocalWindowInfo.current.containerDpSize.height * .85f).padding(horizontal = AppLayout.PanelPadding).padding(bottom = 24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            Column(Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState()).testTag("update-notes"), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                PageTitle(if (update.isVersionSwitch) "Verzióváltás" else "Új verzió érhető el")
+                Text(update.version, style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
+                if (update.isBeta) Text("Béta kiadás: hibák és váratlan működés előfordulhatnak.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                if (updates.state !is UpdateState.Downloading && updates.state !is UpdateState.Completed) {
+                    Text("A kiadás újdonságai", style = MaterialTheme.typography.titleMedium)
+                    ReleaseNotes(update.notes)
+                }
+            }
             when (val state = updates.state) {
                 is UpdateState.Downloading -> {
                     Text(if (state.progress < 0) "Letöltés…" else "Letöltés · ${(state.progress * 100).toInt()}%")
@@ -110,8 +120,6 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
                     Button(onClick = updates::install, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text(if (canInstall) "Telepítés" else "Telepítési engedély") }
                 }
                 else -> {
-                    Text("A kiadás újdonságai", style = MaterialTheme.typography.titleMedium)
-                    Text(update.notes, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     if (state is UpdateState.Error) Text(state.message, color = MaterialTheme.colorScheme.error)
                     if (update.isBeta && !betaConfirmed) {
                         OutlinedButton(onClick = { betaConfirmed = true }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Megértettem, a bétát választom") }

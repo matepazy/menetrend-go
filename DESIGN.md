@@ -188,6 +188,8 @@ All modal drawers use `AppBottomSheet`. A fixed outer top/horizontal safe-drawin
 
 ## Shapes
 
+The update drawer caps its content at 85% of the window height, inside the shared safe-area sheet, retaining its bottom anchor and native drag handle. Long release notes scroll separately from the download, beta-confirmation and reminder actions. Release notes render as native Markdown text with themed links, headings, lists, emphasis, code and strikethrough; text follows the Material body scale and system font scaling.
+
 The native theme's shape scale runs from softly rounded small controls to large containers, as recorded in frontmatter. Reusable panels, station rows and bottom navigation use medium corners (28dp). Result cards and dialog surfaces retain large corners (32dp); autocomplete rows use small corners (24dp). Sheet top corners retain extra-large corners (36dp); each phone navigation item has its own rounded corners (26dp). The planning date/time control uses 20dp corners. Buttons, badges and filter chips use pill geometry; circular icon controls remain circular.
 
 **The Rounded Continuity Rule.** New controls and containers should continue the existing rounded family, including overlays and selection states.
