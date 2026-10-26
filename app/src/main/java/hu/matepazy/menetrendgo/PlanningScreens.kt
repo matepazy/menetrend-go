@@ -54,6 +54,7 @@ import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.FontFamily
@@ -361,18 +362,39 @@ private fun serviceType(leg: Leg): String = hungarianServiceName(leg.category, l
     }
 }
 
+@Composable private fun StationLabel(station: Station, rightAligned: Boolean = false) {
+    Column(horizontalAlignment=if(rightAligned) Alignment.End else Alignment.Start) {
+        Text(station.townName,style=MaterialTheme.typography.titleMedium,fontWeight=FontWeight.Bold,
+            textAlign=if(rightAligned) TextAlign.End else TextAlign.Start)
+        if(station.stopName.isNotBlank() || station.platform.isNotBlank()) {
+            Row(horizontalArrangement=Arrangement.spacedBy(AppLayout.LabelGap),verticalAlignment=Alignment.CenterVertically) {
+                if(station.stopName.isNotBlank()) Text(station.stopName,Modifier.weight(1f,fill=false),
+                    style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign=if(rightAligned) TextAlign.End else TextAlign.Start)
+                if(station.platform.isNotBlank()) Surface(shape=CircleShape,
+                    color=MaterialTheme.colorScheme.primary,contentColor=MaterialTheme.colorScheme.onPrimary,
+                    modifier=Modifier.clearAndSetSemantics {contentDescription="Vágány / kocsiállás: ${station.platform}"}) {
+                    Box(Modifier.defaultMinSize(minWidth=24.dp,minHeight=24.dp).padding(horizontal=5.dp,vertical=2.dp),contentAlignment=Alignment.Center) {
+                        Text(station.platform,style=MaterialTheme.typography.labelMedium,fontWeight=FontWeight.Bold)
+                    }
+                }
+            }
+        }
+    }
+}
+
 @Composable private fun JourneyEndpoints(journey: Journey) {
     val departure=journey.boardingLeg
     val arrival=journey.alightingLeg
     Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.Top) {
         Column(Modifier.weight(1f)) {
             ScheduledTime(departure.departureTime,style=MaterialTheme.typography.headlineMedium)
-            Text(departure.from.name,style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)
+            StationLabel(departure.from)
         }
         Icon(Icons.AutoMirrored.Outlined.ArrowForward,null,Modifier.padding(horizontal=12.dp,vertical=6.dp).size(24.dp),tint=MaterialTheme.colorScheme.onSurfaceVariant)
         Column(Modifier.weight(1f),horizontalAlignment=Alignment.End) {
             ScheduledTime(arrival.arrivalTime,style=MaterialTheme.typography.headlineMedium,alignment=Alignment.End)
-            Text(arrival.to.name,style=MaterialTheme.typography.bodyMedium,textAlign=TextAlign.End,color=MaterialTheme.colorScheme.onSurfaceVariant)
+            StationLabel(arrival.to,rightAligned=true)
             if(dayLabel(arrival.end)!=dayLabel(departure.start)) Text(dayLabel(arrival.end),style=MaterialTheme.typography.labelMedium)
         }
     }
@@ -535,14 +557,14 @@ private data class TimelineTrack(val color: Color, val walking: Boolean=false)
                         val walking=leg.walking
                         val track=TimelineTrack(color,walking)
                         val previous=journey.legs.getOrNull(index-1)
-                        val sharedDeparture=previous!=null && previous.to.name==leg.from.name && previous.end==leg.start && previous.arrivalTime==leg.departureTime
+                        val sharedDeparture=previous!=null && previous.to.name==leg.from.name && previous.to.platform==leg.from.platform && previous.end==leg.start && previous.arrivalTime==leg.departureTime
                         val incoming=when {
                             previous==null -> null
                             sharedDeparture -> TimelineTrack(serviceColor(previous),previous.walking)
                             else -> connection
                         }
                         TimelineRow(leg.departureTime,track,stop=true,incoming=incoming) {
-                            Text(leg.from.name,style=MaterialTheme.typography.titleMedium,fontWeight=FontWeight.SemiBold)
+                            StationLabel(leg.from)
                             if(index>0 && dayLabel(leg.start)!=dayLabel(journey.start)) Text(dayLabel(leg.start),style=MaterialTheme.typography.labelMedium)
                         }
                         TimelineRow(null,track) {
@@ -574,7 +596,7 @@ private data class TimelineTrack(val color: Color, val walking: Boolean=false)
                                         enter=expandVertically(tween(AppMotion.Reveal,easing=AppMotion.Arrival),expandFrom=Alignment.Top)+fadeIn(tween(AppMotion.Feedback)),
                                         exit=shrinkVertically(tween(AppMotion.Dismiss,easing=AppMotion.State),shrinkTowards=Alignment.Top)+fadeOut(tween(AppMotion.Dismiss))) {
                                     Column { leg.intermediate.forEach {stop ->
-                                        Text(stop.name,Modifier.padding(vertical=8.dp),style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)
+                                        Box(Modifier.padding(vertical=AppLayout.CompactGap)) {StationLabel(stop)}
                                     } }
                                     }
                                 }
@@ -585,9 +607,9 @@ private data class TimelineTrack(val color: Color, val walking: Boolean=false)
                         }
                         val next=journey.legs.getOrNull(index+1)
                         // A shared stop at the same time is one interchange node, not two repeated rows.
-                        val sharedStop=next!=null && next.from.name==leg.to.name && next.start==leg.end && next.departureTime==leg.arrivalTime
+                        val sharedStop=next!=null && next.from.name==leg.to.name && next.from.platform==leg.to.platform && next.start==leg.end && next.departureTime==leg.arrivalTime
                         if(!sharedStop) TimelineRow(leg.arrivalTime,track,stop=true,outgoing=if(next==null) null else connection) {
-                            Text(leg.to.name,style=MaterialTheme.typography.titleMedium,fontWeight=FontWeight.SemiBold)
+                            StationLabel(leg.to)
                             if(dayLabel(leg.end)!=dayLabel(journey.start)) Text(dayLabel(leg.end),style=MaterialTheme.typography.labelMedium)
                         }
                         if(next!=null) {

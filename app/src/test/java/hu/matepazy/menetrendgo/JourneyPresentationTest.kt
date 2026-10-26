@@ -4,8 +4,24 @@ import org.junit.Assert.*
 import org.junit.Test
 import java.time.LocalDate
 import java.time.LocalDateTime
+import org.json.JSONObject
 
 class JourneyPresentationTest {
+    @Test fun stationLabelsKeepStopSuffixAndProviderPlatforms() {
+        val stop = Station.parse(JSONObject("""{"name":"Mór, autóbusz-állomás, felszállóhely","lat":47,"lon":18,"stop":{"platformCode":" 1 "}}"""))
+        assertEquals("Mór", stop.townName)
+        assertEquals("autóbusz-állomás, felszállóhely", stop.stopName)
+        assertEquals("1", stop.platform)
+        assertEquals(stop, Station.parse(stop.json()))
+        val rail = Station.parse(JSONObject("""{"name":"Budapest-Déli","lat":47,"lon":19,"platformCode":"12A"}"""))
+        assertEquals("Budapest-Déli", rail.townName)
+        assertEquals("", rail.stopName)
+        assertEquals("12A", rail.platform)
+        listOf("null", "\"null\"", "\"\"", "\"   \"").forEach { value ->
+            assertEquals("", Station.parse(JSONObject("""{"name":"Mór","lat":47,"lon":18,"stop":{"platformCode":$value}}""")).platform)
+        }
+    }
+
     private val station = Station("station", "Station", 47.0, 19.0)
     private fun leg(mode: String = "RAIL", category: String = "", route: String = "915",
                     start: Long = 0, end: Long = 60_000, longName: String = "") =

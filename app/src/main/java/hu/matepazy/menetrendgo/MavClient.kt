@@ -137,7 +137,7 @@ object MavQueries {
         {plan($from,$to,date:${quote(time.toLocalDate().toString())},time:${quote(time.format(DateTimeFormatter.ofPattern("HH:mm")))},arriveBy:$arrive,numItineraries:12,
         transportModes:[{mode:RAIL},{mode:COACH},{mode:BUS},{mode:SUBURBAN_RAILWAY},{mode:TRAMTRAIN},{mode:WALK}],minTransferTime:120,maxWalkDistance:2000) {
         itineraries {duration walkTime waitingTime legs {mode startTime endTime duration distance realTime departureDelay arrivalDelay
-        from {name lat lon} to {name lat lon} intermediateStops {name lat lon} legGeometry {points}
+        from {name lat lon stop {platformCode}} to {name lat lon stop {platformCode}} intermediateStops {name lat lon platformCode} legGeometry {points}
         $services
         route {shortName longName mode color textColor agency {name}} trip {gtfsId tripShortName tripHeadsign trainCategoryName}}}}}
     """.trimIndent()

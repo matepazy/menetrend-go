@@ -14,13 +14,16 @@ fun dayLabel(millis: Long, today: LocalDate = LocalDate.now(Budapest)): String {
 fun JSONArray.objects(): List<JSONObject> = (0 until length()).mapNotNull { optJSONObject(it) }
 fun JSONObject.array(key: String): List<JSONObject> = optJSONArray(key)?.objects().orEmpty()
 data class Station(val id: String, val name: String, val lat: Double, val lon: Double,
-    val type: String = "", val modes: List<String> = emptyList()) {
+    val type: String = "", val modes: List<String> = emptyList(), val platform: String = "") {
+    val townName get() = name.substringBefore(',').trim()
+    val stopName get() = name.substringAfter(',', "").trim()
     fun json() = JSONObject().put("id", id).put("name", name).put("lat", lat).put("lon", lon)
-        .put("type", type).put("modes", JSONArray(modes))
+        .put("type", type).put("modes", JSONArray(modes)).put("platformCode", platform)
     companion object { fun parse(o: JSONObject): Station {
         val modes=o.optJSONArray("modes")
         return Station(o.optString("id"), o.getString("name"), o.getDouble("lat"), o.getDouble("lon"),
-            o.optString("type"), if(modes==null) emptyList() else (0 until modes.length()).map {modes.getString(it)})
+            o.optString("type"), if(modes==null) emptyList() else (0 until modes.length()).map {modes.getString(it)},
+            (o.optJSONObject("stop") ?: o).optString("platformCode").trim().takeUnless {it.equals("null",ignoreCase=true)}.orEmpty())
     } }
 }
 data class Recent(val from: Station, val to: Station) {
