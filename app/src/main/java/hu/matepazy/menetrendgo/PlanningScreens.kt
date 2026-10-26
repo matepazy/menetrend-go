@@ -295,8 +295,8 @@ import java.time.format.DateTimeFormatter
                 Button(onClick={
                     dateState.selectedDateMillis?.let {millis ->
                         val day=Instant.ofEpochMilli(millis).atZone(ZoneOffset.UTC).toLocalDate()
-                        vm.dateTime=day.atTime(initial.toLocalTime())
-                        vm.useNow=vm.useNow && day==LocalDate.now(Budapest)
+                        vm.dateTime=day.atStartOfDay()
+                        vm.useNow=false
                         dismiss()
                     }
                 },enabled=dateState.selectedDateMillis!=null) {Text("Kész")}
