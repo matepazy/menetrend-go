@@ -2,6 +2,7 @@ package hu.matepazy.menetrendgo
 
 import android.content.Intent
 import android.provider.Settings
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -74,6 +75,7 @@ private enum class SettingsPage(val title: String) {
 ) {
     val context = LocalContext.current
     var confirmClear by rememberSaveable { mutableStateOf(false) }
+    var developerUnlockTaps by rememberSaveable { mutableIntStateOf(0) }
     // Each destination owns its scroll position, including the parent in a Back preview.
     key(page) {
         val listState = rememberLazyListState()
@@ -158,7 +160,16 @@ private enum class SettingsPage(val title: String) {
                 SettingsPage.About -> {
                     item {
                         Glass(Modifier.fillMaxWidth()) {
-                            Text("MenetrendGO", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+                            Text("MenetrendGO", modifier = Modifier.heightIn(min = 48.dp).clickable(
+                                enabled = !vm.developerSettingsUnlocked,
+                                onClick = {
+                                    developerUnlockTaps++
+                                    if (developerUnlockTaps >= 5) {
+                                        vm.unlockDeveloperSettings()
+                                        Toast.makeText(context, "Fejlesztői beállítások engedélyezve", Toast.LENGTH_SHORT).show()
+                                    }
+                                }
+                            ), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
                             Text("${BuildConfig.VERSION_NAME} verzió", Modifier.padding(top = 4.dp), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             Spacer(Modifier.height(16.dp))
                             Text("Magyarországi közösségi közlekedés, könnyebben átláthatóan. Tervezz utazást, nézd meg a járatok megállóit és kövesd a járműveket a térképen.", style = MaterialTheme.typography.bodyLarge)
@@ -175,9 +186,11 @@ private enum class SettingsPage(val title: String) {
                             Text("A MenetrendGO független, nem hivatalos alkalmazás, nem áll kapcsolatban a MÁV-val. Az adatok hiányozhatnak vagy késhetnek.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
-                    item {
-                        SettingsGroup {
-                            SettingsRow("Fejlesztői beállítások", onClick = { navigate(SettingsPage.Developer) })
+                    if (vm.developerSettingsUnlocked) {
+                        item {
+                            SettingsGroup {
+                                SettingsRow("Fejlesztői beállítások", onClick = { navigate(SettingsPage.Developer) })
+                            }
                         }
                     }
                 }

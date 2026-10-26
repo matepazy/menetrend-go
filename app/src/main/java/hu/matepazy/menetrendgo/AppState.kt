@@ -23,6 +23,7 @@ class AppState(app: Application) : AndroidViewModel(app) {
     }
     private val stationSearch=StationSearch(app, mav::stations)
     var theme by mutableStateOf(prefs.getString("theme", "system").orEmpty()); private set
+    var developerSettingsUnlocked by mutableStateOf(prefs.getBoolean("developer_settings_unlocked", false)); private set
     var showRawGraphQl by mutableStateOf(prefs.getBoolean("show_raw_graphql", false)); private set
     var mapRefreshSeconds by mutableIntStateOf(prefs.getInt("map_refresh_seconds", 75).coerceIn(15, 90)); private set
     var customMapEnabled by mutableStateOf(prefs.getBoolean("custom_map_enabled", false)); private set
@@ -80,6 +81,10 @@ class AppState(app: Application) : AndroidViewModel(app) {
     suspend fun stations(query: String) = stationSearch.search(query)
     fun selectStation(station: Station) { viewModelScope.launch { stationSearch.selected(station) } }
     fun chooseTheme(value: String) { theme = value; prefs.edit().putString("theme", value).apply() }
+    fun unlockDeveloperSettings() {
+        developerSettingsUnlocked = true
+        prefs.edit().putBoolean("developer_settings_unlocked", true).apply()
+    }
     fun chooseRawGraphQl(enabled: Boolean) { showRawGraphQl=enabled; prefs.edit().putBoolean("show_raw_graphql",enabled).apply() }
     fun chooseMapRefreshSeconds(seconds: Int) {
         mapRefreshSeconds = seconds.coerceIn(15, 90)
