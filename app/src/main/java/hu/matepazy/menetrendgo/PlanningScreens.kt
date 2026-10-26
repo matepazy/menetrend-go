@@ -2,6 +2,7 @@ package hu.matepazy.menetrendgo
 
 import androidx.compose.foundation.*
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.fadeIn
@@ -67,9 +68,9 @@ import kotlinx.coroutines.*
 import java.time.*
 import java.time.format.DateTimeFormatter
 
-@Composable private fun StopField(label: String, value: Station?, icon: ImageVector, onClick: () -> Unit) {
-    Surface(onClick=onClick,shape=RoundedCornerShape(28.dp),color=MaterialTheme.colorScheme.surface,modifier=Modifier.fillMaxWidth()) {
-        Row(Modifier.padding(horizontal=4.dp,vertical=12.dp).heightIn(min=48.dp),verticalAlignment=Alignment.CenterVertically) {
+@Composable private fun StopField(label: String, value: Station?, icon: ImageVector, modifier: Modifier = Modifier, onClick: () -> Unit) {
+    Surface(onClick=onClick,shape=RoundedCornerShape(28.dp),color=MaterialTheme.colorScheme.surface,modifier=modifier.fillMaxWidth()) {
+        Row(Modifier.padding(horizontal=4.dp,vertical=AppLayout.RelatedGap).heightIn(min=48.dp),verticalAlignment=Alignment.CenterVertically) {
             Icon(icon,null,tint=MaterialTheme.colorScheme.primary,modifier=Modifier.size(26.dp))
             Spacer(Modifier.width(16.dp))
             Column(Modifier.weight(1f)) {
@@ -77,6 +78,19 @@ import java.time.format.DateTimeFormatter
                 Text(value?.name ?: "Megálló kiválasztása",style=MaterialTheme.typography.titleMedium,fontWeight=FontWeight.SemiBold)
             }
         }
+    }
+}
+
+@Composable private fun JourneyStopField(vm: AppState, label: String, value: Station?, icon: ImageVector,
+    active: Boolean, onOpen: () -> Unit, onDismiss: () -> Unit, onSelected: (Station) -> Unit) {
+    val spotlight=LocalStationFocus.current
+    val focusGutter=with(LocalDensity.current) {AppLayout.PanelPadding.toPx()}
+    Box(Modifier.fillMaxWidth()
+        // Track the visible, animated bounds so the scrim follows the editor's reveal.
+        .onGloballyPositioned {if(active) spotlight.bounds=it.boundsInWindow().inflate(focusGutter)}
+        .animateContentSize(tween(AppMotion.StationFocus,easing=AppMotion.Arrival),alignment=Alignment.TopStart)) {
+        if(active) StationAutocomplete(vm,label,value,icon,onDismiss,onSelected)
+        else StopField(label,value,icon,Modifier.padding(end=48.dp+AppLayout.CompactGap),onOpen)
     }
 }
 
@@ -99,18 +113,21 @@ import java.time.format.DateTimeFormatter
         } }
         item {
             Glass(Modifier.fillMaxWidth()) {
-                if(picker=="from") StationAutocomplete(vm,"Honnan?",vm.from,Icons.Outlined.TripOrigin,::closePicker) {
-                    vm.from=it;vm.selectStation(it);closePicker()
-                } else StopField("Honnan?",vm.from,Icons.Outlined.TripOrigin) { picker="from" }
-                Row(Modifier.fillMaxWidth().padding(vertical=12.dp),verticalAlignment=Alignment.CenterVertically) {
-                    HorizontalDivider(Modifier.weight(1f),color=MaterialTheme.colorScheme.outlineVariant)
-                    IconButton(onClick={ closePicker();val first=vm.from; vm.from=vm.to;vm.to=first;swaps++ }) {
+                Box(Modifier.fillMaxWidth()) {
+                    Column(Modifier.fillMaxWidth()) {
+                        JourneyStopField(vm,"Honnan?",vm.from,Icons.Outlined.TripOrigin,picker=="from",{picker="from"},::closePicker) {
+                            vm.from=it;vm.selectStation(it);closePicker()
+                        }
+                        HorizontalDivider(Modifier.padding(start=46.dp,end=48.dp+AppLayout.ItemGap,top=AppLayout.LabelGap,bottom=AppLayout.LabelGap),
+                            color=if(picker==null) MaterialTheme.colorScheme.outlineVariant else Color.Transparent)
+                        JourneyStopField(vm,"Hová?",vm.to,Icons.Outlined.LocationOn,picker=="to",{picker="to"},::closePicker) {
+                            vm.to=it;vm.selectStation(it);closePicker()
+                        }
+                    }
+                    if(picker==null) IconButton(modifier=Modifier.align(Alignment.CenterEnd),onClick={ closePicker();val first=vm.from; vm.from=vm.to;vm.to=first;swaps++ }) {
                         Icon(Icons.Outlined.SwapVert,"Indulás és érkezés felcserélése",modifier=Modifier.graphicsLayer {rotationZ=swapRotation},tint=MaterialTheme.colorScheme.primary)
                     }
                 }
-                if(picker=="to") StationAutocomplete(vm,"Hová?",vm.to,Icons.Outlined.LocationOn,::closePicker) {
-                    vm.to=it;vm.selectStation(it);closePicker()
-                } else StopField("Hová?",vm.to,Icons.Outlined.LocationOn) { picker="to" }
                 Spacer(Modifier.height(AppLayout.ItemGap))
                 val today=LocalDate.now(Budapest)
                 val selectedDate=if(vm.useNow) today else vm.dateTime.toLocalDate()
@@ -190,7 +207,6 @@ import java.time.format.DateTimeFormatter
     val labelColor by animateColorAsState(if(revealSuggestions) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
         tween(AppMotion.Feedback),label="Station focus label")
     val spotlight=LocalStationFocus.current
-    val focusGutter=with(LocalDensity.current) {20.dp.toPx()}
     val dismiss by rememberUpdatedState(onDismiss)
     val keyboardVisible=WindowInsets.isImeVisible
     var keyboardWasVisible by remember {mutableStateOf(false)}
@@ -222,10 +238,9 @@ import java.time.format.DateTimeFormatter
         } else loading=false
     }
     Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(28.dp)).background(MaterialTheme.colorScheme.surface)
-        .onGloballyPositioned {spotlight.bounds=it.boundsInWindow().inflate(focusGutter)}
         .semantics {paneTitle="Megállókeresés";dismiss {dismiss();true}}) {
         // Match StopField's geometry exactly: focus changes editing, never the text anchor.
-        Row(Modifier.padding(horizontal=4.dp,vertical=12.dp).heightIn(min=48.dp),verticalAlignment=Alignment.CenterVertically) {
+        Row(Modifier.padding(horizontal=4.dp,vertical=AppLayout.RelatedGap).heightIn(min=48.dp),verticalAlignment=Alignment.CenterVertically) {
             Icon(icon,null,tint=MaterialTheme.colorScheme.primary,modifier=Modifier.size(26.dp))
             Spacer(Modifier.width(16.dp))
             Column(Modifier.weight(1f)) {
@@ -244,7 +259,7 @@ import java.time.format.DateTimeFormatter
             IconButton(onClick=onDismiss) {Icon(Icons.Outlined.Close,"Megállókeresés bezárása")}
         }
         AnimatedVisibility(revealSuggestions,
-            enter=expandVertically(tween(AppMotion.Reveal,easing=AppMotion.Arrival),expandFrom=Alignment.Top)+fadeIn(tween(AppMotion.Feedback))) {
+            enter=fadeIn(tween(AppMotion.Feedback))) {
         Column(Modifier.fillMaxWidth().padding(bottom=12.dp)) {
         HorizontalDivider(color=MaterialTheme.colorScheme.outlineVariant)
         if(loading) LinearProgressIndicator(Modifier.fillMaxWidth().padding(top=8.dp))

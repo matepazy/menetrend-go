@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 internal object AppMotion {
     const val Feedback = 150
     const val Reveal = 220
+    const val StationFocus = 280
     const val Dismiss = 160
     val Arrival = LinearOutSlowInEasing
     val State = FastOutSlowInEasing

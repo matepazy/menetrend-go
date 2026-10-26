@@ -36,7 +36,7 @@ internal val LocalStationFocus = staticCompositionLocalOf { StationFocusState() 
     var lastBounds by remember {mutableStateOf<Rect?>(null)}
     SideEffect {state.bounds?.let {lastBounds=it}}
     val scrimAlpha by animateFloatAsState(if(state.dismiss!=null) .48f else 0f,
-        tween(if(state.dismiss!=null) AppMotion.Reveal else AppMotion.Dismiss,easing=AppMotion.State),label="Station focus scrim")
+        tween(if(state.dismiss!=null) AppMotion.StationFocus else AppMotion.Dismiss,easing=AppMotion.Arrival),label="Station focus scrim")
     CompositionLocalProvider(LocalStationFocus provides state) {
         Box(Modifier.fillMaxSize().onGloballyPositioned {origin=it.positionInWindow()}
             .drawWithContent {
