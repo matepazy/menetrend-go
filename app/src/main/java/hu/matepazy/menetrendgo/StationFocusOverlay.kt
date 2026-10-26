@@ -59,7 +59,7 @@ internal val LocalStationFocus = staticCompositionLocalOf { StationFocusState() 
                 Layout(content={
                     repeat(4) {
                         Box(Modifier.clickable(interactionSource=remember {MutableInteractionSource()},indication=null,
-                            onClickLabel="Megállókeresés bezárása",onClick={state.dismiss?.invoke()}))
+                            onClickLabel="Keresés bezárása",onClick={state.dismiss?.invoke()}))
                     }
                 },modifier=Modifier.fillMaxSize()) {measurables,constraints ->
                     val width=constraints.maxWidth

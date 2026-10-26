@@ -14,6 +14,10 @@ import android.os.Looper
 import android.webkit.*
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
@@ -64,6 +68,7 @@ import kotlinx.coroutines.withContext
     var mapTypesOpen by rememberSaveable {mutableStateOf(false)}
     var filtersOpen by rememberSaveable {mutableStateOf(false)}
     var searchQuery by rememberSaveable {mutableStateOf("")}
+    var searchFocused by rememberSaveable {mutableStateOf(false)}
     val allVehicles=remember(vm.vehicles,routeOnly,vm.vehicleFilters) {
         if(routeOnly) vm.vehicles else mapLayerVehicles(vm.vehicles,vm.vehicleFilters)
     }
@@ -193,22 +198,26 @@ import kotlinx.coroutines.withContext
                 }
             })
         if(!routeOnly) {
-            Column(modifier=Modifier.align(Alignment.TopStart).padding(top=topInset+10.dp,start=10.dp),
+            AnimatedVisibility(!searchFocused,modifier=Modifier.align(Alignment.TopStart),
+                enter=fadeIn(tween(AppMotion.Feedback)),exit=fadeOut(tween(AppMotion.Feedback))) {
+            Column(modifier=Modifier.padding(top=topInset+10.dp,start=10.dp),
                 verticalArrangement=Arrangement.spacedBy(AppLayout.CompactGap)) {
                 Surface(shape=androidx.compose.foundation.shape.CircleShape,color=MaterialTheme.colorScheme.surface) {
-                    IconButton(onClick={mapTypesOpen=true},modifier=Modifier.size(48.dp)) {
+                    IconButton(onClick={mapTypesOpen=true},enabled=!searchFocused,modifier=Modifier.size(48.dp)) {
                         Icon(Icons.Outlined.Layers,"Térképtípus")
                     }
                 }
                 Surface(shape=androidx.compose.foundation.shape.CircleShape,color=MaterialTheme.colorScheme.surface) {
-                    IconButton(onClick={filtersOpen=true},modifier=Modifier.size(48.dp)) {
+                    IconButton(onClick={filtersOpen=true},enabled=!searchFocused,modifier=Modifier.size(48.dp)) {
                         Icon(Icons.Outlined.Tune,"Járműszűrők")
                     }
                 }
             }
+            }
             MapSearch(searchQuery,{searchQuery=it},refreshing=vm.vehiclesLoading,
                 onRefresh={scope.launch {vm.refreshVehicles(forceRefresh=true)}},
-                modifier=Modifier.align(Alignment.TopEnd).padding(top=topInset).fillMaxWidth())
+                modifier=Modifier.align(Alignment.TopEnd).padding(top=topInset).fillMaxWidth(),
+                focused=searchFocused,onFocusChange={searchFocused=it})
         }
             if(!routeOnly && (center==null || !locationVisible)) FilledTonalIconButton(onClick={
                 if(allowed) {recenter=true;if(center==null) locationMessage="Várakozás a helymeghatározásra. Ellenőrizd, hogy be van-e kapcsolva."}
