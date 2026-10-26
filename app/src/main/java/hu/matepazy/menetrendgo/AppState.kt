@@ -150,7 +150,7 @@ class AppState(app: Application) : AndroidViewModel(app) {
                     val epoch = if (earlier) journeys.minOf { it.end } - 60_000 else journeys.maxOf { it.start } + 60_000
                     Instant.ofEpochMilli(epoch).atZone(Budapest).toLocalDateTime()
                 } else criteria.time
-                val next = mav.plan(criteria.from,criteria.to,edge,if(more) earlier else criteria.arrive)
+                val next = mav.plan(criteria.from,criteria.to,edge,if(more) earlier else criteria.arrive,activeSearchFilters)
                 val fresh = next.filterNot { n -> journeys.any { it.key == n.key } }
                 journeys = (journeys + fresh).distinctBy { it.key }.sortedBy { it.start }
                 if (!more) {

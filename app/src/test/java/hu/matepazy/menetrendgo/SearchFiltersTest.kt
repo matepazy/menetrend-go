@@ -51,8 +51,6 @@ class SearchFiltersTest {
     @Test fun additionalFacilitiesRequirePositiveEvidenceOnEveryTransitLeg() {
         val examples = mapOf(
             SearchFilter.SecondClass to listOf("A vonat 2. osztályú kocsikkal közlekedik", "Másodosztályú kocsi"),
-            SearchFilter.Wifi to listOf("Wi-Fi szolgáltatás", "WIFI", "Vezeték nélküli internet"),
-            SearchFilter.Power to listOf("230 V csatlakozóaljzat", "USB töltő", "Konnektor"),
             SearchFilter.Dining to listOf("Bisztrószolgáltatás", "Étkezőkocsi", "Büfékocsi"),
             SearchFilter.Sleeper to listOf("Hálókocsi", "Fekvőhelyes kocsi", "Kusett")
         )
@@ -70,5 +68,47 @@ class SearchFiltersTest {
         assertFalse(SearchFilter.Sleeper.matches(journey(leg("Alvószékes kocsi"))))
         val allFacilities = leg(*examples.values.map { it.first() }.toTypedArray())
         assertEquals(1, filterJourneys(listOf(journey(allFacilities), journey(leg())), examples.keys).size)
+    }
+
+    @Test fun providerConfirmedClimateDoesNotRequireAMissingDisplayNotice() {
+        val result = journey(leg("A vonat 2. osztályú kocsikkal közlekedik"))
+        assertFalse(SearchFilter.AirConditioning.matches(result))
+        val climate = result.copy(providerFilters = setOf(SearchFilter.AirConditioning))
+        assertTrue(SearchFilter.AirConditioning.matches(climate))
+        assertFalse(SearchFilter.FirstClass.matches(climate))
+        assertEquals(listOf(climate), filterJourneys(listOf(result, climate), setOf(SearchFilter.AirConditioning)))
+        assertFalse(SearchFilter.AirConditioning.matches(journey(leg().copy(mode = "WALK"))
+            .copy(providerFilters = setOf(SearchFilter.AirConditioning))))
+    }
+
+    @Test fun premiumClassRequiresPremiumEvidenceOnEveryTransitLeg() {
+        assertTrue(SearchFilter.PremiumClass.matches(journey(leg("Prémium osztály"))))
+        assertTrue(SearchFilter.PremiumClass.matches(journey(leg("1+ osztály helyjeggyel"))))
+        assertFalse(SearchFilter.PremiumClass.matches(journey(leg("1. osztályú kocsi"))))
+        assertFalse(SearchFilter.PremiumClass.matches(journey(leg("Prémium osztály"), leg())))
+        assertFalse(SearchFilter.PremiumClass.matches(journey(leg("Nincs prémium osztály"))))
+    }
+
+    @Test fun climateQueryUsesOfficialSearchCodeAndDefaultQueryHasNoConditions() {
+        val time = java.time.LocalDateTime.of(2026, 10, 27, 8, 0)
+        val filters = setOf(SearchFilter.AirConditioning, SearchFilter.FirstClass)
+        val query = MavQueries.plan(a, b, time, false, filters)
+        assertTrue(query.contains("searchParameters:[\"ESZKOZ_KERESESI_FELTETEL#10907842\"]"))
+        assertTrue(MavQueries.plan(a, b, time, true, filters).contains("searchParameters:[\"ESZKOZ_KERESESI_FELTETEL#10907842\"]"))
+        assertTrue(MavQueries.plan(a, b, time, false).contains("searchParameters:[]"))
+    }
+
+    @Test fun widerServiceSectionCoversSubjourneyButPartialRestrictionStillRejectsIt() {
+        val anchors = listOf(
+            service("Országos vonat").copy(from = a.name, till = b.name, fromIndex = 3, tillIndex = 8))
+        val wholeTrain = service("Országbérlettel igénybe vehető")
+            .copy(from = "Korábbi megálló", till = "Későbbi megálló", fromIndex = 0, tillIndex = 10)
+        val selectedLeg = leg().copy(services = anchors + wholeTrain)
+        assertTrue(SearchFilter.CountryPass.matches(journey(selectedLeg)))
+        val restricted = service("Országbérlet nem érvényes")
+            .copy(from = "Köztes megálló", till = b.name, fromIndex = 6, tillIndex = 8)
+        assertFalse(SearchFilter.CountryPass.matches(journey(selectedLeg.copy(services = selectedLeg.services + restricted))))
+        val outside = restricted.copy(fromIndex = 8, tillIndex = 10, from = b.name, till = "Későbbi megálló")
+        assertTrue(SearchFilter.CountryPass.matches(journey(selectedLeg.copy(services = selectedLeg.services + outside))))
     }
 }

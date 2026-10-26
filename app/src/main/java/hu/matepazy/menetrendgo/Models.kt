@@ -69,7 +69,8 @@ data class Leg(val mode: String, val start: Long, val end: Long, val from: Stati
         }
     }
 }
-data class Journey(val duration: Int, val legs: List<Leg>, val rawGraphQl: String? = null) {
+data class Journey(val duration: Int, val legs: List<Leg>, val rawGraphQl: String? = null,
+    val providerFilters: Set<SearchFilter> = emptySet()) {
     val minutes get() = (duration+59)/60
     val start get() = legs.first().start
     val end get() = legs.last().end
