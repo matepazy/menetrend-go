@@ -2,7 +2,9 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src https: data:; connect-src 'none';">
 <style>/* LEAFLET_CSS */
 html,body,#map{height:100%;margin:0;background:#e5edf3;font-family:Roboto,Arial,sans-serif}.leaflet-tile-pane{pointer-events:none}.hit{width:48px;height:48px;display:flex;align-items:center;justify-content:center}.cluster{background:#244c86;color:white;border:3px solid white;border-radius:50%;width:34px;height:34px;display:flex;align-items:center;justify-content:center;font:bold 13px Roboto,Arial;box-shadow:0 2px 8px #1234}.vehicle.compact{width:28px;height:28px;min-width:0;padding:0;border-radius:50%}.vehicle svg{width:20px;height:20px;flex-shrink:0}.vehicle{display:flex;align-items:center;justify-content:center;gap:5px}.vehicle{flex-shrink:0;width:max-content;background:#2864d9;color:white;border:2px solid white;border-radius:22px;padding:6px 10px;white-space:nowrap;font:bold 13px Roboto,Arial;box-shadow:0 2px 8px #1234;min-width:20px;text-align:center}.bus{background:#0d687a}#status{position:absolute;z-index:1000;bottom:36px;left:12px;right:78px;background:#f8fbfff2;color:#112d43;border-radius:18px;padding:10px;font-size:12px;display:none}.leaflet-control-attribution{font-size:10px!important;max-width:240px;white-space:normal;margin-right:18px!important;margin-bottom:calc(var(--bottom-inset,0px) + 12px)!important;border-radius:12px;padding:4px 8px!important}.leaflet-tooltip{border-radius:16px;padding:10px}
-.hit{user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}.vehicle.compact{position:relative}.vehicle.directed{background:transparent!important;border-color:transparent;box-shadow:none}.vehicle .heading{position:absolute;width:48px;height:48px;overflow:visible;filter:drop-shadow(0 2px 4px #1234)}.vehicle.directed>svg:last-child{position:relative}
+.hit{user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.vehicle.compact{position:relative;width:48px;height:48px;background:transparent!important;border:0;padding:0;box-shadow:none}
+.vehicle .marker-artwork{width:48px;height:48px;overflow:visible;filter:drop-shadow(0 2px 4px #1234);pointer-events:none}
 .leaflet-top{top:var(--top-inset,0px)}
 #statusbar-feather{position:absolute;z-index:1100;top:0;left:0;right:0;height:var(--top-feather-height,0px);pointer-events:none;backdrop-filter:var(--top-feather-blur,none);-webkit-backdrop-filter:var(--top-feather-blur,none);background:linear-gradient(to bottom,rgba(var(--feather-rgb,237,244,250),.82),rgba(var(--feather-rgb,237,244,250),0));mask-image:linear-gradient(to bottom,#000 0%,#000 45%,transparent 100%);-webkit-mask-image:linear-gradient(to bottom,#000 0%,#000 45%,transparent 100%)}
 </style></head><body><div id="map" role="application" aria-label="Járművek térképe"></div><div id="status"></div><script>/* LEAFLET_JS */</script><script>
@@ -107,6 +109,8 @@ window.setMapType=(type,customUrl='',unofficialGoogleMap=false)=>{
  }
 };
 window.setMapType('standard');
+/* VEHICLE_ICONS */
+const officialVehicleIconUrls=Object.fromEntries(Object.entries(officialVehicleIcons).map(([mode,svg])=>[mode,'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg)]));
 const markers=L.layerGroup().addTo(map),routes=L.layerGroup().addTo(map);let vehicles=[],routeKey='',routeMode=false,routePoints=[],fittedVehicleIds='';
 // Cluster in screen space, so every country-scale target remains independently tappable.
 function draw(){
@@ -122,20 +126,28 @@ function draw(){
    L.marker([lat,lon],{icon:L.divIcon({html:hit,iconSize:[48,48],iconAnchor:[24,24],className:''}),title:group.length+' jármű · nagyítás',keyboard:true}).addTo(markers).on('click',()=>map.fitBounds(group.map(v=>[v.lat,v.lon]),{padding:[48,48],maxZoom:Math.min(19,zoom+3)}));
   }else{
    const v=group[0],label=document.createElement('div');label.className='vehicle compact';
-   const color=/^[0-9a-f]{6}$/i.test((v.color||'').replace('#',''))?(v.color||'').replace('#',''):'2864d9';
+   const color=Object.hasOwn(officialVehicleColors,v.mode)?officialVehicleColors[v.mode].replace('#',''):'000000';
    label.style.backgroundColor='#'+color;
    const rgb=[0,2,4].map(i=>parseInt(color.slice(i,i+2),16)/255).map(c=>c<=.04045?c/12.92:((c+.055)/1.055)**2.4);
    label.style.color=(rgb[0]*.2126+rgb[1]*.7152+rgb[2]*.0722)>.179?'#000':'#fff';
+   const artwork=document.createElementNS('http://www.w3.org/2000/svg','svg');artwork.classList.add('marker-artwork');artwork.setAttribute('viewBox','-24 -24 48 48');artwork.setAttribute('aria-hidden','true');
    if(typeof v.heading==='number' && Number.isFinite(v.heading) && v.heading>=0 && v.heading<=360){
-    label.classList.add('directed');
-    const arrow=document.createElementNS('http://www.w3.org/2000/svg','svg');arrow.classList.add('heading');arrow.setAttribute('viewBox','-24 -24 48 48');arrow.setAttribute('aria-hidden','true');
+    const arrow=artwork;
     const outline=document.createElementNS(arrow.namespaceURI,'path');outline.setAttribute('d','M-6 -13.75 0 -22 6 -13.75 A15 15 0 1 1 -6 -13.75Z');outline.setAttribute('fill','#'+color);outline.setAttribute('stroke','#fff');outline.setAttribute('stroke-width','2');outline.setAttribute('stroke-linejoin','round');
-    arrow.append(outline);arrow.style.transform='rotate('+v.heading+'deg)';label.append(arrow);
+    outline.setAttribute('transform','rotate('+v.heading+')');arrow.append(outline);
+   }else{
+    const circle=document.createElementNS(artwork.namespaceURI,'circle');circle.setAttribute('r','15');circle.setAttribute('fill','#'+color);circle.setAttribute('stroke','#fff');circle.setAttribute('stroke-width','2');artwork.append(circle);
    }
    const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('viewBox','0 0 24 24');svg.setAttribute('fill','currentColor');svg.setAttribute('aria-hidden','true');
    const path=document.createElementNS(svg.namespaceURI,'path');
    path.setAttribute('d',['COACH','BUS','RAIL_REPLACEMENT_BUS'].includes(v.mode)?'M4 16c0 .88.39 1.67 1 2.22V20h2v-2h10v2h2v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4S4 2.5 4 6v10zm3 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm10 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zM6 6h12v5H6z':v.mode==='TRAM'||v.mode==='TRAMTRAIN'?'M19 16V6c0-2-2-2.5-5-2.7L15 2h3V1H6v1h7l-1 1.2C8 3.2 5 3.5 5 6v10c0 1.5 1 2.7 2.3 3.2L6 21v1h2l2-2h4l2 2h2v-1l-1.3-1.8C18 18.7 19 17.5 19 16zM7 6h10v6H7zm1.5 12a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm7 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z':'M12 2C8 2 4 2.5 4 6v10c0 1.93 1.57 3.5 3.5 3.5L6 21v1h2l2-2h4l2 2h2v-1l-1.5-1.5c1.93 0 3.5-1.57 3.5-3.5V6c0-3.5-3.58-4-8-4zM6 6h5v5H6zm7 0h5v5h-5zM8.5 17a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm7 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z');
-   svg.append(path);label.append(svg);hit.append(label);
+   if(Object.hasOwn(officialVehicleIconUrls,v.mode)){
+    const image=document.createElementNS(artwork.namespaceURI,'image');image.setAttribute('href',officialVehicleIconUrls[v.mode]);image.setAttribute('x','-14');image.setAttribute('y','-14');image.setAttribute('width','28');image.setAttribute('height','28');
+    artwork.append(image);
+   }else{
+    svg.setAttribute('x','-10');svg.setAttribute('y','-10');svg.setAttribute('width','20');svg.setAttribute('height','20');svg.append(path);artwork.append(svg);
+   }
+   label.append(artwork);hit.append(label);
    const marker=L.marker([v.lat,v.lon],{icon:L.divIcon({html:hit,iconSize:[48,48],iconAnchor:[24,24],className:''}),keyboard:true}).addTo(markers);
    marker.getElement().setAttribute('aria-label',v.type+' '+v.name+' '+v.headsign);marker.on('click',()=>NativeMap.selectVehicle(v.id));
   }

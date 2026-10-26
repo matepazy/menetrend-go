@@ -193,6 +193,7 @@ import kotlinx.coroutines.withContext
                     val html=ctx.assets.open("map.html").bufferedReader().use {it.readText()}
                         .replace("/* LEAFLET_JS */",ctx.assets.open("leaflet.js").bufferedReader().use {it.readText()})
                         .replace("/* LEAFLET_CSS */",ctx.assets.open("leaflet.css").bufferedReader().use {it.readText()})
+                        .replace("/* VEHICLE_ICONS */",ctx.assets.open("vehicle-icons.js").bufferedReader().use {it.readText()})
                     loadDataWithBaseURL("https://menetrendgo.local/",html,"text/html","utf-8",null)
                     web=this
                 }

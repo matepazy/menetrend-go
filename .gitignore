@@ -26,6 +26,9 @@ artifacts/
 Thumbs.db
 docs/
 tools/
-scripts/
+!scripts/
+scripts/*
+!scripts/generate_map_vehicle_icons.py
+!scripts/verify_map_vehicle_icons.cjs
 start_emu.bat
 CHANGELOG.md
