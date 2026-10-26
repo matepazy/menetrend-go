@@ -63,6 +63,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import org.json.JSONObject
 import kotlinx.coroutines.*
 import java.time.*
@@ -195,6 +196,38 @@ import java.time.format.DateTimeFormatter
     }
 }
 
+@Composable private fun StationSearchIcon(station: Station) {
+    val town = station.type == "MetaStation" || station.name.endsWith('*')
+    // Reuse the original, full-color MÁVPlusz artwork bundled for the mode filters.
+    // A town groups several stops; absent mode data must not imply a vehicle type.
+    val drawable = when {
+        town -> null
+        "TRAMTRAIN" in station.modes -> R.drawable.ic_mode_tramtrain
+        "SUBURBAN_RAILWAY" in station.modes -> R.drawable.ic_mode_hev
+        "RAIL" in station.modes -> R.drawable.ic_mode_rail
+        "RAIL_REPLACEMENT_BUS" in station.modes -> R.drawable.ic_mode_replacement_bus
+        "COACH" in station.modes -> R.drawable.ic_mode_coach
+        "BUS" in station.modes -> R.drawable.ic_mode_local_bus
+        else -> null
+    }
+    if (drawable != null) {
+        Image(painterResource(drawable), contentDescription = when (drawable) {
+            R.drawable.ic_mode_tramtrain -> "TramTrain-megálló"
+            R.drawable.ic_mode_hev -> "HÉV-megálló"
+            R.drawable.ic_mode_rail -> "Vasútállomás"
+            R.drawable.ic_mode_replacement_bus -> "Vonatpótló autóbusz-megálló"
+            R.drawable.ic_mode_coach -> "Helyközi autóbusz-megálló"
+            else -> "Helyi autóbusz-megálló"
+        }, modifier = Modifier.size(28.dp))
+    } else {
+        Box(Modifier.size(28.dp), contentAlignment = Alignment.Center) {
+            Icon(if (town) Icons.Outlined.LocationCity else Icons.Outlined.LocationOn,
+                if (town) "Település összes megállója" else null,
+                Modifier.size(22.dp), tint = MaterialTheme.colorScheme.primary)
+        }
+    }
+}
+
 @OptIn(ExperimentalLayoutApi::class)
 @Composable private fun StationAutocomplete(vm: AppState, label: String, value: Station?, icon: ImageVector,
     onDismiss: () -> Unit, onSelected: (Station) -> Unit) {
@@ -273,13 +306,7 @@ import java.time.format.DateTimeFormatter
                 items(results,key={it.id}) {station ->
                     Surface(onClick={onSelected(station)},color=MaterialTheme.colorScheme.surface) {
                         Row(Modifier.fillMaxWidth().height(rowHeight).padding(horizontal=16.dp),verticalAlignment=Alignment.CenterVertically) {
-                            val stationIcon=when {
-                                station.name.endsWith('*') -> Icons.Outlined.LocationCity
-                                "RAIL" in station.modes -> Icons.Outlined.Train
-                                "COACH" in station.modes || "BUS" in station.modes -> Icons.Outlined.DirectionsBus
-                                else -> Icons.Outlined.LocationOn
-                            }
-                            Icon(stationIcon,null,Modifier.size(22.dp),tint=MaterialTheme.colorScheme.primary)
+                            StationSearchIcon(station)
                             Spacer(Modifier.width(12.dp))
                             Text(station.name,Modifier.weight(1f),style=MaterialTheme.typography.bodyLarge,
                                 fontWeight=if(station.name.endsWith('*')) FontWeight.SemiBold else FontWeight.Normal,
