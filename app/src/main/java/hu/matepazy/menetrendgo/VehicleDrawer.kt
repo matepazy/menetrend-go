@@ -93,6 +93,7 @@ internal fun upcomingVehicleStops(stops: List<VehicleStop>, now: Long, detail: J
     val detail=vm.detail?.takeIf {it.optString("gtfsId")==vehicle.id}
     val stops=remember(detail,day) {detail?.let {vehicleStops(it,day)}.orEmpty()}
     val upcoming=upcomingVehicleStops(stops,now,detail,vehicle)
+    val showUicCode=vehicle.mode!="RAIL" && vehicle.uicCode.isNotBlank()
     AppBottomSheet(onDismissRequest=dismiss,sheetState=rememberModalBottomSheetState(skipPartiallyExpanded=true),shape=MaterialTheme.shapes.extraLarge) {
         Column(Modifier.fillMaxWidth().fillMaxHeight(.78f).padding(horizontal=AppLayout.SheetPadding)) {
             Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically) {
@@ -108,14 +109,14 @@ internal fun upcomingVehicleStops(stops: List<VehicleStop>, now: Long, detail: J
                 Text(vehiclePositionAge(vehicle.positionUpdatedSeconds,now/1000),
                     style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
             }
-            if(vehicle.model.isNotBlank() || vehicle.registration.isNotBlank() || vehicle.uicCode.isNotBlank()) {
+            if(vehicle.modelAndRegistration.isNotBlank() || showUicCode) {
                 Column(Modifier.padding(top=AppLayout.RelatedGap),verticalArrangement=Arrangement.spacedBy(AppLayout.CompactGap)) {
                     if(vehicle.modelAndRegistration.isNotBlank()) Row(verticalAlignment=Alignment.CenterVertically,
                         horizontalArrangement=Arrangement.spacedBy(AppLayout.RelatedGap)) {
                         Icon(Icons.Outlined.Commute,"Jármű",Modifier.size(20.dp),tint=MaterialTheme.colorScheme.onSurfaceVariant)
                         VehicleModelLabel(vehicle,Modifier.weight(1f))
                     }
-                    if(vehicle.uicCode.isNotBlank()) VehicleMetadataRow(Icons.Outlined.Badge,"Pályaszám",vehicle.uicCode)
+                    if(showUicCode) VehicleMetadataRow(Icons.Outlined.Badge,"Pályaszám",vehicle.uicCode)
                 }
             }
             Text(if(stops.isNotEmpty()) "${stops.first().name} → ${stops.last().name}"
