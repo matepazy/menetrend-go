@@ -27,7 +27,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.core.app.NotificationManagerCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -48,11 +47,11 @@ private enum class SettingsPage(val title: String) {
     val page = SettingsPage.valueOf(route)
     val context = LocalContext.current
     val owner = LocalLifecycleOwner.current
-    var notificationsEnabled by remember { mutableStateOf(NotificationManagerCompat.from(context).areNotificationsEnabled()) }
+    var notificationsEnabled by remember { mutableStateOf(PassNotifications.systemEnabled(context)) }
     DisposableEffect(owner, context) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
-                notificationsEnabled = NotificationManagerCompat.from(context).areNotificationsEnabled()
+                notificationsEnabled = PassNotifications.systemEnabled(context)
             }
         }
         owner.lifecycle.addObserver(observer)
@@ -90,7 +89,7 @@ private enum class SettingsPage(val title: String) {
                     item {
                         SettingsGroup {
                             SettingsRow("Megjelenés", themeLabel(vm.theme), onClick = { navigate(SettingsPage.Appearance) })
-                            SettingsRow("Értesítések", if (notificationsEnabled) "Engedélyezve az Androidban" else "Kikapcsolva az Androidban", onClick = { navigate(SettingsPage.Notifications) })
+                            SettingsRow("Értesítések", if (!notificationsEnabled) "Kikapcsolva az Androidban" else "${vm.passReminders.size} / ${PassReminder.entries.size} emlékeztető bekapcsolva", onClick = { navigate(SettingsPage.Notifications) })
                             SettingsRow("Adatok és előzmények", if (vm.recents.isEmpty()) "Nincs mentett keresés" else "${vm.recents.size} mentett keresés", onClick = { navigate(SettingsPage.Data) })
                             SettingsRow("Frissítések", if (vm.updates.enabled) "Automatikus ellenőrzés bekapcsolva" else "Kézi ellenőrzés", onClick = { navigate(SettingsPage.Updates) })
                         }
@@ -128,8 +127,21 @@ private enum class SettingsPage(val title: String) {
                         SettingsGroup {
                             Column(Modifier.padding(AppLayout.PanelPadding), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                                 Text("Bérlet-emlékeztetők", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-                                Text(if (notificationsEnabled) "Az értesítések engedélyezve vannak." else "Az értesítések ki vannak kapcsolva.", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                Text("3 és 1 nappal a lejárat előtt, majd a lejárat után, 9 órakor.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text("Válaszd ki, mikor szóljunk a mentett bérleteidről. Az emlékeztetők 9 órakor érkeznek.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                            PassReminder.entries.forEach { reminder ->
+                                HorizontalDivider(Modifier.padding(horizontal = AppLayout.PanelPadding), color = MaterialTheme.colorScheme.outlineVariant)
+                                PassReminderSwitch(reminder, reminder in vm.passReminders) { vm.choosePassReminder(reminder, it) }
+                            }
+                        }
+                    }
+                    item {
+                        SettingsGroup {
+                            if (!notificationsEnabled) {
+                                Column(Modifier.padding(AppLayout.PanelPadding), verticalArrangement = Arrangement.spacedBy(AppLayout.CompactGap)) {
+                                    Text("Az Android letiltotta az értesítéseket", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                                    Text("A választásaidat mentjük, de emlékeztetőt csak az Android értesítésbeállításaiban megadott engedély után kaphatsz.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                }
                             }
                             SettingsRow("Android értesítésbeállítások", external = true, onClick = {
                                 context.startActivity(Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName))
@@ -253,6 +265,21 @@ private enum class SettingsPage(val title: String) {
             confirmButton = { TextButton(onClick = { vm.clearRecents(); confirmClear = false }) { Text("Törlés") } },
             dismissButton = { TextButton(onClick = { confirmClear = false }) { Text("Mégse") } }
         )
+    }
+}
+
+@Composable internal fun PassReminderSwitch(reminder: PassReminder, checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
+    Row(
+        Modifier.fillMaxWidth().toggleable(checked, role = Role.Switch, onValueChange = onCheckedChange)
+            .padding(AppLayout.PanelPadding).heightIn(min = 48.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(AppLayout.ItemGap)
+    ) {
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(AppLayout.LabelGap)) {
+            Text(reminder.title, style = MaterialTheme.typography.titleMedium)
+            Text(reminder.summary, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        Switch(checked = checked, onCheckedChange = null)
     }
 }
 

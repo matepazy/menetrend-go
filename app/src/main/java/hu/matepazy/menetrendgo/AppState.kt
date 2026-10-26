@@ -23,6 +23,11 @@ class AppState(app: Application) : AndroidViewModel(app) {
     }
     private val stationSearch=StationSearch(app, mav::stations)
     var theme by mutableStateOf(prefs.getString("theme", "system").orEmpty()); private set
+    var passReminders by mutableStateOf(PassNotifications.enabledReminders(app)); private set
+    fun choosePassReminder(reminder: PassReminder, enabled: Boolean) {
+        PassNotifications.setEnabled(getApplication(), reminder, enabled)
+        passReminders = PassNotifications.enabledReminders(getApplication())
+    }
     var developerSettingsUnlocked by mutableStateOf(prefs.getBoolean("developer_settings_unlocked", false)); private set
     var showRawGraphQl by mutableStateOf(prefs.getBoolean("show_raw_graphql", false)); private set
     var mapRefreshSeconds by mutableIntStateOf(prefs.getInt("map_refresh_seconds", 75).coerceIn(15, 90)); private set
