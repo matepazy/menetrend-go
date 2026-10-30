@@ -40,6 +40,10 @@ class AppState(app: Application) : AndroidViewModel(app) {
     val effectiveMapType get() = if (mapType == MapType.Custom && (!customMapEnabled || !validMapTileUrl(customMapUrl))) MapType.Standard else mapType
     var recents by mutableStateOf(readArray("recents").mapNotNull { runCatching { Recent(Station.parse(it.getJSONObject("from")), Station.parse(it.getJSONObject("to"))) }.getOrNull() }); private set
     var passes by mutableStateOf(readArray("passes").mapNotNull { runCatching { Pass.parse(it) }.getOrNull() }); private set
+    var savedSearches by mutableStateOf(readArray("saved_searches").mapNotNull {
+        runCatching { SavedSearch.parse(it) }.getOrNull()
+    }.distinctBy { it.key }); private set
+    var showSavedSearches by mutableStateOf(prefs.getBoolean("show_saved_searches", savedSearches.isNotEmpty())); private set
     var from by mutableStateOf<Station?>(null)
     var to by mutableStateOf<Station?>(null)
     var dateTime by mutableStateOf(LocalDateTime.now(Budapest).withSecond(0).withNano(0))
@@ -80,6 +84,8 @@ class AppState(app: Application) : AndroidViewModel(app) {
     private var detailJob: Job? = null
     private var detailKey = ""
     private var activeSearch: Search? = null
+    val resultFrom get() = activeSearch?.from ?: from
+    val resultTo get() = activeSearch?.to ?: to
     private data class Search(val from: Station, val to: Station, val time: LocalDateTime, val arrive: Boolean)
     private fun readArray(key: String) = runCatching { JSONArray(prefs.getString(key, "[]")).objects() }.getOrDefault(emptyList())
 
@@ -118,6 +124,31 @@ class AppState(app: Application) : AndroidViewModel(app) {
         prefs.edit().putString("custom_map_url",url).putString("map_type",mapType.id).apply()
     }
     fun clearRecents() { recents = emptyList(); prefs.edit().remove("recents").apply() }
+    fun chooseSearchCollection(saved: Boolean) {
+        showSavedSearches = saved
+        prefs.edit().putBoolean("show_saved_searches", saved).apply()
+    }
+    fun saveSearch(from: Station, to: Station, name: String, icon: SavedSearchIcon) {
+        val label = name.trim().take(SavedSearch.MAX_NAME_LENGTH)
+        if (!canSaveRoute(from, to) || label.isEmpty()) return
+        val saved = SavedSearch(from, to, label, icon)
+        val index = savedSearches.indexOfFirst { it.key == saved.key }
+        savedSearches = if (index < 0) listOf(saved) + savedSearches else
+            savedSearches.toMutableList().apply { this[index] = saved }
+        persistSavedSearches()
+        chooseSearchCollection(true)
+    }
+    fun removeSavedSearch(saved: SavedSearch) {
+        savedSearches = savedSearches.filterNot { it.key == saved.key }
+        persistSavedSearches()
+    }
+    private fun persistSavedSearches() {
+        prefs.edit().putString("saved_searches", JSONArray(savedSearches.map { it.json() }).toString()).apply()
+    }
+    fun useSavedSearch(saved: SavedSearch) {
+        from = saved.from; to = saved.to; useNow = true; arriveBy = false
+        dateTime = LocalDateTime.now(Budapest).withSecond(0).withNano(0)
+    }
     fun addPass(pass: Pass) {
         passes = passes.filterNot { it.id == pass.id } + pass
         savePasses(); PassNotifications.schedule(getApplication(), pass)

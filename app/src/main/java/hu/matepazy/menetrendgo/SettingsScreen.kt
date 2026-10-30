@@ -90,7 +90,7 @@ private enum class SettingsPage(val title: String) {
                         SettingsGroup {
                             SettingsRow("Megjelenés", themeLabel(vm.theme), onClick = { navigate(SettingsPage.Appearance) })
                             SettingsRow("Értesítések", if (!notificationsEnabled) "Kikapcsolva az Androidban" else "${vm.passReminders.size} / ${PassReminder.entries.size} emlékeztető bekapcsolva", onClick = { navigate(SettingsPage.Notifications) })
-                            SettingsRow("Adatok és előzmények", if (vm.recents.isEmpty()) "Nincs mentett keresés" else "${vm.recents.size} mentett keresés", onClick = { navigate(SettingsPage.Data) })
+                            SettingsRow("Adatok és előzmények", "${vm.savedSearches.size} mentett útvonal · ${vm.recents.size} korábbi keresés", onClick = { navigate(SettingsPage.Data) })
                             SettingsRow("Frissítések", if (vm.updates.enabled) "Automatikus ellenőrzés bekapcsolva" else "Kézi ellenőrzés", onClick = { navigate(SettingsPage.Updates) })
                         }
                     }
@@ -162,7 +162,7 @@ private enum class SettingsPage(val title: String) {
                         SettingsGroup {
                             Column(Modifier.padding(AppLayout.PanelPadding), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                                 Text("Keresési előzmények", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-                                Text(if (vm.recents.isEmpty()) "Nincs mentett keresés." else "${vm.recents.size} korábbi útvonal a Tervezés oldalon.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text(if (vm.recents.isEmpty()) "Nincs korábbi keresés." else "${vm.recents.size} korábbi útvonal a Tervezés oldalon.", color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 OutlinedButton(onClick = { confirmClear = true }, enabled = vm.recents.isNotEmpty()) { Text("Előzmények törlése") }
                             }
                         }

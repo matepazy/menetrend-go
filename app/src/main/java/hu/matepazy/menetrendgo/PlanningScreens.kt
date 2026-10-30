@@ -104,6 +104,7 @@ import java.time.format.DateTimeFormatter
     var datePicker by remember { mutableStateOf(false) }
     var timePicker by remember { mutableStateOf(false) }
     var searchOptions by rememberSaveable { mutableStateOf(false) }
+    var editingSaved by remember { mutableStateOf<SavedSearch?>(null) }
     var swaps by remember { mutableIntStateOf(0) }
     val swapRotation by animateFloatAsState(swaps*180f,
         tween(AppMotion.Reveal,easing=AppMotion.State),label="Swap stations")
@@ -163,12 +164,34 @@ import java.time.format.DateTimeFormatter
         }
         item { Column(verticalArrangement=Arrangement.spacedBy(AppLayout.CompactGap)) {
             Row(Modifier.fillMaxWidth().padding(top=AppLayout.SectionGap-AppLayout.ItemGap),verticalAlignment=Alignment.CenterVertically) {
-                Text("Legutóbbi keresések",Modifier.weight(1f),style=MaterialTheme.typography.titleMedium,fontWeight=FontWeight.SemiBold)
-                if(vm.recents.isNotEmpty()) TextButton(onClick=vm::clearRecents) { Text("Törlés") }
+                SingleChoiceSegmentedButtonRow(Modifier.weight(1f)) {
+                    listOf("Mentett", "Legutóbbi").forEachIndexed { index, label ->
+                        SegmentedButton(selected=vm.showSavedSearches==(index==0),
+                            onClick={vm.chooseSearchCollection(index==0)},
+                            shape=SegmentedButtonDefaults.itemShape(index,2)) { Text(label) }
+                    }
+                }
             }
-            if(vm.recents.isEmpty()) Text("A kereséseidet itt találod majd. Egy koppintással újratervezheted az utat.",style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)
+            if(!vm.showSavedSearches && vm.recents.isNotEmpty()) TextButton(onClick=vm::clearRecents,modifier=Modifier.align(Alignment.End)) { Text("Előzmények törlése") }
+            if(vm.showSavedSearches && vm.savedSearches.isEmpty()) {
+                Text("A gyakori útjaid helye",style=MaterialTheme.typography.titleMedium,fontWeight=FontWeight.SemiBold)
+                Text("Az Indulások jobb felső sarkában lévő könyvjelzővel menthetsz útvonalat. Adj neki nevet és ikont, hogy könnyen megtaláld.",
+                    style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)
+            } else if(!vm.showSavedSearches && vm.recents.isEmpty()) Text("A kereséseidet itt találod majd. Egy koppintással újratervezheted az utat.",style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)
         } }
-        items(vm.recents,key={it.from.id+":"+it.to.id}) { recent ->
+        if(vm.showSavedSearches) items(vm.savedSearches,key={"saved:"+it.key}) { saved ->
+            Surface(onClick={vm.useSavedSearch(saved);onSearch()},shape=RoundedCornerShape(28.dp),color=MaterialTheme.colorScheme.surface) {
+                Row(Modifier.fillMaxWidth().padding(start=AppLayout.PanelPadding,top=12.dp,bottom=12.dp,end=8.dp),verticalAlignment=Alignment.CenterVertically) {
+                    Icon(saved.icon.vector,null,tint=MaterialTheme.colorScheme.primary)
+                    Spacer(Modifier.width(16.dp))
+                    Column(Modifier.weight(1f),verticalArrangement=Arrangement.spacedBy(4.dp)) {
+                        Text(saved.name,style=MaterialTheme.typography.titleMedium,fontWeight=FontWeight.SemiBold)
+                        Text("${saved.from.name} → ${saved.to.name}",style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                    IconButton(onClick={editingSaved=saved}) {Icon(Icons.Outlined.Edit,"${saved.name} szerkesztése")}
+                }
+            }
+        } else items(vm.recents,key={"recent:"+it.from.id+":"+it.to.id}) { recent ->
             Surface(onClick={vm.from=recent.from;vm.to=recent.to;vm.useNow=true;vm.arriveBy=false;onSearch()},shape=RoundedCornerShape(28.dp),color=MaterialTheme.colorScheme.surface) {
                 Row(Modifier.fillMaxWidth().padding(AppLayout.PanelPadding),verticalAlignment=Alignment.CenterVertically) {
                     Icon(Icons.Outlined.History,null,tint=MaterialTheme.colorScheme.onSurfaceVariant)
@@ -183,6 +206,11 @@ import java.time.format.DateTimeFormatter
     if(datePicker) JourneyDatePicker(vm) {datePicker=false}
     if(timePicker) JourneyTimePicker(vm) {timePicker=false}
     if(searchOptions) SearchFilterDrawer(vm) {searchOptions=false}
+    editingSaved?.let { saved ->
+        SavedSearchEditor(saved.from,saved.to,saved,
+            onSave={name,icon -> vm.saveSearch(saved.from,saved.to,name,icon);editingSaved=null},
+            onDismiss={editingSaved=null},onDelete={vm.removeSavedSearch(saved);editingSaved=null})
+    }
 }
 
 @Composable private fun JourneyPickerControl(label: String, value: String, icon: ImageVector,
@@ -478,6 +506,14 @@ internal const val DeparturePaginationKey = "later-departures"
 }
 
 @Composable fun ResultsScreen(vm: AppState, navigation: ResultsNavigationState, back: () -> Unit, select: (Journey) -> Unit) {
+    var saveSearch by rememberSaveable {mutableStateOf(false)}
+    val from=vm.resultFrom
+    val to=vm.resultTo
+    val saved=vm.savedSearches.firstOrNull {it.from.id==from?.id && it.to.id==to?.id}
+    if(saveSearch && from!=null && to!=null) SavedSearchEditor(from,to,saved,
+        onSave={name,icon -> vm.saveSearch(from,to,name,icon);saveSearch=false},
+        onDismiss={saveSearch=false},
+        onDelete=if(saved==null) null else {{vm.removeSavedSearch(saved);saveSearch=false}})
     val listState=navigation.listState
     DepartureAutoLoading(listState, enabled=vm.canLoadMore && !vm.searching && vm.searchError==null) {vm.search(true)}
     var earlierAnchor by navigation::earlierAnchor
@@ -505,7 +541,12 @@ internal const val DeparturePaginationKey = "later-departures"
         }
     }
     LazyColumn(Modifier.fillMaxSize(),state=listState,contentPadding=screenContentPadding(),verticalArrangement=Arrangement.spacedBy(AppLayout.ItemGap)) {
-        item { PageTitle("Indulások", "${vm.from?.name.orEmpty()} → ${vm.to?.name.orEmpty()}",back) }
+        item { PageTitle("Indulások", "${from?.name.orEmpty()} → ${to?.name.orEmpty()}",back) {
+            FilledTonalIconButton(onClick={saveSearch=true},enabled=canSaveRoute(from,to)) {
+                Icon(if(saved==null) Icons.Outlined.BookmarkAdd else Icons.Outlined.BookmarkAdded,
+                    if(saved==null) "Keresés mentése" else "Mentett keresés szerkesztése")
+            }
+        } }
         if(vm.canLoadEarlier || vm.loadingEarlier) item(key="earlier") {
             TextButton(onClick={rememberEarlierAnchor();vm.loadEarlier()},enabled=!vm.searching,modifier=Modifier.fillMaxWidth().heightIn(min=52.dp)) {
                 if(vm.loadingEarlier) {
