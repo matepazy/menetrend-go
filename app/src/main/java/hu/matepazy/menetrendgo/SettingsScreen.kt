@@ -34,7 +34,7 @@ import kotlin.math.roundToInt
 
 private enum class SettingsPage(val title: String) {
     Home("Beállítások"), Appearance("Megjelenés"), Notifications("Értesítések"),
-    Data("Adatok és előzmények"), Updates("Frissítések"), About("Az alkalmazásról"), Developer("Fejlesztői beállítások");
+    Updates("Frissítések"), About("Az alkalmazásról"), Developer("Fejlesztői beállítások");
 
     val parent: SettingsPage get() = when (this) {
         Developer -> About
@@ -44,7 +44,7 @@ private enum class SettingsPage(val title: String) {
 
 @Composable fun SettingsScreen(vm: AppState) {
     var route by rememberSaveable { mutableStateOf(SettingsPage.Home.name) }
-    val page = SettingsPage.valueOf(route)
+    val page = SettingsPage.entries.firstOrNull { it.name == route } ?: SettingsPage.Home
     val context = LocalContext.current
     val owner = LocalLifecycleOwner.current
     var notificationsEnabled by remember { mutableStateOf(PassNotifications.systemEnabled(context)) }
@@ -73,7 +73,6 @@ private enum class SettingsPage(val title: String) {
     navigate: (SettingsPage) -> Unit
 ) {
     val context = LocalContext.current
-    var confirmClear by rememberSaveable { mutableStateOf(false) }
     var developerUnlockTaps by rememberSaveable { mutableIntStateOf(0) }
     // Each destination owns its scroll position, including the parent in a Back preview.
     key(page) {
@@ -90,7 +89,6 @@ private enum class SettingsPage(val title: String) {
                         SettingsGroup {
                             SettingsRow("Megjelenés", themeLabel(vm.theme), onClick = { navigate(SettingsPage.Appearance) })
                             SettingsRow("Értesítések", if (!notificationsEnabled) "Kikapcsolva az Androidban" else "${vm.passReminders.size} / ${PassReminder.entries.size} emlékeztető bekapcsolva", onClick = { navigate(SettingsPage.Notifications) })
-                            SettingsRow("Adatok és előzmények", "${vm.savedSearches.size} mentett útvonal · ${vm.recents.size} korábbi keresés", onClick = { navigate(SettingsPage.Data) })
                             SettingsRow("Frissítések", if (vm.updates.enabled) "Automatikus ellenőrzés bekapcsolva" else "Kézi ellenőrzés", onClick = { navigate(SettingsPage.Updates) })
                         }
                     }
@@ -149,25 +147,6 @@ private enum class SettingsPage(val title: String) {
                         }
                     }
                     item { SettingsNote("A bérleteket és a lejárati dátumokat a Bérletek oldalon kezelheted. Az Android energiatakarékossága késleltetheti az emlékeztetőket.") }
-                }
-                SettingsPage.Data -> {
-                    item {
-                        Glass(Modifier.fillMaxWidth()) {
-                            Text("Ezen az eszközön", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-                            Spacer(Modifier.height(8.dp))
-                            Text("Bérleteid és keresési előzményeid ezen az eszközön maradnak. Nincs fiók vagy analitika.", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        }
-                    }
-                    item {
-                        SettingsGroup {
-                            Column(Modifier.padding(AppLayout.PanelPadding), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                Text("Keresési előzmények", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-                                Text(if (vm.recents.isEmpty()) "Nincs korábbi keresés." else "${vm.recents.size} korábbi útvonal a Tervezés oldalon.", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                OutlinedButton(onClick = { confirmClear = true }, enabled = vm.recents.isNotEmpty()) { Text("Előzmények törlése") }
-                            }
-                        }
-                    }
-                    item { SettingsNote("A keresett megállók és az időpont közvetlenül a MÁV-hoz kerülnek. A térképcsempéket a kiválasztott térképszolgáltató tölti be (OpenStreetMap, Esri, OpenRailwayMap, Google vagy saját URL).") }
                 }
                 SettingsPage.About -> {
                     item {
@@ -256,15 +235,6 @@ private enum class SettingsPage(val title: String) {
                 }
             }
         }
-    }
-    if (confirmClear) {
-        AlertDialog(
-            onDismissRequest = { confirmClear = false }, shape = RoundedCornerShape(32.dp),
-            title = { Text("Törlöd a keresési előzményeket?") },
-            text = { Text("A mentett útvonalak eltűnnek a Tervezés oldalról. A bérleteid megmaradnak.") },
-            confirmButton = { TextButton(onClick = { vm.clearRecents(); confirmClear = false }) { Text("Törlés") } },
-            dismissButton = { TextButton(onClick = { confirmClear = false }) { Text("Mégse") } }
-        )
     }
 }
 
