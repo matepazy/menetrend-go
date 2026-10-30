@@ -294,15 +294,15 @@ private fun themeLabel(value: String) = when (value) {
     }
 }
 
-@Composable private fun SettingsGroup(content: @Composable ColumnScope.() -> Unit) {
+@Composable internal fun SettingsGroup(content: @Composable ColumnScope.() -> Unit) {
     Surface(Modifier.fillMaxWidth(), shape = RoundedCornerShape(28.dp), color = MaterialTheme.colorScheme.surface) {
         Column(content = content)
     }
 }
 
-@Composable private fun SettingsRow(title: String, summary: String? = null, external: Boolean = false, onClick: () -> Unit) {
+@Composable internal fun SettingsRow(title: String, summary: String? = null, external: Boolean = false, enabled: Boolean = true, onClick: () -> Unit) {
     Row(
-        Modifier.fillMaxWidth().clickable(onClick = onClick).padding(horizontal = 20.dp, vertical = 16.dp).heightIn(min = 48.dp),
+        Modifier.fillMaxWidth().clickable(enabled = enabled, onClick = onClick).padding(horizontal = 20.dp, vertical = 16.dp).heightIn(min = 48.dp),
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(AppLayout.LabelGap)) {

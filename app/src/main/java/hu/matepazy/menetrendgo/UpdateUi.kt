@@ -21,12 +21,16 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 
-@Composable fun UpdateSettings(updates: UpdateController) {
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable fun UpdateSettings(updates: UpdateController, installedVersion: String = BuildConfig.VERSION_NAME) {
+    var showChannel by rememberSaveable { mutableStateOf(false) }
+    var showBetaConsent by rememberSaveable { mutableStateOf(false) }
+    var showVersions by rememberSaveable { mutableStateOf(false) }
+    val installedBeta = installedVersion.substringBefore('+').contains('-')
+    val channelEnabled = !updates.busy && updates.state !is UpdateState.Completed
     Glass(Modifier.fillMaxWidth()) {
-        Text("MenetrendGO ${BuildConfig.VERSION_NAME}", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+        Text("MenetrendGO $installedVersion", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(8.dp))
-        Text("A frissítések a projekt GitHub-kiadásaiból érkeznek. A telepítést mindig te hagyod jóvá az Androidban.", color = MaterialTheme.colorScheme.onSurfaceVariant)
-        Spacer(Modifier.height(20.dp))
         val status = when (val state = updates.state) {
             UpdateState.Checking -> "Frissítések keresése…"
             is UpdateState.UpdateAvailable -> "Elérhető: ${state.version}"
@@ -43,38 +47,82 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
             TextButton(onClick = { updates.select(update) }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Kiadás megtekintése") }
         }
     }
-    Surface(shape = MaterialTheme.shapes.medium, color = MaterialTheme.colorScheme.surface) {
-        Column {
-            Row(Modifier.fillMaxWidth().toggleable(updates.enabled, role = Role.Switch, onValueChange = updates::chooseEnabled).padding(AppLayout.PanelPadding), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("Automatikus ellenőrzés", style = MaterialTheme.typography.titleMedium)
-                    Text("Új kiadások keresése az alkalmazás indításakor.", color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium)
-                }
-                Switch(checked = updates.enabled, onCheckedChange = null)
-            }
-            Text("Frissítési csatorna", Modifier.padding(horizontal = 20.dp), style = MaterialTheme.typography.titleMedium)
-            Column(Modifier.selectableGroup().padding(vertical = 8.dp)) {
-                listOf("release" to "Stabil", "pre-release" to "Stabil és béta").forEach { (value, label) ->
-                    Row(Modifier.fillMaxWidth().selectable(updates.channel == value, enabled = !updates.busy && updates.state !is UpdateState.Completed, role = Role.RadioButton, onClick = { updates.chooseChannel(value) }).padding(horizontal = 20.dp, vertical = 8.dp).heightIn(min = 48.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Text(label, Modifier.weight(1f)); RadioButton(updates.channel == value, onClick = null, enabled = !updates.busy && updates.state !is UpdateState.Completed)
-                    }
+    SettingsGroup {
+        Row(Modifier.fillMaxWidth().toggleable(updates.enabled, role = Role.Switch, onValueChange = updates::chooseEnabled).padding(AppLayout.PanelPadding), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+            Text("Automatikus ellenőrzés", Modifier.weight(1f), style = MaterialTheme.typography.titleMedium)
+            Switch(checked = updates.enabled, onCheckedChange = null)
+        }
+        SettingsRow("Frissítési csatorna", if (updates.channel == "pre-release") "Béta" else "Stabil", enabled = channelEnabled, onClick = { showChannel = true })
+        if (installedBeta) SettingsRow("Elérhető verziók", onClick = {
+            showVersions = !showVersions
+            if (showVersions && updates.versions == null && !updates.versionsLoading) updates.loadVersions()
+        })
+    }
+    if (installedBeta && showVersions) Column(Modifier.padding(horizontal = AppLayout.PanelPadding), verticalArrangement = Arrangement.spacedBy(AppLayout.CompactGap)) {
+        if (updates.versionsLoading) {
+            Text("Verziók betöltése…", style = MaterialTheme.typography.bodyMedium)
+            LinearProgressIndicator(Modifier.fillMaxWidth())
+        }
+        updates.versionsError?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+        if (updates.versionsError != null) TextButton(onClick = updates::loadVersions, enabled = !updates.versionsLoading) { Text("Újrapróbálás") }
+        updates.versions?.let { versions ->
+            if (versions.isEmpty()) Text("Nincs választható APK-kiadás.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+            versions.forEach { version ->
+                OutlinedButton(onClick = { updates.select(version) }, enabled = !updates.busy && SemanticVersion.compare(version.version, installedVersion) != 0, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
+                    Text("${version.version} · ${if (version.isBeta) "Béta" else "Stabil"}${if (SemanticVersion.compare(version.version, installedVersion) == 0) " · Telepítve" else ""}")
                 }
             }
         }
     }
-    Glass(Modifier.fillMaxWidth()) {
-        Text("Verziók kezelése", style = MaterialTheme.typography.titleMedium)
-        Spacer(Modifier.height(8.dp))
-        Text("A béta kiadások hibákat tartalmazhatnak. Az Android a régebbi verzióra váltást elutasíthatja.", color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium)
-        TextButton(onClick = updates::loadVersions, enabled = !updates.versionsLoading && !updates.busy, modifier = Modifier.heightIn(min = 48.dp)) { Text(if (updates.versionsLoading) "Betöltés…" else "Elérhető verziók") }
-        updates.versionsError?.let { Text(it, color = MaterialTheme.colorScheme.error) }
-        updates.versions?.let { versions ->
-            if (versions.isEmpty()) Text("Nincs választható APK-kiadás.", color = MaterialTheme.colorScheme.onSurfaceVariant)
-            versions.forEach { version ->
-                OutlinedButton(onClick = { updates.select(version) }, enabled = !updates.busy && SemanticVersion.compare(version.version, BuildConfig.VERSION_NAME) != 0, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
-                    Text("${version.version} · ${if (version.isBeta) "Béta" else "Stabil"}${if (SemanticVersion.compare(version.version, BuildConfig.VERSION_NAME) == 0) " · Telepítve" else ""}")
+    if (showChannel) {
+        var choice by rememberSaveable { mutableStateOf(updates.channel) }
+        AppBottomSheet(onDismissRequest = { showChannel = false }, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true), containerColor = MaterialTheme.colorScheme.surface) {
+            Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(AppLayout.SheetPadding), verticalArrangement = Arrangement.spacedBy(AppLayout.ItemGap)) {
+                PageTitle("Frissítési csatorna")
+                Column(Modifier.selectableGroup()) {
+                    listOf("release" to "Stabil", "pre-release" to "Béta").forEach { (value, label) ->
+                        Row(Modifier.fillMaxWidth().selectable(choice == value, enabled = channelEnabled, role = Role.RadioButton, onClick = {
+                            if (value == "pre-release" && updates.channel != value) {
+                                showChannel = false
+                                showBetaConsent = true
+                            } else choice = value
+                        }).padding(vertical = 8.dp).heightIn(min = 48.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Text(label, Modifier.weight(1f))
+                            RadioButton(choice == value, onClick = null, enabled = channelEnabled)
+                        }
+                    }
                 }
+                Button(onClick = {
+                    showChannel = false
+                    if (choice != updates.channel) updates.chooseChannel(choice)
+                }, enabled = channelEnabled, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Kész") }
             }
+        }
+    }
+    if (showBetaConsent) BetaChannelConsent(
+        enabled = channelEnabled,
+        onDismiss = { showBetaConsent = false; showChannel = true },
+        onConfirm = {
+            showBetaConsent = false
+            updates.chooseChannel("pre-release")
+        }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable private fun BetaChannelConsent(enabled: Boolean, onDismiss: () -> Unit, onConfirm: () -> Unit) {
+    AppBottomSheet(onDismissRequest = onDismiss, modifier = Modifier.testTag("beta-consent-drawer"), containerColor = MaterialTheme.colorScheme.surface) {
+        Column(Modifier.fillMaxWidth().heightIn(max = LocalWindowInfo.current.containerDpSize.height * .85f).padding(horizontal = AppLayout.SheetPadding).padding(bottom = AppLayout.SheetPadding), verticalArrangement = Arrangement.spacedBy(AppLayout.ItemGap)) {
+            Column(Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(AppLayout.ItemGap)) {
+                PageTitle("Béta kiadások kipróbálása")
+                Text("Korábban megkapod az új funkciókat, de ezek a kiadások még tesztelés alatt állnak. A stabil frissítéseket továbbra is megkapod.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text("Hibákra is számíts", style = MaterialTheme.typography.titleMedium)
+                Text("Előfordulhat összeomlás, hibás megjelenítés vagy nem működő funkció. Fontos utazás előtt ellenőrizd az adatokat a hivatalos MÁV-felületeken is.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text("Visszatérés stabil verzióra", style = MaterialTheme.typography.titleMedium)
+                Text("A Stabil csatornára váltás önmagában nem cseréli le a telepített bétát. Az Elérhető verziók alatt választhatod ki a legutóbbi stabil kiadást, de az Android a régebbi verzió telepítését elutasíthatja. Az alkalmazás eltávolítása törli a helyben mentett bérleteket és beállításokat.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            Button(onClick = onConfirm, enabled = enabled, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Megértettem, engedélyezem a bétát") }
+            TextButton(onClick = onDismiss, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Mégse") }
         }
     }
 }
@@ -104,6 +152,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
                 PageTitle(if (update.isVersionSwitch) "Verzióváltás" else "Új verzió érhető el")
                 Text(update.version, style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
                 if (update.isBeta) Text("Béta kiadás: hibák és váratlan működés előfordulhatnak.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                if (update.isVersionSwitch && SemanticVersion.compare(update.version, BuildConfig.VERSION_NAME) < 0) Text("Az Android a régebbi verzióra váltást elutasíthatja.", color = MaterialTheme.colorScheme.onSurfaceVariant)
                 if (updates.state !is UpdateState.Downloading && updates.state !is UpdateState.Completed) {
                     Text("A kiadás újdonságai", style = MaterialTheme.typography.titleMedium)
                     ReleaseNotes(update.notes)
