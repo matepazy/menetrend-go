@@ -99,7 +99,13 @@ import java.time.format.DateTimeFormatter
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Composable fun SearchScreen(vm: AppState, onPasses: () -> Unit, onSearch: () -> Unit) {
+@Composable fun SearchScreen(vm: AppState, onPasses: () -> Unit, onSearch: () -> Unit) =
+    SearchScreen(vm, onPasses, {}, onSearch)
+
+@Composable fun SearchScreen(vm: AppState, onPasses: () -> Unit, onTracking: (Journey) -> Unit, onSearch: () -> Unit) {
+    val tracking by JourneyTracking.state.collectAsState()
+    val trackingContext = LocalContext.current
+    LaunchedEffect(Unit) { JourneyTracking.load(trackingContext) }
     var picker by remember { mutableStateOf<String?>(null) }
     var datePicker by remember { mutableStateOf(false) }
     var timePicker by remember { mutableStateOf(false) }
@@ -162,6 +168,7 @@ import java.time.format.DateTimeFormatter
                     Modifier.padding(top=12.dp),style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
+        if (tracking.session != null) item { ActiveJourneyTracking(onTracking) }
         item { Column(verticalArrangement=Arrangement.spacedBy(AppLayout.CompactGap)) {
             Row(Modifier.fillMaxWidth().padding(top=AppLayout.SectionGap-AppLayout.ItemGap),verticalAlignment=Alignment.CenterVertically) {
                 SingleChoiceSegmentedButtonRow(Modifier.weight(1f)) {
@@ -441,7 +448,7 @@ private fun serviceType(leg: Leg): String = hungarianServiceName(leg.category, l
     }
 }
 
-@Composable private fun StationLabel(station: Station, rightAligned: Boolean = false, inlineName: Boolean = false) {
+@Composable internal fun StationLabel(station: Station, rightAligned: Boolean = false, inlineName: Boolean = false) {
     Column(horizontalAlignment=if(rightAligned) Alignment.End else Alignment.Start) {
         if(inlineName) Text(buildAnnotatedString {
             withStyle(SpanStyle(fontWeight=FontWeight.Bold,color=MaterialTheme.colorScheme.onSurface)) {
@@ -657,6 +664,9 @@ private data class TimelineTrack(val color: Color, val walking: Boolean=false)
 }
 
 @Composable fun JourneyScreen(vm: AppState, journey: Journey, back: () -> Unit, onTrip: (Leg) -> Unit, onMap: () -> Unit) {
+    var trackingLeg by remember(journey.key) { mutableStateOf<Int?>(null) }
+    val trackingContext = LocalContext.current
+    LaunchedEffect(Unit) { JourneyTracking.load(trackingContext) }
     var menuOpen by remember(journey.key) { mutableStateOf(false) }
     var rawOpen by remember(journey.key) { mutableStateOf(false) }
     val journeyVehicles=routeVehicles(journey,vm.vehicles,System.currentTimeMillis()).associateBy {it.id}
@@ -686,7 +696,9 @@ private data class TimelineTrack(val color: Color, val walking: Boolean=false)
                             else -> connection
                         }
                         TimelineRow(leg.departureTime,track,stop=true,incoming=incoming) {
-                            StationLabel(leg.from)
+                            if (sharedDeparture && !previous.walking) {
+                                JourneyTrackingStop(journey, index - 1) { trackingLeg = index - 1 }
+                            } else StationLabel(leg.from)
                             if(index>0 && dayLabel(leg.start)!=dayLabel(journey.start)) Text(dayLabel(leg.start),style=MaterialTheme.typography.labelMedium)
                         }
                         TimelineRow(null,track) {
@@ -731,7 +743,8 @@ private data class TimelineTrack(val color: Color, val walking: Boolean=false)
                         // A shared stop at the same time is one interchange node, not two repeated rows.
                         val sharedStop=next!=null && next.from.name==leg.to.name && next.from.platform==leg.to.platform && next.start==leg.end && next.departureTime==leg.arrivalTime
                         if(!sharedStop) TimelineRow(leg.arrivalTime,track,stop=true,outgoing=if(next==null) null else connection) {
-                            StationLabel(leg.to)
+                            if (!walking) JourneyTrackingStop(journey, index) { trackingLeg = index }
+                            else StationLabel(leg.to)
                             if(dayLabel(leg.end)!=dayLabel(journey.start)) Text(dayLabel(leg.end),style=MaterialTheme.typography.labelMedium)
                         }
                         if(next!=null) {
@@ -757,6 +770,7 @@ private data class TimelineTrack(val color: Color, val walking: Boolean=false)
         }
         item {val advice=passAdvice(vm.passes,journey,vm.passGeography);InfoPanel(advice.title,advice.detail)}
     }
+    trackingLeg?.let { index -> JourneyTrackingSheet(journey, index) { trackingLeg = null } }
     if(vm.showRawGraphQl && rawOpen) RawGraphQlSheet(journey.rawGraphQl) {rawOpen=false}
 }
 

@@ -8,11 +8,20 @@ A MenetrendGO független projekt, nem a MÁV hivatalos alkalmazása. A menetrend
 
 - **Tervezés:** megállókeresés, indulási vagy érkezési idő szerinti útvonaltervezés, helyben mentett keresési előzmények.
 - **Útvonalrészletek:** átszállások, köztes megállók, menetrendi és várható időpontok, késések, a kiválasztott útvonal megjelenítése térképen.
+- **Leszállási értesítés:** felszálláskor indítható helyalapú követés, hozzávetőleg 1–3 perces figyelmeztetés, lezárt képernyőnél is frissülő utazási értesítés és átszállási segítség.
 - **Térkép:** élő járműpozíciók, járatrészletek és megállók, járműtípus és azonosítók, ha a szolgáltató megadja őket. Alap-, műholdas, hibrid és vasúti térképnézet.
 - **Bérletek:** ország-, megye- és helyi bérletek rögzítése, szerkesztése, lejárati emlékeztetők, tájékoztató jellegű érvényességi ellenőrzés az útvonalon.
 - **Beállítások:** világos, sötét vagy rendszer szerinti megjelenés, értesítések és helyi adatok kezelése, stabil és béta alkalmazásfrissítések.
 
 Az élő járműadatok és a megnyitott járat adatai előtérben 75 másodpercenként frissülnek. A keresési találatok új kereséssel frissíthetők. A működéshez internetkapcsolat szükséges, az alkalmazás nem tartalmaz offline menetrendi adatbázist.
+
+### Leszállási értesítés használata
+
+Az **Utazás részletei** menetrendjében koppints a leszállóhely melletti csengőre. A megnyíló **Leszállási jelzés** alsó lapon válaszd ki a figyelmeztetés idejét, majd felszálláskor indítsd a jelzést. A járatot a megérintett leszállóhely határozza meg. Az aktív jelzés állapota ugyanennél a megállónál jelenik meg; a csengővel nyithatók újra a vezérlők. Egyszerre egy utazás követhető. A követés pontos helyhozzáférést és engedélyezett értesítéseket igényel. Android 16-tól támogatott eszközön Live Update megjelenítést kér, más eszközökön hagyományos folyamatos értesítést mutat; a kiemelést a rendszer és a felhasználói beállítások szabályozzák.
+
+A figyelmeztetés az útvonal menti hátralévő távolság és a telefon mozgása alapján becsült, közvetlenül a megálló közelében távolságalapú tartalékjelzéssel. Gyenge, régi vagy az útvonaltól távoli helyjelre nem ad biztos leszállási jelzést, hanem jelzi a bizonytalanságot. Az élő érkezési idő csak az azonos járat és megálló menetrendi előfordulásának egyezésekor jelenik meg; ennek hiányában menetrendi idő látható. A jelzés hangját és rezgését a rendszer értesítési csatornája és a Ne zavarjanak mód szabályozza.
+
+Átszálláskor a helyfrissítések szünetelnek, és a következő járműre felszállást meg kell erősíteni. A végső leszállóhely elérésekor a követés befejeződik; kézzel az alkalmazásban vagy az értesítésből is leállítható. Az aktív útvonal és a már kiküldött jelzés állapota helyben megmarad, a helyzetelőzmény nem kerül mentésre vagy feltöltésre. A betöltött útvonal helyalapú követése internet nélkül is működik. Folyamatleállás után a rendszer esetenként helyreállíthatja a szolgáltatást; ha ez nem történik meg, az alkalmazásban a szünetelő követés folytatható. Kényszerített leállítás vagy telefonkikapcsolás alatt nincs jelzés. Egy követés legfeljebb 18 óráig marad aktív.
 
 ## Telepítés
 

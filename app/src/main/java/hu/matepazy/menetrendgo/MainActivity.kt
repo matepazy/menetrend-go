@@ -55,6 +55,12 @@ import java.time.LocalDate
  * the verdict, DESIGN.md, and every shipping raster carrying its provenance.
  */
 class MainActivity : ComponentActivity() {
+    private var trackingRequest by mutableIntStateOf(0)
+    override fun onNewIntent(intent: android.content.Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        if (intent.getBooleanExtra("tracking", false)) trackingRequest++
+    }
     override fun attachBaseContext(newBase: Context) {
         val configuration=Configuration(newBase.resources.configuration)
         configuration.setLocales(LocaleList.forLanguageTags("hu"))
@@ -67,7 +73,8 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge(statusBarStyle=SystemBarStyle.auto(
             android.graphics.Color.TRANSPARENT,android.graphics.Color.TRANSPARENT))
         setContent { val state: AppState = viewModel(); MenetrendTheme(state.theme) {
-            StationFocusOverlay { MenetrendApp(state, intent.getStringExtra("tab")) }
+            StationFocusOverlay { MenetrendApp(state, intent.getStringExtra("tab"), trackingRequest,
+                if (intent.getBooleanExtra("tracking", false)) intent.getStringExtra("trackingSession") else null) }
             UpdateHost(state.updates)
         } }
     }
@@ -205,10 +212,19 @@ val LocalBottomOverlayInset = staticCompositionLocalOf { 0.dp }
     }
 }
 
-@Composable fun MenetrendApp(vm: AppState, initialTab: String?) {
+@Composable fun MenetrendApp(vm: AppState, initialTab: String?, trackingRequest: Int = 0, trackingSession: String? = null) {
     var tab by rememberSaveable { mutableIntStateOf(if(initialTab == "passes") 2 else 0) }
     var page by rememberSaveable { mutableStateOf("search") }
     var selected by vm::selectedJourney
+    var journeyReturnPage by rememberSaveable { mutableStateOf("results") }
+    LaunchedEffect(trackingRequest, trackingSession) {
+        if (trackingSession != null) {
+            val journey = JourneyTracking.state.value.session?.journey ?: runCatching {
+                TrackingSession.parse(org.json.JSONObject(trackingSession)).journey
+            }.getOrNull()
+            if (journey != null) { selected = journey; tab = 0; journeyReturnPage = "search"; page = "journey" }
+        }
+    }
     var returning by remember { mutableStateOf(false) }
     // The live destination and predictive preview share the retained scroll anchor.
     val resultsNavigation = key(vm.searchGeneration) {
@@ -238,7 +254,7 @@ val LocalBottomOverlayInset = staticCompositionLocalOf { 0.dp }
             page == "vehicleMap" -> page="trip"
             page == "routeMap" -> page="journey"
             page == "trip" -> page = if(selected != null) "journey" else "search"
-            page == "journey" -> { selected=null; page="results" }
+            page == "journey" -> { selected=null; page=journeyReturnPage }
             page == "results" -> page="search"
             tab != 0 -> { tab=0; page="search" }
         }
@@ -291,7 +307,7 @@ val LocalBottomOverlayInset = staticCompositionLocalOf { 0.dp }
                                 page=="routeMap" && selected!=null -> JourneyScreen(vm,selected!!,{},onTrip={},onMap={})
                                 page=="trip" && selected!=null -> JourneyScreen(vm,selected!!,{},onTrip={},onMap={})
                                 page=="trip" && tab==1 -> NearbyScreen(vm)
-                                page=="journey" -> ResultsScreen(vm,resultsNavigation,{}) {}
+                                page=="journey" && journeyReturnPage=="results" -> ResultsScreen(vm,resultsNavigation,{}) {}
                                 else -> SearchScreen(vm,onPasses={}) {}
                             }
                         }) {
@@ -300,11 +316,11 @@ val LocalBottomOverlayInset = staticCompositionLocalOf { 0.dp }
                             page=="vehicleMap" -> VehicleMapScreen(vm,tripId,::back)
                             page=="routeMap" && selected!=null -> JourneyMapScreen(vm,selected!!,::back)
                             page == "trip" -> TripScreen(vm, tripId, tripDay, ::back) { returning=false;vm.mapVehicle=null;page="vehicleMap" }
-                            tab==0 && page=="results" -> ResultsScreen(vm,resultsNavigation,::back) { returning=false;selected=it; page="journey" }
+                            tab==0 && page=="results" -> ResultsScreen(vm,resultsNavigation,::back) { returning=false;selected=it;journeyReturnPage="results";page="journey" }
                             tab==0 && page=="journey" && selected!=null -> JourneyScreen(vm,selected!!,::back,
                                 onTrip={ leg -> returning=false;tripId=leg.tripId; tripDay=Instant.ofEpochMilli(leg.start).atZone(Budapest).toLocalDate().toString(); vm.loadTrip(tripId,tripDay); page="trip" },
                                 onMap={ returning=false;vm.mapVehicle=null;page="routeMap" })
-                            tab==0 -> SearchScreen(vm,onPasses={returning=false;tab=2}) { returning=false;vm.search();page="results" }
+                            tab==0 -> SearchScreen(vm,onPasses={returning=false;tab=2},onTracking={selected=it;tab=0;journeyReturnPage="search";page="journey"}) { returning=false;vm.search();page="results" }
                             tab==1 -> NearbyScreen(vm)
                             tab==2 -> PassesScreen(vm)
                             else -> SettingsScreen(vm)
