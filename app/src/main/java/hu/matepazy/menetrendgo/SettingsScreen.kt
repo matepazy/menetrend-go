@@ -125,7 +125,7 @@ private enum class SettingsPage(val title: String) {
                         SettingsGroup {
                             Column(Modifier.padding(AppLayout.PanelPadding), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                                 Text("Bérlet-emlékeztetők", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-                                Text("Válaszd ki, mikor szóljunk a mentett bérleteidről. Az emlékeztetők 9 órakor érkeznek.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text("Értesítés 9 órakor.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                             PassReminder.entries.forEach { reminder ->
                                 HorizontalDivider(Modifier.padding(horizontal = AppLayout.PanelPadding), color = MaterialTheme.colorScheme.outlineVariant)
@@ -136,17 +136,17 @@ private enum class SettingsPage(val title: String) {
                     item {
                         SettingsGroup {
                             if (!notificationsEnabled) {
-                                Column(Modifier.padding(AppLayout.PanelPadding), verticalArrangement = Arrangement.spacedBy(AppLayout.CompactGap)) {
-                                    Text("Az Android letiltotta az értesítéseket", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-                                    Text("A választásaidat mentjük, de emlékeztetőt csak az Android értesítésbeállításaiban megadott engedély után kaphatsz.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Column(Modifier.padding(start = AppLayout.PanelPadding, end = AppLayout.PanelPadding, top = AppLayout.PanelPadding), verticalArrangement = Arrangement.spacedBy(AppLayout.LabelGap)) {
+                                    Text("Az értesítések ki vannak kapcsolva", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                                    Text("A választásaidat megőrizzük.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 }
                             }
-                            SettingsRow("Android értesítésbeállítások", external = true, onClick = {
+                            SettingsRow(if (notificationsEnabled) "Android értesítésbeállítások" else "Beállítások megnyitása", external = true, onClick = {
                                 context.startActivity(Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName))
                             })
                         }
                     }
-                    item { SettingsNote("A bérleteket és a lejárati dátumokat a Bérletek oldalon kezelheted. Az Android energiatakarékossága késleltetheti az emlékeztetőket.") }
+                    item { SettingsNote("Az Android energiatakarékossága késleltetheti az értesítéseket.") }
                 }
                 SettingsPage.About -> {
                     item {
@@ -241,14 +241,11 @@ private enum class SettingsPage(val title: String) {
 @Composable internal fun PassReminderSwitch(reminder: PassReminder, checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
     Row(
         Modifier.fillMaxWidth().toggleable(checked, role = Role.Switch, onValueChange = onCheckedChange)
-            .padding(AppLayout.PanelPadding).heightIn(min = 48.dp),
+            .padding(horizontal = AppLayout.PanelPadding, vertical = AppLayout.RelatedGap).heightIn(min = 48.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(AppLayout.ItemGap)
     ) {
-        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(AppLayout.LabelGap)) {
-            Text(reminder.title, style = MaterialTheme.typography.titleMedium)
-            Text(reminder.summary, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        }
+        Text(reminder.title, Modifier.weight(1f), style = MaterialTheme.typography.titleMedium)
         Switch(checked = checked, onCheckedChange = null)
     }
 }

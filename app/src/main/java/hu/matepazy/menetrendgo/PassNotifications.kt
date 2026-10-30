@@ -10,10 +10,10 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import org.json.JSONArray
 
-enum class PassReminder(val days: Int, val preferenceKey: String, val title: String, val summary: String) {
-    ThreeDays(3, "pass_reminder_three_days", "3 nappal a lejárat előtt", "Hogy legyen időd megvenni a következő bérleted."),
-    OneDay(1, "pass_reminder_one_day", "1 nappal a lejárat előtt", "Emlékeztető a lejárat előtti napon."),
-    Expired(0, "pass_reminder_expired", "Lejárat után", "Értesítés a lejáratot követő napon.");
+enum class PassReminder(val days: Int, val preferenceKey: String, val title: String) {
+    ThreeDays(3, "pass_reminder_three_days", "3 nappal a lejárat előtt"),
+    OneDay(1, "pass_reminder_one_day", "1 nappal a lejárat előtt"),
+    Expired(0, "pass_reminder_expired", "1 nappal a lejárat után");
 
     fun date(pass: Pass) = if (days == 0) pass.expires.plusDays(1) else pass.expires.minusDays(days.toLong())
 }

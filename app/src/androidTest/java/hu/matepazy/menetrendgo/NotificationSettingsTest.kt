@@ -90,7 +90,7 @@ class NotificationSettingsTest {
         compose.runOnIdle { theme = "dark"; fontScale = 1.6f }
         compose.onNodeWithText(PassReminder.Expired.title).performScrollTo().performClick().assertIsOff()
         screenshot("notification-settings-dark-large")
-        compose.onNodeWithText("Android értesítésbeállítások").performScrollTo().assertIsDisplayed()
+        compose.onNode(hasText("Android értesítésbeállítások") or hasText("Beállítások megnyitása")).performScrollTo().assertIsDisplayed()
         compose.runOnIdle {
             val restored = AppState(app).also { store.put("restored", it) }
             assertEquals(setOf(PassReminder.OneDay), restored.passReminders)
