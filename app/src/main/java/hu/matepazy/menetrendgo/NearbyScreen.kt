@@ -59,6 +59,9 @@ import kotlinx.coroutines.withContext
     var recenter by remember {mutableStateOf(false)}
     var hasCentered by remember {mutableStateOf(false)}
     var allowed by remember {mutableStateOf(ContextCompat.checkSelfPermission(context,Manifest.permission.ACCESS_COARSE_LOCATION)==PackageManager.PERMISSION_GRANTED)}
+    var preciseAllowed by remember {mutableStateOf(ContextCompat.checkSelfPermission(context,Manifest.permission.ACCESS_FINE_LOCATION)==PackageManager.PERMISSION_GRANTED)}
+    // Android 12+ requires both permissions in the same request to offer precise location.
+    val locationPermissions=remember {arrayOf(Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION)}
     val manager=remember {context.getSystemService(LocationManager::class.java)}
     val lifecycle=LocalLifecycleOwner.current.lifecycle
     val snackbars=remember {SnackbarHostState()}
@@ -89,15 +92,16 @@ import kotlinx.coroutines.withContext
         }
     }
     val currentVehicles by rememberUpdatedState(visibleVehicles)
-    val permission=rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {granted ->
-        allowed=granted
-        if(!granted) locationMessage="A helyhozzáférés nélkül kézzel használhatod a térképet."
+    val permission=rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {grants ->
+        preciseAllowed=grants[Manifest.permission.ACCESS_FINE_LOCATION]==true
+        allowed=preciseAllowed || grants[Manifest.permission.ACCESS_COARSE_LOCATION]==true
+        locationMessage=if(!allowed) "A helyhozzáférés nélkül kézzel használhatod a térképet." else null
     }
-    LaunchedEffect(Unit) {if(!routeOnly && !allowed) permission.launch(Manifest.permission.ACCESS_COARSE_LOCATION)}
+    LaunchedEffect(Unit) {if(!routeOnly && !preciseAllowed) permission.launch(locationPermissions)}
     LaunchedEffect(locationMessage,vm.vehicleError) {
         (locationMessage ?: vm.vehicleError)?.let {snackbars.showSnackbar(it)}
     }
-    DisposableEffect(allowed,lifecycle) {
+    DisposableEffect(allowed,preciseAllowed,lifecycle) {
         val listener=object:LocationListener {
             override fun onLocationChanged(location: Location) {center=location.latitude to location.longitude}
             override fun onProviderEnabled(provider: String) {}
@@ -121,6 +125,7 @@ import kotlinx.coroutines.withContext
         val observer=LifecycleEventObserver {_,event ->
             if(event==Lifecycle.Event.ON_START) {
                 allowed=ContextCompat.checkSelfPermission(context,Manifest.permission.ACCESS_COARSE_LOCATION)==PackageManager.PERMISSION_GRANTED
+                preciseAllowed=ContextCompat.checkSelfPermission(context,Manifest.permission.ACCESS_FINE_LOCATION)==PackageManager.PERMISSION_GRANTED
                 start()
             }
             if(event==Lifecycle.Event.ON_STOP) manager.removeUpdates(listener)
@@ -222,7 +227,7 @@ import kotlinx.coroutines.withContext
         }
             if(!routeOnly && (center==null || !locationVisible)) FilledTonalIconButton(onClick={
                 if(allowed) {recenter=true;if(center==null) locationMessage="Várakozás a helymeghatározásra. Ellenőrizd, hogy be van-e kapcsolva."}
-                else permission.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
+                if(!preciseAllowed) permission.launch(locationPermissions)
             },modifier=Modifier.align(Alignment.BottomEnd).padding(end=14.dp,bottom=LocalBottomOverlayInset.current+52.dp).size(54.dp)) {
                 Icon(Icons.Outlined.MyLocation,"Saját helyzet mutatása")
             }
