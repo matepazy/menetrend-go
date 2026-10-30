@@ -86,14 +86,14 @@ import java.time.format.DateTimeFormatter
 }
 
 @Composable private fun JourneyStopField(vm: AppState, label: String, value: Station?, icon: ImageVector,
-    active: Boolean, onOpen: () -> Unit, onDismiss: () -> Unit, onSelected: (Station) -> Unit) {
+    active: Boolean, onOpen: () -> Unit, onDismiss: () -> Unit, allowCurrentLocation: Boolean = false, onSelected: (Station) -> Unit) {
     val spotlight=LocalStationFocus.current
     val focusGutter=with(LocalDensity.current) {AppLayout.PanelPadding.toPx()}
     Box(Modifier.fillMaxWidth()
         // Track the visible, animated bounds so the scrim follows the editor's reveal.
         .onGloballyPositioned {if(active) spotlight.bounds=it.boundsInWindow().inflate(focusGutter)}
         .animateContentSize(tween(AppMotion.StationFocus,easing=AppMotion.Arrival),alignment=Alignment.TopStart)) {
-        if(active) StationAutocomplete(vm,label,value,icon,onDismiss,onSelected)
+        if(active) StationAutocomplete(vm,label,value,icon,onDismiss,onSelected,allowCurrentLocation)
         else StopField(label,value,icon,Modifier.padding(end=48.dp+AppLayout.CompactGap),onOpen)
     }
 }
@@ -119,7 +119,7 @@ import java.time.format.DateTimeFormatter
             Glass(Modifier.fillMaxWidth()) {
                 Box(Modifier.fillMaxWidth()) {
                     Column(Modifier.fillMaxWidth()) {
-                        JourneyStopField(vm,"Honnan?",vm.from,Icons.Outlined.TripOrigin,picker=="from",{picker="from"},::closePicker) {
+                        JourneyStopField(vm,"Honnan?",vm.from,Icons.Outlined.TripOrigin,picker=="from",{picker="from"},::closePicker,allowCurrentLocation=true) {
                             vm.from=it;vm.selectStation(it);closePicker()
                         }
                         HorizontalDivider(Modifier.padding(start=46.dp,end=48.dp+AppLayout.ItemGap,top=AppLayout.LabelGap,bottom=AppLayout.LabelGap),
@@ -233,7 +233,7 @@ import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable private fun StationAutocomplete(vm: AppState, label: String, value: Station?, icon: ImageVector,
-    onDismiss: () -> Unit, onSelected: (Station) -> Unit) {
+    onDismiss: () -> Unit, onSelected: (Station) -> Unit, allowCurrentLocation: Boolean = false) {
     var input by rememberSaveable(label,stateSaver=TextFieldValue.Saver) {
         mutableStateOf(TextFieldValue(value?.name.orEmpty(),TextRange(0,value?.name?.length ?: 0)))
     }
@@ -246,9 +246,10 @@ import java.time.format.DateTimeFormatter
     val dismiss by rememberUpdatedState(onDismiss)
     val keyboardVisible=WindowInsets.isImeVisible
     var keyboardWasVisible by remember {mutableStateOf(false)}
-    LaunchedEffect(keyboardVisible) {
+    var locating by remember {mutableStateOf(false)}
+    LaunchedEffect(keyboardVisible,locating) {
         if(keyboardVisible) keyboardWasVisible=true
-        else if(keyboardWasVisible) dismiss()
+        else if(keyboardWasVisible && !locating) dismiss()
     }
     DisposableEffect(label) {
         spotlight.dismiss={dismiss()}
@@ -298,6 +299,11 @@ import java.time.format.DateTimeFormatter
             enter=fadeIn(tween(AppMotion.Feedback))) {
         Column(Modifier.fillMaxWidth().padding(bottom=12.dp)) {
         HorizontalDivider(color=MaterialTheme.colorScheme.outlineVariant)
+        if(allowCurrentLocation) CurrentLocationOption(onSelected=onSelected,onBusyChanged={
+            locating=it
+            // The system permission prompt may hide the IME; keep the picker alive.
+            keyboardWasVisible=false
+        })
         if(loading) LinearProgressIndicator(Modifier.fillMaxWidth().padding(top=8.dp))
         if(error!=null) Text(error!!,color=if(results.isEmpty()) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
             style=MaterialTheme.typography.bodySmall,modifier=Modifier.padding(vertical=8.dp))

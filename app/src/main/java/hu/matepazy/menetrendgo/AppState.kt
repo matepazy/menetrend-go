@@ -85,7 +85,7 @@ class AppState(app: Application) : AndroidViewModel(app) {
 
     suspend fun cachedStations(query: String) = stationSearch.cached(query)
     suspend fun stations(query: String) = stationSearch.search(query)
-    fun selectStation(station: Station) { viewModelScope.launch { stationSearch.selected(station) } }
+    fun selectStation(station: Station) { if(station.id.isNotBlank()) viewModelScope.launch { stationSearch.selected(station) } }
     fun chooseTheme(value: String) { theme = value; prefs.edit().putString("theme", value).apply() }
     fun unlockDeveloperSettings() {
         developerSettingsUnlocked = true
@@ -140,8 +140,11 @@ class AppState(app: Application) : AndroidViewModel(app) {
             val f = from ?: return; val t = to ?: return
             Search(f, t, if (useNow) LocalDateTime.now(Budapest) else dateTime, arriveBy).also {
                 activeSearch = it
-                recents = (listOf(Recent(f, t)) + recents.filterNot { r -> r.from.id == f.id && r.to.id == t.id }).take(8)
-                prefs.edit().putString("recents", JSONArray(recents.map { r -> r.json() }).toString()).apply()
+                // A captured position is not a reusable "current location" or a saved stop.
+                if(f.id.isNotBlank() && t.id.isNotBlank()) {
+                    recents = (listOf(Recent(f, t)) + recents.filterNot { r -> r.from.id == f.id && r.to.id == t.id }).take(8)
+                    prefs.edit().putString("recents", JSONArray(recents.map { r -> r.json() }).toString()).apply()
+                }
             }
         } ?: return
         if (!more) { searchGeneration++; activeSearchFilters = searchFilters.toSet() }
