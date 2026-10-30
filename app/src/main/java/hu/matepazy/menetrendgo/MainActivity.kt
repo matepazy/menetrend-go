@@ -256,7 +256,7 @@ val LocalBottomOverlayInset = staticCompositionLocalOf { 0.dp }
             }
             Scaffold(containerColor=Color.Transparent,contentWindowInsets=WindowInsets(0),
                 bottomBar={ if(!wide && !mapScreen) {
-                    Surface(Modifier.navigationBarsPadding().padding(horizontal=12.dp,vertical=6.dp),shape=RoundedCornerShape(28.dp),color=MaterialTheme.colorScheme.surface) {
+                    Surface(Modifier.navigationBarsPadding().padding(horizontal=AppLayout.PageGutter,vertical=6.dp),shape=MaterialTheme.shapes.large,color=MaterialTheme.colorScheme.surface) {
                         Row(Modifier.fillMaxWidth().padding(6.dp),horizontalArrangement=Arrangement.spacedBy(4.dp)) {
                             destinations.forEachIndexed { index,label ->
                                 val active=tab==index

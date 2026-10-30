@@ -109,7 +109,7 @@ components:
     padding: "7dp 12dp"
   bottom-navigation:
     backgroundColor: "{colors.surface}"
-    rounded: "{rounded.medium}"
+    rounded: "{rounded.large}"
 ---
 
 # Design System: MenetrendGO
@@ -168,7 +168,7 @@ The frontmatter headline weights record the repeated heading treatment; individu
 
 Phone screens are single-column, vertically scrollable and inset from system bars. Content lists share `screenContentPadding()` with page padding (20dp), measured floating-navigation clearance and item gaps (16dp). `AppLayout` defines label gaps (4dp), compact gaps (8dp), related-content gaps (12dp), item gaps (16dp), page/panel insets (20dp), and section/sheet spacing (24dp). The recent-search heading uses a larger section separation, while the pass editor separates its field groups by 24dp. The map fills the available screen behind navigation without a page inset or rounded viewport. Panels and timetable cards use 20dp internal padding; compact vehicle-stop rows retain 16dp. The pass editor and vehicle drawer use sheet padding (24dp). Shared page headers have a 48dp minimum row height, 4dp between title and subtitle, and 8dp between back/title/actions, with no extra vertical padding. Timetable and vehicle rows separate time and stop columns by 12dp.
 
-At the implemented wide-layout threshold (700dp), bottom navigation becomes a navigation rail. Main utility content is centered with a maximum width (760dp); the map can expand further (1600dp). The phone navigation surface has horizontal margins (12dp), vertical margins (6dp), inner padding (6dp) and gaps (4dp). Each item's inner content has a minimum height (48dp), growing to (64dp) above the font-scale threshold (1.15), with separate item padding (2dp horizontal, 8dp vertical). Labels may occupy two lines. Scrollable pages extend behind the floating navigation surface; its measured bottom inset is added to list content padding so final actions can scroll clear. The map retains safe control bounds. Safe drawing insets, navigation-bar padding and IME padding belong to the layout.
+At the implemented wide-layout threshold (700dp), bottom navigation becomes a navigation rail. Main utility content is centered with a maximum width (760dp); the map can expand further (1600dp). The phone navigation surface shares the content page gutters (20dp) and departure-card corner radius (32dp), with vertical margins (6dp), inner padding (6dp) and gaps (4dp). Each item's inner content has a minimum height (48dp), growing to (64dp) above the font-scale threshold (1.15), with separate item padding (2dp horizontal, 8dp vertical). Labels may occupy two lines. Scrollable pages extend behind the floating navigation surface; its measured bottom inset is added to list content padding so final actions can scroll clear. The map retains safe control bounds. Safe drawing insets, navigation-bar padding and IME padding belong to the layout.
 
 The planning surface opens with “Hová indulunk?” and the reminders bell on one row, followed by search and recents; there is no separate wordmark row. Results open as their own scrollable departure list. Future screens should follow the same navigation conventions.
 
