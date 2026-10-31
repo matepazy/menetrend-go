@@ -28,6 +28,8 @@ docs/
 tools/
 !scripts/
 scripts/*
+!scripts/map-interactions.test.mjs
+!scripts/verify-map-emulator.mjs
 !scripts/generate_map_vehicle_icons.py
 !scripts/verify_map_vehicle_icons.cjs
 start_emu.bat

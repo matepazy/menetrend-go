@@ -17,28 +17,44 @@ L.Map.TouchZoom.prototype._onTouchEnd=function(){
  this._map._move(this._center,z);this._map.fire('zoom');this._map._moveEnd(true);
 };
 const map=L.map('map',{zoomControl:false,doubleClickZoom:false,zoomSnap:0,bounceAtZoomLimits:false}).setView([47.17,19.5],7);
+/* MAP_GESTURES_START */
+let bindMapActivation;
 (()=>{
  const el=map.getContainer(),doubleTapMs=300,doubleTapSlop=48,tapSlop=12,swipeSlop=6,pxPerZoom=140;
  let lastTapTime=0,lastTapPt=null,downTime=0,downPt=null,tapMoved=false,doubleTap=false,swiping=false,startZoom=0,startCenter=null,targetZoom=0,frame=0,lastTouchEnd=0;
+ let pendingActivation=0,suppressUntil=0,restoreDragging=false;
+ function cancelActivation(){clearTimeout(pendingActivation);pendingActivation=0}
+ bindMapActivation=(marker,action)=>marker.on('click',e=>{
+  // Keyboard activation stays immediate; pointer taps wait for a possible zoom gesture.
+  if(e.originalEvent?.type==='keypress'||e.originalEvent?.detail===0&&!e.originalEvent?.sourceCapabilities?.firesTouchEvents){action();return}
+  if(doubleTap||Date.now()<suppressUntil)return;
+  cancelActivation();pendingActivation=setTimeout(()=>{pendingActivation=0;action()},doubleTapMs);
+ });
  function endSwipe(){
+  if(doubleTap&&suppressUntil===Infinity)suppressUntil=Date.now()+500;
   if(frame){cancelAnimationFrame(frame);frame=0}
   if(swiping){swiping=false;map._move(startCenter,targetZoom);map.fire('zoom');map._moveEnd(true)}
   doubleTap=false;
+  if(restoreDragging){map.dragging.enable();restoreDragging=false}
  }
  el.addEventListener('touchstart',e=>{
   if(e.touches.length!==1){endSwipe();tapMoved=true;lastTapTime=0;return}
-  if(e.target.closest&&e.target.closest('.hit,.leaflet-control')){lastTapTime=0;doubleTap=false;return}
+  if(e.target.closest&&e.target.closest('.leaflet-control')){lastTapTime=0;lastTapPt=null;downPt=null;doubleTap=false;return}
   const pt=map.mouseEventToContainerPoint(e.touches[0]),now=Date.now();
   downPt=pt;downTime=now;tapMoved=false;swiping=false;
   if(lastTapPt&&now-lastTapTime<=doubleTapMs&&pt.distanceTo(lastTapPt)<=doubleTapSlop){
    doubleTap=true;lastTapTime=0;lastTapPt=null;
+   cancelActivation();suppressUntil=Infinity;
    map._stop();map.dragging?._draggable?.finishDrag(true);
+   restoreDragging=!!map.dragging?.enabled();if(restoreDragging)map.dragging.disable();
+   if(e.cancelable)e.preventDefault();e.stopPropagation();
   }else doubleTap=false;
- },{passive:true});
+ },{passive:false,capture:true});
  el.addEventListener('touchmove',e=>{
   if(e.touches.length!==1){endSwipe();tapMoved=true;return}
   const pt=map.mouseEventToContainerPoint(e.touches[0]);
   if(!doubleTap){if(downPt&&pt.distanceTo(downPt)>tapSlop)tapMoved=true;return}
+  e.stopPropagation();
   if(!swiping){
    if(Math.abs(pt.y-downPt.y)<=swipeSlop&&pt.distanceTo(downPt)<=tapSlop)return;
    swiping=true;startZoom=targetZoom=map.getZoom();startCenter=map.getCenter();downPt=pt;
@@ -47,22 +63,28 @@ const map=L.map('map',{zoomControl:false,doubleClickZoom:false,zoomSnap:0,bounce
   if(e.cancelable)e.preventDefault();
   targetZoom=map._limitZoom(startZoom+(pt.y-downPt.y)/pxPerZoom);
   if(!frame)frame=requestAnimationFrame(()=>{frame=0;if(swiping)map._move(startCenter,targetZoom,{pinch:true,round:false})});
- },{passive:false});
+ },{passive:false,capture:true});
  function onTouchEnd(e){
   lastTouchEnd=Date.now();
   if(doubleTap){
+   e.stopPropagation();cancelActivation();suppressUntil=lastTouchEnd+500;
    if(e.cancelable)e.preventDefault();
    if(swiping)endSwipe();
-   else{doubleTap=false;if(e.type==='touchend'&&downPt)map.setZoomAround(downPt,map._limitZoom(map.getZoom()+1))}
+   else{endSwipe();if(e.type==='touchend'&&downPt)map.setZoomAround(downPt,map._limitZoom(map.getZoom()+1))}
    return;
   }
   if(e.type==='touchend'&&!tapMoved&&downPt&&lastTouchEnd-downTime<=doubleTapMs){lastTapTime=lastTouchEnd;lastTapPt=downPt}
   else{lastTapTime=0;lastTapPt=null}
  }
- el.addEventListener('touchend',onTouchEnd,{passive:false});
- el.addEventListener('touchcancel',onTouchEnd,{passive:false});
- map.on('dblclick',e=>{if(Date.now()-lastTouchEnd>500)map.setZoomAround(e.containerPoint,map._limitZoom(map.getZoom()+1))});
+ el.addEventListener('touchend',onTouchEnd,{passive:false,capture:true});
+ el.addEventListener('touchcancel',onTouchEnd,{passive:false,capture:true});
+ el.addEventListener('dblclick',e=>{
+  if(e.target.closest?.('.leaflet-control'))return;
+  cancelActivation();e.preventDefault();e.stopPropagation();
+  if(Date.now()-lastTouchEnd>500)map.setZoomAround(map.mouseEventToContainerPoint(e),map._limitZoom(map.getZoom()+1));
+ },{capture:true});
 })();
+/* MAP_GESTURES_END */
 const status=document.getElementById('status');let tileFailed=false;
 const osmAttribution='© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> közreműködők';
 const imageryAttribution='<a href="https://www.esri.com/">Esri</a>, Maxar, Earthstar Geographics, GIS User Community';
@@ -136,14 +158,22 @@ function selectMapStops(items,project,spacing=48){
  return selected;
 }
 /* STOP_SELECTION_END */
+/* STOP_COLORS_START */
+function mapStopBackground(stop){
+ const colors=[...new Set((stop.modes||[]).filter(mode=>Object.hasOwn(officialVehicleColors,mode)).map(mode=>officialVehicleColors[mode]))];
+ if(!colors.length)colors.push('#4e6581');
+ const segments=colors.map((color,i)=>color+' '+(i*100/colors.length)+'% '+((i+1)*100/colors.length)+'%');
+ return 'radial-gradient(circle,#f8fbff 0 3px,transparent 3.2px),conic-gradient('+segments.join(',')+')';
+}
+/* STOP_COLORS_END */
 function drawStops(){
  stopMarkers.clearLayers();if(!stopsEnabled||map.getZoom()<stopMinZoom)return;
  selectMapStops(stops,s=>map.project([s.lat,s.lon],map.getZoom()))
  .filter(s=>map.getBounds().pad(.1).contains([s.lat,s.lon])).forEach(s=>{
   const hit=document.createElement('div');hit.className='hit';
-  const dot=document.createElement('div');dot.style.cssText='width:10px;height:10px;border:2px solid #2864d9;background:#f8fbff;border-radius:50%;box-sizing:border-box;box-shadow:0 2px 4px #1234';hit.append(dot);
+  const dot=document.createElement('div');dot.style.cssText='width:10px;height:10px;border-radius:50%;box-sizing:border-box;box-shadow:0 0 0 1px #fff,0 2px 4px #1234';dot.style.background=mapStopBackground(s);hit.append(dot);
   const marker=L.marker([s.lat,s.lon],{icon:L.divIcon({html:hit,iconSize:[48,48],iconAnchor:[24,24],className:''}),title:s.name+' · indulási tábla',keyboard:true,zIndexOffset:-500}).addTo(stopMarkers);
-  marker.on('click',()=>{if(window.NativeMap)NativeMap.selectStop(s.id)});
+  bindMapActivation(marker,()=>{if(window.NativeMap)NativeMap.selectStop(s.id)});
  });
 }
 function reportStopViewport(){
@@ -169,7 +199,8 @@ function draw(){
   const hit=document.createElement('div');hit.className='hit';
   if(group.length>1 && !routeMode){
    const label=document.createElement('div');label.className='cluster';label.textContent=group.length;hit.append(label);
-   L.marker([lat,lon],{icon:L.divIcon({html:hit,iconSize:[48,48],iconAnchor:[24,24],className:''}),title:group.length+' jármű · nagyítás',keyboard:true}).addTo(markers).on('click',()=>map.fitBounds(group.map(v=>[v.lat,v.lon]),{padding:[48,48],maxZoom:Math.min(19,zoom+3)}));
+   const marker=L.marker([lat,lon],{icon:L.divIcon({html:hit,iconSize:[48,48],iconAnchor:[24,24],className:''}),title:group.length+' jármű · nagyítás',keyboard:true}).addTo(markers);
+   bindMapActivation(marker,()=>map.fitBounds(group.map(v=>[v.lat,v.lon]),{padding:[48,48],maxZoom:Math.min(19,zoom+3)}));
   }else{
    const v=group[0],label=document.createElement('div');label.className='vehicle compact';
    const color=Object.hasOwn(officialVehicleColors,v.mode)?officialVehicleColors[v.mode].replace('#',''):'000000';
@@ -195,7 +226,7 @@ function draw(){
    }
    label.append(artwork);hit.append(label);
    const marker=L.marker([v.lat,v.lon],{icon:L.divIcon({html:hit,iconSize:[48,48],iconAnchor:[24,24],className:''}),keyboard:true}).addTo(markers);
-   marker.getElement().setAttribute('aria-label',v.type+' '+v.name+' '+v.headsign);marker.on('click',()=>NativeMap.selectVehicle(v.id));
+   marker.getElement().setAttribute('aria-label',v.type+' '+v.name+' '+v.headsign);bindMapActivation(marker,()=>NativeMap.selectVehicle(v.id));
   }
  });
  if(!tileFailed){status.textContent='';status.style.display='none'}
