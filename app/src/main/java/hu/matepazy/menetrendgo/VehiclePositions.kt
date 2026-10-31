@@ -57,18 +57,20 @@ internal fun parseVehiclePosition(v: JSONObject): Vehicle? {
         v.optDouble("heading").takeIf { it.isFinite() && it >= 0 && it <= 360 }?.rem(360.0),
         v.text("vehicleModel"), v.text("licensePlate"), v.text("uicCode"), routeName, v.text("vehicleId"),
         route?.optJSONObject("agency")?.text("name").orEmpty(),route?.let(RouteLogo::parse),
-        v.optLong("lastUpdated",0L).takeIf {it>0})
+        v.optLong("lastUpdated",0L).takeIf {it>0},
+        v.optDouble("speed").takeIf {it.isFinite() && it>=0})
 }
 
 /** Provider timestamps are Unix seconds, independent of when the map was fetched. */
 internal fun vehiclePositionAge(updatedSeconds: Long?, nowSeconds: Long): String {
     if(updatedSeconds==null || updatedSeconds<=0) return "A pozíció frissítési ideje ismeretlen"
     val elapsed=(nowSeconds-updatedSeconds).coerceAtLeast(0)
-    val age=when {
-        elapsed<60 -> "most"
-        elapsed<3600 -> "${elapsed/60} perccel ezelőtt"
-        elapsed<86_400 -> "${elapsed/3600} órával ezelőtt"
-        else -> "${elapsed/86_400} nappal ezelőtt"
-    }
-    return "Pozíció frissítve: $age"
+    return "Pozíció frissítve: $elapsed másodperce"
 }
+
+/** OTP reports speed in m/s; retain a reported zero and omit unavailable/invalid values. */
+internal fun vehicleSpeedLabel(speedMetersPerSecond: Double?): String? = speedMetersPerSecond
+    ?.takeIf {it.isFinite() && it>=0}
+    ?.let {it*3.6}
+    ?.takeIf {it.isFinite()}
+    ?.let {"${kotlin.math.round(it).toLong()} km/h"}

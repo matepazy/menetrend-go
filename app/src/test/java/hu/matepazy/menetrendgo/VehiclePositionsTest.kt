@@ -14,13 +14,30 @@ class VehiclePositionsTest {
 
     @Test fun positionAgeUsesHungarianUnitsAndKeepsAgingWhenRefreshFails() {
         val reported=1_792_924_339L
-        assertEquals("Pozíció frissítve: most",vehiclePositionAge(reported,reported+59))
-        assertEquals("Pozíció frissítve: 1 perccel ezelőtt",vehiclePositionAge(reported,reported+60))
-        assertEquals("Pozíció frissítve: 59 perccel ezelőtt",vehiclePositionAge(reported,reported+3599))
-        assertEquals("Pozíció frissítve: 1 órával ezelőtt",vehiclePositionAge(reported,reported+3600))
-        assertEquals("Pozíció frissítve: 2 nappal ezelőtt",vehiclePositionAge(reported,reported+172800))
-        assertEquals("Pozíció frissítve: most",vehiclePositionAge(reported,reported-10))
+        for (elapsed in listOf(0L, 1L, 59L, 60L, 61L, 3599L, 3600L, 172800L)) {
+            assertEquals("Pozíció frissítve: $elapsed másodperce",vehiclePositionAge(reported,reported+elapsed))
+        }
+        assertEquals("Pozíció frissítve: 0 másodperce",vehiclePositionAge(reported,reported-10))
         assertEquals("A pozíció frissítési ideje ismeretlen",vehiclePositionAge(null,reported))
+    }
+
+    @Test fun speedUsesProviderMetersPerSecondAndPreservesStoppedVehicles() {
+        val moving=parseVehiclePosition(position().put("speed",20.5))!!
+        assertEquals(20.5,moving.speedMetersPerSecond!!,0.0)
+        assertEquals("74 km/h",vehicleSpeedLabel(moving.speedMetersPerSecond))
+        assertEquals("0 km/h",vehicleSpeedLabel(parseVehiclePosition(position().put("speed",0))!!.speedMetersPerSecond))
+        assertEquals("36 km/h",vehicleSpeedLabel(10.0))
+    }
+
+    @Test fun missingAndInvalidSpeedsNeverBecomeZero() {
+        for (value in listOf(JSONObject.NULL,-1,"invalid","NaN","Infinity")) {
+            assertNull(parseVehiclePosition(position().put("speed",value))!!.speedMetersPerSecond)
+        }
+        assertNull(parseVehiclePosition(position())!!.speedMetersPerSecond)
+        assertNull(vehicleSpeedLabel(null))
+        assertNull(vehicleSpeedLabel(-1.0))
+        assertNull(vehicleSpeedLabel(Double.NaN))
+        assertNull(vehicleSpeedLabel(Double.POSITIVE_INFINITY))
     }
 
     private fun position(mode: String = "BUS", tripName: Any = JSONObject.NULL) = JSONObject()

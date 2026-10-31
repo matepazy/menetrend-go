@@ -9,6 +9,7 @@ import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Commute
 import androidx.compose.material.icons.outlined.Badge
 import androidx.compose.material.icons.outlined.Update
+import androidx.compose.material.icons.outlined.Speed
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -102,13 +103,7 @@ internal fun upcomingVehicleStops(stops: List<VehicleStop>, now: Long, detail: J
             }
             if(vehicle.routeLogo==null) Text(hungarianServiceName(vehicle.category,vehicle.mode),style=MaterialTheme.typography.bodyMedium,
                 color=MaterialTheme.colorScheme.onSurfaceVariant,modifier=Modifier.padding(top=AppLayout.CompactGap))
-            Row(Modifier.padding(top=AppLayout.CompactGap),verticalAlignment=Alignment.CenterVertically,
-                horizontalArrangement=Arrangement.spacedBy(AppLayout.CompactGap)) {
-                Icon(Icons.Outlined.Update,contentDescription=null,modifier=Modifier.size(16.dp),
-                    tint=MaterialTheme.colorScheme.onSurfaceVariant)
-                Text(vehiclePositionAge(vehicle.positionUpdatedSeconds,now/1000),
-                    style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
-            }
+            VehicleTelemetry(vehicle,Modifier.padding(top=AppLayout.CompactGap))
             if(vehicle.modelAndRegistration.isNotBlank() || showUicCode) {
                 Column(Modifier.padding(top=AppLayout.RelatedGap),verticalArrangement=Arrangement.spacedBy(AppLayout.CompactGap)) {
                     if(vehicle.modelAndRegistration.isNotBlank()) Row(verticalAlignment=Alignment.CenterVertically,
@@ -144,6 +139,35 @@ internal fun upcomingVehicleStops(stops: List<VehicleStop>, now: Long, detail: J
                         }
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable internal fun VehicleTelemetry(vehicle: Vehicle, modifier: Modifier = Modifier) {
+    var now by remember {mutableLongStateOf(System.currentTimeMillis()/1000)}
+    val lifecycle=LocalLifecycleOwner.current.lifecycle
+    LaunchedEffect(lifecycle) {
+        lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            while(true) {
+                now=System.currentTimeMillis()/1000
+                delay(1000)
+            }
+        }
+    }
+    FlowRow(modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(AppLayout.RelatedGap),
+        verticalArrangement=Arrangement.spacedBy(AppLayout.CompactGap)) {
+        Row(verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(AppLayout.CompactGap)) {
+            Icon(Icons.Outlined.Update,contentDescription=null,modifier=Modifier.size(16.dp),
+                tint=MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(vehiclePositionAge(vehicle.positionUpdatedSeconds,now),
+                style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        vehicleSpeedLabel(vehicle.speedMetersPerSecond)?.let {speed ->
+            Row(verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(AppLayout.CompactGap)) {
+                Icon(Icons.Outlined.Speed,contentDescription="Sebesség",modifier=Modifier.size(16.dp),
+                    tint=MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(speed,style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
     }
