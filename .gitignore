@@ -32,5 +32,6 @@ scripts/*
 !scripts/verify-map-emulator.mjs
 !scripts/generate_map_vehicle_icons.py
 !scripts/verify_map_vehicle_icons.cjs
+!scripts/generate_pass_county_icons.py
 start_emu.bat
 CHANGELOG.md

@@ -5,14 +5,14 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class StopDeparturesTest {
-    @Test fun clockTimeAppearsOnlyBeyondFortyFiveMinutes() {
+    @Test fun clockTimeAppearsOnlyBeyondFifteenMinutes() {
         val now = java.time.Instant.parse("2026-10-31T12:00:00Z").toEpochMilli()
-        assertNull(departureClockTime(now + 45 * 60_000L, now))
-        assertEquals("13:45", departureClockTime(now + 45 * 60_000L + 1, now))
+        assertNull(departureClockTime(now + 15 * 60_000L, now))
+        assertEquals("13:15", departureClockTime(now + 15 * 60_000L + 1, now))
         assertEquals("14:00", departureClockTime(now + 60 * 60_000L, now))
         assertNull(departureClockTime(now + 60 * 60_000L, now, cancelled = true))
         assertNull(departureClockTime(now - 1, now))
-        assertNull(departureClockTime(now + 60 * 60_000L, now + 15 * 60_000L))
+        assertNull(departureClockTime(now + 60 * 60_000L, now + 45 * 60_000L))
     }
     @Test fun countdownStatusUsesLiveEvidenceAndTenMinuteDelayBoundary() {
         val scheduled = 1700000000000L

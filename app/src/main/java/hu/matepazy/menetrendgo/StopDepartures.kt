@@ -13,7 +13,7 @@ internal fun departureCountdown(estimate: Long, now: Long): String {
 }
 
 internal fun departureClockTime(estimate: Long, now: Long, cancelled: Boolean = false): String? =
-    if (!cancelled && estimate - now > 45 * 60_000L) timeLabel(estimate) else null
+    if (!cancelled && estimate - now > 15 * 60_000L) timeLabel(estimate) else null
 
 internal enum class DepartureStatus { Scheduled, Live, MinorDelay, MajorDelay }
 
