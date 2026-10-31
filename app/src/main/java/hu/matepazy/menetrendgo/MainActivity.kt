@@ -218,7 +218,7 @@ val LocalBottomOverlayInset = staticCompositionLocalOf { 0.dp }
     var selected by vm::selectedJourney
     var journeyReturnPage by rememberSaveable { mutableStateOf("results") }
     LaunchedEffect(trackingRequest, trackingSession) {
-        if (trackingSession != null) {
+        if (vm.journeyTrackingBetaEnabled && trackingSession != null) {
             val journey = JourneyTracking.state.value.session?.journey ?: runCatching {
                 TrackingSession.parse(org.json.JSONObject(trackingSession)).journey
             }.getOrNull()

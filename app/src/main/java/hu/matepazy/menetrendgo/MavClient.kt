@@ -46,6 +46,12 @@ class MavClient {
             throw IllegalStateException("Nem sikerült kapcsolódni a MÁV-hoz. Ellenőrizd az internetkapcsolatot.",e)
         } finally {connection.disconnect()}
     }
+    suspend fun nearbyStops(lat: Double, lon: Double, radius: Int): List<Station> = withContext(Dispatchers.IO) {
+        parseMapStops(request("/index/graphql", MavQueries.nearbyStops(lat, lon, radius)))
+    }
+    suspend fun stopDepartures(id: String, now: Long = System.currentTimeMillis()): List<StopDeparture> = withContext(Dispatchers.IO) {
+        parseStopDepartures(request("/index/graphql", MavQueries.stopDepartures(id, now)), now)
+    }
     suspend fun stations(query: String): List<Station> = withContext(Dispatchers.IO) {
         require(query.trim().length in 2..100)
         request("/geocode/stations?q="+URLEncoder.encode(query.trim(),"UTF-8")+"&limit=10").array("features").mapNotNull {feature->
@@ -84,11 +90,11 @@ class MavClient {
             }
         }
     }
-    suspend fun trip(id: String,day: String): JSONObject = withContext(Dispatchers.IO) {
+    suspend fun trip(id: String,day: String,forceRefresh: Boolean = false): JSONObject = withContext(Dispatchers.IO) {
         require(id.length in 1..250);LocalDate.parse(day)
         tripLock.withLock {
             val key="$id|$day";val now=System.currentTimeMillis()/1000
-            trips[key]?.takeIf {now-it.second<75}?.first ?: run {
+            trips[key]?.takeIf {!forceRefresh && now-it.second<75}?.first ?: run {
                 val result=request("/index/graphql",MavQueries.trip(id,day)).optJSONObject("trip")
                     ?: throw IllegalStateException("Ehhez a járathoz nincs részletes menetrend.")
                 normalizeRoute(result.optJSONObject("route"),result.optString("tripShortName").ifBlank {result.optString("trainCategoryName")})
@@ -108,6 +114,15 @@ class MavClient {
 
 /** Pure query builders: validate coordinates and escape every string literal. */
 object MavQueries {
+    fun nearbyStops(lat: Double, lon: Double, radius: Int): String {
+        point(lat, lon)
+        require(radius in 100..15000)
+        return """{stopsByRadius(lat:$lat,lon:$lon,radius:$radius,first:500){edges{node{stop{gtfsId name lat lon platformCode vehicleMode parentStation{gtfsId name lat lon}}}}}}"""
+    }
+    fun stopDepartures(id: String, now: Long): String {
+        require(id.length in 1..250 && now > 0)
+        return """{stop(id:${quote(id)}){gtfsId name stoptimesWithoutPatterns(startTime:${now/1000},numberOfDepartures:30,timeRange:86400,omitCanceled:false){serviceDay scheduledDeparture realtimeDeparture realtime realtimeState pickupType headsign stop{gtfsId name lat lon platformCode} trip{gtfsId tripShortName tripHeadsign trainCategoryName route{shortName longName mode color textColor}}}}}"""
+    }
     private const val services = """infoServices(language:"hu",onlyDisplayable:true) {name fontCode fontCharSet displayable fromStopIndex tillStopIndex fromStop {name} tillStop {name}}"""
     fun quote(value: String): String = buildString {
         append('"')

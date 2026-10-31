@@ -28,6 +28,8 @@ class JourneyTrackingUiTest {
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
     private val app get() = instrumentation.targetContext.applicationContext as Application
     private val store = ViewModelStore()
+    private var originalBeta: Boolean? = null
+    private var originalDeveloper: Boolean? = null
     private val now = System.currentTimeMillis()
     private val from = Station("from", "Budapest, Keleti pályaudvar", 47.50, 19.08)
     private val transfer = Station("transfer", "Hatvan, vasútállomás", 47.67, 19.67)
@@ -38,11 +40,22 @@ class JourneyTrackingUiTest {
 
     @Before fun setup() {
         JourneyTracking.stop(app)
+        val prefs = app.getSharedPreferences("menetrendgo", 0)
+        originalBeta = prefs.all["journey_tracking_beta_enabled"] as? Boolean
+        originalDeveloper = prefs.all["developer_settings_unlocked"] as? Boolean
+        prefs.edit().putBoolean("journey_tracking_beta_enabled", true).commit()
         shell("pm grant ${app.packageName} android.permission.ACCESS_COARSE_LOCATION")
         shell("pm grant ${app.packageName} android.permission.ACCESS_FINE_LOCATION")
         shell("pm grant ${app.packageName} android.permission.POST_NOTIFICATIONS")
     }
-    @After fun cleanup() { JourneyTracking.stop(app); store.clear() }
+    @After fun cleanup() {
+        JourneyTracking.stop(app); store.clear()
+        app.getSharedPreferences("menetrendgo", 0).edit().also { editor ->
+            listOf("journey_tracking_beta_enabled" to originalBeta, "developer_settings_unlocked" to originalDeveloper).forEach { (key, value) ->
+                if (value == null) editor.remove(key) else editor.putBoolean(key, value)
+            }
+        }.commit()
+    }
 
     private fun showJourney(route: Journey = journey) {
         val vm = AppState(app).also { store.put("tracking-ui", it) }
@@ -77,6 +90,53 @@ class JourneyTrackingUiTest {
         compose.waitUntil(5_000) { JourneyTracking.state.value.session == null }
         compose.waitUntil(5_000) { manager.activeNotifications.none { it.id == JourneyTrackingService.ONGOING_ID } }
         assertNull(JourneyTracking.saved(app))
+    }
+
+    @Test fun betaIsHiddenByDefaultAndDeveloperTogglePersistsAndStopsTracking() {
+        app.getSharedPreferences("menetrendgo", 0).edit().remove("journey_tracking_beta_enabled").commit()
+        val vm = AppState(app).also { store.put("beta-settings", it) }
+        assertFalse(vm.journeyTrackingBetaEnabled)
+        assertFalse(JourneyTracking.enabled(app))
+        assertTrue(runCatching { JourneyTracking.start(app, TrackingSession(journey, 0)) }.isFailure)
+        var page by mutableStateOf("journey")
+        compose.setContent { MenetrendTheme("light") {
+            Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+                when (page) {
+                    "settings" -> SettingsScreen(vm)
+                    "home" -> SearchScreen(vm, {}, {})
+                    else -> JourneyScreen(vm, journey, {}, {}, {})
+                }
+            }
+        } }
+        compose.onNodeWithContentDescription("Leszállási jelzés: ${transfer.name}").assertDoesNotExist()
+        compose.runOnIdle {
+            JourneyTracking.publish(TrackingView(TrackingSession(journey, 0), true))
+            page = "home"
+        }
+        compose.onNodeWithText("Leszállási jelzés aktív").assertDoesNotExist()
+        compose.runOnIdle { vm.unlockDeveloperSettings(); page = "settings" }
+        compose.onNodeWithText("Az alkalmazásról").performClick()
+        compose.onNode(hasScrollAction()).performScrollToNode(hasText("Fejlesztői beállítások"))
+        compose.onNodeWithText("Fejlesztői beállítások").performClick()
+        compose.onNodeWithText("Leszállási jelzés (béta)").assertIsOff().performClick().assertIsOn()
+        assertTrue(JourneyTracking.enabled(app))
+        val restored = AppState(app).also { store.put("beta-restored", it) }
+        assertTrue(restored.journeyTrackingBetaEnabled)
+        screenshot("tracking-beta-developer-setting")
+        compose.runOnIdle { JourneyTracking.clear(app); page = "journey" }
+        startAlerts()
+        openAlerts()
+        compose.onNodeWithText("Jelzés leállítása").assertIsDisplayed()
+        compose.runOnIdle { vm.chooseJourneyTrackingBeta(false) }
+        compose.onNodeWithContentDescription("Leszállási jelzés bezárása").assertDoesNotExist()
+        compose.onNodeWithContentDescription("Leszállási jelzés: ${transfer.name}").assertDoesNotExist()
+        assertNull(JourneyTracking.state.value.session)
+        assertNull(JourneyTracking.saved(app))
+        val manager = app.getSystemService(NotificationManager::class.java)
+        compose.waitUntil(5_000) {
+            manager.activeNotifications.none { it.id in listOf(JourneyTrackingService.ONGOING_ID, JourneyTrackingService.ALERT_ID) }
+        }
+        assertFalse(AppState(app).also { store.put("beta-disabled", it) }.journeyTrackingBetaEnabled)
     }
 
     @Test fun serviceRecreationRestoresSessionAndAlertState() {
@@ -196,7 +256,9 @@ class JourneyTrackingUiTest {
         shell("cmd location providers add-test-provider $provider")
         shell("cmd location providers set-test-provider-enabled $provider true")
         try {
-            showJourney()
+            // Keep the second simulated leg physically reachable between real five-second fixes.
+            val nearbyDestination = destination.copy(lat = transfer.lat + .003, lon = transfer.lon)
+            showJourney(journey.copy(legs = listOf(first, second.copy(to = nearbyDestination))))
             startAlerts()
             val manager = app.getSystemService(NotificationManager::class.java)
             shell("input keyevent 223")
@@ -206,6 +268,11 @@ class JourneyTrackingUiTest {
             val firstAlert = manager.activeNotifications.single { it.id == JourneyTrackingService.ALERT_ID }.postTime
             Thread.sleep(5_100)
             shell("cmd location providers set-test-provider-location $provider --location 47.67,19.67 --accuracy 5")
+            assertFalse(JourneyTracking.state.value.session!!.awaitingBoarding)
+            repeat(2) {
+                Thread.sleep(5_100)
+                shell("cmd location providers set-test-provider-location $provider --location 47.67,19.67 --accuracy 5")
+            }
             compose.waitUntil(10_000) { JourneyTracking.state.value.session?.awaitingBoarding == true }
             assertEquals(firstAlert, manager.activeNotifications.single { it.id == JourneyTrackingService.ALERT_ID }.postTime)
             compose.waitUntil(5_000) {
@@ -220,12 +287,58 @@ class JourneyTrackingUiTest {
             compose.waitUntil(8_000) { JourneyTracking.state.value.session?.legIndex == 1 }
             assertFalse(JourneyTracking.state.value.session!!.alerted)
             Thread.sleep(5_100)
-            shell("cmd location providers set-test-provider-location $provider --location 47.89,20.38 --accuracy 5")
+            shell("cmd location providers set-test-provider-location $provider --location ${nearbyDestination.lat},${nearbyDestination.lon} --accuracy 5")
+            assertNotNull(JourneyTracking.state.value.session)
+            repeat(2) {
+                Thread.sleep(5_100)
+                shell("cmd location providers set-test-provider-location $provider --location ${nearbyDestination.lat},${nearbyDestination.lon} --accuracy 5")
+            }
             compose.waitUntil(10_000) { JourneyTracking.state.value.session == null }
             compose.waitUntil(5_000) { manager.activeNotifications.any { it.id == JourneyTrackingService.ALERT_ID } }
             assertNull(JourneyTracking.saved(app))
         } finally {
             shell("input keyevent 224"); shell("wm dismiss-keyguard")
+            shell("cmd location providers remove-test-provider $provider")
+            shell("appops set com.android.shell android:mock_location default")
+        }
+    }
+
+    @Test fun oldNotificationCannotStopANewerTrackingSession() {
+        showJourney()
+        startAlerts()
+        val manager = app.getSystemService(NotificationManager::class.java)
+        compose.waitUntil(5_000) { manager.activeNotifications.any { it.id == JourneyTrackingService.ONGOING_ID } }
+        val oldStop = manager.activeNotifications.single { it.id == JourneyTrackingService.ONGOING_ID }
+            .notification.actions.single { it.title == "Leállítás" }.actionIntent
+        val previous = JourneyTracking.state.value.session!!
+        val newer = previous.copy(startedAt = previous.startedAt + 1)
+        compose.runOnIdle { JourneyTracking.start(app, newer) }
+        compose.waitUntil(5_000) {
+            manager.activeNotifications.any { it.id == JourneyTrackingService.ONGOING_ID &&
+                it.notification.extras.getString("trackingSessionToken") == newer.controlToken }
+        }
+        oldStop.send()
+        instrumentation.waitForIdleSync(); Thread.sleep(300)
+        assertEquals(newer.controlToken, JourneyTracking.state.value.session?.controlToken)
+        manager.activeNotifications.single { it.id == JourneyTrackingService.ONGOING_ID }
+            .notification.actions.single { it.title == "Leállítás" }.actionIntent.send()
+        compose.waitUntil(5_000) { JourneyTracking.state.value.session == null }
+    }
+
+    @Test fun providerEnabledAfterTrackingStartsDeliversTheWarning() {
+        val provider = "menetrendgo_recovery"
+        shell("appops set com.android.shell android:mock_location allow")
+        shell("cmd location providers add-test-provider $provider")
+        shell("cmd location providers set-test-provider-enabled $provider false")
+        try {
+            showJourney(); startAlerts()
+            shell("cmd location providers set-test-provider-enabled $provider true")
+            shell("cmd location providers set-test-provider-location $provider --location 47.669,19.67 --accuracy 5")
+            compose.waitUntil(10_000) { JourneyTracking.state.value.session?.alerted == true }
+            assertFalse(JourneyTracking.state.value.session!!.awaitingBoarding)
+            val manager = app.getSystemService(NotificationManager::class.java)
+            compose.waitUntil(5_000) { manager.activeNotifications.any { it.id == JourneyTrackingService.ALERT_ID } }
+        } finally {
             shell("cmd location providers remove-test-provider $provider")
             shell("appops set com.android.shell android:mock_location default")
         }

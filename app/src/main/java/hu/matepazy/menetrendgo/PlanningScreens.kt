@@ -168,7 +168,7 @@ import java.time.format.DateTimeFormatter
                     Modifier.padding(top=12.dp),style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
-        if (tracking.session != null) item { ActiveJourneyTracking(onTracking) }
+        if (vm.journeyTrackingBetaEnabled && tracking.session != null) item { ActiveJourneyTracking(onTracking) }
         item { Column(verticalArrangement=Arrangement.spacedBy(AppLayout.CompactGap)) {
             Row(Modifier.fillMaxWidth().padding(top=AppLayout.SectionGap-AppLayout.ItemGap),verticalAlignment=Alignment.CenterVertically) {
                 SingleChoiceSegmentedButtonRow(Modifier.weight(1f)) {
@@ -431,13 +431,13 @@ private fun serviceIcon(leg: Leg): ImageVector = when(leg.mode) {
 
 private fun serviceType(leg: Leg): String = hungarianServiceName(leg.category, leg.mode)
 
-@Composable fun RouteBadge(leg: Leg) {
+@Composable fun RouteBadge(leg: Leg, contentPadding: PaddingValues = PaddingValues(start=6.dp,end=12.dp,top=5.dp,bottom=5.dp)) {
     val logo=leg.routeLogo
     val color=if(logo!=null) Color.Transparent else serviceColor(leg)
     val foreground=if(logo!=null) MaterialTheme.colorScheme.onSurface else if(color.luminance()>.179f) Color.Black else Color.White
-    Surface(shape=CircleShape,color=color,contentColor=foreground,
+    Surface(shape=if(logo!=null) androidx.compose.ui.graphics.RectangleShape else CircleShape,color=color,contentColor=foreground,
         modifier=Modifier.semantics(mergeDescendants=true) { contentDescription="${serviceType(leg)} ${if(leg.walking) "" else leg.route}" }) {
-        Row(Modifier.padding(start=6.dp,end=12.dp,top=5.dp,bottom=5.dp),verticalAlignment=Alignment.CenterVertically) {
+        Row(Modifier.padding(contentPadding),verticalAlignment=Alignment.CenterVertically) {
             if(logo!=null) {
                 RouteLogoIcon(logo)
             } else Icon(serviceIcon(leg),null,Modifier.padding(5.dp).size(18.dp),tint=foreground)
@@ -667,6 +667,7 @@ private data class TimelineTrack(val color: Color, val walking: Boolean=false)
     var trackingLeg by remember(journey.key) { mutableStateOf<Int?>(null) }
     val trackingContext = LocalContext.current
     LaunchedEffect(Unit) { JourneyTracking.load(trackingContext) }
+    LaunchedEffect(vm.journeyTrackingBetaEnabled) { if (!vm.journeyTrackingBetaEnabled) trackingLeg = null }
     var menuOpen by remember(journey.key) { mutableStateOf(false) }
     var rawOpen by remember(journey.key) { mutableStateOf(false) }
     val journeyVehicles=routeVehicles(journey,vm.vehicles,System.currentTimeMillis()).associateBy {it.id}
@@ -696,7 +697,7 @@ private data class TimelineTrack(val color: Color, val walking: Boolean=false)
                             else -> connection
                         }
                         TimelineRow(leg.departureTime,track,stop=true,incoming=incoming) {
-                            if (sharedDeparture && !previous.walking) {
+                            if (vm.journeyTrackingBetaEnabled && sharedDeparture && !previous.walking) {
                                 JourneyTrackingStop(journey, index - 1) { trackingLeg = index - 1 }
                             } else StationLabel(leg.from)
                             if(index>0 && dayLabel(leg.start)!=dayLabel(journey.start)) Text(dayLabel(leg.start),style=MaterialTheme.typography.labelMedium)
@@ -743,7 +744,7 @@ private data class TimelineTrack(val color: Color, val walking: Boolean=false)
                         // A shared stop at the same time is one interchange node, not two repeated rows.
                         val sharedStop=next!=null && next.from.name==leg.to.name && next.from.platform==leg.to.platform && next.start==leg.end && next.departureTime==leg.arrivalTime
                         if(!sharedStop) TimelineRow(leg.arrivalTime,track,stop=true,outgoing=if(next==null) null else connection) {
-                            if (!walking) JourneyTrackingStop(journey, index) { trackingLeg = index }
+                            if (vm.journeyTrackingBetaEnabled && !walking) JourneyTrackingStop(journey, index) { trackingLeg = index }
                             else StationLabel(leg.to)
                             if(dayLabel(leg.end)!=dayLabel(journey.start)) Text(dayLabel(leg.end),style=MaterialTheme.typography.labelMedium)
                         }
@@ -770,7 +771,7 @@ private data class TimelineTrack(val color: Color, val walking: Boolean=false)
         }
         item {val advice=passAdvice(vm.passes,journey,vm.passGeography);InfoPanel(advice.title,advice.detail)}
     }
-    trackingLeg?.let { index -> JourneyTrackingSheet(journey, index) { trackingLeg = null } }
+    if (vm.journeyTrackingBetaEnabled) trackingLeg?.let { index -> JourneyTrackingSheet(journey, index) { trackingLeg = null } }
     if(vm.showRawGraphQl && rawOpen) RawGraphQlSheet(journey.rawGraphQl) {rawOpen=false}
 }
 

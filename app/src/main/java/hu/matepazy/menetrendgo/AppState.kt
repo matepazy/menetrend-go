@@ -29,6 +29,13 @@ class AppState(app: Application) : AndroidViewModel(app) {
         passReminders = PassNotifications.enabledReminders(getApplication())
     }
     var developerSettingsUnlocked by mutableStateOf(prefs.getBoolean("developer_settings_unlocked", false)); private set
+    var journeyTrackingBetaEnabled by mutableStateOf(JourneyTracking.enabled(app)); private set
+    init { if (!journeyTrackingBetaEnabled) JourneyTracking.stop(app) }
+    fun chooseJourneyTrackingBeta(enabled: Boolean) {
+        journeyTrackingBetaEnabled = enabled
+        prefs.edit().putBoolean("journey_tracking_beta_enabled", enabled).apply()
+        if (!enabled) JourneyTracking.stop(getApplication())
+    }
     var showRawGraphQl by mutableStateOf(prefs.getBoolean("show_raw_graphql", false)); private set
     var mapRefreshSeconds by mutableIntStateOf(prefs.getInt("map_refresh_seconds", 75).coerceIn(15, 90)); private set
     var customMapEnabled by mutableStateOf(prefs.getBoolean("custom_map_enabled", false)); private set
@@ -36,6 +43,8 @@ class AppState(app: Application) : AndroidViewModel(app) {
     var mapType by mutableStateOf(MapType.fromId(prefs.getString("map_type", "standard"))); private set
     var vehicleFilters by mutableStateOf(MapVehicleFilter.entries.filter { prefs.getBoolean(it.prefKey, it.defaultEnabled) }.toSet()); private set
     val showLocalBuses get() = MapVehicleFilter.LocalBus in vehicleFilters
+    var showMapStops by mutableStateOf(prefs.getBoolean("show_map_stops", true)); private set
+    fun chooseMapStops(enabled: Boolean) { showMapStops = enabled; prefs.edit().putBoolean("show_map_stops", enabled).apply() }
     var customMapUrl by mutableStateOf(prefs.getString("custom_map_url", "").orEmpty()); private set
     val effectiveMapType get() = if (mapType == MapType.Custom && (!customMapEnabled || !validMapTileUrl(customMapUrl))) MapType.Standard else mapType
     var recents by mutableStateOf(readArray("recents").mapNotNull { runCatching { Recent(Station.parse(it.getJSONObject("from")), Station.parse(it.getJSONObject("to"))) }.getOrNull() }); private set

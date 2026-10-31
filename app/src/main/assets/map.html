@@ -109,6 +109,52 @@ window.setMapType=(type,customUrl='',unofficialGoogleMap=false)=>{
  }
 };
 window.setMapType('standard');
+const stopMarkers=L.layerGroup().addTo(map);let stops=[],stopsEnabled=false;
+const stopMinZoom=16;
+/* STOP_SELECTION_START */
+// Screen-space collision handling: preserve useful stations without overlapping
+// 48px tap targets. World-pixel positions and provider IDs keep panning stable.
+function selectMapStops(items,project,spacing=48){
+ const priority=s=>{
+  const modes=new Set(s.modes||[]);
+  const rail=['RAIL','SUBURBAN_RAILWAY','SUBWAY'].some(mode=>modes.has(mode));
+  return (rail?100:0)+(String(s.type).toLowerCase()==='station'?20:0)+Math.min(modes.size,10);
+ };
+ const sorted=[...items].sort((a,b)=>priority(b)-priority(a)||(a.id<b.id?-1:a.id>b.id?1:0));
+ const cells=new Map(),selected=[];
+ for(const stop of sorted){
+  const p=project(stop),x=Math.floor(p.x/spacing),y=Math.floor(p.y/spacing);
+  let collides=false;
+  for(let dx=-1;dx<=1&&!collides;dx++)for(let dy=-1;dy<=1&&!collides;dy++){
+   collides=(cells.get((x+dx)+','+(y+dy))||[]).some(q=>Math.abs(p.x-q.x)<spacing&&Math.abs(p.y-q.y)<spacing);
+  }
+  if(collides)continue;
+  const key=x+','+y;
+  if(!cells.has(key))cells.set(key,[]);
+  cells.get(key).push(p);selected.push(stop);
+ }
+ return selected;
+}
+/* STOP_SELECTION_END */
+function drawStops(){
+ stopMarkers.clearLayers();if(!stopsEnabled||map.getZoom()<stopMinZoom)return;
+ selectMapStops(stops,s=>map.project([s.lat,s.lon],map.getZoom()))
+ .filter(s=>map.getBounds().pad(.1).contains([s.lat,s.lon])).forEach(s=>{
+  const hit=document.createElement('div');hit.className='hit';
+  const dot=document.createElement('div');dot.style.cssText='width:10px;height:10px;border:2px solid #2864d9;background:#f8fbff;border-radius:50%;box-sizing:border-box;box-shadow:0 2px 4px #1234';hit.append(dot);
+  const marker=L.marker([s.lat,s.lon],{icon:L.divIcon({html:hit,iconSize:[48,48],iconAnchor:[24,24],className:''}),title:s.name+' · indulási tábla',keyboard:true,zIndexOffset:-500}).addTo(stopMarkers);
+  marker.on('click',()=>{if(window.NativeMap)NativeMap.selectStop(s.id)});
+ });
+}
+function reportStopViewport(){
+ if(!stopsEnabled)return;
+ if(map.getZoom()<stopMinZoom){if(window.NativeMap)NativeMap.stopViewport(0,0,0);return}
+ const c=map.getCenter(),r=Math.min(15000,Math.max(100,Math.ceil(c.distanceTo(map.getBounds().getNorthEast())*1.1)));
+ if(window.NativeMap)NativeMap.stopViewport(c.lat,c.lng,r);
+}
+window.setStopsEnabled=enabled=>{stopsEnabled=enabled;drawStops();reportStopViewport()};
+window.updateStops=items=>{stops=items;drawStops()};
+map.on('moveend zoomend',()=>{drawStops();reportStopViewport()});
 /* VEHICLE_ICONS */
 const officialVehicleIconUrls=Object.fromEntries(Object.entries(officialVehicleIcons).map(([mode,svg])=>[mode,'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg)]));
 const markers=L.layerGroup().addTo(map),routes=L.layerGroup().addTo(map);let vehicles=[],routeKey='',routeMode=false,routePoints=[],fittedVehicleIds='';

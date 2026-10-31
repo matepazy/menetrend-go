@@ -1,0 +1,6 @@
+<resources>
+    <color name="departure_scheduled">#FFFFFF</color>
+    <color name="departure_green">#81C995</color>
+    <color name="departure_yellow">#FFD54F</color>
+    <color name="departure_red">#FFB4AB</color>
+</resources>

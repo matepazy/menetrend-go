@@ -189,6 +189,21 @@ private enum class SettingsPage(val title: String) {
                     item {
                         SettingsGroup {
                             Row(
+                                Modifier.fillMaxWidth().toggleable(vm.journeyTrackingBetaEnabled, role = Role.Switch, onValueChange = vm::chooseJourneyTrackingBeta).padding(AppLayout.PanelPadding),
+                                verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)
+                            ) {
+                                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    Text("Leszállási jelzés (béta)", style = MaterialTheme.typography.titleMedium)
+                                    Text("Kísérleti leszállási figyelmeztetés. Bekapcsolva csengő jelenik meg a leszállóhelyek mellett. Kikapcsoláskor az aktív jelzés is leáll.",
+                                        style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                }
+                                Switch(checked = vm.journeyTrackingBetaEnabled, onCheckedChange = null)
+                            }
+                        }
+                    }
+                    item {
+                        SettingsGroup {
+                            Row(
                                 Modifier.fillMaxWidth().toggleable(vm.unofficialGoogleMapEnabled, role = Role.Switch, onValueChange = vm::chooseUnofficialGoogleMapEnabled).padding(AppLayout.PanelPadding),
                                 verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)
                             ) {

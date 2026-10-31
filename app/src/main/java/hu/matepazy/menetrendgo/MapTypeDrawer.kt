@@ -97,6 +97,19 @@ import androidx.compose.ui.unit.dp
                 Text("Járműszűrők", Modifier.weight(1f), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
                 IconButton(onClick = dismiss) { Icon(Icons.Outlined.Close, "Járműszűrők bezárása") }
             }
+            Surface(shape = RoundedCornerShape(24.dp), color = MaterialTheme.colorScheme.surface) {
+                Row(Modifier.fillMaxWidth().toggleable(vm.showMapStops, role = Role.Switch,
+                    onValueChange = vm::chooseMapStops).heightIn(min = 72.dp).padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                    Icon(Icons.Outlined.LocationOn, null, tint = MaterialTheme.colorScheme.primary)
+                    Column(Modifier.weight(1f)) {
+                        Text("Megállók és állomások", style = MaterialTheme.typography.titleMedium)
+                        Text("Indulási tábla a jelölőre koppintva. Nagyíts a megállókhoz.", style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                    Switch(vm.showMapStops, onCheckedChange = null)
+                }
+            }
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 MapVehicleFilter.entries.forEach { filter ->
                     val checked = filter in vm.vehicleFilters

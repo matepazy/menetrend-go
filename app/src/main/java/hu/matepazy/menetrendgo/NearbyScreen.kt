@@ -72,6 +72,27 @@ import kotlinx.coroutines.withContext
     var filtersOpen by rememberSaveable {mutableStateOf(false)}
     var searchQuery by rememberSaveable {mutableStateOf("")}
     var searchFocused by rememberSaveable {mutableStateOf(false)}
+    var stopViewport by remember {mutableStateOf<Triple<Double,Double,Int>?>(null)}
+    var mapStops by remember {mutableStateOf<List<Station>>(emptyList())}
+    var selectedStop by remember {mutableStateOf<Station?>(null)}
+    val currentStops by rememberUpdatedState(mapStops)
+    val stopClient = remember {MavClient()}
+    val stopsEnabled = vm.showMapStops && !routeOnly
+    LaunchedEffect(ready,stopsEnabled) {
+        if(ready) web?.evaluateJavascript("window.setStopsEnabled($stopsEnabled);",null)
+        if(!stopsEnabled) {mapStops=emptyList();selectedStop=null}
+    }
+    LaunchedEffect(stopViewport,stopsEnabled,vm.vehicleUpdated) {
+        val viewport=stopViewport
+        if(!stopsEnabled || viewport==null) {mapStops=emptyList();return@LaunchedEffect}
+        kotlinx.coroutines.delay(350)
+        try {mapStops=stopClient.nearbyStops(viewport.first,viewport.second,viewport.third)}
+        catch(e: kotlinx.coroutines.CancellationException) {throw e}
+        catch(e: Exception) {mapStops=emptyList();snackbars.showSnackbar("A megállók nem tölthetők be. Frissítsd a térképet az újrapróbáláshoz.")}
+    }
+    LaunchedEffect(ready,mapStops,stopsEnabled) {
+        if(ready) web?.evaluateJavascript("window.updateStops(${JSONArray(if(stopsEnabled) mapStops.map {it.json()} else emptyList<JSONObject>())});",null)
+    }
     val allVehicles=remember(vm.vehicles,routeOnly,vm.vehicleFilters) {
         if(routeOnly) vm.vehicles else mapLayerVehicles(vm.vehicles,vm.vehicleFilters)
     }
@@ -183,6 +204,10 @@ import kotlinx.coroutines.withContext
                     settings.userAgentString="MenetrendGO/${BuildConfig.VERSION_NAME} (Android; https://github.com/matepazy/menetrend-go)"
                     addJavascriptInterface(object {
                         @JavascriptInterface fun locationInView(visible: Boolean) {Handler(Looper.getMainLooper()).post {locationVisible=visible}}
+                        @JavascriptInterface fun stopViewport(lat: Double,lon: Double,radius: Int) {Handler(Looper.getMainLooper()).post {
+                            stopViewport=if(radius in 100..15000 && lat.isFinite() && lon.isFinite() && lat in -90.0..90.0 && lon in -180.0..180.0) Triple(lat,lon,radius) else null
+                        }}
+                        @JavascriptInterface fun selectStop(id: String) {Handler(Looper.getMainLooper()).post {currentStops.find {it.id==id}?.let {selectedStop=it}}}
                         @JavascriptInterface fun selectVehicle(id: String) {Handler(Looper.getMainLooper()).post {currentVehicles.find {it.id==id}?.let(onSelect)}}
                     },"NativeMap")
                     webViewClient=object:WebViewClient() {
@@ -244,6 +269,7 @@ import kotlinx.coroutines.withContext
         }
         if(mapTypesOpen) MapTypeDrawer(vm) {mapTypesOpen=false}
         if(filtersOpen) MapFilterDrawer(vm) {filtersOpen=false}
+        selectedStop?.let {StopBoardDrawer(it, dismiss={selectedStop=null})}
         selectedVehicle?.let {selected -> VehicleDrawer(vm,currentVehicles.firstOrNull {it.id==selected.id} ?: selected) {selectedVehicle=null}}
         SnackbarHost(snackbars,Modifier.align(Alignment.BottomCenter).padding(bottom=LocalBottomOverlayInset.current+12.dp))
     }

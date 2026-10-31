@@ -37,7 +37,7 @@ internal fun JourneyTrackingStop(journey: Journey, legIndex: Int, onOpen: () -> 
     val tracking by JourneyTracking.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val leg = journey.legs[legIndex]
-    val active = tracking.session?.takeIf { it.journey.key == journey.key && it.legIndex == legIndex }
+    val active = tracking.session?.takeIf { it.journey.trackingKey == journey.trackingKey && it.legIndex == legIndex }
     Column {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top,
             horizontalArrangement = Arrangement.spacedBy(AppLayout.CompactGap)) {
@@ -55,7 +55,7 @@ internal fun JourneyTrackingStop(journey: Journey, legIndex: Int, onOpen: () -> 
                 modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
             if (active.awaitingBoarding && tracking.running) {
                 TextButton(onClick = {
-                    context.startService(Intent(context, JourneyTrackingService::class.java).setAction("board"))
+                    JourneyTracking.board(context, active)
                 }, contentPadding = PaddingValues(horizontal = AppLayout.RelatedGap), modifier = Modifier.heightIn(min = 48.dp)) {
                     Text("Felszálltam")
                 }
@@ -69,7 +69,7 @@ internal fun JourneyTrackingStop(journey: Journey, legIndex: Int, onOpen: () -> 
 internal fun JourneyTrackingSheet(journey: Journey, selectedLegIndex: Int, onDismiss: () -> Unit) {
     val context = LocalContext.current
     val tracking by JourneyTracking.state.collectAsStateWithLifecycle()
-    val active = tracking.session?.takeIf { it.journey.key == journey.key && it.legIndex == selectedLegIndex }
+    val active = tracking.session?.takeIf { it.journey.trackingKey == journey.trackingKey && it.legIndex == selectedLegIndex }
     val leg = journey.legs[selectedLegIndex]
     var warning by remember(journey.key, selectedLegIndex) { mutableIntStateOf(2) }
     var error by remember { mutableStateOf<String?>(null) }
@@ -151,7 +151,7 @@ internal fun JourneyTrackingSheet(journey: Journey, selectedLegIndex: Int, onDis
                     active.nextLegIndex?.let { next ->
                         Text("Következő: ${active.journey.legs[next].route} → ${active.journey.legs[next].to.name}", style = MaterialTheme.typography.bodyMedium)
                         Button(onClick = {
-                            context.startService(Intent(context, JourneyTrackingService::class.java).setAction("board")); onDismiss()
+                            JourneyTracking.board(context, active); onDismiss()
                         }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Felszálltam a következő járatra") }
                     }
                 }
