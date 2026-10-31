@@ -156,15 +156,15 @@ import java.time.format.DateTimeFormatter
                 Row(Modifier.fillMaxWidth(), horizontalArrangement=Arrangement.spacedBy(12.dp), verticalAlignment=Alignment.CenterVertically) {
                     FilledTonalIconButton(onClick={closePicker();searchOptions=true},shape=CircleShape,
                         modifier=Modifier.size(58.dp).semantics {
-                            stateDescription=if(vm.searchFilters.isEmpty()) "Nincs aktív feltétel" else "${vm.searchFilters.size} aktív feltétel"
+                            stateDescription=if(vm.searchConditionCount == 0) "Nincs aktív feltétel" else "${vm.searchConditionCount} aktív feltétel"
                         }) {
-                        BadgedBox(badge={if(vm.searchFilters.isNotEmpty()) Badge {Text(vm.searchFilters.size.toString())}}) {
+                        BadgedBox(badge={if(vm.searchConditionCount > 0) Badge {Text(vm.searchConditionCount.toString())}}) {
                             Icon(Icons.Outlined.Settings,"Keresési feltételek")
                         }
                     }
                     Box(Modifier.weight(1f)) {MainButton("Járatok keresése",Icons.Outlined.Search,vm.from!=null && vm.to!=null && vm.from!=vm.to,onSearch)}
                 }
-                if(vm.searchFilters.isNotEmpty()) Text(vm.searchFilters.sortedBy {it.ordinal}.joinToString(" · ") {it.title},
+                if(vm.searchConditionCount > 0) Text(vm.searchConditionSummary,
                     Modifier.padding(top=12.dp),style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
@@ -567,7 +567,7 @@ internal const val DeparturePaginationKey = "later-departures"
         if(vm.searchError!=null) item {InfoPanel("Nem sikerült a keresés",vm.searchError!!){rememberEarlierAnchor();vm.retrySearch()}}
         if(vm.searching && vm.journeys.isEmpty()) item {LoadingRows()}
         if(!vm.searching && vm.searchError==null && results.isEmpty()) item {InfoPanel("Nincs megjeleníthető indulás",
-            if(vm.activeSearchFilters.isEmpty()) "Módosítsd az időpontot vagy a megállókat."
+            if(vm.activeSearchFilters.isEmpty() && vm.activeSearchVehicles.isEmpty()) "Módosítsd az időpontot vagy a megállókat."
             else "A betöltött járatok között nincs minden feltételnek megfelelő találat. Tölts be további indulásokat, vagy lépj vissza a keresési feltételek módosításához.")}
         results.forEachIndexed { index, journey ->
             if(vm.earlierRequested && index==firstUpcoming) item(key="now") { NowDivider() }
@@ -609,7 +609,7 @@ internal const val DeparturePaginationKey = "later-departures"
             } else OutlinedButton(onClick={vm.search(true)},enabled=!vm.searching,shape=CircleShape,modifier=Modifier.fillMaxWidth().heightIn(min=52.dp)){Text("További indulások")}
         }
         item {Text(listOf("A találatokat a MÁV útvonaltervezője adja. Az újabb keresés további időpontokat tölt be.",
-            vm.activeSearchFilters.sortedBy {it.ordinal}.joinToString(" · ") {it.title}).filter {it.isNotBlank()}.joinToString("\n"),style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)}
+            searchVehicleSummary(vm.activeSearchVehicles), vm.activeSearchFilters.sortedBy {it.ordinal}.joinToString(" · ") {it.title}).filter {it.isNotBlank()}.joinToString("\n"),style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)}
     }
 }
 

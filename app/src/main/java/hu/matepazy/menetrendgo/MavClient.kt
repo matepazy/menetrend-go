@@ -62,9 +62,9 @@ class MavClient {
                 properties?.optString("type").orEmpty(),if(modes==null) emptyList() else (0 until modes.length()).map {modes.getString(it)})
         }.distinctBy {it.id}
     }
-    suspend fun plan(from: Station,to: Station,time: LocalDateTime,arrive: Boolean, filters: Set<SearchFilter> = emptySet()): List<Journey> = withContext(Dispatchers.IO) {
+    suspend fun plan(from: Station,to: Station,time: LocalDateTime,arrive: Boolean, filters: Set<SearchFilter> = emptySet(), vehicles: Set<SearchVehicle> = emptySet()): List<Journey> = withContext(Dispatchers.IO) {
         var rawResponse: String? = null
-        val data=request("/index/graphql",MavQueries.plan(from,to,time,arrive,filters)) {rawResponse=it}
+        val data=request("/index/graphql",MavQueries.plan(from,to,time,arrive,filters,vehicles)) {rawResponse=it}
         data.optJSONObject("plan")?.array("itineraries").orEmpty().map {itinerary->
             itinerary.array("legs").forEach {leg->
                 normalizeRoute(leg.optJSONObject("route"),leg.optJSONObject("trip")?.optString("tripShortName"))
@@ -143,15 +143,15 @@ object MavQueries {
         if(station.id.isNotBlank()) "${key}Place:${quote("${station.name}::${station.id}")}"
         else "$key:${point(station.lat,station.lon)}"
 
-    fun plan(from: Station,to: Station,time: LocalDateTime,arrive: Boolean, filters: Set<SearchFilter> = emptySet()): String =
-        planEndpoints(endpoint("from",from),endpoint("to",to),time,arrive,filters)
+    fun plan(from: Station,to: Station,time: LocalDateTime,arrive: Boolean, filters: Set<SearchFilter> = emptySet(), vehicles: Set<SearchVehicle> = emptySet()): String =
+        planEndpoints(endpoint("from",from),endpoint("to",to),time,arrive,filters,vehicles)
 
     fun plan(fromLat: Double,fromLon: Double,toLat: Double,toLon: Double,time: LocalDateTime,arrive: Boolean): String =
         planEndpoints("from:${point(fromLat,fromLon)}","to:${point(toLat,toLon)}",time,arrive)
 
-    private fun planEndpoints(from: String,to: String,time: LocalDateTime,arrive: Boolean, filters: Set<SearchFilter> = emptySet()): String = """
+    private fun planEndpoints(from: String,to: String,time: LocalDateTime,arrive: Boolean, filters: Set<SearchFilter> = emptySet(), vehicles: Set<SearchVehicle> = emptySet()): String = """
         {plan($from,$to,date:${quote(time.toLocalDate().toString())},time:${quote(time.format(DateTimeFormatter.ofPattern("HH:mm")))},arriveBy:$arrive,numItineraries:12,
-        transportModes:[{mode:RAIL},{mode:COACH},{mode:BUS},{mode:SUBURBAN_RAILWAY},{mode:TRAMTRAIN},{mode:WALK}],minTransferTime:120,maxWalkDistance:2000,
+        transportModes:[${searchVehicleModes(vehicles).joinToString(",") { "{mode:$it}" }}],minTransferTime:120,maxWalkDistance:2000,
         searchParameters:[${filters.sortedBy { it.ordinal }.mapNotNull { it.providerSearchCode }.joinToString(",", transform=::quote)}]) {
         itineraries {duration walkTime waitingTime legs {mode startTime endTime duration distance realTime departureDelay arrivalDelay
         from {name lat lon stop {platformCode}} to {name lat lon stop {platformCode}} intermediateStops {name lat lon platformCode} legGeometry {points}

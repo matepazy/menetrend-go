@@ -4,6 +4,9 @@ import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.RectF
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -17,7 +20,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
@@ -73,12 +78,15 @@ import androidx.compose.ui.unit.dp
 }
 
 @Composable fun SearchFilterDrawer(vm: AppState, dismiss: () -> Unit) {
-    SearchFilterDrawer(vm.searchFilters, vm::chooseSearchFilter, vm::clearSearchFilters, dismiss)
+    SearchFilterDrawer(vm.searchFilters, vm::chooseSearchFilter, vm::clearSearchFilters, dismiss,
+        vm.searchVehicles, vm::chooseSearchVehicle, { vm.chooseSearchVehicles(emptySet()) })
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable internal fun SearchFilterDrawer(selected: Set<SearchFilter>,
-    choose: (SearchFilter, Boolean) -> Unit, reset: () -> Unit, dismiss: () -> Unit) {
+    choose: (SearchFilter, Boolean) -> Unit, reset: () -> Unit, dismiss: () -> Unit,
+    vehicles: Set<SearchVehicle> = emptySet(), toggleVehicle: (SearchVehicle) -> Unit = {},
+    allVehicles: () -> Unit = {}) {
     var showDetails by rememberSaveable { mutableStateOf(false) }
     AppBottomSheet(onDismissRequest = dismiss,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
@@ -90,8 +98,40 @@ import androidx.compose.ui.unit.dp
             }
             Column(Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState())
                 .padding(horizontal = AppLayout.SheetPadding), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(if (selected.isEmpty()) "Több feltételt is választhatsz." else "${selected.size} feltétel kiválasztva",
+                val count = selected.size + if (vehicles.isEmpty()) 0 else 1
+                Text(if (count == 0) "Több feltételt is választhatsz." else "$count feltétel kiválasztva",
                     style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Column(Modifier.padding(top = 12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                        Text("Járművek", Modifier.weight(1f), style = MaterialTheme.typography.titleSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        TextButton(onClick = allVehicles, enabled = vehicles.isNotEmpty()) {
+                            Text("Mindegyik")
+                        }
+                    }
+                    Text("Legalább egy járműtípust hagyj bekapcsolva. A gyalogos szakaszok megmaradnak.",
+                        style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    SearchVehicle.entries.forEach { vehicle ->
+                        val checked = vehicles.isEmpty() || vehicle in vehicles
+                        val enabled = !checked || vehicles.size != 1
+                        Surface(shape = RoundedCornerShape(24.dp), color = MaterialTheme.colorScheme.surface) {
+                            Row(Modifier.fillMaxWidth().toggleable(checked, enabled = enabled, role = Role.Switch,
+                                onValueChange = { toggleVehicle(vehicle) })
+                                .heightIn(min = 72.dp).padding(16.dp), verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                                Image(painterResource(when (vehicle) {
+                                    SearchVehicle.Train -> R.drawable.ic_mode_rail
+                                    SearchVehicle.Coach -> R.drawable.ic_mode_coach
+                                    SearchVehicle.LocalBus -> R.drawable.ic_mode_local_bus
+                                    SearchVehicle.Hev -> R.drawable.ic_mode_hev
+                                    SearchVehicle.TramTrain -> R.drawable.ic_mode_tramtrain
+                                }), contentDescription = null, modifier = Modifier.requiredSize(40.dp))
+                                Text(vehicle.title, Modifier.weight(1f), style = MaterialTheme.typography.titleMedium)
+                                Switch(checked = checked, onCheckedChange = null, enabled = enabled)
+                            }
+                        }
+                    }
+                }
                 listOf(
                     "Utazás" to listOf(SearchFilter.Direct, SearchFilter.CountryPass),
                     "Kocsiosztály" to listOf(SearchFilter.SecondClass, SearchFilter.FirstClass, SearchFilter.PremiumClass),
@@ -132,7 +172,7 @@ import androidx.compose.ui.unit.dp
                 }
             }
             Row(Modifier.fillMaxWidth().padding(AppLayout.SheetPadding), horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
-                TextButton(onClick = reset, enabled = selected.isNotEmpty()) { Text("Alaphelyzet") }
+                TextButton(onClick = reset, enabled = selected.isNotEmpty() || vehicles.isNotEmpty()) { Text("Alaphelyzet") }
                 Button(onClick = dismiss, modifier = Modifier.weight(1f).heightIn(min = 52.dp)) { Text("Kész") }
             }
         }

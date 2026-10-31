@@ -127,11 +127,7 @@ import androidx.compose.ui.unit.dp
                                 MapVehicleFilter.TramTrain -> R.drawable.ic_mode_tramtrain
                                 MapVehicleFilter.ReplacementBus -> R.drawable.ic_mode_replacement_bus
                             }), contentDescription = null, modifier = Modifier.size(40.dp))
-                            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                                Text(filter.title, style = MaterialTheme.typography.titleMedium)
-                                Text(filter.summary, style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            }
+                            Text(filter.title, Modifier.weight(1f), style = MaterialTheme.typography.titleMedium)
                             Switch(checked = checked, onCheckedChange = null)
                         }
                     }
