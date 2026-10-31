@@ -52,7 +52,7 @@ class AppState(app: Application) : AndroidViewModel(app) {
     var savedSearches by mutableStateOf(readArray("saved_searches").mapNotNull {
         runCatching { SavedSearch.parse(it) }.getOrNull()
     }.distinctBy { it.key }); private set
-    var showSavedSearches by mutableStateOf(prefs.getBoolean("show_saved_searches", savedSearches.isNotEmpty())); private set
+    var showSavedSearches by mutableStateOf(prefs.getBoolean("show_saved_searches", false)); private set
     var from by mutableStateOf<Station?>(null)
     var to by mutableStateOf<Station?>(null)
     var dateTime by mutableStateOf(LocalDateTime.now(Budapest).withSecond(0).withNano(0))
@@ -145,7 +145,6 @@ class AppState(app: Application) : AndroidViewModel(app) {
         savedSearches = if (index < 0) listOf(saved) + savedSearches else
             savedSearches.toMutableList().apply { this[index] = saved }
         persistSavedSearches()
-        chooseSearchCollection(true)
     }
     fun removeSavedSearch(saved: SavedSearch) {
         savedSearches = savedSearches.filterNot { it.key == saved.key }

@@ -25,6 +25,41 @@ class SavedSearchFlowTest {
     private val from = Station("test-from", "Budapest-Keleti", 47.5, 19.08)
     private val to = Station("test-to", "Győr", 47.68, 17.63)
 
+    @Test fun collectionDefaultsToRecentAndOnlyExplicitSelectionChangesIt() {
+        val prefs = app.getSharedPreferences("menetrendgo", 0)
+        val keys = listOf("saved_searches", "show_saved_searches", "recents")
+        val backup = keys.associateWith { prefs.all[it] }
+        val saved = SavedSearch(from, to, "Munkába", SavedSearchIcon.Work)
+        prefs.edit().remove("show_saved_searches")
+            .putString("saved_searches", "[${saved.json()}]").commit()
+        try {
+            compose.runOnIdle {
+                var vm = AppState(app)
+                assertFalse(vm.showSavedSearches)
+                vm.saveSearch(from, to, "Haza", SavedSearchIcon.Home)
+                assertFalse(vm.showSavedSearches)
+                vm = AppState(app)
+                assertFalse(vm.showSavedSearches)
+                vm.chooseSearchCollection(true)
+                vm = AppState(app)
+                assertTrue(vm.showSavedSearches)
+                vm.removeSavedSearch(vm.savedSearches.single())
+                vm.clearRecents()
+                assertTrue(AppState(app).showSavedSearches)
+                vm.chooseSearchCollection(false)
+                assertFalse(AppState(app).showSavedSearches)
+            }
+        } finally {
+            prefs.edit().also { editor -> keys.forEach { key ->
+                when (val value = backup[key]) {
+                    null -> editor.remove(key)
+                    is String -> editor.putString(key, value)
+                    is Boolean -> editor.putBoolean(key, value)
+                }
+            } }.commit()
+        }
+    }
+
     @Test fun saveReopenEditLaunchAndDeleteRoute() {
         val prefs = app.getSharedPreferences("menetrendgo", 0)
         val keys = listOf("saved_searches", "show_saved_searches", "recents")
@@ -66,6 +101,8 @@ class SavedSearchFlowTest {
                 assertEquals(SavedSearchIcon.Work, vm.savedSearches.single().icon)
                 planning = true
             }
+            compose.onNodeWithText("Legutóbbi").performScrollTo().assertIsSelected()
+            compose.onNodeWithText("Mentett").performClick()
             compose.onNodeWithText("Munkába").performScrollTo().assertIsDisplayed()
             screenshot("planning-light")
             compose.onNodeWithText("Legutóbbi").performScrollTo().performClick()

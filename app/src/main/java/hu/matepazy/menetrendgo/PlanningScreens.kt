@@ -175,6 +175,7 @@ import java.time.format.DateTimeFormatter
                     listOf("Mentett", "Legutóbbi").forEachIndexed { index, label ->
                         SegmentedButton(selected=vm.showSavedSearches==(index==0),
                             onClick={vm.chooseSearchCollection(index==0)},
+                            icon={},
                             shape=SegmentedButtonDefaults.itemShape(index,2)) { Text(label) }
                     }
                 }
