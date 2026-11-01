@@ -5,7 +5,7 @@ import org.json.JSONArray
 import java.text.Normalizer
 import java.util.Locale
 
-data class ModelPhoto(val asset: String, val caption: String, val author: String,
+data class ModelPhoto(val url: String, val caption: String, val author: String,
     val source: String, val license: String, val licenseUrl: String,
     val agencies: List<String> = emptyList())
 data class VehicleModelProfile(val id: String, val title: String, val aliases: List<String>,
@@ -46,7 +46,7 @@ object VehicleModelCatalog {
                 row.getString("description"), strings("facts"),
                 (0 until sources.length()).map { sources.getJSONObject(it).let { s -> s.getString("label") to s.getString("url") } },
                 (0 until photos.length()).map { photos.getJSONObject(it).let { p ->
-                    ModelPhoto(p.getString("asset"), p.getString("caption"), p.getString("author"),
+                    ModelPhoto(p.getString("url"), p.getString("caption"), p.getString("author"),
                         p.getString("source"), p.getString("license"), p.getString("licenseUrl"),
                         p.optJSONArray("agencies")?.let { a -> (0 until a.length()).map { a.getString(it) } }.orEmpty())
                 } }, row.optJSONObject("agencyProfiles")?.let { mappings ->

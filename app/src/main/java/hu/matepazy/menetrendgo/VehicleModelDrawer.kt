@@ -1,6 +1,5 @@
 package hu.matepazy.menetrendgo
 
-import android.graphics.BitmapFactory
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -42,6 +41,7 @@ import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -132,7 +132,7 @@ import kotlinx.coroutines.withContext
                     bottom = AppLayout.SectionGap)) {
                     if (profile.photos.isNotEmpty()) item {
                         Column(verticalArrangement = Arrangement.spacedBy(AppLayout.CompactGap)) {
-                            HorizontalPager(pager, key = { profile.photos[it].asset }) { index ->
+                            HorizontalPager(pager, key = { profile.photos[it].url }) { index ->
                                 FleetPhoto(profile.photos[index], profile.title)
                             }
                             if (profile.photos.size > 1) Row(Modifier.fillMaxWidth(),
@@ -170,20 +170,28 @@ import kotlinx.coroutines.withContext
 }
 
 @Composable private fun FleetPhoto(photo: ModelPhoto, title: String) {
-    val assets = LocalContext.current.assets
-    val bitmap by produceState<Result<ImageBitmap>?>(null, photo.asset) {
-        value = withContext(Dispatchers.IO) {
-            runCatching { assets.open("vehicle_models/${photo.asset}").use {
-                checkNotNull(BitmapFactory.decodeStream(it)).asImageBitmap()
-            } }
-        }
+    val context = LocalContext.current.applicationContext
+    var attempt by remember(photo.url) { mutableIntStateOf(0) }
+    val bitmap by produceState<Result<ImageBitmap>?>(null, photo.url, attempt) {
+        value = null
+        value = try { Result.success(FleetPhotoStore.load(context, photo.url).asImageBitmap()) }
+            catch (cancelled: CancellationException) { throw cancelled }
+            catch (_: Exception) { Result.failure(IllegalStateException("Photo unavailable")) }
     }
     Surface(Modifier.fillMaxWidth().aspectRatio(1.5f).clip(MaterialTheme.shapes.small),
         color = MaterialTheme.colorScheme.surfaceContainer) {
         bitmap?.getOrNull()?.let { Image(it, "$title · ${photo.caption}", Modifier.fillMaxSize(), contentScale = ContentScale.Fit) }
             ?: Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                if (bitmap == null) CircularProgressIndicator(Modifier.size(24.dp))
-                else Text("A fotó nem jeleníthető meg.", Modifier.padding(AppLayout.RelatedGap), style = MaterialTheme.typography.bodyMedium)
+                if (bitmap == null) Column(horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(AppLayout.CompactGap)) {
+                    CircularProgressIndicator(Modifier.size(24.dp))
+                    Text("Fotó betöltése…", style = MaterialTheme.typography.bodySmall)
+                }
+                else Column(Modifier.padding(AppLayout.RelatedGap), horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text("A webes fotó nem tölthető be. Ellenőrizd az internetkapcsolatot.",
+                        style = MaterialTheme.typography.bodyMedium)
+                    TextButton(onClick = { attempt++ }) { Text("Fotó újratöltése") }
+                }
             }
     }
 }

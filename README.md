@@ -76,10 +76,17 @@ A JVM-tesztek többek között az időpontkezelést, a bérletszabályokat, az �
 A debug APK fejlesztői eszközöket és optimalizálatlan könyvtárakat is tartalmaz.
 Terjesztéshez a release APK-t használd: az R8 eltávolítja a nem használt kódot
 és erőforrásokat, köztük a fel nem használt Material ikonokat. A járműfotók
-továbbra is a csomag részei, offline is elérhetők. Az `app/proguard-rules.pro`
+ellenőrzött, szabad licencű Wikimedia Commons-fájlokból, megnyitáskor töltődnek le.
+A külön fotógyorsítótár legfeljebb 12 képet és 12 MiB adatot őriz, a legrégebben
+megtekintett képeket törli. Egy letöltés legfeljebb 2 MiB lehet. Az ismertetők,
+az adatforrások és a fotók szerzői, illetve licencadatai továbbra is offline
+elérhetők. A még nem tárolt fotókhoz internet kell. Az `app/proguard-rules.pro`
 megőrzi a frissítéskezelő reflektíven olvasott adatmodelljeit és a térkép
 JavaScript-hídjának metódusait. Kiadás előtt a release buildben is ellenőrizd
 a frissítéslistát, a térképes járműkiválasztást és a fotók megjelenítését.
+A képek URL-jeit és szabad licenceit a `node scripts/refresh-fleet-photo-urls.mjs`
+parancs ellenőrzi újra a Commons API-n keresztül. A program csak a katalógusban
+már kiválasztott képeket kezeli, nem választ automatikusan típusfotókat.
 A hibakereséshez őrizd meg az adott buildhez tartozó
 `app/build/outputs/mapping/release/mapping.txt` fájlt.
 

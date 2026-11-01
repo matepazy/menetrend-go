@@ -44,12 +44,12 @@ class VehicleModelTest {
         assertNull(findVehicleModel(profiles, "Solaris Urbino 15", "PAKS"))
     }
 
-    @Test fun bundledCatalogHasUnambiguousAliasesAndCompleteOfflineAttribution() {
+    @Test fun catalogHasUnambiguousAliasesAndCompleteOfflineAttributionForWebPhotos() {
         val assets = File("src/main/assets/vehicle_models")
         @Suppress("UNCHECKED_CAST")
         val rows = Moshi.Builder().build().adapter(List::class.java)
             .fromJson(File(assets, "catalog.json").readText()) as List<Map<String, Any>>
-        assertTrue("Full live-feed catalog expected", rows.size >= 76)
+        assertTrue("Expanded fleet catalog expected", rows.size >= 122)
         val aliases = mutableSetOf<String>()
         for (row in rows) {
             val id = row["id"] as String
@@ -61,7 +61,8 @@ class VehicleModelTest {
             @Suppress("UNCHECKED_CAST")
             val photos = row["photos"] as List<Map<String, String>>
             photos.forEach { p ->
-                assertTrue("$id photo bundled", File(assets, p.getValue("asset")).length() > 1000)
+                assertTrue("$id photo must use a trusted HTTPS Commons image URL", isFleetPhotoUrl(p.getValue("url")))
+                assertFalse("Photos must no longer be bundled", p.containsKey("asset"))
                 listOf("caption", "author", "source", "license", "licenseUrl").forEach { key ->
                     assertTrue("$id photo missing $key", !p[key].isNullOrBlank())
                 }
@@ -71,6 +72,9 @@ class VehicleModelTest {
                     .matches(Regex("CC BY(?:-SA)? [234]\\.0|Public domain|CC0")))
             }
         }
+        listOf("Luganszki Mozdonygyár (SZU)-SZERGEJ", "GANZ-MÁVAG-PAPAGÁJ", "Setra S417UL",
+            "Setra S419UL", "Siemens-VECTRON", "Alstom-ASTRIDE", "Credo Optinell 10", "Ikarus 280", "MAN 18C")
+            .forEach { assertTrue("Researched fleet model missing: $it", normalizedVehicleModel(it) in aliases) }
         val reported = listOf("vehicle-models-2026-10-24.txt", "local-bus-models-2026-10-25.txt")
             .flatMap { File("src/test/resources/$it").readLines() }.filter { it.isNotBlank() }
         reported.forEach { assertTrue("Live model not covered: $it", normalizedVehicleModel(it) in aliases) }

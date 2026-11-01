@@ -118,6 +118,8 @@ Journey legs and full trip timetables request MÁV `infoServices`. Journey servi
 
 ## Overview
 
+The vehicle-model article retains the existing Read surface inside the full-height native sheet. Its curated Commons photos now download on demand at up to 960px, with a dedicated LRU cache capped at 12 photos and 12 MiB. Article text and attribution remain bundled. The image frame preserves layout while loading, names the loading state, and offers “Fotó újratöltése” after network failure without hiding the article. The original author, free licence, Commons file page and licence link remain in the source disclosure. New fleet entries preserve explicit variant matching and distinguish model capabilities from the facilities of an individual service.
+
 **Creative North Star: "Icy blue ground, ink text, royal-blue actions, fully rounded milky panels"**
 
 MenetrendGO feels calm, legible and direct. Its rounded character comes from solid themed panels and pale tonal separation. A feathered bottom blur softens content behind the floating phone navigation. Large rounded forms hold useful Hungarian text and familiar Material vector icons; the interface does not rely on decorative artwork.
