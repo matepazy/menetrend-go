@@ -124,6 +124,8 @@ object MavQueries {
         return """{stop(id:${quote(id)}){gtfsId name stoptimesWithoutPatterns(startTime:${now/1000},numberOfDepartures:30,timeRange:86400,omitCanceled:false){serviceDay scheduledDeparture realtimeDeparture realtime realtimeState pickupType headsign stop{gtfsId name lat lon platformCode} trip{gtfsId tripShortName tripHeadsign trainCategoryName route{shortName longName mode color textColor}}}}}"""
     }
     private const val services = """infoServices(language:"hu",onlyDisplayable:true) {name fontCode fontCharSet displayable fromStopIndex tillStopIndex fromStop {name} tillStop {name}}"""
+    private const val alerts = """alerts {id alertHeaderText alertDescriptionText alertUrl effectiveStartDate effectiveEndDate alertSeverityLevel alertEffect
+        alertHeaderTextTranslations {language text} alertDescriptionTextTranslations {language text}}"""
     fun quote(value: String): String = buildString {
         append('"')
         value.forEach {c->when(c) {
@@ -156,7 +158,8 @@ object MavQueries {
         itineraries {duration walkTime waitingTime legs {mode startTime endTime duration distance realTime departureDelay arrivalDelay
         from {name lat lon stop {gtfsId platformCode}} to {name lat lon stop {gtfsId platformCode}} intermediateStops {name lat lon platformCode} legGeometry {points}
         $services
-        route {shortName longName mode color textColor agency {name}} trip {gtfsId tripShortName tripHeadsign trainCategoryName}}}}}
+        $alerts
+        route {shortName longName mode color textColor agency {name}} trip {gtfsId tripShortName tripHeadsign trainCategoryName $alerts}}}}}
     """.trimIndent()
     val vehicles="""{vehiclePositions(swLat:45.5,swLon:16.1,neLat:48.7,neLon:22.8,modes:[RAIL,RAIL_REPLACEMENT_BUS,COACH,BUS,SUBURBAN_RAILWAY,TRAMTRAIN]) {vehicleId lastUpdated lat lon speed heading label vehicleModel licensePlate uicCode trip {gtfsId tripShortName tripHeadsign trainCategoryName route {shortName mode color textColor longName agency {name}}}}}"""
     fun trip(id: String,day: String): String {

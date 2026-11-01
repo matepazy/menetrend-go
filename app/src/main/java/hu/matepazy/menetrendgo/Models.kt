@@ -52,7 +52,7 @@ data class Leg(val mode: String, val start: Long, val end: Long, val from: Stati
     val route: String, val tripId: String, val realTime: Boolean, val departureDelay: Int,
     val intermediate: List<Station>, val geometry: String,
     val routeColor: String = "", val category: String = "", val headsign: String = "", val routeLongName: String = "", val agencyName: String = "", val arrivalDelay: Int = 0,
-    val services: List<MavService> = emptyList(), val routeLogo: RouteLogo? = null) {
+    val services: List<MavService> = emptyList(), val routeLogo: RouteLogo? = null, val alerts: List<MavAlert> = emptyList()) {
     val walking get() = mode == "WALK"
     val departureTime get() = ServiceTime.fromEstimate(start, departureDelay, realTime && !walking)
     val arrivalTime get() = ServiceTime.fromEstimate(end, arrivalDelay, realTime && !walking)
@@ -65,7 +65,8 @@ data class Leg(val mode: String, val start: Long, val end: Long, val from: Stati
                 route.optString("shortName").ifBlank { trip.optString("tripShortName").ifBlank { o.optString("mode") } },
                 trip.optString("gtfsId"), o.optBoolean("realTime"), o.optInt("departureDelay"),
                 o.array("intermediateStops").map(Station::parse), o.optJSONObject("legGeometry")?.optString("points").orEmpty(),
-                route.optString("color"), trip.optString("trainCategoryName"), trip.optString("tripHeadsign"), route.optString("longName"), route.optJSONObject("agency")?.optString("name").orEmpty(),o.optInt("arrivalDelay"),MavService.parseAll(o),RouteLogo.parse(route))
+                route.optString("color"), trip.optString("trainCategoryName"), trip.optString("tripHeadsign"), route.optString("longName"), route.optJSONObject("agency")?.optString("name").orEmpty(),o.optInt("arrivalDelay"),MavService.parseAll(o),RouteLogo.parse(route),
+                MavAlert.parseAll(o, o.getLong("startTime"), o.getLong("endTime")))
         }
     }
 }

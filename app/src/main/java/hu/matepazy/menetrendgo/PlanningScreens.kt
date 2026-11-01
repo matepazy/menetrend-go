@@ -763,6 +763,7 @@ internal fun sameJourneyStop(first: Station, second: Station): Boolean =
                                 journeyVehicles[leg.tripId]?.takeIf {it.modelAndRegistration.isNotBlank()}?.let {vehicle ->
                                     VehicleModelLabel(vehicle,Modifier.padding(top=AppLayout.LabelGap))
                                 }
+                                JourneyLegAlerts(leg,Modifier.padding(top=AppLayout.LabelGap))
                                 if(leg.headsign.isNotBlank()) Text("Irány: ${leg.headsign}",Modifier.padding(top=4.dp),style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)
                                 if(!transferDeparture.realtime && !(transferTimes[index]?.arrival?.time ?: leg.arrivalTime).realtime)
                                     Text("Menetrend szerint · élő adat nem érhető el",Modifier.padding(top=8.dp),style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
