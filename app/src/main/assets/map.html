@@ -103,7 +103,8 @@ window.setMapType=(type,customUrl='',unofficialGoogleMap=false)=>{
  mapLayers.forEach(layer=>map.removeLayer(layer));mapLayers=[];mapTypeKey=key;activeMapType=type;
  tileFailed=false;status.textContent='';status.style.display='none';
  function add(url,attribution,zIndex){
-  const layer=L.tileLayer(url,{maxZoom:19,maxNativeZoom:19,attribution,zIndex,referrerPolicy:'no-referrer'});
+  // Load newly exposed tiles while a finger is held down, using Leaflet's 200ms move throttle.
+  const layer=L.tileLayer(url,{maxZoom:19,maxNativeZoom:19,attribution,zIndex,referrerPolicy:'no-referrer',updateWhenIdle:false});
   let failed=false;
   layer.on('loading',()=>{failed=false}).on('tileerror',()=>{
    if(!map.hasLayer(layer))return;failed=true;tileFailed=true;
