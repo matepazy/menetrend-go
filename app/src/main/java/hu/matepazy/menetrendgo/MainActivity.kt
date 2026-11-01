@@ -10,8 +10,13 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.SystemBarStyle
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.*
@@ -271,7 +276,10 @@ val LocalBottomOverlayInset = staticCompositionLocalOf { 0.dp }
         Row(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing.only(if(wide || mapScreen) WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom else WindowInsetsSides.Horizontal))) {
             if(wide && !mapScreen) NavigationRail(modifier=Modifier.windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top)),containerColor=MaterialTheme.colorScheme.surface) {
                 Spacer(Modifier.height(30.dp))
-                destinations.forEachIndexed { index,label -> NavigationRailItem(selected=tab==index,onClick={returning=false;tab=index;page="search";selected=null},icon={Icon(icons[index],null)},label={Text(label)}) }
+                @OptIn(ExperimentalMaterial3Api::class)
+                CompositionLocalProvider(LocalRippleConfiguration provides null) {
+                    destinations.forEachIndexed { index,label -> NavigationRailItem(selected=tab==index,onClick={returning=false;tab=index;page="search";selected=null},icon={Icon(icons[index],null)},label={Text(label)}) }
+                }
             }
             Scaffold(containerColor=Color.Transparent,contentWindowInsets=WindowInsets(0),
                 bottomBar={ if(!wide && !mapScreen) {
@@ -285,9 +293,12 @@ val LocalBottomOverlayInset = staticCompositionLocalOf { 0.dp }
                                 val selection by animateColorAsState(
                                     MaterialTheme.colorScheme.primaryContainer.copy(alpha=if(active) .65f else 0f),
                                     tween(AppMotion.Feedback),label="Navigation selection")
-                                Column(Modifier.weight(1f).clip(RoundedCornerShape(26.dp))
+                                val press=remember { MutableInteractionSource() }
+                                val pressed by press.collectIsPressedAsState()
+                                val scale by animateFloatAsState(if(pressed) .94f else 1f,spring(Spring.DampingRatioMediumBouncy,Spring.StiffnessMedium),label="Navigation press")
+                                Column(Modifier.weight(1f).graphicsLayer { scaleX=scale;scaleY=scale }.clip(RoundedCornerShape(26.dp))
                                     .background(selection)
-                                    .selectable(selected=active,role=Role.Tab,onClick={returning=false;tab=index;page="search";selected=null})
+                                    .selectable(selected=active,interactionSource=press,indication=null,role=Role.Tab,onClick={returning=false;tab=index;page="search";selected=null})
                                     .padding(horizontal=2.dp,vertical=8.dp).heightIn(min=if(largeFont) 64.dp else 48.dp),
                                     horizontalAlignment=Alignment.CenterHorizontally,verticalArrangement=Arrangement.Center) {
                                     Icon(icons[index],null,Modifier.size(24.dp),tint=tint)
