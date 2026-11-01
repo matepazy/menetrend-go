@@ -311,7 +311,7 @@ val LocalBottomOverlayInset = staticCompositionLocalOf { 0.dp }
                                 page=="trip" && selected!=null -> JourneyScreen(vm,selected!!,{},onTrip={},onMap={},refreshTransfers=false)
                                 page=="trip" && tab==1 -> NearbyScreen(vm)
                                 page=="journey" && journeyReturnPage=="results" -> ResultsScreen(vm,resultsNavigation,{}) {}
-                                else -> SearchScreen(vm,onPasses={}) {}
+                                else -> SearchScreen(vm) {}
                             }
                         }) {
                         ScreenArrival("$tab:$page",animate=!returning) {
@@ -323,7 +323,7 @@ val LocalBottomOverlayInset = staticCompositionLocalOf { 0.dp }
                             tab==0 && page=="journey" && selected!=null -> JourneyScreen(vm,selected!!,::back,
                                 onTrip={ leg -> returning=false;tripId=leg.tripId; tripDay=Instant.ofEpochMilli(leg.start).atZone(Budapest).toLocalDate().toString(); vm.loadTrip(tripId,tripDay); page="trip" },
                                 onMap={ returning=false;vm.mapVehicle=null;page="routeMap" })
-                            tab==0 -> SearchScreen(vm,onPasses={returning=false;tab=2},onTracking={selected=it;tab=0;journeyReturnPage="search";page="journey"}) { returning=false;vm.search();page="results" }
+                            tab==0 -> SearchScreen(vm,onTracking={selected=it;tab=0;journeyReturnPage="search";page="journey"}) { returning=false;vm.search();page="results" }
                             tab==1 -> NearbyScreen(vm)
                             tab==2 -> PassesScreen(vm)
                             else -> SettingsScreen(vm)

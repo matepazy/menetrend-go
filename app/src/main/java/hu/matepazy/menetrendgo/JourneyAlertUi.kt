@@ -45,9 +45,9 @@ internal fun JourneyLegAlerts(leg: Leg, modifier: Modifier = Modifier) {
     }
 }
 
-private val MavAlert.icon: ImageVector get() = if (warning) Icons.Outlined.WarningAmber else Icons.Outlined.Info
-private val MavAlert.kind: String get() = if (warning) "Figyelmeztetés" else "Tájékoztatás"
-@Composable private fun MavAlert.tint(): Color =
+internal val MavAlert.icon: ImageVector get() = if (warning) Icons.Outlined.WarningAmber else Icons.Outlined.Info
+internal val MavAlert.kind: String get() = if (warning) "Figyelmeztetés" else "Tájékoztatás"
+@Composable internal fun MavAlert.tint(): Color =
     if (warning) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
 
 @Composable
@@ -104,7 +104,7 @@ private fun JourneyAlertDrawer(alert: MavAlert, leg: Leg, dismiss: () -> Unit) {
 }
 
 /** Provider HTML keeps emphasis, lists and links; inline colours and fonts would fight the theme. */
-private fun alertMarkup(html: String, links: TextLinkStyles): AnnotatedString {
+internal fun alertMarkup(html: String, links: TextLinkStyles): AnnotatedString {
     val cleaned = html
         .replace(Regex("\\sstyle\\s*=\\s*(\"[^\"]*\"|'[^']*')", RegexOption.IGNORE_CASE), "")
         .replace(Regex("<p>\\s*(<br\\s*/?>|&nbsp;)?\\s*</p>", RegexOption.IGNORE_CASE), "")

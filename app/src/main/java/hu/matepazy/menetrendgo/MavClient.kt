@@ -104,6 +104,16 @@ class MavClient {
             }
         }
     }
+    private var networkAlertCache: Pair<List<NetworkAlert>,Long>?=null
+    /** Line and station notices across every feed; cached briefly because the response is large. */
+    suspend fun networkAlerts(forceRefresh: Boolean = false): Pair<List<NetworkAlert>,Long> = withContext(Dispatchers.IO) {
+        val now=System.currentTimeMillis()
+        networkAlertCache?.takeIf {!forceRefresh && now-it.second<120_000} ?: run {
+            val data=request("/index/graphql",MavQueries.networkAlerts)
+            check(data.has("alerts")) {"A MÁV közleményei most nem érhetők el."}
+            (NetworkAlert.parseAll(data,now) to now).also {networkAlertCache=it}
+        }
+    }
     private fun normalizeRoute(route: JSONObject?,fallback: String?) {
         if(route?.optString("shortName")?.contains("MNR2007")==true)
             route.put("logoShortName",route.optString("shortName"))
@@ -126,6 +136,11 @@ object MavQueries {
     private const val services = """infoServices(language:"hu",onlyDisplayable:true) {name fontCode fontCharSet displayable fromStopIndex tillStopIndex fromStop {name} tillStop {name}}"""
     private const val alerts = """alerts {id alertHeaderText alertDescriptionText alertUrl effectiveStartDate effectiveEndDate alertSeverityLevel alertEffect
         alertHeaderTextTranslations {language text} alertDescriptionTextTranslations {language text}}"""
+    private const val line = "shortName mode color textColor"
+    /** Entities only name lines and stations; trip-only notices are dropped after parsing. */
+    const val networkAlerts = """{alerts {id feed alertHeaderText alertDescriptionText alertUrl effectiveStartDate effectiveEndDate alertSeverityLevel alertEffect
+        alertHeaderTextTranslations {language text} alertDescriptionTextTranslations {language text}
+        entities {__typename ... on Route {$line} ... on Stop {name} ... on StopOnRoute {route {$line} stop {name}}}}}"""
     fun quote(value: String): String = buildString {
         append('"')
         value.forEach {c->when(c) {

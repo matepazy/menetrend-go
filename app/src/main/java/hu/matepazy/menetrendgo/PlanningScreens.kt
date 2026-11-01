@@ -117,10 +117,12 @@ import androidx.lifecycle.repeatOnLifecycle
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Composable fun SearchScreen(vm: AppState, onPasses: () -> Unit, onSearch: () -> Unit) =
-    SearchScreen(vm, onPasses, {}, onSearch)
+@Composable fun SearchScreen(vm: AppState, onSearch: () -> Unit) =
+    SearchScreen(vm, {}, onSearch)
 
-@Composable fun SearchScreen(vm: AppState, onPasses: () -> Unit, onTracking: (Journey) -> Unit, onSearch: () -> Unit) {
+@Composable fun SearchScreen(vm: AppState, onTracking: (Journey) -> Unit, onSearch: () -> Unit) {
+    var showAlerts by rememberSaveable { mutableStateOf(false) }
+    if(showAlerts) NetworkAlertsDrawer(vm) { showAlerts=false }
     val tracking by JourneyTracking.state.collectAsState()
     val trackingContext = LocalContext.current
     LaunchedEffect(Unit) { JourneyTracking.load(trackingContext) }
@@ -144,7 +146,7 @@ import androidx.lifecycle.repeatOnLifecycle
     LazyColumn(Modifier.fillMaxSize().swipeHostDismiss(swipeHost).swipeBetweenTabs(swipeHost,collection) { vm.chooseSearchCollection(it) },contentPadding=screenContentPadding(),verticalArrangement=Arrangement.spacedBy(AppLayout.ItemGap)) {
         item { Row(Modifier.fillMaxWidth().heightIn(min=48.dp),verticalAlignment=Alignment.CenterVertically) {
             Text("Hová indulunk?",style=MaterialTheme.typography.headlineMedium,fontWeight=FontWeight.Bold,modifier=Modifier.weight(1f))
-            FilledTonalIconButton(onClick=onPasses,shape=CircleShape) {Icon(Icons.Outlined.NotificationsNone,"Bérletek és emlékeztetők")}
+            FilledTonalIconButton(onClick={showAlerts=true},shape=CircleShape) {Icon(Icons.Outlined.NotificationsNone,"Forgalmi hírek")}
         } }
         item {
             Glass(Modifier.fillMaxWidth()) {

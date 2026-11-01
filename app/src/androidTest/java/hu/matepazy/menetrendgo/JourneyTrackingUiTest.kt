@@ -229,7 +229,7 @@ class JourneyTrackingUiTest {
             Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
                     Box(Modifier.widthIn(max = 760.dp).fillMaxSize()) {
-                        SearchScreen(vm, {}, { opened = it }, {})
+                        SearchScreen(vm, { opened = it }, {})
                     }
                 }
             }

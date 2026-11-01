@@ -92,6 +92,23 @@ class AppState(app: Application) : AndroidViewModel(app) {
     private var failedSearchEarlier = false
     var vehicles by mutableStateOf<List<Vehicle>>(emptyList()); private set
     var vehicleUpdated by mutableLongStateOf(0L); private set
+    var networkAlerts by mutableStateOf<List<NetworkAlert>?>(null); private set
+    var networkAlertsUpdated by mutableLongStateOf(0L); private set
+    var networkAlertsLoading by mutableStateOf(false); private set
+    var networkAlertsError by mutableStateOf<String?>(null); private set
+    private var networkAlertsJob: Job?=null
+    fun loadNetworkAlerts(force: Boolean=false) {
+        if(networkAlertsJob?.isActive==true) return
+        networkAlertsJob=viewModelScope.launch {
+            networkAlertsLoading=true
+            try {
+                val (items,updated)=mav.networkAlerts(force)
+                networkAlerts=items;networkAlertsUpdated=updated;networkAlertsError=null
+            } catch(e: CancellationException) {throw e}
+            catch(e: Exception) {networkAlertsError=e.message ?: "A közlemények nem tölthetők be."}
+            finally {networkAlertsLoading=false}
+        }
+    }
     var vehicleError by mutableStateOf<String?>(null); private set
     var vehiclesLoading by mutableStateOf(false); private set
     var detail by mutableStateOf<JSONObject?>(null); private set

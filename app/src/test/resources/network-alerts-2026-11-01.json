@@ -1,0 +1,701 @@
+{
+ "data": {
+  "alerts": [
+   {
+    "id": "QWxlcnQ6MToxMjA3Mw",
+    "feed": "1",
+    "alertHeaderText": "",
+    "alertDescriptionText": "A Győrből 16:25-kor Budapest-Délibe indult Rába IR vonat (1945) baleset miatt Budaörs állomáson várakozni kényszerül. \nTovábbutazásra javasoljuk a következő S10/S12-es járatot.",
+    "alertUrl": null,
+    "effectiveStartDate": 1793552760,
+    "effectiveEndDate": 1793573940,
+    "alertSeverityLevel": "WARNING",
+    "alertEffect": "UNKNOWN_EFFECT",
+    "alertHeaderTextTranslations": [],
+    "alertDescriptionTextTranslations": [],
+    "entities": [
+     {
+      "__typename": "Stop",
+      "name": "Budapest-Kelenföld"
+     },
+     {
+      "__typename": "Stop",
+      "name": "Budapest-Kelenföld"
+     },
+     {
+      "__typename": "Stop",
+      "name": "Budapest-Kelenföld"
+     },
+     {
+      "__typename": "Stop",
+      "name": "Budapest-Kelenföld"
+     },
+     {
+      "__typename": "Stop",
+      "name": "Budapest-Kelenföld"
+     },
+     {
+      "__typename": "Stop",
+      "name": "Budapest-Kelenföld"
+     }
+    ]
+   },
+   {
+    "id": "QWxlcnQ6MToxMjA3NA",
+    "feed": "1",
+    "alertHeaderText": "",
+    "alertDescriptionText": "Füzesabonynál váltó meghibásodás miatt hosszabb menetidőre kell számítani.",
+    "alertUrl": null,
+    "effectiveStartDate": 1793557980,
+    "effectiveEndDate": 1793573940,
+    "alertSeverityLevel": "WARNING",
+    "alertEffect": "UNKNOWN_EFFECT",
+    "alertHeaderTextTranslations": [],
+    "alertDescriptionTextTranslations": [],
+    "entities": [
+     {
+      "__typename": "Stop",
+      "name": "Emőd"
+     },
+     {
+      "__typename": "Stop",
+      "name": "Vámosgyörk"
+     },
+     {
+      "__typename": "Stop",
+      "name": "Adács"
+     },
+     {
+      "__typename": "Unknown"
+     },
+     {
+      "__typename": "Stop",
+      "name": "Mezőkeresztes-Mezőnyárád"
+     },
+     {
+      "__typename": "Stop",
+      "name": "Szihalom"
+     }
+    ]
+   },
+   {
+    "id": "QWxlcnQ6MTo5NjM0MzA3",
+    "feed": "1",
+    "alertHeaderText": "",
+    "alertDescriptionText": "Pálya állapota miatti késés",
+    "alertUrl": null,
+    "effectiveStartDate": 1793554910,
+    "effectiveEndDate": 1793561520,
+    "alertSeverityLevel": "WARNING",
+    "alertEffect": "UNKNOWN_EFFECT",
+    "alertHeaderTextTranslations": [],
+    "alertDescriptionTextTranslations": [],
+    "entities": [
+     {
+      "__typename": "Trip"
+     }
+    ]
+   },
+   {
+    "id": "QWxlcnQ6MTo5NjM0MzA2",
+    "feed": "1",
+    "alertHeaderText": "",
+    "alertDescriptionText": "Társvasúttól átvett késés",
+    "alertUrl": null,
+    "effectiveStartDate": 1793554907,
+    "effectiveEndDate": 1793557020,
+    "alertSeverityLevel": "WARNING",
+    "alertEffect": "UNKNOWN_EFFECT",
+    "alertHeaderTextTranslations": [],
+    "alertDescriptionTextTranslations": [],
+    "entities": [
+     {
+      "__typename": "Trip"
+     }
+    ]
+   },
+   {
+    "id": "QWxlcnQ6QktLOmJra2luZm8tMTQ5NTEz",
+    "feed": "BKK",
+    "alertHeaderText": "replacement bus service on the whole affected route",
+    "alertDescriptionText": "<ul><li>Tram <strong>4-6</strong> does not operate on the whole affected route, please use replacement bus service on the affected route.</li></ul>",
+    "alertUrl": "https://bkk.hu/bkk-info#!t=bkkinfo&d=today&i=bkkinfo149513",
+    "effectiveStartDate": 1795128600,
+    "effectiveEndDate": 1795143600,
+    "alertSeverityLevel": "UNKNOWN_SEVERITY",
+    "alertEffect": "NO_SERVICE",
+    "alertHeaderTextTranslations": [
+     {
+      "language": "en",
+      "text": "replacement bus service on the whole affected route"
+     },
+     {
+      "language": "hu",
+      "text": "autóbuszos pótlás a teljes vonalon"
+     }
+    ],
+    "alertDescriptionTextTranslations": [
+     {
+      "language": "en",
+      "text": "<ul><li>Tram <strong>4-6</strong> does not operate on the whole affected route, please use replacement bus service on the affected route.</li></ul>"
+     },
+     {
+      "language": "hu",
+      "text": "\n<ul><li><strong><em>November 20-án 4:00 óráig éjszakánként</em></strong> a <strong>4-6-os villamos</strong> nem közlekedik. A <em>Móricz Zsigmond körtér M</em> és a <em>Széll Kálmán tér M</em> között pótlóbusz közlekedik <em>Újbuda-központ M</em> érintésével, amely a <em>Széll Kálmán tér M</em> felé a <em>Margitsziget / Margit híd </em>megállóban nem áll meg.</li></ul>\n<p>Megjegyzés:</p>\n<p>Az Újbuda-központtól 23 óra után induló 4-6-os villamos csak a <em>Mester utca / Ferenc körút</em> megállóig közlekedik, onnan 4-6-os pótlóbusszal lehet továbbutazni.</p>"
+     }
+    ],
+    "entities": [
+     {
+      "__typename": "StopOnRoute",
+      "route": {
+       "shortName": "4-6",
+       "mode": "TRAM",
+       "color": "FFD800",
+       "textColor": "000000"
+      },
+      "stop": {
+       "name": "Budapest, Wesselényi utca / Erzsébet körút"
+      }
+     },
+     {
+      "__typename": "StopOnRoute",
+      "route": {
+       "shortName": "4-6",
+       "mode": "TRAM",
+       "color": "FFD800",
+       "textColor": "000000"
+      },
+      "stop": {
+       "name": "Budapest, Wesselényi utca / Erzsébet körút"
+      }
+     },
+     {
+      "__typename": "StopOnRoute",
+      "route": {
+       "shortName": "4-6",
+       "mode": "TRAM",
+       "color": "FFD800",
+       "textColor": "000000"
+      },
+      "stop": {
+       "name": "Budapest, Blaha Lujza tér M"
+      }
+     },
+     {
+      "__typename": "StopOnRoute",
+      "route": {
+       "shortName": "4-6",
+       "mode": "TRAM",
+       "color": "FFD800",
+       "textColor": "000000"
+      },
+      "stop": {
+       "name": "Budapest, Blaha Lujza tér M"
+      }
+     },
+     {
+      "__typename": "StopOnRoute",
+      "route": {
+       "shortName": "4-6",
+       "mode": "TRAM",
+       "color": "FFD800",
+       "textColor": "000000"
+      },
+      "stop": {
+       "name": "Budapest, Nyugati pályaudvar M"
+      }
+     },
+     {
+      "__typename": "StopOnRoute",
+      "route": {
+       "shortName": "4-6",
+       "mode": "TRAM",
+       "color": "FFD800",
+       "textColor": "000000"
+      },
+      "stop": {
+       "name": "Budapest, Budafoki út / Szerémi sor"
+      }
+     }
+    ]
+   },
+   {
+    "id": "QWxlcnQ6QktLOmJra2luZm8tMTQ5NTI1",
+    "feed": "BKK",
+    "alertHeaderText": "replacement bus service on the whole affected route",
+    "alertDescriptionText": "<ul><li>Tram <strong>4-6</strong> does not operate on the whole affected route, please use replacement bus service on the affected route.</li></ul>",
+    "alertUrl": "https://bkk.hu/bkk-info#!t=bkkinfo&d=today&i=bkkinfo149525",
+    "effectiveStartDate": 1794869400,
+    "effectiveEndDate": 1794884400,
+    "alertSeverityLevel": "UNKNOWN_SEVERITY",
+    "alertEffect": "NO_SERVICE",
+    "alertHeaderTextTranslations": [
+     {
+      "language": "en",
+      "text": "replacement bus service on the whole affected route"
+     },
+     {
+      "language": "hu",
+      "text": "autóbuszos pótlás a teljes vonalon"
+     }
+    ],
+    "alertDescriptionTextTranslations": [
+     {
+      "language": "en",
+      "text": "<ul><li>Tram <strong>4-6</strong> does not operate on the whole affected route, please use replacement bus service on the affected route.</li></ul>"
+     },
+     {
+      "language": "hu",
+      "text": "\n<ul><li><strong><em>November 20-án 4:00 óráig éjszakánként</em></strong> a <strong>4-6-os villamos</strong> nem közlekedik. A <em>Móricz Zsigmond körtér M</em> és a <em>Széll Kálmán tér M</em> között pótlóbusz közlekedik <em>Újbuda-központ M</em> érintésével, amely a <em>Széll Kálmán tér M</em> felé a <em>Margitsziget / Margit híd </em>megállóban nem áll meg.</li></ul>\n<p>Megjegyzés:</p>\n<p>Az Újbuda-központtól 23 óra után induló 4-6-os villamos csak a <em>Mester utca / Ferenc körút</em> megállóig közlekedik, onnan 4-6-os pótlóbusszal lehet továbbutazni.</p>"
+     }
+    ],
+    "entities": [
+     {
+      "__typename": "StopOnRoute",
+      "route": {
+       "shortName": "4-6",
+       "mode": "TRAM",
+       "color": "FFD800",
+       "textColor": "000000"
+      },
+      "stop": {
+       "name": "Budapest, Wesselényi utca / Erzsébet körút"
+      }
+     },
+     {
+      "__typename": "StopOnRoute",
+      "route": {
+       "shortName": "4-6",
+       "mode": "TRAM",
+       "color": "FFD800",
+       "textColor": "000000"
+      },
+      "stop": {
+       "name": "Budapest, Wesselényi utca / Erzsébet körút"
+      }
+     },
+     {
+      "__typename": "StopOnRoute",
+      "route": {
+       "shortName": "4-6",
+       "mode": "TRAM",
+       "color": "FFD800",
+       "textColor": "000000"
+      },
+      "stop": {
+       "name": "Budapest, Blaha Lujza tér M"
+      }
+     },
+     {
+      "__typename": "StopOnRoute",
+      "route": {
+       "shortName": "4-6",
+       "mode": "TRAM",
+       "color": "FFD800",
+       "textColor": "000000"
+      },
+      "stop": {
+       "name": "Budapest, Blaha Lujza tér M"
+      }
+     },
+     {
+      "__typename": "StopOnRoute",
+      "route": {
+       "shortName": "4-6",
+       "mode": "TRAM",
+       "color": "FFD800",
+       "textColor": "000000"
+      },
+      "stop": {
+       "name": "Budapest, Nyugati pályaudvar M"
+      }
+     },
+     {
+      "__typename": "StopOnRoute",
+      "route": {
+       "shortName": "4-6",
+       "mode": "TRAM",
+       "color": "FFD800",
+       "textColor": "000000"
+      },
+      "stop": {
+       "name": "Budapest, Budafoki út / Szerémi sor"
+      }
+     }
+    ]
+   },
+   {
+    "id": "QWxlcnQ6QktLOmJra2luZm8tMTQ5NTE2",
+    "feed": "BKK",
+    "alertHeaderText": "replacement bus service on the whole affected route",
+    "alertDescriptionText": "<ul><li>Tram <strong>4-6</strong> does not operate on the whole affected route, please use replacement bus service on the affected route.</li></ul>",
+    "alertUrl": "https://bkk.hu/bkk-info#!t=bkkinfo&d=today&i=bkkinfo149516",
+    "effectiveStartDate": 1795042200,
+    "effectiveEndDate": 1795057200,
+    "alertSeverityLevel": "UNKNOWN_SEVERITY",
+    "alertEffect": "NO_SERVICE",
+    "alertHeaderTextTranslations": [
+     {
+      "language": "en",
+      "text": "replacement bus service on the whole affected route"
+     },
+     {
+      "language": "hu",
+      "text": "autóbuszos pótlás a teljes vonalon"
+     }
+    ],
+    "alertDescriptionTextTranslations": [
+     {
+      "language": "en",
+      "text": "<ul><li>Tram <strong>4-6</strong> does not operate on the whole affected route, please use replacement bus service on the affected route.</li></ul>"
+     },
+     {
+      "language": "hu",
+      "text": "\n<ul><li><strong><em>November 20-án 4:00 óráig éjszakánként</em></strong> a <strong>4-6-os villamos</strong> nem közlekedik. A <em>Móricz Zsigmond körtér M</em> és a <em>Széll Kálmán tér M</em> között pótlóbusz közlekedik <em>Újbuda-központ M</em> érintésével, amely a <em>Széll Kálmán tér M</em> felé a <em>Margitsziget / Margit híd </em>megállóban nem áll meg.</li></ul>\n<p>Megjegyzés:</p>\n<p>Az Újbuda-központtól 23 óra után induló 4-6-os villamos csak a <em>Mester utca / Ferenc körút</em> megállóig közlekedik, onnan 4-6-os pótlóbusszal lehet továbbutazni.</p>"
+     }
+    ],
+    "entities": [
+     {
+      "__typename": "StopOnRoute",
+      "route": {
+       "shortName": "4-6",
+       "mode": "TRAM",
+       "color": "FFD800",
+       "textColor": "000000"
+      },
+      "stop": {
+       "name": "Budapest, Wesselényi utca / Erzsébet körút"
+      }
+     },
+     {
+      "__typename": "StopOnRoute",
+      "route": {
+       "shortName": "4-6",
+       "mode": "TRAM",
+       "color": "FFD800",
+       "textColor": "000000"
+      },
+      "stop": {
+       "name": "Budapest, Wesselényi utca / Erzsébet körút"
+      }
+     },
+     {
+      "__typename": "StopOnRoute",
+      "route": {
+       "shortName": "4-6",
+       "mode": "TRAM",
+       "color": "FFD800",
+       "textColor": "000000"
+      },
+      "stop": {
+       "name": "Budapest, Blaha Lujza tér M"
+      }
+     },
+     {
+      "__typename": "StopOnRoute",
+      "route": {
+       "shortName": "4-6",
+       "mode": "TRAM",
+       "color": "FFD800",
+       "textColor": "000000"
+      },
+      "stop": {
+       "name": "Budapest, Blaha Lujza tér M"
+      }
+     },
+     {
+      "__typename": "StopOnRoute",
+      "route": {
+       "shortName": "4-6",
+       "mode": "TRAM",
+       "color": "FFD800",
+       "textColor": "000000"
+      },
+      "stop": {
+       "name": "Budapest, Nyugati pályaudvar M"
+      }
+     },
+     {
+      "__typename": "StopOnRoute",
+      "route": {
+       "shortName": "4-6",
+       "mode": "TRAM",
+       "color": "FFD800",
+       "textColor": "000000"
+      },
+      "stop": {
+       "name": "Budapest, Budafoki út / Szerémi sor"
+      }
+     }
+    ]
+   },
+   {
+    "id": "QWxlcnQ6QktLOmJra2luZm8tMTUwMzk2",
+    "feed": "BKK",
+    "alertHeaderText": "replacement bus service between Deák Ferenc tér and Déli pályaudvar",
+    "alertDescriptionText": "<ul><li>Metro <strong>M2</strong> does not operate between <i>Deák Ferenc tér</i> and <i>Déli pályaudvar</i>, please use replacement bus service on the affected route. We recommend the use of tram <strong>4-6</strong>, bus <strong>5</strong>, metro <strong>M4</strong>.</li></ul>",
+    "alertUrl": "https://bkk.hu/bkk-info#!t=bkkinfo&d=today&i=bkkinfo150396",
+    "effectiveStartDate": 1794603600,
+    "effectiveEndDate": 1794784320,
+    "alertSeverityLevel": "UNKNOWN_SEVERITY",
+    "alertEffect": "NO_SERVICE",
+    "alertHeaderTextTranslations": [
+     {
+      "language": "en",
+      "text": "replacement bus service between Deák Ferenc tér and Déli pályaudvar"
+     },
+     {
+      "language": "hu",
+      "text": "autóbuszos pótlás a Deák Ferenc tér és a Déli pályaudvar között"
+     }
+    ],
+    "alertDescriptionTextTranslations": [
+     {
+      "language": "en",
+      "text": "<ul><li>Metro <strong>M2</strong> does not operate between <i>Deák Ferenc tér</i> and <i>Déli pályaudvar</i>, please use replacement bus service on the affected route. We recommend the use of tram <strong>4-6</strong>, bus <strong>5</strong>, metro <strong>M4</strong>.</li></ul>"
+     },
+     {
+      "language": "hu",
+      "text": "\n<ul><li>Az <strong>M2</strong>-es metró a <em>Deák Ferenc tér</em> és a <em>Déli pályaudvar</em> között nem közlekedik, a kimaradt szakaszon pótló autóbusszal utazhatnak.</li></ul>\n<p>Megjegyzés:</p>\n<ul><li>Kelenföld irányából a belváros felé az <strong>M4</strong>-es metró igénybevételét is ajánljuk.</li><li>A sűrűbben induló <strong>4-6</strong>-os villamossal is utazhatnak Hűvösvölgy és Óbuda környékéről a belvárosba tartók.</li><li>Az M2-es metrón a Széll Kálmán tér irányában utazóknak a Blaha Lujza téren, a H5-ös HÉV-en Pestre utazóknak pedig a Margit hídnál átszállva szintén a sűrűbben közlekedő <strong>4-6</strong>-os villamost javasoljuk.</li><li>A Széll Kálmán tértől a Rákóczi úti metró-állomások és a Kőbánya-Kispest irányú M3-as metró az <strong>5</strong>-ös autóbusszal is elérhető,</li><li>A <strong>11</strong>-es autóbusz a Nagybányai út, a <strong>39</strong>-es autóbusz pedig a Széll Kálmán tér felé megáll a Csalogány utcában az M2-es pótlóbusz megállóhelyén.</li><li>Az utolsó metrópótlóhoz történő csatlakozás miatt az utolsó <strong>21</strong>-es autóbusz a Széll Kálmán tértől, illetve <strong>csak november 15-én (vasárnap)</strong> az utolsó <strong>11</strong>-es autóbusz a Batthyány tértől később indul.</li></ul>"
+     }
+    ],
+    "entities": [
+     {
+      "__typename": "StopOnRoute",
+      "route": {
+       "shortName": "M2",
+       "mode": "SUBWAY",
+       "color": "E41F18",
+       "textColor": "FFFFFF"
+      },
+      "stop": {
+       "name": "Budapest, Deák Ferenc tér"
+      }
+     },
+     {
+      "__typename": "StopOnRoute",
+      "route": {
+       "shortName": "M2",
+       "mode": "SUBWAY",
+       "color": "E41F18",
+       "textColor": "FFFFFF"
+      },
+      "stop": {
+       "name": "Budapest, Kossuth Lajos tér"
+      }
+     },
+     {
+      "__typename": "StopOnRoute",
+      "route": {
+       "shortName": "M2",
+       "mode": "SUBWAY",
+       "color": "E41F18",
+       "textColor": "FFFFFF"
+      },
+      "stop": {
+       "name": "Budapest, Kossuth Lajos tér"
+      }
+     },
+     {
+      "__typename": "StopOnRoute",
+      "route": {
+       "shortName": "M2",
+       "mode": "SUBWAY",
+       "color": "E41F18",
+       "textColor": "FFFFFF"
+      },
+      "stop": {
+       "name": "Budapest, Deák Ferenc tér"
+      }
+     },
+     {
+      "__typename": "StopOnRoute",
+      "route": {
+       "shortName": "M2",
+       "mode": "SUBWAY",
+       "color": "E41F18",
+       "textColor": "FFFFFF"
+      },
+      "stop": {
+       "name": "Budapest, Déli pályaudvar"
+      }
+     },
+     {
+      "__typename": "StopOnRoute",
+      "route": {
+       "shortName": "M2",
+       "mode": "SUBWAY",
+       "color": "E41F18",
+       "textColor": "FFFFFF"
+      },
+      "stop": {
+       "name": "Budapest, Déli pályaudvar"
+      }
+     }
+    ]
+   },
+   {
+    "id": "QWxlcnQ6VkJVU1o6YzZlNjk4ODAtNjIxNi00MDczLTgyMTYtOGQxOTQ4MGU2MDZk",
+    "feed": "VBUSZ",
+    "alertHeaderText": "Routes 8, 8Y and 28 will operate on a diversion",
+    "alertDescriptionText": "<p><strong>From 1 July (Wednesday)</strong>, due to road construction works on Óvári Ferenc Street and the resulting traffic management changes around Petőfi Theatre, buses travelling towards Egyetem Street will be diverted and will not serve the <em>Petőfi Színház</em> and <em>Megyeház tér</em> stops.</p><p><br></p><p>Passengers are advised to use the following alternative stop(s):</p><ul><li><em>Komakút tér / Pannon Egyetem</em></li></ul>",
+    "alertUrl": null,
+    "effectiveStartDate": 1782858623,
+    "effectiveEndDate": null,
+    "alertSeverityLevel": "UNKNOWN_SEVERITY",
+    "alertEffect": "DETOUR",
+    "alertHeaderTextTranslations": [
+     {
+      "language": "en",
+      "text": "Routes 8, 8Y and 28 will operate on a diversion"
+     },
+     {
+      "language": "hu",
+      "text": "Módosított útvonalon közlekednek a 8-as, 8Y és 28-as járatok"
+     }
+    ],
+    "alertDescriptionTextTranslations": [
+     {
+      "language": "en",
+      "text": "<p><strong>From 1 July (Wednesday)</strong>, due to road construction works on Óvári Ferenc Street and the resulting traffic management changes around Petőfi Theatre, buses travelling towards Egyetem Street will be diverted and will not serve the <em>Petőfi Színház</em> and <em>Megyeház tér</em> stops.</p><p><br></p><p>Passengers are advised to use the following alternative stop(s):</p><ul><li><em>Komakút tér / Pannon Egyetem</em></li></ul>"
+     },
+     {
+      "language": "hu",
+      "text": "<p><strong>Július 1-től (szerdától)</strong> az Óvári Ferenc utcában végzett útépítési munkálatok miatt a Színházkert környékén forgalmirend-változás lép életbe, ezért az autóbuszok az Egyetem utca felé a <em>Petőfi Színház</em> és <em>Megyeház tér </em>megállóhelyek érintése nélkül, terelt útvonalon közlekednek.</p><p><br></p><p>Igénybe vehető megállóhely(ek):</p><ul><li><em>Komakút tér / Pannon Egyetem</em></li></ul>"
+     }
+    ],
+    "entities": [
+     {
+      "__typename": "StopOnRoute",
+      "route": {
+       "shortName": "28",
+       "mode": "BUS",
+       "color": "2d6e8c",
+       "textColor": "ffffff"
+      },
+      "stop": {
+       "name": "Veszprém, Megyeház tér"
+      }
+     },
+     {
+      "__typename": "StopOnRoute",
+      "route": {
+       "shortName": "8",
+       "mode": "BUS",
+       "color": "070A5A",
+       "textColor": "ffffff"
+      },
+      "stop": {
+       "name": "Veszprém, Megyeház tér"
+      }
+     },
+     {
+      "__typename": "StopOnRoute",
+      "route": {
+       "shortName": "8Y",
+       "mode": "BUS",
+       "color": "070a5a",
+       "textColor": "ffffff"
+      },
+      "stop": {
+       "name": "Veszprém, Megyeház tér"
+      }
+     },
+     {
+      "__typename": "StopOnRoute",
+      "route": {
+       "shortName": "28",
+       "mode": "BUS",
+       "color": "2d6e8c",
+       "textColor": "ffffff"
+      },
+      "stop": {
+       "name": "Veszprém, Petőfi Színház"
+      }
+     },
+     {
+      "__typename": "StopOnRoute",
+      "route": {
+       "shortName": "8",
+       "mode": "BUS",
+       "color": "070A5A",
+       "textColor": "ffffff"
+      },
+      "stop": {
+       "name": "Veszprém, Petőfi Színház"
+      }
+     },
+     {
+      "__typename": "StopOnRoute",
+      "route": {
+       "shortName": "8Y",
+       "mode": "BUS",
+       "color": "070a5a",
+       "textColor": "ffffff"
+      },
+      "stop": {
+       "name": "Veszprém, Petőfi Színház"
+      }
+     }
+    ]
+   },
+   {
+    "id": "QWxlcnQ6VkJVU1o6YTExMWUzMWYtYzA2ZS00ODA1LWIzNGEtNDZlY2FlNWU5Yzg1",
+    "feed": "VBUSZ",
+    "alertHeaderText": "Route 43 will operate on a diversion",
+    "alertDescriptionText": "<p><strong>From 1 July (Wednesday)</strong>, due to road construction works on Óvári Ferenc Street, a temporary traffic management scheme will be introduced in the Színházkert area. As a result, buses will operate without serving Megyeház tér when travelling towards Egyetem Street, and without serving Iskola Street when travelling towards Jókai Mór Street.</p><p><br /></p><p>Available stops (towards Egyetem Street):</p><ul><li><em>Petőfi Színház</em> (► towards Dózsaváros)</li><li><em>Komakút tér / Pannon Egyetem</em> (► towards Egyetem Street)</li></ul><p><br /></p><p>Available stops (towards Jókai Mór Street):</p><ul><li><em>Komakút tér / Pannon Egyetem</em> (► towards Megyeház tér)</li><li><em>Megyeház tér</em> (temporary stop)</li><li><em>Petőfi Színház</em> (► towards Dózsaváros)</li></ul><p><br /></p>",
+    "alertUrl": null,
+    "effectiveStartDate": 1782858642,
+    "effectiveEndDate": null,
+    "alertSeverityLevel": "UNKNOWN_SEVERITY",
+    "alertEffect": "DETOUR",
+    "alertHeaderTextTranslations": [
+     {
+      "language": "en",
+      "text": "Route 43 will operate on a diversion"
+     },
+     {
+      "language": "hu",
+      "text": "Módosított útvonalon közlekednek a 43-as járatok"
+     }
+    ],
+    "alertDescriptionTextTranslations": [
+     {
+      "language": "en",
+      "text": "<p><strong>From 1 July (Wednesday)</strong>, due to road construction works on Óvári Ferenc Street, a temporary traffic management scheme will be introduced in the Színházkert area. As a result, buses will operate without serving Megyeház tér when travelling towards Egyetem Street, and without serving Iskola Street when travelling towards Jókai Mór Street.</p><p><br /></p><p>Available stops (towards Egyetem Street):</p><ul><li><em>Petőfi Színház</em> (► towards Dózsaváros)</li><li><em>Komakút tér / Pannon Egyetem</em> (► towards Egyetem Street)</li></ul><p><br /></p><p>Available stops (towards Jókai Mór Street):</p><ul><li><em>Komakút tér / Pannon Egyetem</em> (► towards Megyeház tér)</li><li><em>Megyeház tér</em> (temporary stop)</li><li><em>Petőfi Színház</em> (► towards Dózsaváros)</li></ul><p><br /></p>"
+     },
+     {
+      "language": "hu",
+      "text": "<p><strong>Július 1-től (szerdától)</strong> az Óvári Ferenc utcában végzett útépítési munkálatok miatt a Színházkert környékén forgalmirend-változás lép életbe, ezért az autóbuszok az Egyetem utca felé a <em>Megyeház tér</em>, a Jókai Mór utca felé az <em>Iskola utca</em> megállóhely érintése nélkül közlekednek.</p><p><br /></p><p>Igénybe vehető megállóhelyek [Egyetem utca felé]:</p><ul><li><em>Petőfi Színház </em>(► Dózsaváros felé)<em>,</em></li><li><em>Komakút tér / Pannon Egyetem </em>(► Egyetem utca felé)</li></ul><p><br /></p><p>Igénybe vehető megállóhelyek [Jókai Mór utca felé]:</p><ul><li><em>Komakút tér / Pannon Egyetem</em> (► Megyeház tér felé),</li><li><em>Megyeház tér</em> (ideiglenes megállóhely),</li><li><em>Petőfi Színház</em> (► Dózsaváros felé)</li></ul>"
+     }
+    ],
+    "entities": [
+     {
+      "__typename": "StopOnRoute",
+      "route": {
+       "shortName": "43",
+       "mode": "BUS",
+       "color": "000000",
+       "textColor": "ffffff"
+      },
+      "stop": {
+       "name": "Veszprém, Iskola utca"
+      }
+     },
+     {
+      "__typename": "StopOnRoute",
+      "route": {
+       "shortName": "43",
+       "mode": "BUS",
+       "color": "000000",
+       "textColor": "ffffff"
+      },
+      "stop": {
+       "name": "Veszprém, Megyeház tér"
+      }
+     }
+    ]
+   }
+  ]
+ }
+}
