@@ -23,6 +23,14 @@ class JourneyPresentationTest {
     }
 
     private val station = Station("station", "Station", 47.0, 19.0)
+    @Test fun walkingStopDeduplicationKeepsDifferentPlatformsAndStopIdentities() {
+        assertTrue(sameJourneyStop(station, station.copy()))
+        assertFalse(sameJourneyStop(station.copy(platform="4"), station.copy(platform="5")))
+        assertFalse(sameJourneyStop(station, station.copy(id="other")))
+        assertTrue(sameJourneyStop(station, station.copy(id="")))
+        assertFalse(sameJourneyStop(station, station.copy(id="", lat=48.0)))
+        assertFalse(sameJourneyStop(station, station.copy(id="", name="Other station")))
+    }
     private fun leg(mode: String = "RAIL", category: String = "", route: String = "915",
                     start: Long = 0, end: Long = 60_000, longName: String = "") =
         Leg(mode, start, end, station, station, route, "trip", false, 0, emptyList(), "",

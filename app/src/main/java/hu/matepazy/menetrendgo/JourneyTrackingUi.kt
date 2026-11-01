@@ -41,7 +41,7 @@ internal fun JourneyTrackingStop(journey: Journey, legIndex: Int, onOpen: () -> 
     Column {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top,
             horizontalArrangement = Arrangement.spacedBy(AppLayout.CompactGap)) {
-            Box(Modifier.weight(1f)) { StationLabel(leg.to) }
+            Box(Modifier.weight(1f)) { JourneyStationLabel(leg.to, "Leszállás", leg.mode) }
             IconButton(onClick = onOpen) {
                 Icon(if (active != null) Icons.Outlined.NotificationsActive else Icons.Outlined.AddAlert,
                     "Leszállási jelzés: ${leg.to.name}",

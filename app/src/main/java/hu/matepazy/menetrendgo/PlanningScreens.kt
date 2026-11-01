@@ -452,7 +452,8 @@ private fun serviceType(leg: Leg): String = hungarianServiceName(leg.category, l
     }
 }
 
-@Composable internal fun StationLabel(station: Station, rightAligned: Boolean = false, inlineName: Boolean = false) {
+@Composable internal fun StationLabel(station: Station, rightAligned: Boolean = false, inlineName: Boolean = false,
+    wrapStopName: Boolean = false) {
     Column(horizontalAlignment=if(rightAligned) Alignment.End else Alignment.Start) {
         if(inlineName) Text(buildAnnotatedString {
             withStyle(SpanStyle(fontWeight=FontWeight.Bold,color=MaterialTheme.colorScheme.onSurface)) {
@@ -469,7 +470,7 @@ private fun serviceType(leg: Leg): String = hungarianServiceName(leg.category, l
             Row(horizontalArrangement=Arrangement.spacedBy(AppLayout.LabelGap),verticalAlignment=Alignment.CenterVertically) {
                 if(!inlineName && station.stopName.isNotBlank()) Text(station.stopName,Modifier.weight(1f,fill=false),
                     style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines=1,softWrap=false,overflow=TextOverflow.Ellipsis,
+                    maxLines=if(wrapStopName) Int.MAX_VALUE else 1,softWrap=wrapStopName,overflow=TextOverflow.Ellipsis,
                     textAlign=if(rightAligned) TextAlign.End else TextAlign.Start)
                 if(station.platform.isNotBlank()) Surface(shape=CircleShape,
                     color=MaterialTheme.colorScheme.primary,contentColor=MaterialTheme.colorScheme.onPrimary,
@@ -627,6 +628,24 @@ internal const val DeparturePaginationKey = "later-departures"
 
 private data class TimelineTrack(val color: Color, val walking: Boolean=false)
 
+/** Walking endpoints may repeat a vehicle stop with different planner timestamps. */
+internal fun sameJourneyStop(first: Station, second: Station): Boolean =
+    first.platform == second.platform && if (first.id.isNotBlank() && second.id.isNotBlank()) first.id == second.id
+    else first.name == second.name && kotlin.math.abs(first.lat-second.lat) < .0001 && kotlin.math.abs(first.lon-second.lon) < .0001
+
+@Composable internal fun JourneyStationLabel(station: Station, action: String, mode: String) {
+    StationLabel(station.copy(platform=""), wrapStopName=true)
+    val platform = station.platform.takeIf { it.isNotBlank() }?.let {
+        when (mode) {
+            "RAIL", "SUBURBAN_RAILWAY" -> "$it. vágány"
+            "BUS", "COACH" -> "$it. kocsiállás"
+            else -> "Megállóhely: $it"
+        }
+    }
+    Text(listOfNotNull(action, platform).joinToString(" · "),
+        style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
+}
+
 /** Each stop joins its incoming and outgoing tracks at the marker, never at a row boundary. */
 @Composable private fun TimelineRow(time: ServiceTime?, track: TimelineTrack, stop: Boolean=false,
     incoming: TimelineTrack?=track, outgoing: TimelineTrack?=track,
@@ -637,7 +656,8 @@ private data class TimelineTrack(val color: Color, val walking: Boolean=false)
     Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min).onGloballyPositioned {
         rowTop=it.positionInParent().y
     }) {
-        Box(Modifier.width(with(LocalDensity.current) { 64.sp.toDp() }).padding(top=2.dp,end=8.dp)) {
+        // Large sp values use Android's nonlinear scaling, so scale this gutter explicitly.
+        Box(Modifier.width(64.dp * LocalDensity.current.fontScale).padding(top=2.dp,end=8.dp)) {
             time?.let {ScheduledTime(it,style=MaterialTheme.typography.labelLarge)}
         }
         Canvas(Modifier.width(24.dp).fillMaxHeight()) {
@@ -709,6 +729,9 @@ private data class TimelineTrack(val color: Color, val walking: Boolean=false)
                         val walking=leg.walking
                         val track=TimelineTrack(color,walking)
                         val previous=journey.legs.getOrNull(index-1)
+                        val next=journey.legs.getOrNull(index+1)
+                        val repeatedWalkStart=walking && previous!=null && sameJourneyStop(previous.to,leg.from)
+                        val repeatedWalkEnd=walking && next!=null && sameJourneyStop(leg.to,next.from)
                         val sharedDeparture=previous!=null && index-1 !in transfers && previous.to.name==leg.from.name && previous.to.platform==leg.from.platform && previous.end==leg.start && previous.arrivalTime==leg.departureTime
                         val incoming=when {
                             previous==null -> null
@@ -720,10 +743,11 @@ private data class TimelineTrack(val color: Color, val walking: Boolean=false)
                         // A transfer walk has a duration, not an independently refreshed absolute time.
                         // Keeping the original timestamps could place it before a newly delayed arrival.
                         val transferWalk = walking && transfers.values.any { index > it.incomingIndex && index < it.outgoingIndex }
-                        TimelineRow(if (transferWalk) null else transferDeparture,track,stop=true,incoming=incoming) {
+                        if(!repeatedWalkStart) TimelineRow(if (transferWalk) null else transferDeparture,track,stop=true,incoming=incoming) {
                             if (vm.journeyTrackingBetaEnabled && sharedDeparture && !previous.walking) {
                                 JourneyTrackingStop(journey, index - 1) { trackingLeg = index - 1 }
-                            } else StationLabel(leg.from)
+                            } else if(walking) StationLabel(leg.from,wrapStopName=true)
+                            else JourneyStationLabel(leg.from,"Felszállás",leg.mode)
                             if(index>0 && dayLabel(leg.start)!=dayLabel(journey.start)) Text(dayLabel(leg.start),style=MaterialTheme.typography.labelMedium)
                         }
                         TimelineRow(null,track) {
@@ -765,13 +789,13 @@ private data class TimelineTrack(val color: Color, val walking: Boolean=false)
                                 }
                             }
                         }
-                        val next=journey.legs.getOrNull(index+1)
                         // A shared stop at the same time is one interchange node, not two repeated rows.
-                        val sharedStop=next!=null && index !in transfers && next.from.name==leg.to.name && next.from.platform==leg.to.platform && next.start==leg.end && next.departureTime==leg.arrivalTime
+                        val sharedStop=next!=null && !next.walking && index !in transfers && sameJourneyStop(next.from,leg.to) && next.start==leg.end && next.departureTime==leg.arrivalTime
                         val transferArrival = transferTimes[index]?.arrival?.time ?: leg.arrivalTime
-                        if(!sharedStop) TimelineRow(if (transferWalk) null else transferArrival,track,stop=true,outgoing=if(next==null) null else connection) {
+                        if(!sharedStop && !repeatedWalkEnd) TimelineRow(if (transferWalk) null else transferArrival,track,stop=true,outgoing=if(next==null) null else connection) {
                             if (vm.journeyTrackingBetaEnabled && !walking) JourneyTrackingStop(journey, index) { trackingLeg = index }
-                            else StationLabel(leg.to)
+                            else if(walking) StationLabel(leg.to,wrapStopName=true)
+                            else JourneyStationLabel(leg.to,"Leszállás",leg.mode)
                             if(dayLabel(leg.end)!=dayLabel(journey.start)) Text(dayLabel(leg.end),style=MaterialTheme.typography.labelMedium)
                         }
                         transfers[index]?.takeIf { transferWarning(it,transferTimes.getValue(index),transferNow) != null }?.let { transfer ->

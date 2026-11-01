@@ -28,6 +28,47 @@ class JourneyTransfersUiTest {
     @Test fun tightConnectionIsOneLineInLightTheme() = showJourney(false, 1f)
     @Test fun tightConnectionWrapsInDarkThemeWithLargeText() = showJourney(true, 1.3f)
 
+    @Test fun walkingTransferShowsEachStopOnce() = showWalkingTransfer(false, 1f)
+    @Test fun walkingTransferWrapsInDarkThemeWithLargeText() = showWalkingTransfer(true, 1.5f)
+
+    private fun showWalkingTransfer(dark: Boolean, scale: Float) {
+        val now = System.currentTimeMillis() + 60 * 60_000
+        val origin = Station("a", "Kelenföld", 47.46, 19.02)
+        val arrival = Station("b", "Ferencváros", 47.47, 19.09, platform="4")
+        val boarding = Station("c", "Budapest, Népliget autóbusz-pályaudvar", 47.47, 19.10, platform="13")
+        val destination = Station("d", "Kecskemét", 46.9, 19.7)
+        val first = Leg("RAIL", now, now+10*60_000, origin, arrival, "S36", "", false, 0, emptyList(), "")
+        // Differing planner times must not create repeated transfer stops.
+        val walk = first.copy(mode="WALK", start=first.end+60_000, end=first.end+16*60_000, from=arrival, to=boarding)
+        val second = first.copy(mode="COACH", start=first.end+23*60_000, end=first.end+93*60_000,
+            from=boarding, to=destination, route="1080")
+        val journey = Journey(6180, listOf(first, walk, second), fetchedAt=now)
+        val vm = AppState(app).also { store.put("walking", it) }
+        compose.setContent { MenetrendTheme(if(dark) "dark" else "light") {
+            CompositionLocalProvider(LocalDensity provides Density(LocalDensity.current.density, scale)) {
+                Surface(Modifier.fillMaxSize(), color=MaterialTheme.colorScheme.background) {
+                    JourneyScreen(vm, journey, {}, {}, {}, refreshTransfers=false)
+                }
+            }
+        } }
+        compose.onAllNodesWithText("Ferencváros").assertCountEquals(1)
+        compose.onAllNodesWithText("Népliget autóbusz-pályaudvar").assertCountEquals(1)
+        compose.onNodeWithText("15 perc gyaloglás").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Leszállás · 4. vágány").assertExists()
+        compose.onNodeWithText("Felszállás · 13. kocsiállás").assertExists()
+        compose.onNodeWithText(timeLabel(walk.start)).assertDoesNotExist()
+        compose.onNodeWithText(timeLabel(walk.end)).assertDoesNotExist()
+        val timeLayouts = mutableListOf<androidx.compose.ui.text.TextLayoutResult>()
+        compose.onNodeWithText(timeLabel(first.end)).performSemanticsAction(
+            androidx.compose.ui.semantics.SemanticsActions.GetTextLayoutResult) { it(timeLayouts) }
+        assertEquals("Journey times must stay on one line at large font sizes", 1, timeLayouts.single().lineCount)
+        val bitmap = instrumentation.uiAutomation.takeScreenshot()
+        File(app.getExternalFilesDir(null), "walking-${if(dark) "dark-large" else "light"}.png").outputStream().use {
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, it)
+        }
+        bitmap.recycle()
+    }
+
     private fun showJourney(dark: Boolean, scale: Float) {
         val now = System.currentTimeMillis()
         val origin = Station("a", "Budapest, Keleti pályaudvar", 47.5, 19.08)
