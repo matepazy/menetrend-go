@@ -71,6 +71,9 @@ import org.json.JSONObject
 import kotlinx.coroutines.*
 import java.time.*
 import java.time.format.DateTimeFormatter
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
 
 @Composable private fun StopField(label: String, value: Station?, icon: ImageVector, modifier: Modifier = Modifier, onClick: () -> Unit) {
     Surface(onClick=onClick,shape=RoundedCornerShape(28.dp),color=MaterialTheme.colorScheme.surface,modifier=modifier.fillMaxWidth()) {
@@ -664,7 +667,22 @@ private data class TimelineTrack(val color: Color, val walking: Boolean=false)
     }
 }
 
-@Composable fun JourneyScreen(vm: AppState, journey: Journey, back: () -> Unit, onTrip: (Leg) -> Unit, onMap: () -> Unit) {
+@Composable fun JourneyScreen(vm: AppState, journey: Journey, back: () -> Unit, onTrip: (Leg) -> Unit, onMap: () -> Unit,
+    refreshTransfers: Boolean = true) {
+    val transfers = remember(journey) { journeyTransfers(journey).associateBy { it.incomingIndex } }
+    var transferTimes by remember(journey) { mutableStateOf(transfers.mapValues { initialTransferTimes(journey, it.value) }) }
+    var transferNow by remember(journey) { mutableLongStateOf(System.currentTimeMillis()) }
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+    LaunchedEffect(journey, refreshTransfers, lifecycle) {
+        if (refreshTransfers && transfers.isNotEmpty()) lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            launch { while (true) { transferNow = System.currentTimeMillis(); delay(15_000) } }
+            while (true) {
+                transferTimes = vm.refreshTransferTimes(journey, transferTimes)
+                transferTimes = vm.refreshTransferAlternatives(journey, transferTimes)
+                delay(75_000)
+            }
+        }
+    }
     var trackingLeg by remember(journey.key) { mutableStateOf<Int?>(null) }
     val trackingContext = LocalContext.current
     LaunchedEffect(Unit) { JourneyTracking.load(trackingContext) }
@@ -691,13 +709,18 @@ private data class TimelineTrack(val color: Color, val walking: Boolean=false)
                         val walking=leg.walking
                         val track=TimelineTrack(color,walking)
                         val previous=journey.legs.getOrNull(index-1)
-                        val sharedDeparture=previous!=null && previous.to.name==leg.from.name && previous.to.platform==leg.from.platform && previous.end==leg.start && previous.arrivalTime==leg.departureTime
+                        val sharedDeparture=previous!=null && index-1 !in transfers && previous.to.name==leg.from.name && previous.to.platform==leg.from.platform && previous.end==leg.start && previous.arrivalTime==leg.departureTime
                         val incoming=when {
                             previous==null -> null
                             sharedDeparture -> TimelineTrack(serviceColor(previous),previous.walking)
                             else -> connection
                         }
-                        TimelineRow(leg.departureTime,track,stop=true,incoming=incoming) {
+                        val transferDeparture = transfers.values.firstOrNull { it.outgoingIndex == index }
+                            ?.let { transferTimes[it.incomingIndex]?.departure?.time } ?: leg.departureTime
+                        // A transfer walk has a duration, not an independently refreshed absolute time.
+                        // Keeping the original timestamps could place it before a newly delayed arrival.
+                        val transferWalk = walking && transfers.values.any { index > it.incomingIndex && index < it.outgoingIndex }
+                        TimelineRow(if (transferWalk) null else transferDeparture,track,stop=true,incoming=incoming) {
                             if (vm.journeyTrackingBetaEnabled && sharedDeparture && !previous.walking) {
                                 JourneyTrackingStop(journey, index - 1) { trackingLeg = index - 1 }
                             } else StationLabel(leg.from)
@@ -717,7 +740,8 @@ private data class TimelineTrack(val color: Color, val walking: Boolean=false)
                                     VehicleModelLabel(vehicle,Modifier.padding(top=AppLayout.LabelGap))
                                 }
                                 if(leg.headsign.isNotBlank()) Text("Irány: ${leg.headsign}",Modifier.padding(top=4.dp),style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)
-                                if(!leg.realTime) Text("Menetrend szerint · élő adat nem érhető el",Modifier.padding(top=8.dp),style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
+                                if(!transferDeparture.realtime && !(transferTimes[index]?.arrival?.time ?: leg.arrivalTime).realtime)
+                                    Text("Menetrend szerint · élő adat nem érhető el",Modifier.padding(top=8.dp),style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
                                 var expanded by remember(journey.key,index) { mutableStateOf(false) }
                                 if(leg.intermediate.isNotEmpty()) {
                                     val disclosureRotation by animateFloatAsState(if(expanded) 180f else 0f,
@@ -743,13 +767,20 @@ private data class TimelineTrack(val color: Color, val walking: Boolean=false)
                         }
                         val next=journey.legs.getOrNull(index+1)
                         // A shared stop at the same time is one interchange node, not two repeated rows.
-                        val sharedStop=next!=null && next.from.name==leg.to.name && next.from.platform==leg.to.platform && next.start==leg.end && next.departureTime==leg.arrivalTime
-                        if(!sharedStop) TimelineRow(leg.arrivalTime,track,stop=true,outgoing=if(next==null) null else connection) {
+                        val sharedStop=next!=null && index !in transfers && next.from.name==leg.to.name && next.from.platform==leg.to.platform && next.start==leg.end && next.departureTime==leg.arrivalTime
+                        val transferArrival = transferTimes[index]?.arrival?.time ?: leg.arrivalTime
+                        if(!sharedStop) TimelineRow(if (transferWalk) null else transferArrival,track,stop=true,outgoing=if(next==null) null else connection) {
                             if (vm.journeyTrackingBetaEnabled && !walking) JourneyTrackingStop(journey, index) { trackingLeg = index }
                             else StationLabel(leg.to)
                             if(dayLabel(leg.end)!=dayLabel(journey.start)) Text(dayLabel(leg.end),style=MaterialTheme.typography.labelMedium)
                         }
-                        if(next!=null) {
+                        transfers[index]?.takeIf { transferWarning(it,transferTimes.getValue(index),transferNow) != null }?.let { transfer ->
+                            val times = transferTimes.getValue(index)
+                            TimelineRow(null,connection) {
+                                JourneyTransferNotice(transfer,times,transferNow)
+                            }
+                        }
+                        if(next!=null && transfers.values.none { index in it.incomingIndex until it.outgoingIndex }) {
                             val wait=(next.start-leg.end)/60_000
                             if(wait>=1) TimelineRow(null,connection) {
                                 Text("$wait perc várakozás",style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)

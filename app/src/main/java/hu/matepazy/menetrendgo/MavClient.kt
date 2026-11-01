@@ -75,7 +75,7 @@ class MavClient {
             }
             // Keep the original envelope before route/name normalization mutates the JSON.
             // Each result retains its own search batch, including paginated departures.
-            Journey.parse(itinerary).copy(rawGraphQl=rawResponse,
+            Journey.parse(itinerary).copy(rawGraphQl=rawResponse,fetchedAt=System.currentTimeMillis(),
                 providerFilters=filters.filter { it.providerSearchCode != null }.toSet())
         }.filter {it.legs.isNotEmpty()}.sortedBy {it.start}
     }
@@ -154,13 +154,13 @@ object MavQueries {
         transportModes:[${searchVehicleModes(vehicles).joinToString(",") { "{mode:$it}" }}],minTransferTime:120,maxWalkDistance:2000,
         searchParameters:[${filters.sortedBy { it.ordinal }.mapNotNull { it.providerSearchCode }.joinToString(",", transform=::quote)}]) {
         itineraries {duration walkTime waitingTime legs {mode startTime endTime duration distance realTime departureDelay arrivalDelay
-        from {name lat lon stop {platformCode}} to {name lat lon stop {platformCode}} intermediateStops {name lat lon platformCode} legGeometry {points}
+        from {name lat lon stop {gtfsId platformCode}} to {name lat lon stop {gtfsId platformCode}} intermediateStops {name lat lon platformCode} legGeometry {points}
         $services
         route {shortName longName mode color textColor agency {name}} trip {gtfsId tripShortName tripHeadsign trainCategoryName}}}}}
     """.trimIndent()
     val vehicles="""{vehiclePositions(swLat:45.5,swLon:16.1,neLat:48.7,neLon:22.8,modes:[RAIL,RAIL_REPLACEMENT_BUS,COACH,BUS,SUBURBAN_RAILWAY,TRAMTRAIN]) {vehicleId lastUpdated lat lon speed heading label vehicleModel licensePlate uicCode trip {gtfsId tripShortName tripHeadsign trainCategoryName route {shortName mode color textColor longName agency {name}}}}}"""
     fun trip(id: String,day: String): String {
         require(id.length in 1..250);LocalDate.parse(day)
-        return """{trip(id:${quote(id)},serviceDay:${quote(day)}) {gtfsId tripHeadsign trainCategoryName trainName tripShortName $services route {shortName longName(language:"hu")} stoptimes {serviceDay realtime stop {gtfsId name lat lon platformCode} realtimeArrival realtimeDeparture arrivalDelay departureDelay scheduledArrival scheduledDeparture} vehiclePositions {vehicleId lastUpdated stopRelationship {status stop {gtfsId} arrivalTime departureTime}}}}"""
+        return """{trip(id:${quote(id)},serviceDay:${quote(day)}) {gtfsId tripHeadsign trainCategoryName trainName tripShortName $services route {shortName longName(language:"hu")} stoptimes {serviceDay realtime realtimeState stop {gtfsId name lat lon platformCode} realtimeArrival realtimeDeparture arrivalDelay departureDelay scheduledArrival scheduledDeparture} vehiclePositions {vehicleId lastUpdated stopRelationship {status stop {gtfsId} arrivalTime departureTime}}}}"""
     }
 }

@@ -8,6 +8,7 @@ A MenetrendGO független projekt, nem a MÁV hivatalos alkalmazása. A menetrend
 
 - **Tervezés:** megállókeresés, indulási vagy érkezési idő szerinti útvonaltervezés, helyben mentett keresési előzmények.
 - **Útvonalrészletek:** átszállások, köztes megállók, menetrendi és várható időpontok, késések, a kiválasztott útvonal megjelenítése térképen.
+- **Átszállási segítség:** rövid figyelmeztetés a szoros, nem elérhető vagy kimaradó csatlakozásnál. Ha található megfelelő későbbi járat, egy másodlagos sor jelzi az indulását. A keresés a gyaloglást és két perc felszállási tartalékot is figyelembe vesz, az eredeti következő leszállóhelyig, azonos járműnemmel. A menetrendi alternatíva külön jelölést kap. Normál vagy nem ellenőrizhető átszállásnál nem jelenik meg kiegészítő szöveg. Az adatok előtérben automatikusan frissülnek, háttérértesítés nélkül.
 - **Leszállási értesítés:** felszálláskor indítható helyalapú követés, hozzávetőleg 1–3 perces figyelmeztetés, lezárt képernyőnél is frissülő utazási értesítés és átszállási segítség.
 - **Térkép:** élő járműpozíciók, járatrészletek és megállók, járműtípus és azonosítók, ha a szolgáltató megadja őket. Alap-, műholdas, hibrid és vasúti térképnézet.
 - **Bérletek:** ország-, megye- és helyi bérletek rögzítése, szerkesztése, lejárati emlékeztetők, tájékoztató jellegű érvényességi ellenőrzés az útvonalon.

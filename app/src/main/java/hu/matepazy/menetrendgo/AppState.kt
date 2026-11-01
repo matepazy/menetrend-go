@@ -239,6 +239,71 @@ class AppState(app: Application) : AndroidViewModel(app) {
         catch (e: Exception) { vehicleError = e.message ?: "Nem sikerült frissíteni a járműveket." }
         finally { vehiclesLoading = false }
     }
+    /** Fetch only the exact services involved in transfers, independently of the trip drawer. */
+    internal suspend fun refreshTransferTimes(journey: Journey, previous: Map<Int, TransferTimes>): Map<Int, TransferTimes> {
+        val connections = journeyTransfers(journey)
+        val trips = mutableMapOf<Pair<String, String>, JSONObject?>()
+        suspend fun endpoint(index: Int, arrival: Boolean, old: TransferEstimate): TransferEstimate {
+            val leg = journey.legs[index]
+            if (leg.tripId.isBlank()) return old.copy(failed = true)
+            val day = Instant.ofEpochMilli(leg.departureTime.scheduled).atZone(Budapest).toLocalDate()
+            // A service after midnight can belong to the preceding service day (24:xx stop times).
+            for (candidate in listOf(day, day.minusDays(1))) {
+                val key = leg.tripId to candidate.toString()
+                if (!trips.containsKey(key)) trips[key] = try { mav.trip(key.first, key.second, forceRefresh = true) }
+                    catch (e: CancellationException) { throw e }
+                    catch (_: Exception) { null }
+                val trip = trips[key] ?: continue
+                transferStopEstimate(trip, leg, arrival, System.currentTimeMillis())?.let { return it }
+            }
+            return old.copy(failed = true)
+        }
+        return connections.associate { connection ->
+            val old = previous[connection.incomingIndex] ?: initialTransferTimes(journey, connection)
+            connection.incomingIndex to TransferTimes(endpoint(connection.incomingIndex, true, old.arrival),
+                endpoint(connection.outgoingIndex, false, old.departure))
+        }
+    }
+
+    /** Optional one-line fallback. Failures and missing matches stay silent. */
+    internal suspend fun refreshTransferAlternatives(journey: Journey, times: Map<Int, TransferTimes>): Map<Int, TransferTimes> {
+        val result = times.toMutableMap()
+        for (connection in journeyTransfers(journey)) {
+            val current = times.getValue(connection.incomingIndex)
+            val now = System.currentTimeMillis()
+            if (transferWarning(connection, current, now) == null || current.arrival.cancelled) continue
+            val incoming = journey.legs[connection.incomingIndex]
+            val outgoing = journey.legs[connection.outgoingIndex]
+            try {
+                val modes = SearchVehicle.entries.filter { it.mode == outgoing.mode }.toSet()
+                val plans = mav.plan(incoming.to, outgoing.to,
+                    onwardSearchTime(current.arrival.time.estimate + 120_000, now), false,
+                    journey.providerFilters, modes)
+                val candidates = reachableTransferCandidates(plans, outgoing, current.arrival.time.estimate, now)
+                val verified = mutableListOf<TransferAlternative>()
+                for (candidate in candidates.take(3)) {
+                    val leg = candidate.leg
+                    val day = Instant.ofEpochMilli(leg.departureTime.scheduled).atZone(Budapest).toLocalDate()
+                    for (serviceDay in listOf(day, day.minusDays(1))) {
+                        val trip = try { mav.trip(leg.tripId, serviceDay.toString(), forceRefresh = true) }
+                            catch (e: CancellationException) { throw e }
+                            catch (_: Exception) { continue }
+                        val fetchedAt = System.currentTimeMillis()
+                        val departure = transferStopEstimate(trip, leg, false, fetchedAt) ?: continue
+                        val arrival = transferStopEstimate(trip, leg, true, fetchedAt) ?: continue
+                        if (!departure.cancelled && !arrival.cancelled &&
+                            departure.time.estimate >= maxOf(candidate.readyAt, fetchedAt + 120_000)) {
+                            verified += TransferAlternative(departure.time, leg.route, fetchedAt)
+                        }
+                        break
+                    }
+                }
+                result[connection.incomingIndex] = current.copy(nextDeparture = verified.minByOrNull { it.time.estimate })
+            } catch (e: CancellationException) { throw e }
+            catch (_: Exception) { /* The warning alone is the complete fallback UI. */ }
+        }
+        return result
+    }
     fun loadTrip(id: String, day: String) {
         detailJob?.cancel()
         val key="$id|$day"

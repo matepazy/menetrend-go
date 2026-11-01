@@ -307,8 +307,8 @@ val LocalBottomOverlayInset = staticCompositionLocalOf { 0.dp }
                         PredictiveBackPane(enabled=(page!="search" || tab!=0) && vm.mapVehicle==null,onBack=::back,preview={
                             when {
                                 page=="vehicleMap" -> TripScreen(vm,tripId,tripDay,{},{})
-                                page=="routeMap" && selected!=null -> JourneyScreen(vm,selected!!,{},onTrip={},onMap={})
-                                page=="trip" && selected!=null -> JourneyScreen(vm,selected!!,{},onTrip={},onMap={})
+                                page=="routeMap" && selected!=null -> JourneyScreen(vm,selected!!,{},onTrip={},onMap={},refreshTransfers=false)
+                                page=="trip" && selected!=null -> JourneyScreen(vm,selected!!,{},onTrip={},onMap={},refreshTransfers=false)
                                 page=="trip" && tab==1 -> NearbyScreen(vm)
                                 page=="journey" && journeyReturnPage=="results" -> ResultsScreen(vm,resultsNavigation,{}) {}
                                 else -> SearchScreen(vm,onPasses={}) {}

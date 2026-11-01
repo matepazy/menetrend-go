@@ -21,7 +21,7 @@ data class Station(val id: String, val name: String, val lat: Double, val lon: D
         .put("type", type).put("modes", JSONArray(modes)).put("platformCode", platform)
     companion object { fun parse(o: JSONObject): Station {
         val modes=o.optJSONArray("modes")
-        return Station(o.optString("id"), o.getString("name"), o.getDouble("lat"), o.getDouble("lon"),
+        return Station(o.optString("id").ifBlank { o.optJSONObject("stop")?.optString("gtfsId").orEmpty() }, o.getString("name"), o.getDouble("lat"), o.getDouble("lon"),
             o.optString("type"), if(modes==null) emptyList() else (0 until modes.length()).map {modes.getString(it)},
             (o.optJSONObject("stop") ?: o).optString("platformCode").trim().takeUnless {it.equals("null",ignoreCase=true)}.orEmpty())
     } }
@@ -70,7 +70,7 @@ data class Leg(val mode: String, val start: Long, val end: Long, val from: Stati
     }
 }
 data class Journey(val duration: Int, val legs: List<Leg>, val rawGraphQl: String? = null,
-    val providerFilters: Set<SearchFilter> = emptySet()) {
+    val providerFilters: Set<SearchFilter> = emptySet(), val fetchedAt: Long = 0L) {
     val minutes get() = (duration+59)/60
     val start get() = legs.first().start
     val end get() = legs.last().end

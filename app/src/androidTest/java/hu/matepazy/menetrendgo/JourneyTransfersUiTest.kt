@@ -1,0 +1,109 @@
+package hu.matepazy.menetrendgo
+
+import android.app.Application
+import android.graphics.Bitmap
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.test.*
+import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.unit.Density
+import androidx.lifecycle.ViewModelStore
+import androidx.test.platform.app.InstrumentationRegistry
+import org.junit.After
+import org.junit.Assert.*
+import org.junit.Rule
+import org.junit.Test
+import java.io.File
+
+class JourneyTransfersUiTest {
+    @get:Rule val compose = createComposeRule()
+    private val instrumentation = InstrumentationRegistry.getInstrumentation()
+    private val app get() = instrumentation.targetContext.applicationContext as Application
+    private val store = ViewModelStore()
+    @After fun cleanup() { store.clear() }
+
+    @Test fun tightConnectionIsOneLineInLightTheme() = showJourney(false, 1f)
+    @Test fun tightConnectionWrapsInDarkThemeWithLargeText() = showJourney(true, 1.3f)
+
+    private fun showJourney(dark: Boolean, scale: Float) {
+        val now = System.currentTimeMillis()
+        val origin = Station("a", "Budapest, Keleti pályaudvar", 47.5, 19.08)
+        val arrival = Station("b", "Szolnok, vasútállomás", 47.17, 20.18, platform = "2")
+        val boarding = arrival.copy(id="c", platform="5")
+        val destination = Station("d", "Debrecen, vasútállomás", 47.52, 21.62)
+        val first = Leg("RAIL", now, now+40*60_000, origin, arrival, "IR 80", "", true, 0, emptyList(), "")
+        val walk = first.copy(mode="WALK", start=first.end, end=first.end+3*60_000, from=arrival, to=boarding)
+        val second = first.copy(start=first.end+4*60_000, end=first.end+90*60_000, from=boarding, to=destination, route="IC 600")
+        val journey = Journey(7800, listOf(first, walk, second), fetchedAt=now)
+        val vm = AppState(app).also { store.put("transfers", it) }
+        compose.setContent { MenetrendTheme(if (dark) "dark" else "light") {
+            CompositionLocalProvider(LocalDensity provides Density(LocalDensity.current.density, scale)) {
+                Surface(Modifier.fillMaxSize(), color=MaterialTheme.colorScheme.background) {
+                    JourneyScreen(vm, journey, {}, {}, {}, refreshTransfers=false)
+                }
+            }
+        } }
+        compose.onNodeWithText("Szoros átszállás").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("A gyaloglás után", substring=true).assertDoesNotExist()
+        compose.onNodeWithText(timeLabel(walk.end)).assertDoesNotExist()
+        compose.onNodeWithText("Másik útvonal keresése").assertDoesNotExist()
+        compose.onNodeWithText("Lekérdezve:", substring=true).assertDoesNotExist()
+        compose.onNodeWithContentDescription("Átszállások frissítése").assertDoesNotExist()
+        val bitmap = instrumentation.uiAutomation.takeScreenshot()
+        File(app.getExternalFilesDir(null), "transfer-${if(dark) "dark-large" else "light"}.png").outputStream().use {
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, it)
+        }
+        bitmap.recycle()
+    }
+
+    @Test fun staleConnectionsStayInvisibleAndScheduledTightConnectionsStayMinimal() {
+        val now = System.currentTimeMillis()
+        val connection = TransferConnection(0, 1, 0)
+        var scheduled by mutableStateOf(false)
+        compose.setContent { MenetrendTheme("light") {
+            Surface {
+                val time = ServiceTime(now+60_000, now+60_000, false)
+                val estimate = TransferEstimate(time, if(scheduled) now else 0)
+                JourneyTransferNotice(connection, TransferTimes(estimate, estimate), now)
+            }
+        } }
+        compose.onNodeWithText("Szoros átszállás").assertDoesNotExist()
+        compose.runOnIdle { scheduled=true }
+        compose.onNodeWithText("Szoros átszállás").assertIsDisplayed()
+        compose.onNodeWithText("Legalább az egyik járathoz", substring=true).assertDoesNotExist()
+    }
+
+    @Test fun cancelledServiceNeverShowsAnAvailableTransferBuffer() {
+        val now = System.currentTimeMillis()
+        val arrival = TransferEstimate(ServiceTime(now+60_000, now+60_000, true), now)
+        val departure = TransferEstimate(ServiceTime(now+600_000, now+600_000, true), now, cancelled=true)
+        compose.setContent { MenetrendTheme("light") { Surface {
+            JourneyTransferNotice(TransferConnection(0, 1, 0), TransferTimes(arrival, departure), now)
+        } } }
+        compose.onNodeWithText("Kimaradó csatlakozás").assertIsDisplayed()
+        compose.onNodeWithText("A gyaloglás után", substring=true).assertDoesNotExist()
+        compose.onNodeWithText("Másik útvonal keresése").assertDoesNotExist()
+    }
+
+    @Test fun nextReachableServiceIsOneSecondaryLineAndExpiresSilently() {
+        val now = System.currentTimeMillis()
+        val arrival = TransferEstimate(ServiceTime(now+60_000, now+60_000, true), now)
+        val departure = arrival.copy(time=ServiceTime(now+120_000, now+120_000, true))
+        val next = TransferAlternative(ServiceTime(now+600_000, now+600_000, false), "IC 600", now)
+        var clock by mutableLongStateOf(now)
+        compose.setContent { MenetrendTheme("dark") { Surface(Modifier.fillMaxSize()) {
+            Column(Modifier.safeDrawingPadding().padding(AppLayout.PanelPadding)) {
+                JourneyTransferNotice(TransferConnection(0, 1, 0), TransferTimes(arrival, departure, next), clock)
+            }
+        } } }
+        compose.onNodeWithText("Következő: ${timeLabel(next.time.estimate)} · IC 600 (menetrend)").assertIsDisplayed()
+        val bitmap = instrumentation.uiAutomation.takeScreenshot()
+        File(app.getExternalFilesDir(null), "transfer-next.png").outputStream().use { bitmap.compress(Bitmap.CompressFormat.PNG,100,it) }
+        bitmap.recycle()
+        compose.runOnIdle { clock=now+TransferFreshnessMs+1 }
+        compose.onNodeWithText("Következő:", substring=true).assertDoesNotExist()
+    }
+}
