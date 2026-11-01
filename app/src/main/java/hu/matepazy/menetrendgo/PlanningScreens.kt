@@ -7,6 +7,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.expandVertically
@@ -15,6 +16,14 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.animate
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.input.pointer.util.VelocityTracker
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.util.lerp
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.ui.graphics.SolidColor
@@ -128,7 +137,11 @@ import androidx.lifecycle.repeatOnLifecycle
     BackHandler(picker!=null) { closePicker() }
     var confirmClearRecents by remember { mutableStateOf(false) }
     val swipeHost = remember { SwipeHost() }
-    LazyColumn(Modifier.fillMaxSize().swipeHostDismiss(swipeHost),contentPadding=screenContentPadding(),verticalArrangement=Arrangement.spacedBy(AppLayout.ItemGap)) {
+    // 0 = Mentett, 1 = Legutóbbi; a finger drives it live, taps and releases settle it with a spring.
+    val collectionScope = rememberCoroutineScope()
+    val collection = remember { CollectionPager(if(vm.showSavedSearches) 0f else 1f,collectionScope) }
+    LaunchedEffect(vm.showSavedSearches) { collection.settle(if(vm.showSavedSearches) 0f else 1f) }
+    LazyColumn(Modifier.fillMaxSize().swipeHostDismiss(swipeHost).swipeBetweenTabs(swipeHost,collection) { vm.chooseSearchCollection(it) },contentPadding=screenContentPadding(),verticalArrangement=Arrangement.spacedBy(AppLayout.ItemGap)) {
         item { Row(Modifier.fillMaxWidth().heightIn(min=48.dp),verticalAlignment=Alignment.CenterVertically) {
             Text("Hová indulunk?",style=MaterialTheme.typography.headlineMedium,fontWeight=FontWeight.Bold,modifier=Modifier.weight(1f))
             FilledTonalIconButton(onClick=onPasses,shape=CircleShape) {Icon(Icons.Outlined.NotificationsNone,"Bérletek és emlékeztetők")}
@@ -180,57 +193,26 @@ import androidx.lifecycle.repeatOnLifecycle
             }
         }
         if (vm.journeyTrackingBetaEnabled && tracking.session != null) item { ActiveJourneyTracking(onTracking) }
-        item { Column(verticalArrangement=Arrangement.spacedBy(AppLayout.CompactGap)) {
-            Row(Modifier.fillMaxWidth().padding(top=AppLayout.SectionGap-AppLayout.ItemGap),verticalAlignment=Alignment.CenterVertically) {
-                SingleChoiceSegmentedButtonRow(Modifier.weight(1f)) {
-                    listOf("Mentett", "Legutóbbi").forEachIndexed { index, label ->
-                        SegmentedButton(selected=vm.showSavedSearches==(index==0),
-                            onClick={vm.chooseSearchCollection(index==0)},
-                            icon={},
-                            shape=SegmentedButtonDefaults.itemShape(index,2)) { Text(label) }
-                    }
-                }
-            }
-            if(vm.showSavedSearches && vm.savedSearches.isEmpty()) {
-                Text("A gyakori útjaid helye",style=MaterialTheme.typography.titleMedium,fontWeight=FontWeight.SemiBold)
-                Text("Az Indulások jobb felső sarkában lévő könyvjelzővel menthetsz útvonalat. Adj neki nevet és ikont, hogy könnyen megtaláld.",
-                    style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)
-            } else if(!vm.showSavedSearches && vm.recents.isEmpty()) Text("A kereséseidet itt találod majd. Egy koppintással újratervezheted az utat.",style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)
-        } }
-        if(vm.showSavedSearches) items(vm.savedSearches,key={"saved:"+it.key}) { saved ->
-            SwipeActionsRow(listOf(
-                SwipeAction(Icons.Outlined.Edit,"${saved.name} szerkesztése",MaterialTheme.colorScheme.primary,MaterialTheme.colorScheme.onPrimary) {editingSaved=saved},
-                SwipeAction(Icons.Outlined.Delete,"${saved.name} törlése",MaterialTheme.colorScheme.error,MaterialTheme.colorScheme.onError) {vm.removeSavedSearch(saved)}),
-                swipeHost,Modifier.animateItem()) { open,close ->
-                Surface(onClick={if(open) close() else {vm.useSavedSearch(saved);onSearch()}},shape=RoundedCornerShape(28.dp),color=MaterialTheme.colorScheme.surface) {
-                    Row(Modifier.fillMaxWidth().padding(start=AppLayout.PanelPadding,top=12.dp,bottom=12.dp,end=8.dp),verticalAlignment=Alignment.CenterVertically) {
-                        Icon(saved.icon.vector,null,tint=MaterialTheme.colorScheme.primary)
-                        Spacer(Modifier.width(16.dp))
-                        Column(Modifier.weight(1f),verticalArrangement=Arrangement.spacedBy(4.dp)) {
-                            Text(saved.name,style=MaterialTheme.typography.titleMedium,fontWeight=FontWeight.SemiBold)
-                            Text("${saved.from.name} → ${saved.to.name}",style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)
+        item { Column(verticalArrangement=Arrangement.spacedBy(AppLayout.RelatedGap)) {
+            SearchCollectionTabs(collection,Modifier.padding(top=AppLayout.SectionGap-AppLayout.ItemGap).onGloballyPositioned { swipeHost.tabTop=it.positionInWindow().y }) { vm.chooseSearchCollection(it) }
+            // Saved sits on the left, recents on the right; both panes follow the same progress value, so a finger can drag them.
+            CollectionPanes(collection,vm.showSavedSearches) { saved ->
+                Column(Modifier.fillMaxWidth().animateContentSize(),verticalArrangement=Arrangement.spacedBy(AppLayout.ItemGap)) {
+                    if(saved) {
+                        if(vm.savedSearches.isEmpty()) Column(verticalArrangement=Arrangement.spacedBy(AppLayout.CompactGap)) {
+                            Text("A gyakori útjaid helye",style=MaterialTheme.typography.titleMedium,fontWeight=FontWeight.SemiBold)
+                            Text("Az Indulások jobb felső sarkában lévő könyvjelzővel menthetsz útvonalat. Adj neki nevet és ikont, hogy könnyen megtaláld.",
+                                style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)
                         }
-                        if(!open) IconButton(onClick={editingSaved=saved}) {Icon(Icons.Outlined.Edit,"${saved.name} szerkesztése")}
-                        else Spacer(Modifier.height(48.dp))
+                        vm.savedSearches.forEach { s -> key("saved:"+s.key) { SavedSearchRow(vm,s,swipeHost,onSearch) {editingSaved=it} } }
+                    } else {
+                        if(vm.recents.isEmpty()) Text("A kereséseidet itt találod majd. Egy koppintással újratervezheted az utat.",style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)
+                        vm.recents.forEach { r -> key("recent:"+r.from.id+":"+r.to.id) { RecentSearchRow(vm,r,swipeHost,onSearch) } }
+                        if(vm.recents.isNotEmpty()) TextButton(onClick={confirmClearRecents=true},modifier=Modifier.fillMaxWidth()) { Text("Előzmények törlése") }
                     }
                 }
             }
-        } else items(vm.recents,key={"recent:"+it.from.id+":"+it.to.id}) { recent ->
-            SwipeToDeleteRow("${recent.from.name} – ${recent.to.name}",{vm.removeRecent(recent)},swipeHost,Modifier.animateItem()) { open,close ->
-                Surface(onClick={if(open) close() else {vm.from=recent.from;vm.to=recent.to;vm.useNow=true;vm.arriveBy=false;onSearch()}},shape=RoundedCornerShape(28.dp),color=MaterialTheme.colorScheme.surface) {
-                    Row(Modifier.fillMaxWidth().padding(AppLayout.PanelPadding),verticalAlignment=Alignment.CenterVertically) {
-                        Icon(Icons.Outlined.History,null,tint=MaterialTheme.colorScheme.onSurfaceVariant)
-                        Spacer(Modifier.width(16.dp));Column(Modifier.weight(1f)) {
-                            Text(recent.from.name,style=MaterialTheme.typography.titleMedium)
-                            Text(recent.to.name,color=MaterialTheme.colorScheme.onSurfaceVariant)
-                        };Icon(Icons.Outlined.ChevronRight,null)
-                    }
-                }
-            }
-        }
-        if(!vm.showSavedSearches && vm.recents.isNotEmpty()) item(key="recents-clear") {
-            TextButton(onClick={confirmClearRecents=true},modifier=Modifier.fillMaxWidth().animateItem()) { Text("Előzmények törlése") }
-        }
+        } }
     }
     if(confirmClearRecents) ClearRecentsDrawer({vm.clearRecents();confirmClearRecents=false}) {confirmClearRecents=false}
     if(datePicker) JourneyDatePicker(vm) {datePicker=false}
@@ -248,6 +230,41 @@ private class SwipeHost {
     var closeOpen: (() -> Unit)? = null
     var deleteBounds: androidx.compose.ui.geometry.Rect? = null
     var origin = Offset.Zero
+    var tabTop = Float.NEGATIVE_INFINITY
+}
+
+@Composable private fun SavedSearchRow(vm: AppState, saved: SavedSearch, swipeHost: SwipeHost, onSearch: () -> Unit, onEdit: (SavedSearch) -> Unit) {
+    SwipeActionsRow(listOf(
+        SwipeAction(Icons.Outlined.Edit,"${saved.name} szerkesztése",MaterialTheme.colorScheme.primary,MaterialTheme.colorScheme.onPrimary) {onEdit(saved)},
+        SwipeAction(Icons.Outlined.Delete,"${saved.name} törlése",MaterialTheme.colorScheme.error,MaterialTheme.colorScheme.onError) {vm.removeSavedSearch(saved)}),
+        swipeHost) { open,close ->
+        Surface(onClick={if(open) close() else {vm.useSavedSearch(saved);onSearch()}},shape=RoundedCornerShape(28.dp),color=MaterialTheme.colorScheme.surface) {
+            Row(Modifier.fillMaxWidth().padding(start=AppLayout.PanelPadding,top=12.dp,bottom=12.dp,end=8.dp),verticalAlignment=Alignment.CenterVertically) {
+                Icon(saved.icon.vector,null,tint=MaterialTheme.colorScheme.primary)
+                Spacer(Modifier.width(16.dp))
+                Column(Modifier.weight(1f),verticalArrangement=Arrangement.spacedBy(4.dp)) {
+                    Text(saved.name,style=MaterialTheme.typography.titleMedium,fontWeight=FontWeight.SemiBold)
+                    Text("${saved.from.name} → ${saved.to.name}",style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+                if(!open) IconButton(onClick={onEdit(saved)}) {Icon(Icons.Outlined.Edit,"${saved.name} szerkesztése")}
+                else Spacer(Modifier.height(48.dp))
+            }
+        }
+    }
+}
+
+@Composable private fun RecentSearchRow(vm: AppState, recent: Recent, swipeHost: SwipeHost, onSearch: () -> Unit) {
+    SwipeToDeleteRow("${recent.from.name} – ${recent.to.name}",{vm.removeRecent(recent)},swipeHost) { open,close ->
+        Surface(onClick={if(open) close() else {vm.from=recent.from;vm.to=recent.to;vm.useNow=true;vm.arriveBy=false;onSearch()}},shape=RoundedCornerShape(28.dp),color=MaterialTheme.colorScheme.surface) {
+            Row(Modifier.fillMaxWidth().padding(AppLayout.PanelPadding),verticalAlignment=Alignment.CenterVertically) {
+                Icon(Icons.Outlined.History,null,tint=MaterialTheme.colorScheme.onSurfaceVariant)
+                Spacer(Modifier.width(16.dp));Column(Modifier.weight(1f)) {
+                    Text(recent.from.name,style=MaterialTheme.typography.titleMedium)
+                    Text(recent.to.name,color=MaterialTheme.colorScheme.onSurfaceVariant)
+                };Icon(Icons.Outlined.ChevronRight,null)
+            }
+        }
+    }
 }
 
 /** Any touch that starts outside the open row's delete button springs the open row back; the touch itself still reaches its target. */
@@ -257,6 +274,95 @@ private fun Modifier.swipeHostDismiss(host: SwipeHost) = onGloballyPositioned { 
             val event = awaitPointerEvent(androidx.compose.ui.input.pointer.PointerEventPass.Initial)
             val down = event.changes.firstOrNull { it.changedToDown() } ?: continue
             if(host.deleteBounds?.contains(down.position + host.origin) != true) host.closeOpen?.invoke()
+        }
+    }
+}
+
+/**
+ * Position of the saved/recent panes: 0 = Mentett, 1 = Legutóbbi. Drags write it synchronously, so no finger
+ * movement is dropped; a release or a tab tap hands it to one spring that keeps the fling velocity.
+ */
+private class CollectionPager(initial: Float, private val scope: CoroutineScope) {
+    var progress by mutableFloatStateOf(initial)
+        private set
+    /** One page step in pixels: a pane plus the gap that separates the two panes. */
+    var pageStep = 1f
+    private var target = initial
+    private var job: Job? = null
+    fun drag(dx: Float) { job?.cancel();job = null;progress = (progress - dx / pageStep).coerceIn(0f,1f) }
+    fun settle(to: Float, velocity: Float = 0f) {
+        if(to == target && job?.isActive == true) return
+        target = to;job?.cancel()
+        job = scope.launch { animate(progress,to,velocity,spring(Spring.DampingRatioNoBouncy,Spring.StiffnessMediumLow)) { v, _ -> progress = v } }
+    }
+}
+
+/** A horizontal drag no row claimed, started at or below the tab selector, moves the panes under the finger and settles on the nearer one (or the flung one) on release. */
+private fun Modifier.swipeBetweenTabs(host: SwipeHost, pager: CollectionPager, choose: (Boolean) -> Unit) = pointerInput(host,pager) {
+    var armed = false
+    val tracker = VelocityTracker()
+    val flingVelocity = 600.dp.toPx()
+    fun release(velocityX: Float) {
+        if(!armed) return
+        armed = false
+        val saved = if(kotlin.math.abs(velocityX) > flingVelocity) velocityX > 0f else pager.progress < 0.5f
+        pager.settle(if(saved) 0f else 1f,-velocityX / pager.pageStep)
+        choose(saved)
+    }
+    detectHorizontalDragGestures(
+        onDragStart={ armed = it.y + host.origin.y >= host.tabTop;tracker.resetTracking() },
+        onDragEnd={ release(tracker.calculateVelocity().x) },
+        onDragCancel={ release(0f) }) { change, dx ->
+        if(!armed) return@detectHorizontalDragGestures
+        tracker.addPosition(change.uptimeMillis,change.position);change.consume()
+        pager.drag(dx)
+    }
+}
+
+/** Both panes sit side by side, a full gutter pair apart like separate pages; the height eases between theirs as they move. */
+@Composable private fun CollectionPanes(pager: CollectionPager, showSaved: Boolean, pane: @Composable (saved: Boolean) -> Unit) {
+    val gap = with(LocalDensity.current) { (AppLayout.PageGutter * 2).roundToPx() }
+    Layout({
+        Box(if(showSaved) Modifier else Modifier.clearAndSetSemantics {}) { pane(true) }
+        Box(if(showSaved) Modifier.clearAndSetSemantics {} else Modifier) { pane(false) }
+    },Modifier.fillMaxWidth()) { measurables, c ->
+        val w = c.maxWidth;val step = w + gap;pager.pageStep = step.toFloat()
+        val placeables = measurables.map { it.measure(androidx.compose.ui.unit.Constraints.fixedWidth(w)) }
+        val p = pager.progress
+        layout(w,lerp(placeables[0].height.toFloat(),placeables[1].height.toFloat(),p).toInt()) {
+            placeables[0].placeRelative((-p * step).toInt(),0)
+            placeables[1].placeRelative(((1f - p) * step).toInt(),0)
+        }
+    }
+}
+
+/**
+ * The bottom navigation's anatomy at list scale: a milky rounded bar holding two separated pill tabs, with a
+ * pale-blue selection pill that travels between them in step with the panes and tints whichever tab it covers.
+ */
+@Composable private fun SearchCollectionTabs(pager: CollectionPager, modifier: Modifier = Modifier, onSelect: (saved: Boolean) -> Unit) {
+    val colors = MaterialTheme.colorScheme
+    val tabs = listOf("Mentett" to Icons.Outlined.BookmarkBorder,"Legutóbbi" to Icons.Outlined.History)
+    val gap = 6.dp
+    Surface(modifier.fillMaxWidth(),shape=MaterialTheme.shapes.large,color=colors.surface) {
+        BoxWithConstraints(Modifier.fillMaxWidth().padding(6.dp)) {
+            val tabWidth = (maxWidth - gap) / 2
+            Box(Modifier.offset { androidx.compose.ui.unit.IntOffset((pager.progress * (tabWidth + gap).toPx()).toInt(),0) }
+                .width(tabWidth).height(44.dp).clip(RoundedCornerShape(26.dp)).background(colors.primaryContainer.copy(alpha=.65f)))
+            Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(gap)) {
+                tabs.forEachIndexed { index, (label, icon) ->
+                    val on = (if(index == 0) 1f - pager.progress else pager.progress).coerceIn(0f,1f)
+                    val tint = androidx.compose.ui.graphics.lerp(colors.onSurfaceVariant,colors.primary,on)
+                    Row(Modifier.weight(1f).height(44.dp).clip(RoundedCornerShape(26.dp))
+                        // The travelling pill is the press feedback; a grey ripple on top of it would muddy the selection.
+                        .selectable(selected=on > .5f,interactionSource=null,indication=null,role=Role.Tab,onClick={ onSelect(index == 0) }),
+                        horizontalArrangement=Arrangement.Center,verticalAlignment=Alignment.CenterVertically) {
+                        Icon(icon,null,Modifier.size(20.dp),tint=tint)
+                        Spacer(Modifier.width(AppLayout.CompactGap))
+                        Text(label,style=MaterialTheme.typography.labelLarge,color=tint,maxLines=1,overflow=TextOverflow.Ellipsis)
+                    }
+                }
+            }
         }
     }
 }
