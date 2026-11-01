@@ -19,6 +19,8 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.foundation.selection.selectable
@@ -346,18 +348,27 @@ private fun Modifier.swipeBetweenTabs(host: SwipeHost, pager: CollectionPager, c
     val colors = MaterialTheme.colorScheme
     val tabs = listOf("Mentett" to Icons.Outlined.BookmarkBorder,"Legutóbbi" to Icons.Outlined.History)
     val gap = 6.dp
+    // Same squash as the bottom navigation: the pressed tab dips to 94% and springs back.
+    val presses = remember { List(2) { MutableInteractionSource() } }
+    val scales = presses.mapIndexed { index, press ->
+        val pressed by press.collectIsPressedAsState()
+        animateFloatAsState(if(pressed) .94f else 1f,spring(Spring.DampingRatioMediumBouncy,Spring.StiffnessMedium),label="Collection tab press $index")
+    }
     Surface(modifier.fillMaxWidth(),shape=MaterialTheme.shapes.large,color=colors.surface) {
         BoxWithConstraints(Modifier.fillMaxWidth().padding(6.dp)) {
             val tabWidth = (maxWidth - gap) / 2
             Box(Modifier.offset { androidx.compose.ui.unit.IntOffset((pager.progress * (tabWidth + gap).toPx()).toInt(),0) }
-                .width(tabWidth).height(44.dp).clip(RoundedCornerShape(26.dp)).background(colors.primaryContainer.copy(alpha=.65f)))
+                .width(tabWidth).height(44.dp)
+                // The pill squashes with whichever tab it covers, so a press on the selected tab moves as one piece.
+                .graphicsLayer { val p=pager.progress.coerceIn(0f,1f); val s=scales[0].value*(1f-p)+scales[1].value*p; scaleX=s;scaleY=s }
+                .clip(RoundedCornerShape(26.dp)).background(colors.primaryContainer.copy(alpha=.65f)))
             Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(gap)) {
                 tabs.forEachIndexed { index, (label, icon) ->
                     val on = (if(index == 0) 1f - pager.progress else pager.progress).coerceIn(0f,1f)
                     val tint = androidx.compose.ui.graphics.lerp(colors.onSurfaceVariant,colors.primary,on)
-                    Row(Modifier.weight(1f).height(44.dp).clip(RoundedCornerShape(26.dp))
+                    Row(Modifier.weight(1f).height(44.dp).graphicsLayer { scaleX=scales[index].value;scaleY=scales[index].value }.clip(RoundedCornerShape(26.dp))
                         // The travelling pill is the press feedback; a grey ripple on top of it would muddy the selection.
-                        .selectable(selected=on > .5f,interactionSource=null,indication=null,role=Role.Tab,onClick={ onSelect(index == 0) }),
+                        .selectable(selected=on > .5f,interactionSource=presses[index],indication=null,role=Role.Tab,onClick={ onSelect(index == 0) }),
                         horizontalArrangement=Arrangement.Center,verticalAlignment=Alignment.CenterVertically) {
                         Icon(icon,null,Modifier.size(20.dp),tint=tint)
                         Spacer(Modifier.width(AppLayout.CompactGap))
