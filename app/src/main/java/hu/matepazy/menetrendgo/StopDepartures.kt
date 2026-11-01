@@ -3,7 +3,8 @@ package hu.matepazy.menetrendgo
 import org.json.JSONObject
 
 data class StopDeparture(val tripId: String, val headsign: String, val time: ServiceTime,
-    val platform: String, val cancelled: Boolean, val leg: Leg) {
+    val platform: String, val cancelled: Boolean, val leg: Leg,
+    val serviceDay: String = java.time.Instant.ofEpochMilli(time.scheduled).atZone(Budapest).toLocalDate().toString()) {
     val key get() = "$tripId:${time.scheduled}"
 }
 
@@ -51,6 +52,7 @@ internal fun updateAge(updated: Long, now: Long): String {
 
 /** Store absolute times and original logo metadata so a widget can redraw its countdown offline. */
 internal fun StopDeparture.cacheJson(): JSONObject = JSONObject().put("trip", tripId).put("headsign", headsign)
+    .put("serviceDay", serviceDay)
     .put("scheduled", time.scheduled).put("estimate", time.estimate).put("live", time.realtime)
     .put("platform", platform).put("cancelled", cancelled).put("route", leg.route).put("mode", leg.mode)
     .put("logo", leg.routeLogo?.let { JSONObject().put("code", it.code).put("foreground", it.foreground).put("background", it.background) })
@@ -61,7 +63,8 @@ internal fun cachedDeparture(json: JSONObject): StopDeparture {
     val logo = json.optJSONObject("logo")?.let { RouteLogo(it.getInt("code"), it.getString("foreground"), it.getString("background")) }
     val leg = Leg(json.getString("mode"), time.estimate, time.estimate, station, station, json.getString("route"),
         json.getString("trip"), time.realtime, 0, emptyList(), "", routeLogo = logo)
-    return StopDeparture(json.getString("trip"), json.getString("headsign"), time, json.getString("platform"), json.getBoolean("cancelled"), leg)
+    return StopDeparture(json.getString("trip"), json.getString("headsign"), time, json.getString("platform"), json.getBoolean("cancelled"), leg,
+        json.optString("serviceDay").ifBlank { java.time.Instant.ofEpochMilli(time.scheduled).atZone(Budapest).toLocalDate().toString() })
 }
 
 internal fun parseMapStops(data: JSONObject): List<Station> =
@@ -96,6 +99,7 @@ internal fun parseStopDepartures(data: JSONObject, now: Long): List<StopDepartur
             trip.optString("trainCategoryName"), destination, route.optString("longName"), routeLogo = RouteLogo.parse(route))
         StopDeparture(trip.optString("gtfsId"), destination, ServiceTime(scheduled, estimate, live),
             point.optString("platformCode").takeUnless { it == "null" }.orEmpty(),
-            row.optString("realtimeState") == "CANCELED", leg)
+            row.optString("realtimeState") == "CANCELED", leg,
+            java.time.Instant.ofEpochSecond(day).atZone(Budapest).toLocalDate().toString())
     }.distinctBy { it.key }.sortedBy { it.time.estimate }.take(30)
 }

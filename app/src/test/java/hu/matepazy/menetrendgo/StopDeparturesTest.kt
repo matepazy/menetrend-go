@@ -5,6 +5,15 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class StopDeparturesTest {
+    @Test fun afterMidnightDepartureRetainsProviderServiceDay() {
+        val midnight = java.time.LocalDate.of(2026, 11, 1).atStartOfDay(Budapest).toEpochSecond()
+        val departure = row("overnight", 90000, realtime = false).put("serviceDay", midnight)
+        val data = JSONObject().put("stop", JSONObject().put("stoptimesWithoutPatterns", org.json.JSONArray().put(departure)))
+        val parsed = parseStopDepartures(data, midnight * 1000).single()
+        assertEquals("2026-11-01", parsed.serviceDay)
+        assertEquals("2026-11-02", java.time.Instant.ofEpochMilli(parsed.time.scheduled).atZone(Budapest).toLocalDate().toString())
+        assertEquals(parsed.serviceDay, cachedDeparture(parsed.cacheJson()).serviceDay)
+    }
     @Test fun clockTimeAppearsOnlyBeyondFifteenMinutes() {
         val now = java.time.Instant.parse("2026-10-31T12:00:00Z").toEpochMilli()
         assertNull(departureClockTime(now + 15 * 60_000L, now))

@@ -98,6 +98,8 @@ private val Dark = darkColorScheme(primary=Color(0xFFA8C7FF), onPrimary=Color(0x
     surfaceContainerLowest=Color(0xFF0B1723),surfaceContainerLow=Color(0xFF152536),
     surfaceContainer=Color(0xFF192B3D),surfaceContainerHigh=Color(0xFF203449),
     surfaceContainerHighest=Color(0xFF293F55),surfaceTint=Color(0xFFA8C7FF))
+internal val LocalAppDarkTheme = staticCompositionLocalOf { false }
+
 @Composable fun MenetrendTheme(choice: String, content: @Composable () -> Unit) {
     val dark = choice == "dark" || (choice == "system" && isSystemInDarkTheme())
     val scheme=if(dark) Dark else Light
@@ -112,7 +114,8 @@ private val Dark = darkColorScheme(primary=Color(0xFFA8C7FF), onPrimary=Color(0x
     }
     MaterialTheme(colorScheme=scheme,
         shapes=Shapes(extraSmall=RoundedCornerShape(16.dp),small=RoundedCornerShape(24.dp),medium=RoundedCornerShape(28.dp),large=RoundedCornerShape(32.dp),extraLarge=RoundedCornerShape(36.dp)),
-        content={CompositionLocalProvider(LocalContentColor provides scheme.onBackground,content=content)})
+        content={CompositionLocalProvider(LocalContentColor provides scheme.onBackground,
+            LocalAppDarkTheme provides dark, content=content)})
 }
 
 // The rounded bar floats above content; list padding keeps final actions reachable.

@@ -113,7 +113,12 @@ class AppState(app: Application) : AndroidViewModel(app) {
     suspend fun cachedStations(query: String) = stationSearch.cached(query)
     suspend fun stations(query: String) = stationSearch.search(query)
     fun selectStation(station: Station) { if(station.id.isNotBlank()) viewModelScope.launch { stationSearch.selected(station) } }
-    fun chooseTheme(value: String) { theme = value; prefs.edit().putString("theme", value).apply() }
+    fun chooseTheme(value: String) {
+        theme = value
+        prefs.edit().putString("theme", value).apply()
+        val context = getApplication<Application>()
+        StopBoardWidget.widgetIds(context).forEach { StopBoardWidget.render(context, it) }
+    }
     fun unlockDeveloperSettings() {
         developerSettingsUnlocked = true
         prefs.edit().putBoolean("developer_settings_unlocked", true).apply()

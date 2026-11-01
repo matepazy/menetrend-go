@@ -124,6 +124,7 @@ class StopBoardWidget : AppWidgetProvider() {
                 .setExtras(android.os.PersistableBundle().apply { putLong("dueAt", dueAt) }).build())
         }
         internal fun render(context: Context, id: Int, refreshing: Boolean = false) {
+            val themeContext = departureThemeContext(context)
             val station = station(context, id)
             val prefs = prefs(context)
             val updated = prefs.getLong("updated_$id", 0)
@@ -133,7 +134,7 @@ class StopBoardWidget : AppWidgetProvider() {
             val manager = AppWidgetManager.getInstance(context)
             val options = manager.getAppWidgetOptions(id)
             fun sizedViews(width: Int, height: Int): RemoteViews {
-            val views = RemoteViews(context.packageName, R.layout.stop_board_widget)
+            val views = RemoteViews(context.packageName, R.layout.stop_board_widget).apply { applyDepartureTheme(themeContext) }
             views.setTextViewText(R.id.widget_station, station?.name ?: "Válassz megállót")
             val lastUpdate = if (updated > 0) updateAge(updated, now) else ""
             views.setTextViewText(R.id.widget_status, when {
@@ -144,12 +145,12 @@ class StopBoardWidget : AppWidgetProvider() {
             })
             views.removeAllViews(R.id.widget_departures)
             if (rows.isEmpty()) {
-                val empty = RemoteViews(context.packageName, R.layout.stop_board_widget_message)
+                val empty = RemoteViews(context.packageName, R.layout.stop_board_widget_message).apply { applyDepartureTheme(themeContext) }
                 empty.setTextViewText(R.id.widget_row_text, if (updated > 0) "Nincs további tárolt indulás. Frissítsd a táblát." else "A tábla internetkapcsolattal frissül.")
                 views.addView(R.id.widget_departures, empty)
             }
             val candidates = rows.map { departure ->
-                val row = RemoteViews(context.packageName, R.layout.stop_board_widget_row)
+                val row = RemoteViews(context.packageName, R.layout.stop_board_widget_row).apply { applyDepartureTheme(themeContext) }
                 row.setTextViewText(R.id.widget_service, departure.leg.route)
                 row.setTextViewText(R.id.widget_destination, departure.headsign)
                 row.setTextViewText(R.id.widget_detail, if (departure.platform.isBlank()) "" else "${departure.platform}. vágány / állás")
@@ -158,7 +159,7 @@ class StopBoardWidget : AppWidgetProvider() {
                 val clock = departureClockTime(departure.time.estimate, now, departure.cancelled)
                 row.setTextViewText(R.id.widget_departure_time, clock.orEmpty())
                 row.setViewVisibility(R.id.widget_departure_time, if (clock == null) android.view.View.GONE else android.view.View.VISIBLE)
-                row.setTextColor(R.id.widget_countdown, context.getColor(departureColorResource(departure.time, departure.cancelled)))
+                row.setTextColor(R.id.widget_countdown, themeContext.getColor(departureColorResource(departure.time, departure.cancelled)))
                 row.setContentDescription(R.id.widget_countdown, (if (departure.cancelled) "Kimarad" else departureCountdown(departure.time.estimate, now)) + ", " + departureStateDescription(departure))
                 val bitmap = departure.leg.routeLogo?.let { routeLogoBitmap(context, it) }
                 if (bitmap != null) row.setImageViewBitmap(R.id.widget_logo, bitmap)
@@ -175,7 +176,7 @@ class StopBoardWidget : AppWidgetProvider() {
             }
             val fitted = fittingWidgetRows(context, views, candidates, width, height)
             if (fitted.isEmpty() && candidates.isNotEmpty()) {
-                val hint = RemoteViews(context.packageName, R.layout.stop_board_widget_message)
+                val hint = RemoteViews(context.packageName, R.layout.stop_board_widget_message).apply { applyDepartureTheme(themeContext) }
                 hint.setTextViewText(R.id.widget_row_text, "Nagyítsd a widgetet az indulásokhoz.")
                 views.addView(R.id.widget_departures, hint)
             }
@@ -253,7 +254,7 @@ class StopBoardWidgetActivity : ComponentActivity() {
         if (AppWidgetManager.getInstance(this).getAppWidgetInfo(id)?.provider != ComponentName(this, StopBoardWidget::class.java)) { finish(); return }
         val station = StopBoardWidget.station(this, id)
         val isBoard = intent.action == "board" && station != null
-        setContent { MenetrendTheme("system") {
+        setContent { MenetrendTheme(savedTheme(this)) {
             Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
                 if (isBoard) StopBoardDrawer(station!!, dismiss={ finish() })
                 else WidgetStationPicker { selected ->

@@ -1,19 +1,22 @@
 package hu.matepazy.menetrendgo
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
@@ -24,8 +27,13 @@ import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable fun StopBoardDrawer(station: Station, dismiss: () -> Unit,
-    fetch: (suspend (String) -> List<StopDeparture>)? = null) {
+    fetch: (suspend (String) -> List<StopDeparture>)? = null,
+    fetchTrip: (suspend (String, String) -> org.json.JSONObject)? = null) {
     val context = LocalContext.current
+    val dark = LocalAppDarkTheme.current
+    val colorContext = remember(context, dark) {
+        departureThemeContext(context, dark)
+    }
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     val client = remember { MavClient() }
     var departures by remember(station.id) { mutableStateOf<List<StopDeparture>>(emptyList()) }
@@ -35,6 +43,7 @@ import kotlinx.coroutines.delay
     var refresh by remember { mutableIntStateOf(0) }
     var pinMessage by remember { mutableStateOf<String?>(null) }
     var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
+    var selectedDeparture by remember(station.id) { mutableStateOf<StopDeparture?>(null) }
     LaunchedEffect(lifecycle) {
         lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
             while (true) { now = System.currentTimeMillis(); delay(1000) }
@@ -87,7 +96,10 @@ import kotlinx.coroutines.delay
             }
             items(departures.filter { it.time.estimate >= now - 30_000 }, key = { it.key }) { departure ->
                 Surface(shape = RoundedCornerShape(32.dp), color = MaterialTheme.colorScheme.surface,
-                    modifier = Modifier.fillMaxWidth()) {
+                    modifier = Modifier.fillMaxWidth().clickable(
+                        enabled = departure.tripId.isNotBlank(), role = Role.Button,
+                        onClickLabel = "Járat részleteinek megnyitása"
+                    ) { selectedDeparture = departure }) {
                     Row(Modifier.padding(20.dp), horizontalArrangement = Arrangement.spacedBy(16.dp), verticalAlignment = Alignment.Top) {
                         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             RouteBadge(departure.leg, contentPadding = if (departure.leg.routeLogo != null) PaddingValues(0.dp)
@@ -99,15 +111,20 @@ import kotlinx.coroutines.delay
                             Text(if (departure.cancelled) "Kimarad" else departureCountdown(departure.time.estimate, now),
                                 modifier = Modifier.semantics { stateDescription = departureStateDescription(departure) },
                                 style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold,
-                                color = colorResource(departureColorResource(departure.time, departure.cancelled)))
+                                color = Color(colorContext.getColor(departureColorResource(departure.time, departure.cancelled))))
                             departureClockTime(departure.time.estimate, now, departure.cancelled)?.let { clock ->
                                 Text(clock, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Normal,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
+                            Icon(Icons.AutoMirrored.Outlined.KeyboardArrowRight, contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(20.dp))
                         }
                     }
                 }
             }
         }
+    }
+    selectedDeparture?.let { departure ->
+        DepartureServiceDrawer(departure, dismiss = { selectedDeparture = null }, fetch = fetchTrip)
     }
 }
