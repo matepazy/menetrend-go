@@ -1,6 +1,12 @@
 package hu.matepazy.menetrendgo
 
 import androidx.compose.foundation.*
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.ui.input.pointer.changedToDown
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.positionInWindow
+import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.expandVertically
@@ -120,7 +126,9 @@ import androidx.lifecycle.repeatOnLifecycle
     val focus=LocalFocusManager.current
     fun closePicker() { focus.clearFocus();picker=null }
     BackHandler(picker!=null) { closePicker() }
-    LazyColumn(Modifier.fillMaxSize(),contentPadding=screenContentPadding(),verticalArrangement=Arrangement.spacedBy(AppLayout.ItemGap)) {
+    var confirmClearRecents by remember { mutableStateOf(false) }
+    val swipeHost = remember { SwipeHost() }
+    LazyColumn(Modifier.fillMaxSize().swipeHostDismiss(swipeHost),contentPadding=screenContentPadding(),verticalArrangement=Arrangement.spacedBy(AppLayout.ItemGap)) {
         item { Row(Modifier.fillMaxWidth().heightIn(min=48.dp),verticalAlignment=Alignment.CenterVertically) {
             Text("Hová indulunk?",style=MaterialTheme.typography.headlineMedium,fontWeight=FontWeight.Bold,modifier=Modifier.weight(1f))
             FilledTonalIconButton(onClick=onPasses,shape=CircleShape) {Icon(Icons.Outlined.NotificationsNone,"Bérletek és emlékeztetők")}
@@ -183,7 +191,6 @@ import androidx.lifecycle.repeatOnLifecycle
                     }
                 }
             }
-            if(!vm.showSavedSearches && vm.recents.isNotEmpty()) TextButton(onClick=vm::clearRecents,modifier=Modifier.align(Alignment.End)) { Text("Előzmények törlése") }
             if(vm.showSavedSearches && vm.savedSearches.isEmpty()) {
                 Text("A gyakori útjaid helye",style=MaterialTheme.typography.titleMedium,fontWeight=FontWeight.SemiBold)
                 Text("Az Indulások jobb felső sarkában lévő könyvjelzővel menthetsz útvonalat. Adj neki nevet és ikont, hogy könnyen megtaláld.",
@@ -191,29 +198,41 @@ import androidx.lifecycle.repeatOnLifecycle
             } else if(!vm.showSavedSearches && vm.recents.isEmpty()) Text("A kereséseidet itt találod majd. Egy koppintással újratervezheted az utat.",style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)
         } }
         if(vm.showSavedSearches) items(vm.savedSearches,key={"saved:"+it.key}) { saved ->
-            Surface(onClick={vm.useSavedSearch(saved);onSearch()},shape=RoundedCornerShape(28.dp),color=MaterialTheme.colorScheme.surface) {
-                Row(Modifier.fillMaxWidth().padding(start=AppLayout.PanelPadding,top=12.dp,bottom=12.dp,end=8.dp),verticalAlignment=Alignment.CenterVertically) {
-                    Icon(saved.icon.vector,null,tint=MaterialTheme.colorScheme.primary)
-                    Spacer(Modifier.width(16.dp))
-                    Column(Modifier.weight(1f),verticalArrangement=Arrangement.spacedBy(4.dp)) {
-                        Text(saved.name,style=MaterialTheme.typography.titleMedium,fontWeight=FontWeight.SemiBold)
-                        Text("${saved.from.name} → ${saved.to.name}",style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)
+            SwipeActionsRow(listOf(
+                SwipeAction(Icons.Outlined.Edit,"${saved.name} szerkesztése",MaterialTheme.colorScheme.primary,MaterialTheme.colorScheme.onPrimary) {editingSaved=saved},
+                SwipeAction(Icons.Outlined.Delete,"${saved.name} törlése",MaterialTheme.colorScheme.error,MaterialTheme.colorScheme.onError) {vm.removeSavedSearch(saved)}),
+                swipeHost,Modifier.animateItem()) { open,close ->
+                Surface(onClick={if(open) close() else {vm.useSavedSearch(saved);onSearch()}},shape=RoundedCornerShape(28.dp),color=MaterialTheme.colorScheme.surface) {
+                    Row(Modifier.fillMaxWidth().padding(start=AppLayout.PanelPadding,top=12.dp,bottom=12.dp,end=8.dp),verticalAlignment=Alignment.CenterVertically) {
+                        Icon(saved.icon.vector,null,tint=MaterialTheme.colorScheme.primary)
+                        Spacer(Modifier.width(16.dp))
+                        Column(Modifier.weight(1f),verticalArrangement=Arrangement.spacedBy(4.dp)) {
+                            Text(saved.name,style=MaterialTheme.typography.titleMedium,fontWeight=FontWeight.SemiBold)
+                            Text("${saved.from.name} → ${saved.to.name}",style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                        if(!open) IconButton(onClick={editingSaved=saved}) {Icon(Icons.Outlined.Edit,"${saved.name} szerkesztése")}
+                        else Spacer(Modifier.height(48.dp))
                     }
-                    IconButton(onClick={editingSaved=saved}) {Icon(Icons.Outlined.Edit,"${saved.name} szerkesztése")}
                 }
             }
         } else items(vm.recents,key={"recent:"+it.from.id+":"+it.to.id}) { recent ->
-            Surface(onClick={vm.from=recent.from;vm.to=recent.to;vm.useNow=true;vm.arriveBy=false;onSearch()},shape=RoundedCornerShape(28.dp),color=MaterialTheme.colorScheme.surface) {
-                Row(Modifier.fillMaxWidth().padding(AppLayout.PanelPadding),verticalAlignment=Alignment.CenterVertically) {
-                    Icon(Icons.Outlined.History,null,tint=MaterialTheme.colorScheme.onSurfaceVariant)
-                    Spacer(Modifier.width(16.dp));Column(Modifier.weight(1f)) {
-                        Text(recent.from.name,style=MaterialTheme.typography.titleMedium)
-                        Text(recent.to.name,color=MaterialTheme.colorScheme.onSurfaceVariant)
-                    };Icon(Icons.Outlined.ChevronRight,null)
+            SwipeToDeleteRow("${recent.from.name} – ${recent.to.name}",{vm.removeRecent(recent)},swipeHost,Modifier.animateItem()) { open,close ->
+                Surface(onClick={if(open) close() else {vm.from=recent.from;vm.to=recent.to;vm.useNow=true;vm.arriveBy=false;onSearch()}},shape=RoundedCornerShape(28.dp),color=MaterialTheme.colorScheme.surface) {
+                    Row(Modifier.fillMaxWidth().padding(AppLayout.PanelPadding),verticalAlignment=Alignment.CenterVertically) {
+                        Icon(Icons.Outlined.History,null,tint=MaterialTheme.colorScheme.onSurfaceVariant)
+                        Spacer(Modifier.width(16.dp));Column(Modifier.weight(1f)) {
+                            Text(recent.from.name,style=MaterialTheme.typography.titleMedium)
+                            Text(recent.to.name,color=MaterialTheme.colorScheme.onSurfaceVariant)
+                        };Icon(Icons.Outlined.ChevronRight,null)
+                    }
                 }
             }
         }
+        if(!vm.showSavedSearches && vm.recents.isNotEmpty()) item(key="recents-clear") {
+            TextButton(onClick={confirmClearRecents=true},modifier=Modifier.fillMaxWidth().animateItem()) { Text("Előzmények törlése") }
+        }
     }
+    if(confirmClearRecents) ClearRecentsDrawer({vm.clearRecents();confirmClearRecents=false}) {confirmClearRecents=false}
     if(datePicker) JourneyDatePicker(vm) {datePicker=false}
     if(timePicker) JourneyTimePicker(vm) {timePicker=false}
     if(searchOptions) SearchFilterDrawer(vm) {searchOptions=false}
@@ -221,6 +240,65 @@ import androidx.lifecycle.repeatOnLifecycle
         SavedSearchEditor(saved.from,saved.to,saved,
             onSave={name,icon -> vm.saveSearch(saved.from,saved.to,name,icon);editingSaved=null},
             onDismiss={editingSaved=null},onDelete={vm.removeSavedSearch(saved);editingSaved=null})
+    }
+}
+
+/** Right-to-left swipe parks the row on a red delete action; a tap on the trash icon deletes, a tap on the row closes it. */
+private class SwipeHost {
+    var closeOpen: (() -> Unit)? = null
+    var deleteBounds: androidx.compose.ui.geometry.Rect? = null
+    var origin = Offset.Zero
+}
+
+/** Any touch that starts outside the open row's delete button springs the open row back; the touch itself still reaches its target. */
+private fun Modifier.swipeHostDismiss(host: SwipeHost) = onGloballyPositioned { host.origin = it.positionInWindow() }.pointerInput(host) {
+    awaitPointerEventScope {
+        while(true) {
+            val event = awaitPointerEvent(androidx.compose.ui.input.pointer.PointerEventPass.Initial)
+            val down = event.changes.firstOrNull { it.changedToDown() } ?: continue
+            if(host.deleteBounds?.contains(down.position + host.origin) != true) host.closeOpen?.invoke()
+        }
+    }
+}
+
+private class SwipeAction(val icon: ImageVector, val description: String, val container: Color, val content: Color, val onClick: () -> Unit)
+
+@Composable private fun SwipeToDeleteRow(label: String, onDelete: () -> Unit, host: SwipeHost, modifier: Modifier = Modifier,
+    content: @Composable (open: Boolean, close: () -> Unit) -> Unit) = SwipeActionsRow(
+    listOf(SwipeAction(Icons.Outlined.Delete,"$label törlése",MaterialTheme.colorScheme.error,MaterialTheme.colorScheme.onError,onDelete)),host,modifier,content)
+
+/** Actions are listed left to right once revealed; the last one sits at the trailing edge. */
+@Composable private fun SwipeActionsRow(actions: List<SwipeAction>, host: SwipeHost, modifier: Modifier = Modifier,
+    content: @Composable (open: Boolean, close: () -> Unit) -> Unit) {
+    val shape = RoundedCornerShape(28.dp)
+    val reveal = with(LocalDensity.current) { 72.dp.toPx() * actions.size }
+    val offset = remember { androidx.compose.animation.core.Animatable(0f) }
+    val scope = rememberCoroutineScope()
+    var closing by remember { mutableStateOf(false) }
+    // Stays "open" for a beat after closing so the tap that dismissed the row cannot also start its search.
+    val close: () -> Unit = { scope.launch { closing = true;offset.animateTo(0f,tween(150));delay(250);closing = false } }
+    val open = offset.value < 0f
+    LaunchedEffect(open) {
+        if(open) host.closeOpen?.takeIf { it !== close }?.invoke()
+        if(open) host.closeOpen = close else if(host.closeOpen === close) { host.closeOpen = null;host.deleteBounds = null }
+    }
+    DisposableEffect(Unit) { onDispose { if(host.closeOpen === close) { host.closeOpen = null;host.deleteBounds = null } } }
+    Box(modifier.fillMaxWidth().clip(shape)) {
+        if(offset.value < 0f) Row(Modifier.matchParentSize().onGloballyPositioned {
+            val b = it.boundsInWindow();host.deleteBounds = androidx.compose.ui.geometry.Rect(b.right - reveal,b.top,b.right,b.bottom)
+        }.background(actions.first().container),horizontalArrangement=Arrangement.End) {
+            // The first action's colour fills the whole row so it shows behind the card's rounded corners.
+            actions.forEach { a ->
+                Box(Modifier.width(72.dp).fillMaxHeight().background(a.container),contentAlignment=Alignment.Center) {
+                    IconButton(onClick={ close();a.onClick() },Modifier.fillMaxSize()) { Icon(a.icon,a.description,tint=a.content) }
+                }
+            }
+        }
+        Box(Modifier.offset { androidx.compose.ui.unit.IntOffset(offset.value.toInt(),0) }
+            .draggable(rememberDraggableState { d -> scope.launch { offset.snapTo((offset.value + d).coerceIn(-reveal,0f)) } },Orientation.Horizontal,
+                onDragStopped={ v -> scope.launch { offset.animateTo(if(offset.value < -reveal / 2 || v < -800f) -reveal else 0f,tween(150)) } })) {
+            content(open || closing,close)
+        }
     }
 }
 
@@ -366,6 +444,21 @@ import androidx.lifecycle.repeatOnLifecycle
             }
         }
         }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable private fun ClearRecentsDrawer(onConfirm: () -> Unit, dismiss: () -> Unit) {
+    AppBottomSheet(onDismissRequest=dismiss,shape=RoundedCornerShape(topStart=36.dp,topEnd=36.dp)) {
+        Column(Modifier.fillMaxWidth().padding(horizontal=24.dp).padding(bottom=24.dp),verticalArrangement=Arrangement.spacedBy(AppLayout.ItemGap)) {
+            Text("Törlöd az előzményeket?",style=MaterialTheme.typography.titleLarge)
+            Text("Az összes legutóbbi keresés törlődik. A mentett kereséseid megmaradnak.",
+                style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)
+            Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(12.dp,Alignment.End)) {
+                TextButton(onClick=dismiss) {Text("Mégse")}
+                Button(onClick=onConfirm,colors=ButtonDefaults.buttonColors(containerColor=MaterialTheme.colorScheme.error,contentColor=MaterialTheme.colorScheme.onError)) {Text("Törlés")}
+            }
         }
     }
 }

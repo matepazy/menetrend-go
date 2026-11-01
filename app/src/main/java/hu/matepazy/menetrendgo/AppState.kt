@@ -149,6 +149,10 @@ class AppState(app: Application) : AndroidViewModel(app) {
         customMapUrl=url; mapType=MapType.Custom
         prefs.edit().putString("custom_map_url",url).putString("map_type",mapType.id).apply()
     }
+    fun removeRecent(recent: Recent) {
+        recents = recents.filterNot { it.from.id == recent.from.id && it.to.id == recent.to.id }
+        prefs.edit().putString("recents", JSONArray(recents.map { it.json() }).toString()).apply()
+    }
     fun clearRecents() { recents = emptyList(); prefs.edit().remove("recents").apply() }
     fun chooseSearchCollection(saved: Boolean) {
         showSavedSearches = saved
