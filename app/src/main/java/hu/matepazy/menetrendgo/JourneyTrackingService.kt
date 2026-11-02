@@ -27,6 +27,7 @@ internal data class TrackingView(
     val running: Boolean = false,
     val message: String = "Helymeghatározás…",
     val estimate: TrackingEstimate? = null,
+    val destinationDistance: Double? = null,
 )
 
 internal object JourneyTracking {
@@ -86,7 +87,8 @@ class JourneyTrackingService : Service(), LocationListener {
     private lateinit var locations: LocationManager
     private var session: TrackingSession? = null
     private var engine: JourneyProgress? = null
-    private var motion: TrackingMotion? = null
+    private var destinationAlert: DestinationAlert? = null
+    private var destinationDistance: Double? = null
     private val fixes = mutableMapOf<String, CancellationSignal>()
     private val registeredProviders = mutableSetOf<String>()
     private var lastFixNanos: Long? = null
@@ -95,7 +97,6 @@ class JourneyTrackingService : Service(), LocationListener {
     private var lastPersist = 0L
     private var liveArrival: Pair<Long, Long>? = null
     private var estimate: TrackingEstimate? = null
-    private var lastRouteEstimate: TrackingEstimate? = null
     private var message = "Helymeghatározás…"
     private var timer: Job? = null
     private var fetcher: Job? = null
@@ -150,8 +151,9 @@ class JourneyTrackingService : Service(), LocationListener {
             NotificationManagerCompat.from(this).cancel(ALERT_ID)
         }
         engine = JourneyProgress(session!!.leg)
-        motion = TrackingMotion(session!!.leg.mode)
-        estimate = null; lastRouteEstimate = null; lastFixNanos = null; lastGoodFixNanos = null; liveArrival = null
+        destinationAlert = DestinationAlert(session!!.leg)
+        destinationDistance = null
+        estimate = null; lastFixNanos = null; lastGoodFixNanos = null; liveArrival = null
         lastGoodAccuracy = Float.POSITIVE_INFINITY
         notificationKey = null
         message = if (session!!.awaitingBoarding) "Szállj át, majd erősítsd meg a felszállást." else "Helymeghatározás…"
@@ -172,20 +174,11 @@ class JourneyTrackingService : Service(), LocationListener {
                     if (!LocationManagerCompat.isLocationEnabled(locations)) {
                         message = "Kapcsold be a helymeghatározást. A leszállási jelzés most nem megbízható."
                         estimate = null
+                        destinationDistance = null
                     } else if (lastGoodFixNanos == null || (SystemClock.elapsedRealtimeNanos() - lastGoodFixNanos!!) > 45_000_000_000L) {
                         message = "Pontos helyjelre várunk. A leszállási jelzés most nem megbízható."
                         estimate = null
-                    }
-                }
-                val live = liveArrival
-                val locationAge = lastGoodFixNanos?.let { (SystemClock.elapsedRealtimeNanos() - it) / 1_000_000 } ?: Long.MAX_VALUE
-                if (locationAge > 15_000 && liveArrivalWarning(current, live?.first,
-                        live?.let { SystemClock.elapsedRealtime() - it.second } ?: Long.MAX_VALUE,
-                        locationAge, lastRouteEstimate?.remainingMeters, System.currentTimeMillis())) {
-                    if (alert(current, liveBased = true)) {
-                        session = current.copy(alerted = true)
-                        JourneyTracking.persist(this@JourneyTrackingService, session!!, durable = true)
-                        message = "Élő érkezés alapján készülj a leszállásra. A helyjel bizonytalan."
+                        destinationDistance = null
                     }
                 }
                 updateLocationRequests()
@@ -197,7 +190,7 @@ class JourneyTrackingService : Service(), LocationListener {
         fetcher = scope.launch {
             while (isActive) {
                 val current = session ?: break
-                val needsLive = trackingLiveRefreshNeeded(current.leg.mode, current.warningMinutes, lastRouteEstimate?.remainingMeters)
+                val needsLive = destinationDistance == null || destinationDistance!! <= 5_000
                 if (!current.awaitingBoarding && !current.alerted && needsLive && current.leg.tripId.isNotBlank()) {
                     try {
                         val leg = current.leg
@@ -223,7 +216,7 @@ class JourneyTrackingService : Service(), LocationListener {
     private fun updateLocationRequests() {
         val current = session ?: return
         if (current.awaitingBoarding) { if (registeredProviders.isNotEmpty()) stopLocations(); return }
-        val interval = trackingLocationInterval(current.leg.mode, current.warningMinutes, estimate?.remainingMeters)
+        val interval = destinationLocationInterval(current.leg.mode, destinationDistance)
         if (interval != locationInterval) { stopLocations(); locationInterval = interval }
         // Register disabled providers too so enabling GPS later can recover tracking.
         val available = locations.allProviders
@@ -272,37 +265,37 @@ class JourneyTrackingService : Service(), LocationListener {
         val nowNanos = SystemClock.elapsedRealtimeNanos()
         if (nowNanos - location.elapsedRealtimeNanos !in 0..15_000_000_000L ||
             (lastFixNanos != null && location.elapsedRealtimeNanos <= lastFixNanos!!)) return
-        val elapsed = lastGoodFixNanos?.let { (location.elapsedRealtimeNanos - it) / 1e9 }
-            ?: ((System.currentTimeMillis() - current.progressAt).coerceAtLeast(0) / 1000.0)
+        val elapsed = (System.currentTimeMillis() - current.progressAt).coerceAtLeast(0) / 1000.0
         val hasRecentFix = lastGoodFixNanos?.let { nowNanos - it <= 15_000_000_000L } == true
         if (hasRecentFix && location.accuracy > maxOf(30f, lastGoodAccuracy * 2)) return
         val speed = location.speed.takeIf { location.hasSpeed() && (!location.hasSpeedAccuracy() || location.speedAccuracyMetersPerSecond <= 3) }
-        val spatial = engine?.estimate(TrackPoint(location.latitude, location.longitude),
-            if (location.hasAccuracy()) location.accuracy else Float.POSITIVE_INFINITY,
-            speed,
-            current.progress, elapsed, current.warningMinutes, current.alerted)
-        if (spatial == null) {
-            if (hasRecentFix) return // A lone bad provider/jump must not displace fresh route evidence.
-            motion?.reset()
-            message = "A helyjel pontatlan, vagy eltértél az útvonaltól. Ellenőrizd az utazást."
+        val point = TrackPoint(location.latitude, location.longitude)
+        val accuracy = if (location.hasAccuracy()) location.accuracy else Float.POSITIVE_INFINITY
+        val destination = destinationAlert?.update(point, accuracy,
+            location.elapsedRealtimeNanos / 1_000_000, speed, current.alerted)
+        if (destination == null) {
+            if (hasRecentFix) return
+            message = "A helyjel pontatlan. Pontos helymeghatározásra várunk."
             estimate = null
             publish(); return
         }
-        val result = motion!!.update(spatial, location.elapsedRealtimeNanos / 1_000_000, speed,
-            location.accuracy, current.warningMinutes, current.alerted)
+        destinationDistance = destination.distance
+        // Route projection supplies optional stop counts only. It never gates a warning.
+        val result = engine?.estimate(point, accuracy, speed, current.progress, elapsed, 2, true)
+            ?.copy(shouldAlert = false)
         lastFixNanos = location.elapsedRealtimeNanos
         lastGoodFixNanos = location.elapsedRealtimeNanos
         lastGoodAccuracy = location.accuracy
         estimate = result
-        lastRouteEstimate = result
-        session = current.copy(progress = result.progress,
-            progressAt = System.currentTimeMillis())
+        session = current.copy(progress = result?.progress ?: current.progress,
+            progressAt = if (result != null) System.currentTimeMillis() else current.progressAt)
         message = when {
-            result.arrived -> "Megérkeztél a leszállóhelyhez."
-            current.alerted || result.shouldAlert -> "Készülj a leszállásra!"
-            else -> "${result.stopsRemaining} megálló a leszállásig"
+            destination.arrived -> "Megérkeztél a leszállóhelyhez."
+            current.alerted || destination.shouldAlert -> "Készülj a leszállásra!"
+            result != null -> "${result.stopsRemaining} megálló a leszállásig"
+            else -> "${destination.distance.toInt()} m a leszállóhelyig · légvonalban"
         }
-        if (result.shouldAlert) {
+        if (destination.shouldAlert) {
             if (alert(current)) {
                 session = session!!.copy(alerted = true)
                 JourneyTracking.persist(this, session!!, durable = true)
@@ -310,7 +303,7 @@ class JourneyTrackingService : Service(), LocationListener {
                 message = "Nem sikerült elküldeni a jelzést. Ellenőrizd az értesítési engedélyeket."
             }
         }
-        if (result.arrived) {
+        if (destination.arrived) {
             if (!session!!.alerted) { publish(); return }
             if (current.nextLegIndex == null) { finish(); return }
             session = session!!.copy(awaitingBoarding = true)
@@ -356,7 +349,8 @@ class JourneyTrackingService : Service(), LocationListener {
         if (!current.awaitingBoarding) {
             val progress = estimate
             val title = "${leg.route} · ${leg.to.name}"
-            val stops = progress?.let { "${it.stopsRemaining} megálló" } ?: "Helyzetre vár"
+            val stops = progress?.let { "${it.stopsRemaining} megálló" }
+                ?: destinationDistance?.let { "${it.toInt()} m · légvonalban" } ?: "Helyzetre vár"
             fun content(layout: Int) = RemoteViews(packageName, layout).apply {
                 setTextViewText(R.id.tracking_title, title)
                 setTextViewText(R.id.tracking_stops, stops)
@@ -364,7 +358,8 @@ class JourneyTrackingService : Service(), LocationListener {
                 val value = if (total > 0) ((progress!!.progress / total).coerceIn(0.0, 1.0) * 100).toInt() else 0
                 setProgressBar(R.id.tracking_progress, 100, value, progress == null)
                 setContentDescription(R.id.tracking_stops,
-                    progress?.let { "${it.stopsRemaining} megálló a leszállásig" } ?: "Helymeghatározás folyamatban")
+                    progress?.let { "${it.stopsRemaining} megálló a leszállásig" }
+                        ?: destinationDistance?.let { "${it.toInt()} méter a leszállóhelyig légvonalban" } ?: "Helymeghatározás folyamatban")
             }
             builder.setStyle(NotificationCompat.DecoratedCustomViewStyle())
                 .setCustomContentView(content(R.layout.notification_journey))
@@ -379,7 +374,7 @@ class JourneyTrackingService : Service(), LocationListener {
     }
 
     @SuppressLint("MissingPermission")
-    private fun alert(current: TrackingSession, liveBased: Boolean = false): Boolean {
+    private fun alert(current: TrackingSession): Boolean {
         if (!JourneyTracking.enabled(this) || !JourneyTracking.notificationsEnabled(this)) return false
         val key = current.controlToken
         if (getSystemService(NotificationManager::class.java).activeNotifications.any {
@@ -389,8 +384,8 @@ class JourneyTrackingService : Service(), LocationListener {
             NotificationManagerCompat.from(this).notify(ALERT_ID,
             NotificationCompat.Builder(this, ALERTS).setSmallIcon(R.drawable.ic_notification)
                 .setContentTitle("Hamarosan leszállás")
-                .setContentText(if (liveBased) "Élő érkezés alapján készülj a leszállásra: $stop" else "Készülj a leszállásra: $stop")
-                .setStyle(NotificationCompat.BigTextStyle().bigText(if (liveBased) "Élő érkezés alapján készülj a leszállásra: $stop" else "Készülj a leszállásra: $stop"))
+                .setContentText("Készülj a leszállásra: $stop")
+                .setStyle(NotificationCompat.BigTextStyle().bigText("Készülj a leszállásra: $stop"))
                 .addExtras(Bundle().apply { putString("trackingAlertKey", key) }).setOnlyAlertOnce(true)
                 .setPriority(NotificationCompat.PRIORITY_HIGH).setCategory(NotificationCompat.CATEGORY_REMINDER)
                 .setContentIntent(open()).setAutoCancel(true).setVisibility(NotificationCompat.VISIBILITY_PRIVATE).build())
@@ -400,12 +395,12 @@ class JourneyTrackingService : Service(), LocationListener {
 
     @SuppressLint("MissingPermission")
     private fun publish() {
-        JourneyTracking.publish(TrackingView(session, true, message, estimate))
+        JourneyTracking.publish(TrackingView(session, true, message, estimate, destinationDistance))
         val progress = estimate?.let {
             val total = it.progress + it.remainingMeters
             if (total > 0) ((it.progress / total).coerceIn(0.0, 1.0) * 100).toInt() else 0
         }
-        val key = listOf(session?.controlToken, session?.awaitingBoarding, message, estimate?.stopsRemaining, progress, arrivalLabel())
+        val key = listOf(session?.controlToken, session?.awaitingBoarding, message, estimate?.stopsRemaining, destinationDistance?.toInt(), progress, arrivalLabel())
         if (key == notificationKey) return
         NotificationManagerCompat.from(this).notify(ONGOING_ID, notification())
         notificationKey = key

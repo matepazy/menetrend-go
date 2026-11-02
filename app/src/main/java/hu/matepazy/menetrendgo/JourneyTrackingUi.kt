@@ -71,7 +71,6 @@ internal fun JourneyTrackingSheet(journey: Journey, selectedLegIndex: Int, onDis
     val tracking by JourneyTracking.state.collectAsStateWithLifecycle()
     val active = tracking.session?.takeIf { it.journey.trackingKey == journey.trackingKey && it.legIndex == selectedLegIndex }
     val leg = journey.legs[selectedLegIndex]
-    var warning by remember(journey.key, selectedLegIndex) { mutableIntStateOf(2) }
     var error by remember { mutableStateOf<String?>(null) }
     var recovery by remember { mutableStateOf<Intent?>(null) }
     var starting by remember { mutableStateOf(false) }
@@ -94,7 +93,7 @@ internal fun JourneyTrackingSheet(journey: Journey, selectedLegIndex: Int, onDis
             recovery = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
             return
         }
-        val session = active ?: TrackingSession(journey, selectedLegIndex, warning)
+        val session = active ?: TrackingSession(journey, selectedLegIndex)
         if (session.leg.start > System.currentTimeMillis() + 30 * 60_000L) {
             error = "A jelzést felszálláskor indítsd el, legkorábban indulás előtt 30 perccel."
             return
@@ -142,6 +141,8 @@ internal fun JourneyTrackingSheet(journey: Journey, selectedLegIndex: Int, onDis
                     color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             if (active != null) {
+                Text("Jelzési kör: ${destinationAlertRadius(leg.mode).toInt()} m", style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Text(tracking.message, style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
                 if (active.awaitingBoarding && tracking.running) {
@@ -163,14 +164,10 @@ internal fun JourneyTrackingSheet(journey: Journey, selectedLegIndex: Int, onDis
                     style = MaterialTheme.typography.bodyMedium)
                 OutlinedButton(onClick = { JourneyTracking.stop(context) }, modifier = Modifier.heightIn(min = 48.dp)) { Text("Aktív jelzés leállítása") }
             } else {
-                Text("Figyelmeztetés érkezés előtt", style = MaterialTheme.typography.titleMedium)
-                SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
-                    (1..3).forEach { minutes ->
-                        SegmentedButton(selected = warning == minutes, onClick = { warning = minutes },
-                            shape = SegmentedButtonDefaults.itemShape(minutes - 1, 3)) { Text("$minutes perc") }
-                    }
-                }
-                Text("Felszállás után indítsd el. Lezárt képernyőnél is jelzünk. Gyenge helyjelnél a figyelmeztetés pontatlan lehet.",
+                Text("Jelzés a megálló közelében", style = MaterialTheme.typography.titleMedium)
+                Text("A térképen ${destinationAlertRadius(leg.mode).toInt()} méteres kört jelölünk a leszállóhely körül. Amikor belépsz, figyelmeztetünk. A jelzés terelésnél is működik.",
+                    style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text("Felszállás után indítsd el. Közeledéskor sűrítjük a helyellenőrzést. Lezárt képernyőnél is jelzünk. Gyenge helyjelnél a jelzés késhet vagy elmaradhat.",
                     style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Button(onClick = { requestStart() }, enabled = !starting,
                     modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text(if (starting) "Indítás…" else "Jelzés indítása") }

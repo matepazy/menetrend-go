@@ -7,6 +7,7 @@ import android.location.Location
 import android.location.LocationListener
 import android.os.Bundle
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import android.os.Handler
@@ -48,6 +49,7 @@ import kotlinx.coroutines.withContext
 /** Shared map renderer. A route screen never requests the user's location or loads unrelated markers. */
 @Composable private fun TransportMap(vm: AppState, journey: Journey?, focusedId: String?, routeOnly: Boolean, back: () -> Unit={}) {
     val context=LocalContext.current
+    val tracking by JourneyTracking.state.collectAsStateWithLifecycle()
     val bottomInset=LocalBottomOverlayInset.current.value
     val topInset=WindowInsets.safeDrawing.asPaddingValues().calculateTopPadding()
     val featherColor=MaterialTheme.colorScheme.background.toArgb()
@@ -166,6 +168,17 @@ import kotlinx.coroutines.withContext
             }).toString() }
             val route=JSONArray(journey?.legs.orEmpty().map {leg->JSONObject().put("geometry",leg.geometry).put("from",leg.from.json()).put("to",leg.to.json()).put("walking",leg.walking).put("color",serviceColorHex(leg))})
             web?.evaluateJavascript("window.setRouteMode($routeOnly);window.updateVehicles($array);window.updateRoute($route);",null)
+        }
+    }
+    val alertSession = tracking.session?.takeIf { JourneyTracking.enabled(context) && !it.awaitingBoarding &&
+        (journey == null && !routeOnly || journey?.trackingKey == it.journey.trackingKey) }
+    val alertColor = MaterialTheme.colorScheme.primary.toArgb()
+    LaunchedEffect(ready, alertSession?.controlToken, alertColor) {
+        if (ready) {
+            val area = alertSession?.leg?.let { leg -> JSONObject().put("lat", leg.to.lat).put("lon", leg.to.lon)
+                .put("radius", destinationAlertRadius(leg.mode)).put("name", leg.to.name)
+                .put("color", "#%06x".format(alertColor and 0xFFFFFF)) }
+            web?.evaluateJavascript("window.updateDestinationAlert(${area ?: "null"});", null)
         }
     }
     LaunchedEffect(ready,vm.effectiveMapType,vm.customMapUrl,vm.unofficialGoogleMapEnabled) {

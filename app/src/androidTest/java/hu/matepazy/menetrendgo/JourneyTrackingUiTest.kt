@@ -177,7 +177,7 @@ class JourneyTrackingUiTest {
     }
 
     @Test fun ongoingNotificationShowsMeasuredProgressAndStopsBesideTheBar() {
-        val provider = "menetrendgo_progress"
+        val provider = "gps"
         shell("appops set com.android.shell android:mock_location allow")
         shell("cmd location providers add-test-provider $provider")
         shell("cmd location providers set-test-provider-enabled $provider true")
@@ -263,7 +263,9 @@ class JourneyTrackingUiTest {
         screenshot("tracking-refined-schedule-light")
         openAlerts()
         compose.onNodeWithText(transfer.name).assertIsDisplayed()
-        compose.onNodeWithText("3 perc").performClick().assertIsSelected()
+        compose.onNodeWithText("3 perc").assertDoesNotExist()
+        compose.onNodeWithText("1 perc").assertDoesNotExist()
+        compose.onNodeWithText("Jelzés a megálló közelében").assertIsDisplayed()
         screenshot("tracking-refined-sheet-light")
         compose.onNodeWithContentDescription("Leszállási jelzés bezárása").performClick()
         compose.runOnIdle { dark = true; large = true }
@@ -338,7 +340,7 @@ class JourneyTrackingUiTest {
     }
 
     @Test fun locationAlertsWhileScreenOffThenTracksNextLegAndFinishes() {
-        val provider = "menetrendgo_test"
+        val provider = "gps"
         shell("appops set com.android.shell android:mock_location allow")
         shell("cmd location providers add-test-provider $provider")
         shell("cmd location providers set-test-provider-enabled $provider true")
@@ -356,9 +358,11 @@ class JourneyTrackingUiTest {
             shell("input keyevent 223")
             assertFalse("Exercise delivery with the screen off",
                 app.getSystemService(android.os.PowerManager::class.java).isInteractive)
-            shell("cmd location providers set-test-provider-location $provider --location 47.669,19.67 --accuracy 5")
-            compose.waitUntil(10_000) { JourneyTracking.state.value.session?.alerted == true }
+            shell("cmd location providers set-test-provider-location $provider --location 47.67,19.6728 --accuracy 5")
+            try { compose.waitUntil(10_000) { JourneyTracking.state.value.session?.alerted == true } }
+            catch (e: Exception) { throw AssertionError("Alert state: ${JourneyTracking.state.value}", e) }
             compose.waitUntil(5_000) { manager.activeNotifications.any { it.id == JourneyTrackingService.ALERT_ID } }
+            assertNull("A detour fix must warn even without a route match", JourneyTracking.state.value.estimate)
             val firstAlert = manager.activeNotifications.single { it.id == JourneyTrackingService.ALERT_ID }.postTime
             Thread.sleep(5_100)
             shell("cmd location providers set-test-provider-location $provider --location 47.67,19.67 --accuracy 5")
@@ -420,7 +424,7 @@ class JourneyTrackingUiTest {
     }
 
     @Test fun providerEnabledAfterTrackingStartsDeliversTheWarning() {
-        val provider = "menetrendgo_recovery"
+        val provider = "gps"
         shell("appops set com.android.shell android:mock_location allow")
         shell("cmd location providers add-test-provider $provider")
         shell("cmd location providers set-test-provider-enabled $provider false")
@@ -428,7 +432,8 @@ class JourneyTrackingUiTest {
             showJourney(); startAlerts()
             shell("cmd location providers set-test-provider-enabled $provider true")
             shell("cmd location providers set-test-provider-location $provider --location 47.669,19.67 --accuracy 5")
-            compose.waitUntil(10_000) { JourneyTracking.state.value.session?.alerted == true }
+            try { compose.waitUntil(10_000) { JourneyTracking.state.value.session?.alerted == true } }
+            catch (e: Exception) { throw AssertionError("Alert state: ${JourneyTracking.state.value}", e) }
             assertFalse(JourneyTracking.state.value.session!!.awaitingBoarding)
             val manager = app.getSystemService(NotificationManager::class.java)
             compose.waitUntil(5_000) { manager.activeNotifications.any { it.id == JourneyTrackingService.ALERT_ID } }
@@ -440,6 +445,42 @@ class JourneyTrackingUiTest {
 
     private fun shell(command: String) = ParcelFileDescriptor.AutoCloseInputStream(
         instrumentation.uiAutomation.executeShellCommand(command)).bufferedReader().use { it.readText() }
+
+    @Test fun destinationCircleFollowsTheActiveLegAndDisappearsWhenStopped() {
+        val vm = AppState(app).also { store.put("tracking-map", it) }
+        compose.setContent { MenetrendTheme("light") { JourneyMapScreen(vm, journey, {}) } }
+        compose.runOnIdle { JourneyTracking.publish(TrackingView(TrackingSession(journey, 0), true)) }
+        fun findWeb(view: android.view.View): android.webkit.WebView? {
+            if (view is android.webkit.WebView) return view
+            if (view is android.view.ViewGroup) for (i in 0 until view.childCount) {
+                findWeb(view.getChildAt(i))?.let { return it }
+            }
+            return null
+        }
+        fun js(script: String): String {
+            val value = java.util.concurrent.atomic.AtomicReference<String?>()
+            instrumentation.runOnMainSync {
+                val activity = androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry.getInstance()
+                    .getActivitiesInStage(androidx.test.runner.lifecycle.Stage.RESUMED).first()
+                val web = findWeb(activity.window.decorView)
+                if (web == null) value.set("null") else web.evaluateJavascript(script) { value.set(it) }
+            }
+            compose.waitUntil(5_000) { value.get() != null }
+            return value.get()!!
+        }
+        compose.waitUntil(15_000) { js("typeof destinationAlerts !== 'undefined' && destinationAlerts.getLayers().length === 1") == "true" }
+        assertEquals("250", js("destinationAlerts.getLayers()[0].getRadius()"))
+        assertEquals(transfer.lat.toString(), js("destinationAlerts.getLayers()[0].getLatLng().lat"))
+        compose.waitUntil(10_000) { js("routePoints.length >= 4") == "true" }
+        js("map.setView([${transfer.lat},${transfer.lon}], 16, {animate:false}); true")
+        compose.waitUntil(5_000) { js("map.getZoom()") == "16" }
+        Thread.sleep(1_500)
+        screenshot("tracking-destination-circle")
+        compose.runOnIdle { JourneyTracking.publish(TrackingView(TrackingSession(journey, 1), true)) }
+        compose.waitUntil(5_000) { js("destinationAlerts.getLayers()[0]?.getLatLng().lat") == destination.lat.toString() }
+        compose.runOnIdle { JourneyTracking.stop(app) }
+        compose.waitUntil(5_000) { js("destinationAlerts.getLayers().length") == "0" }
+    }
 
     private fun screenshot(name: String) {
         compose.waitForIdle()
