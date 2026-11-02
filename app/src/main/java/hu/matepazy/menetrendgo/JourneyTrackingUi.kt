@@ -144,9 +144,6 @@ internal fun JourneyTrackingSheet(journey: Journey, selectedLegIndex: Int, onDis
             if (active != null) {
                 Text(tracking.message, style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
-                tracking.estimate?.takeUnless { active.awaitingBoarding }?.secondsRemaining?.let {
-                    Text("Kb. ${maxOf(1, (it + 59) / 60)} perc · helyzet alapján", style = MaterialTheme.typography.bodyMedium)
-                }
                 if (active.awaitingBoarding && tracking.running) {
                     active.nextLegIndex?.let { next ->
                         Text("Következő: ${active.journey.legs[next].route} → ${active.journey.legs[next].to.name}", style = MaterialTheme.typography.bodyMedium)

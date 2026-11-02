@@ -5,6 +5,15 @@ import org.junit.Test
 import java.time.LocalDateTime
 
 class MavQueriesTest {
+    @Test fun trackingRequestsOnlyTheFieldsNeededToMatchLiveArrival() {
+        val query = MavQueries.trackingTrip("trip\"id", "2026-11-02")
+        assertTrue(query.contains("id:${MavQueries.quote("trip\"id")}"))
+        assertTrue(query.contains("scheduledArrival realtimeArrival"))
+        assertTrue(query.contains("stop {name lat lon}"))
+        assertFalse(query.contains("infoServices"))
+        assertFalse(query.contains("vehiclePositions"))
+    }
+
     private val searchTime = LocalDateTime.of(2026,10,26,11,0)
     private val budapest = Station("OSM:Budapest","BUDAPEST*",47.4978789,19.0402383,
         "MetaStation",listOf("RAIL","COACH"))

@@ -5,6 +5,29 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class JourneyTrackingTest {
+    @Test fun batterySamplingTightensBeforeTheWarningWindow() {
+        assertEquals(20_000L, trackingLocationInterval("RAIL", 3, 50_000.0))
+        assertEquals(10_000L, trackingLocationInterval("RAIL", 3, 25_000.0))
+        assertEquals(5_000L, trackingLocationInterval("RAIL", 3, 2_000.0))
+        assertEquals(5_000L, trackingLocationInterval("BUS", 1, 1_400.0))
+        assertEquals(5_000L, trackingLocationInterval("BUS", 2, null))
+        assertEquals(5_000L, trackingLocationInterval("BUS", 2, Double.NaN))
+        for (mode in listOf("RAIL", "COACH", "BUS")) {
+            for (minutes in 1..3) {
+                val warningDistance = trackingMaxSpeed(mode) * minutes * 60
+                assertTrue(trackingLocationInterval(mode, minutes, warningDistance + trackingMaxSpeed(mode) * 20) <= 10_000L)
+            }
+        }
+    }
+
+    @Test fun livePollingIsReservedForTheApproachAndInitialFix() {
+        assertTrue(trackingLiveRefreshNeeded("RAIL", 2, null))
+        assertFalse(trackingLiveRefreshNeeded("RAIL", 2, 50_000.0))
+        assertTrue(trackingLiveRefreshNeeded("RAIL", 2, 20_000.0))
+        assertFalse(trackingLiveRefreshNeeded("BUS", 1, 10_000.0))
+        assertTrue(trackingLiveRefreshNeeded("BUS", 1, 1_000.0))
+    }
+
     private fun station(name: String, lat: Double, lon: Double) = Station(name, name, lat, lon)
     private val from = station("Indulás", 47.0, 19.0)
     private val middle = station("Köztes", 47.01, 19.0)
@@ -57,7 +80,6 @@ class JourneyTrackingTest {
     @Test fun stationaryNearDestinationStillWarns() {
         val result = JourneyProgress(leg()).estimate(TrackPoint(47.018, 19.0), 10f, 0f, null, 0.0, 2, false)!!
         assertTrue(result.shouldAlert)
-        assertNull(result.secondsRemaining)
     }
 
     @Test fun sessionRestoresProgressAlertsAndTransferState() {
@@ -95,27 +117,25 @@ class JourneyTrackingTest {
 
     @Test fun speedSpikeCannotTriggerAnEarlyWarning() {
         val motion = TrackingMotion("BUS")
-        fun fix(progress: Double) = TrackingEstimate(progress, 4000.0 - progress, 4, 1, true, false)
+        fun fix(progress: Double) = TrackingEstimate(progress, 4000.0 - progress, 4, true, false)
         assertFalse(motion.update(fix(0.0), 0, 35f, 5f, 2, false).shouldAlert)
         assertFalse(motion.update(fix(25.0), 5_000, 5f, 5f, 2, false).shouldAlert)
         val filtered = motion.update(fix(50.0), 10_000, 35f, 5f, 2, false)
         assertFalse(filtered.shouldAlert)
-        assertTrue(filtered.secondsRemaining!! > 120)
-        assertNull(JourneyProgress(leg()).estimate(middle.trackPoint(), 5f, 1000f, null, 0.0, 2, false)!!.secondsRemaining)
+        assertFalse(JourneyProgress(leg()).estimate(middle.trackPoint(), 5f, 1000f, null, 0.0, 2, false)!!.shouldAlert)
     }
 
-    @Test fun motionCanEstimatePaceWithoutProviderSpeed() {
+    @Test fun motionPreservesTheWarningLeadWithoutAnArrivalCountdown() {
         val motion = TrackingMotion("BUS")
         var result: TrackingEstimate? = null
-        for (i in 0..3) result = motion.update(TrackingEstimate(i * 100.0, 900.0 - i * 100, 1, null, false, false),
+        for (i in 0..3) result = motion.update(TrackingEstimate(i * 100.0, 900.0 - i * 100, 1, false, false),
             i * 5_000L, null, 5f, 2, false)
-        assertEquals(30L, result!!.secondsRemaining)
-        assertTrue(result.shouldAlert)
+        assertTrue(result!!.shouldAlert)
     }
 
     @Test fun arrivalNeedsTwoFreshSlowFixesAndResetsAfterLoss() {
         val motion = TrackingMotion("RAIL")
-        val atStop = TrackingEstimate(1000.0, 20.0, 0, null, true, true)
+        val atStop = TrackingEstimate(1000.0, 20.0, 0, true, true)
         assertFalse(motion.update(atStop, 0, 0f, 5f, 2, false).arrived)
         assertFalse(motion.update(atStop, 1_000, 0f, 5f, 2, true).arrived)
         assertTrue(motion.update(atStop, 5_000, 0f, 5f, 2, true).arrived)
@@ -126,7 +146,7 @@ class JourneyTrackingTest {
 
     @Test fun fastOrReversingVehicleDoesNotFinishJustBeforeStop() {
         val motion = TrackingMotion("RAIL")
-        val atStop = TrackingEstimate(1000.0, 50.0, 0, null, true, true)
+        val atStop = TrackingEstimate(1000.0, 50.0, 0, true, true)
         motion.update(atStop, 0, 20f, 5f, 2, false)
         assertFalse(motion.update(atStop, 5_000, 20f, 5f, 2, true).arrived)
         motion.reset()
@@ -161,14 +181,13 @@ class JourneyTrackingTest {
         assertFalse(result.arrived)
     }
 
-    @Test fun movingAwayDoesNotCreateAFalseCountdown() {
+    @Test fun movingAwayDoesNotTriggerAnEarlyWarning() {
         val motion = TrackingMotion("BUS")
         var result: TrackingEstimate? = null
         for (i in 0..3) result = motion.update(
-            TrackingEstimate(1000.0, 2000.0, 3, null, false, false, matchedProgress = 1000.0 - i * 100),
+            TrackingEstimate(1000.0, 2000.0, 3, false, false, matchedProgress = 1000.0 - i * 100),
             i * 5_000L, 20f, 5f, 2, false)
-        assertNull(result!!.secondsRemaining)
-        assertFalse(result.shouldAlert)
+        assertFalse(result!!.shouldAlert)
     }
 
     @Test fun liveWarningFallbackRequiresFreshLiveDataAndRecentNearbyLocation() {

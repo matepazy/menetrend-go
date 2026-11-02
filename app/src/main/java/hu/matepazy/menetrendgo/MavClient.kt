@@ -104,6 +104,12 @@ class MavClient {
             }
         }
     }
+    /** Tracking only needs arrival evidence, not facilities, vehicles or route descriptions. */
+    suspend fun trackingTrip(id: String, day: String): JSONObject = withContext(Dispatchers.IO) {
+        request("/index/graphql", MavQueries.trackingTrip(id, day)).optJSONObject("trip")
+            ?: throw IllegalStateException("Ehhez a járathoz nincs részletes menetrend.")
+    }
+
     private var networkAlertCache: Pair<List<NetworkAlert>,Long>?=null
     /** Line and station notices across every feed; cached briefly because the response is large. */
     suspend fun networkAlerts(forceRefresh: Boolean = false): Pair<List<NetworkAlert>,Long> = withContext(Dispatchers.IO) {
@@ -180,5 +186,9 @@ object MavQueries {
     fun trip(id: String,day: String): String {
         require(id.length in 1..250);LocalDate.parse(day)
         return """{trip(id:${quote(id)},serviceDay:${quote(day)}) {gtfsId tripHeadsign trainCategoryName trainName tripShortName $services route {shortName longName(language:"hu")} stoptimes {serviceDay realtime realtimeState stop {gtfsId name lat lon platformCode} realtimeArrival realtimeDeparture arrivalDelay departureDelay scheduledArrival scheduledDeparture} vehiclePositions {vehicleId lastUpdated stopRelationship {status stop {gtfsId} arrivalTime departureTime}}}}"""
+    }
+    fun trackingTrip(id: String, day: String): String {
+        require(id.length in 1..250); LocalDate.parse(day)
+        return """{trip(id:${quote(id)},serviceDay:${quote(day)}) {gtfsId stoptimes {serviceDay realtime scheduledArrival realtimeArrival stop {name lat lon}}}}"""
     }
 }

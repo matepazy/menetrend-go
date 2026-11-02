@@ -183,7 +183,7 @@ class JourneyTrackingUiTest {
                 val view = content()
                 val bar = view.findViewById<android.widget.ProgressBar>(R.id.tracking_progress)
                 val stops = view.findViewById<android.widget.TextView>(R.id.tracking_stops)
-                assertTrue(bar.progress in 400..600)
+                assertTrue(bar.progress in 40..60)
                 assertEquals("1 megálló", stops.text.toString())
                 val width = (320 * app.resources.displayMetrics.density).toInt()
                 view.measure(android.view.View.MeasureSpec.makeMeasureSpec(width, android.view.View.MeasureSpec.EXACTLY),
@@ -197,6 +197,13 @@ class JourneyTrackingUiTest {
                 assertTrue(expanded.findViewById<android.widget.TextView>(R.id.tracking_eta).text.isNotBlank())
                 assertTrue(expanded.findViewById<android.widget.TextView>(R.id.tracking_status).text.isNotBlank())
             }
+            val postedAt = manager.activeNotifications.first { it.id == JourneyTrackingService.ONGOING_ID }.postTime
+            val previousProgressAt = JourneyTracking.state.value.session!!.progressAt
+            Thread.sleep(20_100)
+            shell("cmd location providers set-test-provider-location $provider --location 47.585,19.375 --accuracy 5")
+            compose.waitUntil(10_000) { JourneyTracking.state.value.session!!.progressAt > previousProgressAt }
+            assertEquals("Unchanged progress must not repost the notification", postedAt,
+                manager.activeNotifications.first { it.id == JourneyTrackingService.ONGOING_ID }.postTime)
             shell("cmd statusbar expand-notifications")
             Thread.sleep(600)
             screenshot("tracking-notification-progress-light")
@@ -247,7 +254,7 @@ class JourneyTrackingUiTest {
         compose.onNodeWithContentDescription("Leszállási jelzés bezárása").performClick()
         compose.runOnIdle {
             JourneyTracking.publish(TrackingView(TrackingSession(journey, 0, alerted = true, awaitingBoarding = true), true,
-                "Szállj át, majd erősítsd meg a felszállást.", TrackingEstimate(1000.0, 50.0, 0, 10, false, true)))
+                "Szállj át, majd erősítsd meg a felszállást.", TrackingEstimate(1000.0, 50.0, 0, false, true)))
         }
         compose.onNodeWithText("Felszálltam").performScrollTo().assertIsDisplayed()
         screenshot("tracking-refined-transfer-dark-large")

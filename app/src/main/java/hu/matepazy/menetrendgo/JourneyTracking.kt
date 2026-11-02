@@ -88,7 +88,6 @@ internal data class TrackingEstimate(
     val progress: Double,
     val remainingMeters: Double,
     val stopsRemaining: Int,
-    val secondsRemaining: Long?,
     val shouldAlert: Boolean,
     val arrived: Boolean,
     val passedDestination: Boolean = false,
@@ -100,6 +99,17 @@ internal fun trackingMaxSpeed(mode: String): Double = when (mode) {
     "COACH", "RAIL_REPLACEMENT_BUS" -> 50.0
     else -> 35.0
 }
+
+/** Tighten sampling before even a fast vehicle can enter the chosen warning window. */
+internal fun trackingLocationInterval(mode: String, warningMinutes: Int, remainingMeters: Double?): Long = when {
+    remainingMeters == null || !remainingMeters.isFinite() -> 5_000L
+    remainingMeters <= max(1_500.0, trackingMaxSpeed(mode) * 20) -> 5_000L
+    remainingMeters <= trackingMaxSpeed(mode) * (warningMinutes * 60 + 60) -> 10_000L
+    else -> 20_000L
+}
+
+internal fun trackingLiveRefreshNeeded(mode: String, warningMinutes: Int, remainingMeters: Double?): Boolean =
+    remainingMeters == null || remainingMeters <= trackingMaxSpeed(mode) * (warningMinutes * 60 + 120)
 
 /** Ordered route projection avoids a destination geofence firing on an earlier pass nearby. */
 internal class JourneyProgress(private val leg: Leg) {
@@ -163,10 +173,11 @@ internal class JourneyProgress(private val leg: Leg) {
         if (closest > max(150.0, accuracy * 2.0) && !passed) return null
         val progress = max(previous ?: 0.0, projection.along).coerceAtMost(length)
         val remaining = length - progress
-        val seconds = speed?.takeIf { it.isFinite() && it >= 1.5f && it <= trackingMaxSpeed(leg.mode) }?.let { (remaining / it).toLong() }
+        val warningDistance = speed?.takeIf { it.isFinite() && it >= 1.5f && it <= trackingMaxSpeed(leg.mode) }
+            ?.let { it * warningMinutes * 60 } ?: 0f
         val arrived = passed || (remaining <= 120 && trackDistance(point, leg.to.trackPoint()) + accuracy <= 100 && accuracy <= 60)
-        val alert = !alreadyAlerted && (arrived || remaining <= 300 || (seconds != null && seconds <= warningMinutes * 60))
-        return TrackingEstimate(progress, remaining, stopDistances.count { it > progress + 40 }, seconds, alert, arrived, passed, projection.along)
+        val alert = !alreadyAlerted && (arrived || remaining <= max(300.0, warningDistance.toDouble()))
+        return TrackingEstimate(progress, remaining, stopDistances.count { it > progress + 40 }, alert, arrived, passed, projection.along)
     }
 }
 
@@ -198,14 +209,13 @@ internal class TrackingMotion(private val mode: String) {
         while (samples.size > 5) samples.removeFirst()
         val stableSpeed = if (samples.size >= 3 && time - samples.first().time >= 6_000)
             samples.map { it.speed }.sorted()[samples.size / 2].takeIf { it >= 1.5 } else null
-        val seconds = stableSpeed?.let { (result.remainingMeters / it).toLong() }
+        val warningDistance = max(300.0, (stableSpeed ?: 0.0) * warningMinutes * 60)
         val slowAtStop = max(movement?.let(::abs) ?: 0.0, reported ?: 0.0) <= 8
         if (!result.arrived || !slowAtStop || accuracy > 60) arrivalSince = null
         else if (arrivalSince == null) arrivalSince = time
         val confirmedArrival = result.passedDestination || arrivalSince?.let { time - it >= 3_000 } == true
-        return result.copy(secondsRemaining = seconds, arrived = confirmedArrival,
-            shouldAlert = !alreadyAlerted && (confirmedArrival || result.remainingMeters <= 300 ||
-                (seconds != null && seconds <= warningMinutes * 60)))
+        return result.copy(arrived = confirmedArrival,
+            shouldAlert = !alreadyAlerted && (confirmedArrival || result.remainingMeters <= warningDistance))
     }
 }
 

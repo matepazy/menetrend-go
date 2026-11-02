@@ -99,6 +99,8 @@ class JourneyTrackingService : Service(), LocationListener {
     private var message = "Helymeghatározás…"
     private var timer: Job? = null
     private var fetcher: Job? = null
+    private var locationInterval = 5_000L
+    private var notificationKey: List<Any?>? = null
 
     override fun onBind(intent: Intent?) = null
     override fun onCreate() {
@@ -151,10 +153,11 @@ class JourneyTrackingService : Service(), LocationListener {
         motion = TrackingMotion(session!!.leg.mode)
         estimate = null; lastRouteEstimate = null; lastFixNanos = null; lastGoodFixNanos = null; liveArrival = null
         lastGoodAccuracy = Float.POSITIVE_INFINITY
+        notificationKey = null
         message = if (session!!.awaitingBoarding) "Szállj át, majd erősítsd meg a felszállást." else "Helymeghatározás…"
         JourneyTracking.persist(this, session!!, durable = true)
         stopLocations()
-        if (!session!!.awaitingBoarding) locations.allProviders.filter { it != LocationManager.PASSIVE_PROVIDER }.forEach(::requestProvider)
+        updateLocationRequests()
         timer?.cancel()
         timer = scope.launch {
             while (isActive) {
@@ -185,26 +188,30 @@ class JourneyTrackingService : Service(), LocationListener {
                         message = "Élő érkezés alapján készülj a leszállásra. A helyjel bizonytalan."
                     }
                 }
+                updateLocationRequests()
                 publish()
-                delay(10_000)
+                delay(if (current.awaitingBoarding) 60_000 else maxOf(10_000L, locationInterval))
             }
         }
         fetcher?.cancel()
         fetcher = scope.launch {
             while (isActive) {
                 val current = session ?: break
-                if (!current.awaitingBoarding && current.leg.tripId.isNotBlank()) {
+                val needsLive = trackingLiveRefreshNeeded(current.leg.mode, current.warningMinutes, lastRouteEstimate?.remainingMeters)
+                if (!current.awaitingBoarding && !current.alerted && needsLive && current.leg.tripId.isNotBlank()) {
                     try {
                         val leg = current.leg
                         val day = Instant.ofEpochMilli(leg.start).atZone(Budapest).toLocalDate().toString()
-                        val arrival = trackingArrival(client.trip(leg.tripId, day, forceRefresh = true), leg)
+                        val arrival = trackingArrival(client.trackingTrip(leg.tripId, day), leg)
                         if (session?.legIndex == current.legIndex && session?.awaitingBoarding == false) {
                             liveArrival = arrival?.let { it to SystemClock.elapsedRealtime() }
+                            publish()
                         }
                     } catch (e: CancellationException) { throw e }
                     catch (_: Exception) { liveArrival = null }
                 }
-                delay(if ((lastRouteEstimate?.remainingMeters ?: Double.MAX_VALUE) <= 5_000) 30_000 else 75_000)
+                // Recheck approach without waking the radio on distant parts of a trip.
+                delay(60_000)
             }
         }
         publish()
@@ -213,15 +220,36 @@ class JourneyTrackingService : Service(), LocationListener {
 
     private fun hasLocation() = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
 
+    private fun updateLocationRequests() {
+        val current = session ?: return
+        if (current.awaitingBoarding) { if (registeredProviders.isNotEmpty()) stopLocations(); return }
+        val interval = trackingLocationInterval(current.leg.mode, current.warningMinutes, estimate?.remainingMeters)
+        if (interval != locationInterval) { stopLocations(); locationInterval = interval }
+        // Register disabled providers too so enabling GPS later can recover tracking.
+        val available = locations.allProviders
+        // Do not activate fused in parallel with its underlying providers. Keep a slower
+        // network fallback for tunnels, indoor stations and disabled GPS.
+        val desired = available.filter { provider ->
+            when (provider) {
+                LocationManager.PASSIVE_PROVIDER, "fused" -> false
+                else -> true
+            }
+        }.toSet()
+        if (registeredProviders.any { it !in desired }) stopLocations()
+        desired.forEach { if (it !in registeredProviders) requestProvider(it, lastGoodFixNanos == null) }
+    }
+
     @SuppressLint("MissingPermission")
-    private fun requestProvider(provider: String) {
+    private fun requestProvider(provider: String, requestFix: Boolean) {
         if (session == null || session!!.awaitingBoarding || !hasLocation() || provider == LocationManager.PASSIVE_PROVIDER) return
         try {
             // Zero distance keeps fresh fixes coming while stopped, including arrival confirmation.
             if (provider !in registeredProviders) {
-                locations.requestLocationUpdates(provider, 5_000L, 0f, this, Looper.getMainLooper())
+                val interval = if (provider == LocationManager.NETWORK_PROVIDER) maxOf(30_000L, locationInterval) else locationInterval
+                locations.requestLocationUpdates(provider, interval, 0f, this, Looper.getMainLooper())
                 registeredProviders.add(provider)
             }
+            if (!requestFix) return
             fixes.remove(provider)?.cancel()
             val signal = CancellationSignal().also { fixes[provider] = it }
             getCurrentLocation(locations, provider, signal, ContextCompat.getMainExecutor(this)) { fix ->
@@ -292,16 +320,17 @@ class JourneyTrackingService : Service(), LocationListener {
             message = "Szállj át, majd erősítsd meg a felszállást."
             JourneyTracking.persist(this, session!!, durable = true)
         }
-        if (SystemClock.elapsedRealtime() - lastPersist > 30_000) {
+        if (SystemClock.elapsedRealtime() - lastPersist > 120_000) {
             JourneyTracking.persist(this, session!!); lastPersist = SystemClock.elapsedRealtime()
         }
+        updateLocationRequests()
         publish()
     }
 
     @Deprecated("Legacy location callback")
     override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) = Unit
-    override fun onProviderEnabled(provider: String) { requestProvider(provider) }
-    override fun onProviderDisabled(provider: String) = Unit
+    override fun onProviderEnabled(provider: String) { updateLocationRequests() }
+    override fun onProviderDisabled(provider: String) { updateLocationRequests() }
 
     private fun open(): PendingIntent = PendingIntent.getActivity(this, 701,
         Intent(this, MainActivity::class.java).putExtra("tracking", true).putExtra("trackingSession", session!!.json().toString())
@@ -314,9 +343,7 @@ class JourneyTrackingService : Service(), LocationListener {
     private fun notification(): Notification {
         val current = session!!
         val leg = current.leg
-        val eta = estimate?.secondsRemaining?.let { "kb. ${maxOf(1, (it + 59) / 60)} perc · helyzet alapján" }
-            ?: liveArrival?.takeIf { SystemClock.elapsedRealtime() - it.second < 120_000 }?.let { "Élő érkezés: ${timeLabel(it.first)}" }
-            ?: "Menetrendi érkezés: ${timeLabel(leg.arrivalTime.scheduled)}"
+        val eta = arrivalLabel()
         val builder = NotificationCompat.Builder(this, ONGOING).setSmallIcon(R.drawable.ic_notification)
             .addExtras(Bundle().apply { putString("trackingSessionToken", current.controlToken) })
             .setContentTitle(if (current.awaitingBoarding) "Átszállás · ${leg.to.name}" else "${leg.route} · ${leg.to.name}")
@@ -334,8 +361,8 @@ class JourneyTrackingService : Service(), LocationListener {
                 setTextViewText(R.id.tracking_title, title)
                 setTextViewText(R.id.tracking_stops, stops)
                 val total = progress?.let { it.progress + it.remainingMeters } ?: 0.0
-                val value = if (total > 0) ((progress!!.progress / total).coerceIn(0.0, 1.0) * 1000).toInt() else 0
-                setProgressBar(R.id.tracking_progress, 1000, value, progress == null)
+                val value = if (total > 0) ((progress!!.progress / total).coerceIn(0.0, 1.0) * 100).toInt() else 0
+                setProgressBar(R.id.tracking_progress, 100, value, progress == null)
                 setContentDescription(R.id.tracking_stops,
                     progress?.let { "${it.stopsRemaining} megálló a leszállásig" } ?: "Helymeghatározás folyamatban")
             }
@@ -374,8 +401,19 @@ class JourneyTrackingService : Service(), LocationListener {
     @SuppressLint("MissingPermission")
     private fun publish() {
         JourneyTracking.publish(TrackingView(session, true, message, estimate))
+        val progress = estimate?.let {
+            val total = it.progress + it.remainingMeters
+            if (total > 0) ((it.progress / total).coerceIn(0.0, 1.0) * 100).toInt() else 0
+        }
+        val key = listOf(session?.controlToken, session?.awaitingBoarding, message, estimate?.stopsRemaining, progress, arrivalLabel())
+        if (key == notificationKey) return
         NotificationManagerCompat.from(this).notify(ONGOING_ID, notification())
+        notificationKey = key
     }
+
+    private fun arrivalLabel(): String = liveArrival?.takeIf { SystemClock.elapsedRealtime() - it.second < 120_000 }
+        ?.let { "Élő érkezés: ${timeLabel(it.first)}" }
+        ?: "Menetrendi érkezés: ${timeLabel(session!!.leg.arrivalTime.scheduled)}"
 
     private fun finish() { JourneyTracking.clear(this); session = null; stopSelf() }
     override fun onDestroy() {
