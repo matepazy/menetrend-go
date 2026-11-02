@@ -154,6 +154,64 @@ class JourneyTrackingUiTest {
         assertEquals(100.0, JourneyTracking.state.value.session!!.progress!!, 0.01)
     }
 
+    @Test fun ongoingNotificationShowsMeasuredProgressAndStopsBesideTheBar() {
+        val provider = "menetrendgo_progress"
+        shell("appops set com.android.shell android:mock_location allow")
+        shell("cmd location providers add-test-provider $provider")
+        shell("cmd location providers set-test-provider-enabled $provider true")
+        try {
+            showJourney(); startAlerts()
+            val manager = app.getSystemService(NotificationManager::class.java)
+            fun notification() = manager.activeNotifications.first { it.id == JourneyTrackingService.ONGOING_ID }.notification
+            compose.waitUntil(5_000) { manager.activeNotifications.any { it.id == JourneyTrackingService.ONGOING_ID } }
+            @Suppress("DEPRECATION")
+            fun content() = notification().contentView.apply(app, android.widget.FrameLayout(app))
+            instrumentation.runOnMainSync {
+                assertTrue(content().findViewById<android.widget.ProgressBar>(R.id.tracking_progress).isIndeterminate)
+            }
+            shell("cmd location providers set-test-provider-location $provider --location 47.585,19.375 --accuracy 5")
+            compose.waitUntil(10_000) { JourneyTracking.state.value.estimate != null }
+            // The service publishes state immediately before updating its notification.
+            compose.waitUntil(5_000) {
+                var ready = false
+                instrumentation.runOnMainSync {
+                    ready = !content().findViewById<android.widget.ProgressBar>(R.id.tracking_progress).isIndeterminate
+                }
+                ready
+            }
+            instrumentation.runOnMainSync {
+                val view = content()
+                val bar = view.findViewById<android.widget.ProgressBar>(R.id.tracking_progress)
+                val stops = view.findViewById<android.widget.TextView>(R.id.tracking_stops)
+                assertTrue(bar.progress in 400..600)
+                assertEquals("1 megálló", stops.text.toString())
+                val width = (320 * app.resources.displayMetrics.density).toInt()
+                view.measure(android.view.View.MeasureSpec.makeMeasureSpec(width, android.view.View.MeasureSpec.EXACTLY),
+                    android.view.View.MeasureSpec.makeMeasureSpec(0, android.view.View.MeasureSpec.UNSPECIFIED))
+                view.layout(0, 0, width, view.measuredHeight)
+                assertTrue(bar.right < stops.left)
+                assertTrue(stops.right <= width)
+                @Suppress("DEPRECATION")
+                val expanded = notification().bigContentView.apply(app, android.widget.FrameLayout(app))
+                assertEquals("1 megálló", expanded.findViewById<android.widget.TextView>(R.id.tracking_stops).text.toString())
+                assertTrue(expanded.findViewById<android.widget.TextView>(R.id.tracking_eta).text.isNotBlank())
+                assertTrue(expanded.findViewById<android.widget.TextView>(R.id.tracking_status).text.isNotBlank())
+            }
+            shell("cmd statusbar expand-notifications")
+            Thread.sleep(600)
+            screenshot("tracking-notification-progress-light")
+            shell("cmd uimode night yes")
+            shell("settings put system font_scale 1.3")
+            screenshot("tracking-notification-progress-dark-large")
+        } finally {
+            shell("cmd statusbar collapse")
+            shell("cmd uimode night no")
+            shell("settings put system font_scale 1.0")
+            shell("cmd location providers remove-test-provider $provider")
+            shell("appops set com.android.shell android:mock_location default")
+        }
+    }
+
     @Test fun timetableLeadsAndSetupIsScopedToTheTappedStop() {
         val vm = AppState(app).also { store.put("tracking-ui", it) }
         var dark by mutableStateOf(false)

@@ -8,6 +8,7 @@ import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
 import android.location.*
 import android.os.*
+import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.ServiceCompat
@@ -325,6 +326,27 @@ class JourneyTrackingService : Service(), LocationListener {
             .setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
             .addAction(0, "Leállítás", action("stop"))
         if (current.awaitingBoarding) builder.addAction(0, "Felszálltam", action("board"))
+        if (!current.awaitingBoarding) {
+            val progress = estimate
+            val title = "${leg.route} · ${leg.to.name}"
+            val stops = progress?.let { "${it.stopsRemaining} megálló" } ?: "Helyzetre vár"
+            fun content(layout: Int) = RemoteViews(packageName, layout).apply {
+                setTextViewText(R.id.tracking_title, title)
+                setTextViewText(R.id.tracking_stops, stops)
+                val total = progress?.let { it.progress + it.remainingMeters } ?: 0.0
+                val value = if (total > 0) ((progress!!.progress / total).coerceIn(0.0, 1.0) * 1000).toInt() else 0
+                setProgressBar(R.id.tracking_progress, 1000, value, progress == null)
+                setContentDescription(R.id.tracking_stops,
+                    progress?.let { "${it.stopsRemaining} megálló a leszállásig" } ?: "Helymeghatározás folyamatban")
+            }
+            builder.setStyle(NotificationCompat.DecoratedCustomViewStyle())
+                .setCustomContentView(content(R.layout.notification_journey))
+                .setCustomBigContentView(content(R.layout.notification_journey_expanded).apply {
+                    setInt(R.id.tracking_title, "setMaxLines", 2)
+                    setTextViewText(R.id.tracking_status, message)
+                    setTextViewText(R.id.tracking_eta, eta)
+                })
+        }
         if (Build.VERSION.SDK_INT >= 36) builder.setRequestPromotedOngoing(true)
         return builder.build()
     }
