@@ -79,13 +79,19 @@ class JourneyTrackingUiTest {
     }
 
     @Test fun startsForegroundServiceAndStopsFromNotification() {
+        val manager = app.getSystemService(NotificationManager::class.java)
+        manager.createNotificationChannel(android.app.NotificationChannel(
+            "journey_progress", "Utazás követése", NotificationManager.IMPORTANCE_LOW))
         showJourney()
         startAlerts()
-        val manager = app.getSystemService(NotificationManager::class.java)
         compose.waitUntil(5_000) { manager.activeNotifications.any { it.id == JourneyTrackingService.ONGOING_ID } }
         screenshot("tracking-refined-running")
         val notification = manager.activeNotifications.single { it.id == JourneyTrackingService.ONGOING_ID }.notification
         assertTrue(notification.flags and android.app.Notification.FLAG_FOREGROUND_SERVICE != 0)
+        val channel = manager.getNotificationChannel(notification.channelId)
+        assertEquals(NotificationManager.IMPORTANCE_DEFAULT, channel.importance)
+        assertNotNull(channel.sound)
+        assertTrue(notification.flags and android.app.Notification.FLAG_ONLY_ALERT_ONCE != 0)
         notification.actions.single { it.title == "Leállítás" }.actionIntent.send()
         compose.waitUntil(5_000) { JourneyTracking.state.value.session == null }
         compose.waitUntil(5_000) { manager.activeNotifications.none { it.id == JourneyTrackingService.ONGOING_ID } }

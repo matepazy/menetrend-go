@@ -107,7 +107,7 @@ class JourneyTrackingService : Service(), LocationListener {
         super.onCreate()
         locations = getSystemService(LocationManager::class.java)
         val manager = getSystemService(NotificationManager::class.java)
-        manager.createNotificationChannel(NotificationChannel(ONGOING, "Utazás követése", NotificationManager.IMPORTANCE_LOW))
+        manager.createNotificationChannel(NotificationChannel(ONGOING, "Utazás követése", NotificationManager.IMPORTANCE_DEFAULT))
         manager.createNotificationChannel(NotificationChannel(ALERTS, "Leszállási figyelmeztetések", NotificationManager.IMPORTANCE_HIGH).apply {
             description = "Figyelmeztetés a kiválasztott leszállóhely előtt"
             enableVibration(true)
@@ -426,7 +426,8 @@ class JourneyTrackingService : Service(), LocationListener {
     }
 
     companion object {
-        internal const val ONGOING = "journey_progress"
+        // A new ID upgrades existing installs too. Android cannot raise a channel's importance.
+        internal const val ONGOING = "journey_progress_audible"
         internal const val ALERTS = "journey_alighting"
         internal const val ONGOING_ID = 7001
         internal const val ALERT_ID = 7002
