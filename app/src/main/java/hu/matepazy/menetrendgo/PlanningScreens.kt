@@ -845,7 +845,7 @@ internal fun sameJourneyStop(first: Station, second: Station): Boolean =
     first.platform == second.platform && if (first.id.isNotBlank() && second.id.isNotBlank()) first.id == second.id
     else first.name == second.name && kotlin.math.abs(first.lat-second.lat) < .0001 && kotlin.math.abs(first.lon-second.lon) < .0001
 
-@Composable internal fun JourneyStationLabel(station: Station, action: String, mode: String) {
+@Composable internal fun JourneyStationLabel(station: Station, mode: String) = Column {
     StationLabel(station.copy(platform=""), wrapStopName=true)
     val platform = station.platform.takeIf { it.isNotBlank() }?.let {
         when (mode) {
@@ -854,7 +854,7 @@ internal fun sameJourneyStop(first: Station, second: Station): Boolean =
             else -> "Megállóhely: $it"
         }
     }
-    Text(listOfNotNull(action, platform).joinToString(" · "),
+    if (platform != null) Text(platform,
         style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
 }
 
@@ -959,7 +959,7 @@ internal fun sameJourneyStop(first: Station, second: Station): Boolean =
                             if (vm.journeyTrackingBetaEnabled && sharedDeparture && !previous.walking) {
                                 JourneyTrackingStop(journey, index - 1) { trackingLeg = index - 1 }
                             } else if(walking) StationLabel(leg.from,wrapStopName=true)
-                            else JourneyStationLabel(leg.from,"Felszállás",leg.mode)
+                            else JourneyStationLabel(leg.from,leg.mode)
                             if(index>0 && dayLabel(leg.start)!=dayLabel(journey.start)) Text(dayLabel(leg.start),style=MaterialTheme.typography.labelMedium)
                         }
                         TimelineRow(null,track) {
@@ -1008,7 +1008,7 @@ internal fun sameJourneyStop(first: Station, second: Station): Boolean =
                         if(!sharedStop && !repeatedWalkEnd) TimelineRow(if (transferWalk) null else transferArrival,track,stop=true,outgoing=if(next==null) null else connection) {
                             if (vm.journeyTrackingBetaEnabled && !walking) JourneyTrackingStop(journey, index) { trackingLeg = index }
                             else if(walking) StationLabel(leg.to,wrapStopName=true)
-                            else JourneyStationLabel(leg.to,"Leszállás",leg.mode)
+                            else JourneyStationLabel(leg.to,leg.mode)
                             if(dayLabel(leg.end)!=dayLabel(journey.start)) Text(dayLabel(leg.end),style=MaterialTheme.typography.labelMedium)
                         }
                         transfers[index]?.takeIf { transferWarning(it,transferTimes.getValue(index),transferNow) != null }?.let { transfer ->

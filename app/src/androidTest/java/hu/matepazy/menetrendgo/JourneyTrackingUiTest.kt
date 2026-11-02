@@ -68,6 +68,22 @@ class JourneyTrackingUiTest {
         } }
     }
 
+    @Test fun arrivalPlatformAppearsBelowStopName() {
+        val arrival = Station("arrival", "Székesfehérvár", 47.19, 18.42, platform = "4")
+        val route = Journey(2400, listOf(first.copy(to = arrival)))
+        compose.setContent { MenetrendTheme("light") {
+            CompositionLocalProvider(LocalDensity provides Density(LocalDensity.current.density, 1.5f)) {
+                Surface {
+                    JourneyTrackingStop(route, 0) {}
+                }
+            }
+        } }
+        val name = compose.onNodeWithText("Székesfehérvár").fetchSemanticsNode().boundsInRoot
+        val platform = compose.onNodeWithText("4. vágány").fetchSemanticsNode().boundsInRoot
+        assertTrue("Platform must appear below the stop name", platform.top >= name.bottom)
+        compose.onNodeWithContentDescription("Leszállási jelzés: ${arrival.name}").assertIsDisplayed()
+    }
+
     private fun openAlerts(stop: Station = transfer) {
         compose.onNodeWithContentDescription("Leszállási jelzés: ${stop.name}").performScrollTo().performClick()
     }
