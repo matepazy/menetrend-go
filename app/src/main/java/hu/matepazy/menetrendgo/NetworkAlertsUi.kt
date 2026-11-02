@@ -10,7 +10,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.OpenInNew
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.ExpandMore
 import androidx.compose.material.icons.outlined.Refresh
@@ -23,7 +22,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
-import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.semantics.*
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLinkStyles
@@ -137,7 +135,6 @@ private fun NetworkAlertCard(item: NetworkAlert, today: LocalDate, open: Boolean
     val body = remember(alert.body, colors.primary) { alert.body.takeIf(String::isNotBlank)?.let { alertMarkup(it, links) } }
     val fullTitle = remember(alert.title, colors.primary) { alertMarkup(alert.title, links) }
     val chevron by animateFloatAsState(if (open) 180f else 0f, tween(AppMotion.Feedback), label = "Alert expand")
-    val uriHandler = LocalUriHandler.current
     val meta = listOfNotNull(item.operatorName, item.effectLabel).joinToString(" · ")
     Surface(shape = cardShape, color = colors.surface, modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.clickable(role = Role.Button, onClickLabel = if (open) "Közlemény összecsukása" else "Közlemény kibontása", onClick = toggle)
@@ -170,12 +167,7 @@ private fun NetworkAlertCard(item: NetworkAlert, today: LocalDate, open: Boolean
             alertValidity(alert, today)?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = colors.onSurfaceVariant) }
             if (open) {
                 body?.let { Text(it, style = MaterialTheme.typography.bodyLarge) }
-                if (alert.url.isNotBlank()) OutlinedButton(onClick = { runCatching { uriHandler.openUri(alert.url) } }, shape = CircleShape,
-                    modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
-                    Text("Részletek a szolgáltatónál")
-                    Spacer(Modifier.width(AppLayout.CompactGap))
-                    Icon(Icons.AutoMirrored.Outlined.OpenInNew, "külső hivatkozás", Modifier.size(18.dp))
-                }
+                if (alert.url.isNotBlank()) ProviderAlertLink(alert.url)
             }
         }
     }

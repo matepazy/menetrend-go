@@ -3,10 +3,8 @@ package hu.matepazy.menetrendgo
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.OpenInNew
 import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Info
@@ -19,7 +17,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
@@ -72,7 +69,6 @@ private fun JourneyAlertDrawer(alert: MavAlert, leg: Leg, dismiss: () -> Unit) {
     val title = remember(alert.title, linkColor) { alertMarkup(alert.title, links) }
     val body = remember(alert.body, linkColor) { alert.body.takeIf(String::isNotBlank)?.let { alertMarkup(it, links) } }
     val travelDay = remember(leg.start) { java.time.Instant.ofEpochMilli(leg.start).atZone(Budapest).toLocalDate() }
-    val uriHandler = LocalUriHandler.current
     AppBottomSheet(onDismissRequest = dismiss) {
         Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState())
             .padding(start = AppLayout.SheetPadding, end = AppLayout.SheetPadding, bottom = AppLayout.SheetPadding)) {
@@ -93,12 +89,8 @@ private fun JourneyAlertDrawer(alert: MavAlert, leg: Leg, dismiss: () -> Unit) {
                 }
             }
             body?.let { Text(it, Modifier.padding(top = AppLayout.SheetPadding), style = MaterialTheme.typography.bodyLarge) }
-            if (alert.url.isNotBlank()) OutlinedButton(onClick = { runCatching { uriHandler.openUri(alert.url) } }, shape = CircleShape,
-                modifier = Modifier.padding(top = AppLayout.SheetPadding).fillMaxWidth().heightIn(min = 52.dp)) {
-                Text("Részletek a szolgáltatónál")
-                Spacer(Modifier.width(AppLayout.CompactGap))
-                Icon(Icons.AutoMirrored.Outlined.OpenInNew, "külső hivatkozás", Modifier.size(18.dp))
-            }
+            if (alert.url.isNotBlank()) ProviderAlertLink(alert.url,
+                Modifier.padding(top = AppLayout.SheetPadding).heightIn(min = 52.dp))
         }
     }
 }
