@@ -7,11 +7,13 @@ import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.shape.CornerBasedShape
+import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.unit.dp
 
 /**
  * Keep the top safe area and breathing room outside the moving sheet's measurement.
@@ -26,7 +28,7 @@ fun AppBottomSheet(
     modifier: Modifier = Modifier,
     sheetState: SheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
     sheetGesturesEnabled: Boolean = true,
-    shape: Shape = BottomSheetDefaults.ExpandedShape,
+    shape: CornerBasedShape = MaterialTheme.shapes.extraLarge,
     containerColor: Color = BottomSheetDefaults.ContainerColor,
     content: @Composable ColumnScope.() -> Unit,
 ) {
@@ -37,7 +39,9 @@ fun AppBottomSheet(
         ).padding(top = AppLayout.RelatedGap).then(modifier),
         sheetState = sheetState,
         sheetGesturesEnabled = sheetGesturesEnabled,
-        shape = shape,
+        // Sheets meet the bottom edge, including behind the navigation bar. Only
+        // the top corners should round, even when a caller supplies a card shape.
+        shape = shape.copy(bottomStart = CornerSize(0.dp), bottomEnd = CornerSize(0.dp)),
         containerColor = containerColor,
         contentWindowInsets = { WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom) },
         content = content,
