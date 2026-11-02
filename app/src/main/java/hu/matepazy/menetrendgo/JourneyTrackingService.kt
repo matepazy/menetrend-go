@@ -108,6 +108,9 @@ class JourneyTrackingService : Service(), LocationListener {
         manager.createNotificationChannel(NotificationChannel(ALERTS, "Leszállási figyelmeztetések", NotificationManager.IMPORTANCE_HIGH).apply {
             description = "Figyelmeztetés a kiválasztott leszállóhely előtt"
             enableVibration(true)
+            // Android delivers this with the notification, including while the screen is off.
+            // Existing channels retain the user's settings and their original default pattern.
+            vibrationPattern = longArrayOf(0, 500, 200, 500, 200, 800)
         })
     }
 

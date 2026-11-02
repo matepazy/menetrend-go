@@ -261,7 +261,14 @@ class JourneyTrackingUiTest {
             showJourney(journey.copy(legs = listOf(first, second.copy(to = nearbyDestination))))
             startAlerts()
             val manager = app.getSystemService(NotificationManager::class.java)
+            assertEquals(android.content.pm.PackageManager.PERMISSION_GRANTED,
+                app.checkSelfPermission(android.Manifest.permission.VIBRATE))
+            val channel = manager.getNotificationChannel(JourneyTrackingService.ALERTS)
+            assertTrue("Alighting alerts must request system notification vibration", channel.shouldVibrate())
+            assertEquals(NotificationManager.IMPORTANCE_HIGH, channel.importance)
             shell("input keyevent 223")
+            assertFalse("Exercise delivery with the screen off",
+                app.getSystemService(android.os.PowerManager::class.java).isInteractive)
             shell("cmd location providers set-test-provider-location $provider --location 47.669,19.67 --accuracy 5")
             compose.waitUntil(10_000) { JourneyTracking.state.value.session?.alerted == true }
             compose.waitUntil(5_000) { manager.activeNotifications.any { it.id == JourneyTrackingService.ALERT_ID } }
