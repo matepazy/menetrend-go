@@ -20,6 +20,34 @@ import org.junit.Test
 class DrawerGestureTest {
     @get:Rule val compose = createComposeRule()
 
+    @Test fun expandableDrawerSupportsNestedScrollingAndSwipeDismissal() {
+        var dismissed = false
+        val open = mutableStateOf(true)
+        compose.setContent {
+            MenetrendTheme("light") {
+                if (open.value) AppExpandableBottomSheet(onDismissRequest = { dismissed = true; open.value = false }, initialHeightFraction = .78f) {
+                    Text("Vehicle header", Modifier.testTag("vehicleHeader"))
+                    LazyColumn(Modifier.weight(1f).testTag("vehicleStops")) {
+                        items(100) { Text("Stop $it", Modifier.padding(24.dp)) }
+                    }
+                }
+            }
+        }
+        compose.waitForIdle()
+        val header = compose.onNodeWithTag("vehicleHeader")
+        val initialTop = header.fetchSemanticsNode().boundsInRoot.top
+        compose.onNodeWithTag("vehicleStops").performTouchInput { swipeUp(durationMillis = 300) }
+        val expandedTop = header.fetchSemanticsNode().boundsInRoot.top
+        assertTrue("Scrolling stops must expand the sheet first", expandedTop < initialTop)
+        repeat(2) {
+            compose.onNodeWithTag("vehicleStops").performTouchInput { swipeUp(durationMillis = 100) }
+            assertEquals(expandedTop, header.fetchSemanticsNode().boundsInRoot.top, 1f)
+        }
+        compose.onNodeWithTag("vehicleStops").performScrollToIndex(0)
+        compose.onNodeWithTag("vehicleStops").performTouchInput { swipeDown(durationMillis = 300) }
+        compose.waitUntil(5_000) { dismissed }
+    }
+
     @Test fun vehicleArticleUsesFullHeightAndClosesBackToItsParentDrawer() {
         compose.setContent {
             MenetrendTheme("light") {

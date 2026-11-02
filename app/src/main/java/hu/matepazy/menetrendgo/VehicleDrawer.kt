@@ -95,8 +95,8 @@ internal fun upcomingVehicleStops(stops: List<VehicleStop>, now: Long, detail: J
     val stops=remember(detail,day) {detail?.let {vehicleStops(it,day)}.orEmpty()}
     val upcoming=upcomingVehicleStops(stops,now,detail,vehicle)
     val showUicCode=vehicle.mode!="RAIL" && vehicle.uicCode.isNotBlank()
-    AppBottomSheet(onDismissRequest=dismiss,sheetState=rememberModalBottomSheetState(skipPartiallyExpanded=true),shape=MaterialTheme.shapes.extraLarge) {
-        Column(Modifier.fillMaxWidth().fillMaxHeight(.78f).padding(horizontal=AppLayout.SheetPadding)) {
+    AppExpandableBottomSheet(onDismissRequest=dismiss,initialHeightFraction=.78f) {
+        Column(Modifier.fillMaxWidth().fillMaxHeight().padding(horizontal=AppLayout.SheetPadding)) {
             Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically) {
                 Box(Modifier.weight(1f)) {RouteBadge(vehicle.badgeLeg())}
                 IconButton(onClick=dismiss) {Icon(Icons.Outlined.Close,"Jármű részleteinek bezárása")}
