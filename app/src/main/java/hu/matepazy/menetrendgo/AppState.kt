@@ -37,7 +37,12 @@ class AppState(app: Application) : AndroidViewModel(app) {
         if (!enabled) JourneyTracking.stop(getApplication())
     }
     var showRawGraphQl by mutableStateOf(prefs.getBoolean("show_raw_graphql", false)); private set
-    var rapidRefresh by mutableStateOf(prefs.getBoolean("rapid_refresh", false)); private set
+    var rapidRefresh by mutableStateOf(
+        prefs.getBoolean("rapid_refresh", prefs.getInt("map_refresh_seconds", 75) < 45).also { enabled ->
+            // Migrate once, so later explicit choices always take precedence over the old slider.
+            if (!prefs.contains("rapid_refresh")) prefs.edit().putBoolean("rapid_refresh", enabled).apply()
+        }
+    ); private set
     val mapRefreshSeconds get() = if (rapidRefresh) 15 else 75
     val journeyRefreshSeconds get() = if (rapidRefresh) 30 else 75
     var customMapEnabled by mutableStateOf(prefs.getBoolean("custom_map_enabled", false)); private set
