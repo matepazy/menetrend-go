@@ -177,6 +177,7 @@ import kotlinx.coroutines.withContext
         if (ready) {
             val area = alertSession?.leg?.let { leg -> JSONObject().put("lat", leg.to.lat).put("lon", leg.to.lon)
                 .put("radius", destinationAlertRadius(leg.mode)).put("name", leg.to.name)
+                .put("guard", destinationGuard(leg)?.let { guard -> guard.stop.json().put("radius", guard.radius) })
                 .put("color", "#%06x".format(alertColor and 0xFFFFFF)) }
             web?.evaluateJavascript("window.updateDestinationAlert(${area ?: "null"});", null)
         }

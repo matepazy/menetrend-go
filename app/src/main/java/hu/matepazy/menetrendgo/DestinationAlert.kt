@@ -2,9 +2,28 @@ package hu.matepazy.menetrendgo
 
 /** Fixed geographic warning areas. No route match or arrival prediction is required. */
 internal fun destinationAlertRadius(mode: String): Double = when (mode) {
-    "RAIL", "SUBURBAN_RAILWAY" -> 250.0
-    "COACH", "RAIL_REPLACEMENT_BUS" -> 150.0
-    else -> 100.0
+    "RAIL", "SUBURBAN_RAILWAY" -> 500.0
+    "COACH", "RAIL_REPLACEMENT_BUS" -> 300.0
+    else -> 200.0
+}
+
+internal data class DestinationGuard(val stop: Station, val radius: Double, val spacing: Double) {
+    /** Require the accuracy disk to clear the guard toward the destination, even before entry. */
+    fun cleared(point: TrackPoint, destination: TrackPoint, accuracy: Float): Boolean {
+        val fromStop = trackDistance(stop.trackPoint(), point)
+        val toDestination = trackDistance(destination, point)
+        val along = (fromStop * fromStop + spacing * spacing - toDestination * toDestination) / (2 * spacing)
+        return along - accuracy > radius
+    }
+}
+
+internal fun destinationGuard(leg: Leg): DestinationGuard? {
+    val stop = leg.intermediate.lastOrNull() ?: leg.from
+    val spacing = trackDistance(stop.trackPoint(), leg.to.trackPoint())
+    // Co-located or invalid stops cannot supply a meaningful direction.
+    return spacing.takeIf { it.isFinite() && it > 1 }?.let {
+        DestinationGuard(stop, minOf(75.0, it / 3), it)
+    }
 }
 
 /** Use distance to the circle's edge and a conservative vehicle speed, including on detours. */
@@ -23,6 +42,7 @@ internal fun destinationLocationInterval(mode: String, distance: Double?): Long 
 internal data class DestinationFix(val distance: Double, val shouldAlert: Boolean, val arrived: Boolean)
 
 internal class DestinationAlert(private val leg: Leg) {
+    private val guard = destinationGuard(leg)
     private data class Fix(val point: TrackPoint, val time: Long, val accuracy: Float)
     private var previous: Fix? = null
     private var arrivalSince: Long? = null
@@ -42,12 +62,13 @@ internal class DestinationAlert(private val leg: Leg) {
         val observedSpeed = if (elapsed != null && elapsed in 1.0..30.0) movement!! / elapsed else null
         val reportedSpeed = speed?.takeIf { it.isFinite() && it >= 0 }?.toDouble()
         // Arrival is separate from the warning area. Confirm a slow stop with fresh fixes.
-        val atStop = distance + accuracy <= 100 && accuracy <= 60 &&
+        val clearedGuard = guard?.cleared(point, leg.to.trackPoint(), accuracy) != false
+        val atStop = clearedGuard && distance + accuracy <= 100 && accuracy <= 60 &&
             maxOf(observedSpeed ?: 0.0, reportedSpeed ?: 0.0) <= 8
         if (!atStop || elapsed == null || elapsed > 30) arrivalSince = null
         if (atStop && arrivalSince == null) arrivalSince = time
         val arrived = arrivalSince?.let { time - it >= 3_000 } == true
         // The accuracy disk must fit within the circle to avoid a noisy boundary alert.
-        return DestinationFix(distance, !alerted && distance + accuracy <= destinationAlertRadius(leg.mode), arrived)
+        return DestinationFix(distance, !alerted && clearedGuard && distance + accuracy <= destinationAlertRadius(leg.mode), arrived)
     }
 }

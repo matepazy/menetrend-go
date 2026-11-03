@@ -10,13 +10,13 @@ class DestinationAlertTest {
     private fun point(metersNorth: Double, metersEast: Double = 0.0) =
         TrackPoint(target.lat + metersNorth / 111_195, target.lon + metersEast / 75_800)
 
-    @Test fun fixedCirclesMatchTheAgreedModeSizes() {
-        assertEquals(100.0, destinationAlertRadius("BUS"), 0.0)
-        assertEquals(100.0, destinationAlertRadius("TRAM"), 0.0)
-        assertEquals(150.0, destinationAlertRadius("COACH"), 0.0)
-        assertEquals(150.0, destinationAlertRadius("RAIL_REPLACEMENT_BUS"), 0.0)
-        assertEquals(250.0, destinationAlertRadius("RAIL"), 0.0)
-        assertEquals(250.0, destinationAlertRadius("SUBURBAN_RAILWAY"), 0.0)
+    @Test fun largerCirclesMatchTransportModes() {
+        assertEquals(200.0, destinationAlertRadius("BUS"), 0.0)
+        assertEquals(200.0, destinationAlertRadius("TRAM"), 0.0)
+        assertEquals(300.0, destinationAlertRadius("COACH"), 0.0)
+        assertEquals(300.0, destinationAlertRadius("RAIL_REPLACEMENT_BUS"), 0.0)
+        assertEquals(500.0, destinationAlertRadius("RAIL"), 0.0)
+        assertEquals(500.0, destinationAlertRadius("SUBURBAN_RAILWAY"), 0.0)
     }
 
     @Test fun detourKeepsTrackingAndAlertsWithoutRouteEvidence() {
@@ -31,8 +31,8 @@ class DestinationAlertTest {
     }
 
     @Test fun onlyAccurateInsideFixesTriggerRegardlessOfSpeedOrTimetable() {
-        assertFalse(DestinationAlert(leg).update(point(101.0), 1f, 0, 35f, false)!!.shouldAlert)
-        assertFalse(DestinationAlert(leg).update(point(90.0), 20f, 0, 35f, false)!!.shouldAlert)
+        assertFalse(DestinationAlert(leg).update(point(201.0), 1f, 0, 35f, false)!!.shouldAlert)
+        assertFalse(DestinationAlert(leg).update(point(190.0), 20f, 0, 35f, false)!!.shouldAlert)
         assertTrue(DestinationAlert(leg).update(point(80.0), 5f, 0, 0f, false)!!.shouldAlert)
         assertNull(DestinationAlert(leg).update(point(0.0), 150f, 0, 0f, false))
         assertNull(DestinationAlert(leg).update(TrackPoint(Double.NaN, 19.0), 5f, 0, 0f, false))
@@ -53,6 +53,40 @@ class DestinationAlertTest {
         assertFalse(first.arrived)
         assertTrue(alert.update(point(-80.0), 5f, 4_000, 0f, true)!!.arrived)
         assertFalse(alert.update(point(-80.0), 5f, 40_000, 0f, true)!!.arrived)
+    }
+
+
+    @Test fun overlappingDestinationCircleWaitsUntilPastPreviousStopGuard() {
+        val guardedLeg = leg.copy(intermediate = listOf(target.copy(name = "Previous", lat = point(-150.0).lat)))
+        val alert = DestinationAlert(guardedLeg)
+        // Already inside the destination circle, but still approaching the previous stop.
+        assertFalse(alert.update(point(-180.0), 5f, 0, 0f, false)!!.shouldAlert)
+        assertFalse(alert.update(point(-150.0), 5f, 4_000, 0f, false)!!.shouldAlert)
+        assertFalse(alert.update(point(-150.0), 5f, 8_000, 0f, false)!!.arrived)
+        assertFalse(alert.update(point(-105.0), 10f, 18_000, 0f, false)!!.shouldAlert)
+        assertTrue(alert.update(point(-80.0), 5f, 28_000, 0f, false)!!.shouldAlert)
+        // Starting or restarting after the guard does not require observing circle entry.
+        assertTrue(DestinationAlert(guardedLeg).update(point(-80.0), 5f, 0, 0f, false)!!.shouldAlert)
+        assertFalse(alert.update(point(-70.0), 5f, 32_000, 0f, true)!!.shouldAlert)
+    }
+
+    @Test fun closeStopsCannotCompleteLegWhileWaitingAtPreviousStop() {
+        val guardedLeg = leg.copy(intermediate = listOf(target.copy(lat = point(-60.0).lat)))
+        val alert = DestinationAlert(guardedLeg)
+        assertFalse(alert.update(point(-60.0), 5f, 0, 0f, false)!!.shouldAlert)
+        assertFalse(alert.update(point(-60.0), 5f, 5_000, 0f, false)!!.arrived)
+        assertTrue(alert.update(point(-20.0), 5f, 15_000, 0f, false)!!.shouldAlert)
+        assertTrue(alert.update(point(-20.0), 5f, 20_000, 0f, true)!!.arrived)
+    }
+
+    @Test fun guardUsesLastStopOrBoardingStopAndScalesForCloseStops() {
+        assertEquals(leg.from, destinationGuard(leg)!!.stop)
+        assertEquals(75.0, destinationGuard(leg)!!.radius, 0.0)
+        val prior = target.copy(lat = point(-60.0).lat)
+        val guard = destinationGuard(leg.copy(intermediate = listOf(leg.from, prior)))!!
+        assertEquals(prior, guard.stop)
+        assertEquals(20.0, guard.radius, 0.1)
+        assertNull(destinationGuard(leg.copy(from = target)))
     }
 
     @Test fun samplingTightensBeforeReachingTheCircleEvenAtMaximumSpeed() {

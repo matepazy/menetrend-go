@@ -165,7 +165,7 @@ internal fun JourneyTrackingSheet(journey: Journey, selectedLegIndex: Int, onDis
                 OutlinedButton(onClick = { JourneyTracking.stop(context) }, modifier = Modifier.heightIn(min = 48.dp)) { Text("Aktív jelzés leállítása") }
             } else {
                 Text("Jelzés a megálló közelében", style = MaterialTheme.typography.titleMedium)
-                Text("A térképen ${destinationAlertRadius(leg.mode).toInt()} méteres kört jelölünk a leszállóhely körül. Amikor belépsz, figyelmeztetünk. A jelzés terelésnél is működik.",
+                Text("A térképen ${destinationAlertRadius(leg.mode).toInt()} méteres kört jelölünk a leszállóhely körül. Az előző megálló kisebb, szaggatott köre védi a korai jelzéstől. A nagy körön belül akkor figyelmeztetünk, ha már elhagytad az előző megálló körét a leszállóhely felé.",
                     style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Text("Felszállás után indítsd el. Közeledéskor sűrítjük a helyellenőrzést. Lezárt képernyőnél is jelzünk. Gyenge helyjelnél a jelzés késhet vagy elmaradhat.",
                     style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)

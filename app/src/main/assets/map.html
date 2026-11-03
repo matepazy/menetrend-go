@@ -262,6 +262,7 @@ window.updateDestinationAlert=area=>{
  destinationAlerts.clearLayers();
  if(!area)return;
  L.circle([area.lat,area.lon],{radius:area.radius,color:area.color,weight:2,fillColor:area.color,fillOpacity:.12,interactive:false}).addTo(destinationAlerts);
+ if(area.guard)L.circle([area.guard.lat,area.guard.lon],{radius:area.guard.radius,color:area.color,weight:2,dashArray:'4 5',fillColor:area.color,fillOpacity:.06,interactive:false}).addTo(destinationAlerts);
 };
 window.updateRoute=legs=>{window.resizeMap();const key=JSON.stringify(legs);if(key===routeKey)return;routeKey=key;routes.clearLayers();const points=[];legs.forEach(leg=>{const hex=(leg.color||'').replace(/^#/,'');const color=/^[0-9a-f]{6}$/i.test(hex)?'#'+hex:'#4e6581';const line=leg.geometry?decode(leg.geometry):[[leg.from.lat,leg.from.lon],[leg.to.lat,leg.to.lon]];if(line.length){L.polyline(line,{color,weight:5,opacity:.85,dashArray:leg.walking?'5 9':null}).addTo(routes);points.push(...line)};[leg.from,leg.to].forEach(s=>L.circleMarker([s.lat,s.lon],{radius:6,color,fillColor:'white',fillOpacity:1,weight:3}).bindTooltip(s.name).addTo(routes))});routePoints=points;if(points.length){const positions=routeMode?vehicles.map(v=>[v.lat,v.lon]):[];map.fitBounds([...points,...positions],{padding:[50,60]});if(positions.length)fittedVehicleIds=vehicles.map(v=>v.id).sort().join('|')}};
 requestAnimationFrame(window.resizeMap);
