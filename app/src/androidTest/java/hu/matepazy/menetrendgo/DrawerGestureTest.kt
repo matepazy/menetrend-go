@@ -1,5 +1,8 @@
 package hu.matepazy.menetrendgo
 
+import androidx.activity.BackEventCompat
+import androidx.activity.OnBackPressedDispatcher
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.*
@@ -19,6 +22,52 @@ import org.junit.Test
 @OptIn(ExperimentalMaterial3Api::class)
 class DrawerGestureTest {
     @get:Rule val compose = createComposeRule()
+
+    @Test fun expandableDrawerPredictiveBackShrinksCancelsAndAnimatesBeforeDismissal() {
+        lateinit var dispatcher: OnBackPressedDispatcher
+        val open = mutableStateOf(true)
+        compose.setContent {
+            MenetrendTheme("light") {
+                if (open.value) AppExpandableBottomSheet(
+                    onDismissRequest = { open.value = false }, initialHeightFraction = .78f,
+                ) {
+                    dispatcher = LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
+                    Box(Modifier.fillMaxWidth().height(200.dp).testTag("backSheet"))
+                }
+            }
+        }
+        compose.waitForIdle()
+        val sheet = compose.onNodeWithTag("backSheet")
+        val original = sheet.fetchSemanticsNode().boundsInRoot
+        compose.mainClock.autoAdvance = false
+        fun progress(edge: Int) {
+            compose.runOnUiThread {
+                dispatcher.dispatchOnBackStarted(BackEventCompat(0f, 300f, 0f, edge))
+            }
+            compose.mainClock.advanceTimeByFrame()
+            compose.runOnUiThread {
+                dispatcher.dispatchOnBackProgressed(BackEventCompat(200f, 300f, .7f, edge))
+            }
+            compose.mainClock.advanceTimeByFrame()
+        }
+        progress(BackEventCompat.EDGE_LEFT)
+        val preview = sheet.fetchSemanticsNode().boundsInRoot
+        assertTrue("Back preview must shrink the sheet", preview.width < original.width)
+        assertEquals("Back must shrink content uniformly without squeezing it",
+            preview.width / original.width, preview.height / original.height, .002f)
+        compose.runOnUiThread { dispatcher.dispatchOnBackCancelled() }
+        compose.mainClock.advanceTimeBy(1_000)
+        assertEquals("Cancelled Back must restore the sheet", original.width,
+            sheet.fetchSemanticsNode().boundsInRoot.width, 1f)
+        assertTrue(open.value)
+        progress(BackEventCompat.EDGE_RIGHT)
+        compose.runOnUiThread { dispatcher.onBackPressed() }
+        compose.mainClock.advanceTimeByFrame()
+        assertTrue("The dialog must remain until the sheet finishes sliding out", open.value)
+        compose.mainClock.autoAdvance = true
+        compose.waitUntil(5_000) { !open.value }
+        sheet.assertDoesNotExist()
+    }
 
     @Test fun expandableDrawerSupportsNestedScrollingAndSwipeDismissal() {
         var dismissed = false
