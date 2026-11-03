@@ -37,7 +37,9 @@ class AppState(app: Application) : AndroidViewModel(app) {
         if (!enabled) JourneyTracking.stop(getApplication())
     }
     var showRawGraphQl by mutableStateOf(prefs.getBoolean("show_raw_graphql", false)); private set
-    var mapRefreshSeconds by mutableIntStateOf(prefs.getInt("map_refresh_seconds", 75).coerceIn(15, 90)); private set
+    var rapidRefresh by mutableStateOf(prefs.getBoolean("rapid_refresh", false)); private set
+    val mapRefreshSeconds get() = if (rapidRefresh) 15 else 75
+    val journeyRefreshSeconds get() = if (rapidRefresh) 30 else 75
     var customMapEnabled by mutableStateOf(prefs.getBoolean("custom_map_enabled", false)); private set
     var unofficialGoogleMapEnabled by mutableStateOf(prefs.getBoolean("unofficial_google_map_enabled", false)); private set
     var mapType by mutableStateOf(MapType.fromId(prefs.getString("map_type", "standard"))); private set
@@ -141,9 +143,9 @@ class AppState(app: Application) : AndroidViewModel(app) {
         prefs.edit().putBoolean("developer_settings_unlocked", true).apply()
     }
     fun chooseRawGraphQl(enabled: Boolean) { showRawGraphQl=enabled; prefs.edit().putBoolean("show_raw_graphql",enabled).apply() }
-    fun chooseMapRefreshSeconds(seconds: Int) {
-        mapRefreshSeconds = seconds.coerceIn(15, 90)
-        prefs.edit().putInt("map_refresh_seconds", mapRefreshSeconds).apply()
+    fun chooseRapidRefresh(enabled: Boolean) {
+        rapidRefresh = enabled
+        prefs.edit().putBoolean("rapid_refresh", enabled).apply()
     }
     fun chooseVehicleFilter(filter: MapVehicleFilter, enabled: Boolean) { vehicleFilters = if (enabled) vehicleFilters + filter else vehicleFilters - filter; prefs.edit().putBoolean(filter.prefKey, enabled).apply() }
     fun chooseLocalBuses(enabled: Boolean) = chooseVehicleFilter(MapVehicleFilter.LocalBus, enabled)
@@ -260,31 +262,8 @@ class AppState(app: Application) : AndroidViewModel(app) {
         catch (e: Exception) { vehicleError = e.message ?: "Nem sikerült frissíteni a járműveket." }
         finally { vehiclesLoading = false }
     }
-    /** Fetch only the exact services involved in transfers, independently of the trip drawer. */
-    internal suspend fun refreshTransferTimes(journey: Journey, previous: Map<Int, TransferTimes>): Map<Int, TransferTimes> {
-        val connections = journeyTransfers(journey)
-        val trips = mutableMapOf<Pair<String, String>, JSONObject?>()
-        suspend fun endpoint(index: Int, arrival: Boolean, old: TransferEstimate): TransferEstimate {
-            val leg = journey.legs[index]
-            if (leg.tripId.isBlank()) return old.copy(failed = true)
-            val day = Instant.ofEpochMilli(leg.departureTime.scheduled).atZone(Budapest).toLocalDate()
-            // A service after midnight can belong to the preceding service day (24:xx stop times).
-            for (candidate in listOf(day, day.minusDays(1))) {
-                val key = leg.tripId to candidate.toString()
-                if (!trips.containsKey(key)) trips[key] = try { mav.trip(key.first, key.second, forceRefresh = true) }
-                    catch (e: CancellationException) { throw e }
-                    catch (_: Exception) { null }
-                val trip = trips[key] ?: continue
-                transferStopEstimate(trip, leg, arrival, System.currentTimeMillis())?.let { return it }
-            }
-            return old.copy(failed = true)
-        }
-        return connections.associate { connection ->
-            val old = previous[connection.incomingIndex] ?: initialTransferTimes(journey, connection)
-            connection.incomingIndex to TransferTimes(endpoint(connection.incomingIndex, true, old.arrival),
-                endpoint(connection.outgoingIndex, false, old.departure))
-        }
-    }
+    internal suspend fun refreshJourneyTimes(journey: Journey, previous: Map<Int, TransferTimes>) =
+        refreshJourneyLegTimes(journey, previous) { id, day -> mav.trip(id, day, forceRefresh = true) }
 
     /** Optional one-line fallback. Failures and missing matches stay silent. */
     internal suspend fun refreshTransferAlternatives(journey: Journey, times: Map<Int, TransferTimes>): Map<Int, TransferTimes> {

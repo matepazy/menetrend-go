@@ -919,16 +919,21 @@ internal fun sameJourneyStop(first: Station, second: Station): Boolean =
 @Composable fun JourneyScreen(vm: AppState, journey: Journey, back: () -> Unit, onTrip: (Leg) -> Unit, onMap: () -> Unit,
     refreshTransfers: Boolean = true) {
     val transfers = remember(journey) { journeyTransfers(journey).associateBy { it.incomingIndex } }
+    var legTimes by remember(journey) { mutableStateOf<Map<Int, TransferTimes>>(emptyMap()) }
     var transferTimes by remember(journey) { mutableStateOf(transfers.mapValues { initialTransferTimes(journey, it.value) }) }
     var transferNow by remember(journey) { mutableLongStateOf(System.currentTimeMillis()) }
     val lifecycle = LocalLifecycleOwner.current.lifecycle
-    LaunchedEffect(journey, refreshTransfers, lifecycle) {
-        if (refreshTransfers && transfers.isNotEmpty()) lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+    LaunchedEffect(journey, refreshTransfers, lifecycle, vm.journeyRefreshSeconds) {
+        if (refreshTransfers) lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
             launch { while (true) { transferNow = System.currentTimeMillis(); delay(15_000) } }
             while (true) {
-                transferTimes = vm.refreshTransferTimes(journey, transferTimes)
+                legTimes = vm.refreshJourneyTimes(journey, legTimes)
+                transferTimes = transfers.mapValues { (_, connection) ->
+                    TransferTimes(legTimes.getValue(connection.incomingIndex).arrival,
+                        legTimes.getValue(connection.outgoingIndex).departure)
+                }
                 transferTimes = vm.refreshTransferAlternatives(journey, transferTimes)
-                delay(75_000)
+                delay(vm.journeyRefreshSeconds * 1_000L)
             }
         }
     }
@@ -967,8 +972,7 @@ internal fun sameJourneyStop(first: Station, second: Station): Boolean =
                             sharedDeparture -> TimelineTrack(serviceColor(previous),previous.walking)
                             else -> connection
                         }
-                        val transferDeparture = transfers.values.firstOrNull { it.outgoingIndex == index }
-                            ?.let { transferTimes[it.incomingIndex]?.departure?.time } ?: leg.departureTime
+                        val transferDeparture = legTimes[index]?.departure?.time ?: leg.departureTime
                         // A transfer walk has a duration, not an independently refreshed absolute time.
                         // Keeping the original timestamps could place it before a newly delayed arrival.
                         val transferWalk = walking && transfers.values.any { index > it.incomingIndex && index < it.outgoingIndex }
@@ -994,7 +998,7 @@ internal fun sameJourneyStop(first: Station, second: Station): Boolean =
                                 }
                                 JourneyLegAlerts(leg,Modifier.padding(top=AppLayout.LabelGap))
                                 if(leg.headsign.isNotBlank()) Text("Irány: ${leg.headsign}",Modifier.padding(top=4.dp),style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)
-                                if(!transferDeparture.realtime && !(transferTimes[index]?.arrival?.time ?: leg.arrivalTime).realtime)
+                                if(!transferDeparture.realtime && !(legTimes[index]?.arrival?.time ?: leg.arrivalTime).realtime)
                                     Text("Menetrend szerint · élő adat nem érhető el",Modifier.padding(top=8.dp),style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
                                 var expanded by remember(journey.key,index) { mutableStateOf(false) }
                                 if(leg.intermediate.isNotEmpty()) {
@@ -1021,7 +1025,7 @@ internal fun sameJourneyStop(first: Station, second: Station): Boolean =
                         }
                         // A shared stop at the same time is one interchange node, not two repeated rows.
                         val sharedStop=next!=null && !next.walking && index !in transfers && sameJourneyStop(next.from,leg.to) && next.start==leg.end && next.departureTime==leg.arrivalTime
-                        val transferArrival = transferTimes[index]?.arrival?.time ?: leg.arrivalTime
+                        val transferArrival = legTimes[index]?.arrival?.time ?: leg.arrivalTime
                         if(!sharedStop && !repeatedWalkEnd) TimelineRow(if (transferWalk) null else transferArrival,track,stop=true,outgoing=if(next==null) null else connection) {
                             if (vm.journeyTrackingBetaEnabled && !walking) JourneyTrackingStop(journey, index) { trackingLeg = index }
                             else if(walking) StationLabel(leg.to,wrapStopName=true)

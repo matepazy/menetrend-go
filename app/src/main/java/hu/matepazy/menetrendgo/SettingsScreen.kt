@@ -30,7 +30,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import kotlin.math.roundToInt
 
 private enum class SettingsPage(val title: String) {
     Home("Beállítások"), Appearance("Megjelenés"), Notifications("Értesítések"),
@@ -216,7 +215,7 @@ private enum class SettingsPage(val title: String) {
                         }
                     }
                     item {
-                        MapRefreshSetting(vm.mapRefreshSeconds, vm::chooseMapRefreshSeconds)
+                        RapidRefreshSetting(vm.rapidRefresh, vm::chooseRapidRefresh)
                     }
                     item {
                         SettingsGroup {
@@ -271,37 +270,19 @@ private fun themeLabel(value: String) = when (value) {
     else -> "Rendszer szerint"
 }
 
-@Composable private fun MapRefreshSetting(seconds: Int, onChange: (Int) -> Unit) {
-    var value by remember(seconds) { mutableFloatStateOf(seconds.toFloat()) }
-    val selectedSeconds = value.roundToInt()
+@Composable internal fun RapidRefreshSetting(enabled: Boolean, onChange: (Boolean) -> Unit) {
     SettingsGroup {
-        Column(Modifier.padding(AppLayout.PanelPadding), verticalArrangement = Arrangement.spacedBy(AppLayout.CompactGap)) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                Text("Frissítési gyakoriság", Modifier.weight(1f), style = MaterialTheme.typography.titleMedium)
-                Text("$selectedSeconds s", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
+        Row(
+            Modifier.fillMaxWidth().toggleable(enabled, role = Role.Switch, onValueChange = onChange)
+                .padding(AppLayout.PanelPadding),
+            verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("Rapid Refresh", style = MaterialTheme.typography.titleMedium)
+                Text("Bekapcsolva az élő térkép 15, az utazás részletei 30 másodpercenként frissülnek. Kikapcsolva mindkettő 75 másodpercenként frissül.",
+                    style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
-            Text("Az élő térkép járműadatainak automatikus frissítése.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Slider(
-                value = value,
-                onValueChange = { value = it },
-                onValueChangeFinished = { onChange(selectedSeconds) },
-                valueRange = 15f..90f,
-                steps = 74,
-                modifier = Modifier.fillMaxWidth().semantics {
-                    contentDescription = "Frissítési gyakoriság"
-                    stateDescription = "$selectedSeconds másodperc"
-                }
-            )
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text("15 s", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Text("90 s", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
-            if (selectedSeconds < 45) {
-                Row(horizontalArrangement = Arrangement.spacedBy(AppLayout.CompactGap)) {
-                    Icon(Icons.Outlined.WarningAmber, null, Modifier.size(20.dp), tint = MaterialTheme.colorScheme.error)
-                    Text("A 45 másodpercnél gyakoribb frissítés növelheti az adatforgalmat és az akkumulátor fogyasztását.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.error)
-                }
-            }
+            Switch(checked = enabled, onCheckedChange = null)
         }
     }
 }

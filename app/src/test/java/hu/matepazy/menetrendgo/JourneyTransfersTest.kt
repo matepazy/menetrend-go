@@ -1,5 +1,7 @@
 package hu.matepazy.menetrendgo
 
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.runBlocking
 import org.json.JSONArray
 import org.json.JSONObject
 import org.junit.Assert.*
@@ -46,6 +48,35 @@ class JourneyTransfersTest {
     private fun entry(seconds: Long = 90_000) = JSONObject().put("serviceDay", day).put("scheduledArrival", seconds)
         .put("realtimeArrival", seconds+120).put("realtime", true).put("stop", station.json().put("gtfsId", station.id))
     private fun trip(vararg entries: JSONObject) = JSONObject().put("gtfsId", "trip").put("stoptimes", JSONArray(entries.toList()))
+
+    @Test fun directJourneyRefreshesBothEndpointsWithOneRequestAndSkipsWalking() = runBlocking {
+        val start = (day + 89_000) * 1000
+        val end = (day + 90_000) * 1000
+        val journey = Journey(1000, listOf(leg(start - 60_000, start, "WALK"), leg(start, end)))
+        var requests = 0
+        val refreshed = refreshJourneyLegTimes(journey, emptyMap()) { _, _ ->
+            requests++
+            trip(entry(89_000).put("scheduledDeparture", 89_000).put("realtimeDeparture", 89_060), entry())
+        }
+        assertEquals(setOf(1), refreshed.keys)
+        assertEquals(1, requests)
+        assertEquals(start + 60_000, refreshed.getValue(1).departure.time.estimate)
+        assertEquals(end + 120_000, refreshed.getValue(1).arrival.time.estimate)
+    }
+
+    @Test fun journeyRefreshRetainsLastKnownTimesOnFailureAndPropagatesCancellation() = runBlocking {
+        val journey = Journey(60, listOf(leg((day + 89_000) * 1000, (day + 90_000) * 1000)))
+        val previous = mapOf(0 to times(now, now + 60_000))
+        val refreshed = refreshJourneyLegTimes(journey, previous) { _, _ -> error("Offline") }
+        assertEquals(previous.getValue(0).arrival.time, refreshed.getValue(0).arrival.time)
+        assertEquals(previous.getValue(0).departure.time, refreshed.getValue(0).departure.time)
+        assertTrue(refreshed.getValue(0).arrival.failed)
+        assertTrue(refreshed.getValue(0).departure.failed)
+        try {
+            refreshJourneyLegTimes(journey, previous) { _, _ -> throw CancellationException() }
+            fail("Cancellation must stop the refresh")
+        } catch (_: CancellationException) { }
+    }
 
     @Test fun matchesExactServiceDayAndStopOccurrenceBeyondMidnightAcrossDst() {
         val arrival = (day+90_000)*1000

@@ -1,5 +1,6 @@
 package hu.matepazy.menetrendgo
 
+import kotlinx.coroutines.CancellationException
 import org.json.JSONObject
 import java.time.Instant
 import kotlin.math.abs
@@ -94,3 +95,30 @@ internal fun transferStopEstimate(trip: JSONObject, leg: Leg, arrival: Boolean, 
 /** Search from the arrival stop, letting the planner include the remaining interchange walk. */
 internal fun onwardSearchTime(arrival: Long, now: Long): java.time.LocalDateTime =
     Instant.ofEpochMilli(((maxOf(arrival, now) + 59_999) / 60_000) * 60_000).atZone(Budapest).toLocalDateTime()
+
+/** Refresh exact stop occurrences for every ridden leg, retaining estimates when requests fail. */
+internal suspend fun refreshJourneyLegTimes(journey: Journey, previous: Map<Int, TransferTimes>,
+    fetchTrip: suspend (String, String) -> JSONObject): Map<Int, TransferTimes> {
+    val trips = mutableMapOf<Pair<String, String>, JSONObject?>()
+    suspend fun endpoint(index: Int, arrival: Boolean, old: TransferEstimate): TransferEstimate {
+        val leg = journey.legs[index]
+        if (leg.tripId.isBlank()) return old.copy(failed = true)
+        val day = Instant.ofEpochMilli(leg.departureTime.scheduled).atZone(Budapest).toLocalDate()
+        // A service after midnight can belong to the preceding service day (24:xx stop times).
+        for (candidate in listOf(day, day.minusDays(1))) {
+            val key = leg.tripId to candidate.toString()
+            if (!trips.containsKey(key)) trips[key] = try { fetchTrip(key.first, key.second) }
+                catch (e: CancellationException) { throw e }
+                catch (_: Exception) { null }
+            val trip = trips[key] ?: continue
+            transferStopEstimate(trip, leg, arrival, System.currentTimeMillis())?.let { return it }
+        }
+        return old.copy(failed = true)
+    }
+    return journey.legs.indices.filter { !journey.legs[it].walking }.associateWith { index ->
+        val leg = journey.legs[index]
+        val old = previous[index] ?: TransferTimes(TransferEstimate(leg.arrivalTime, journey.fetchedAt),
+            TransferEstimate(leg.departureTime, journey.fetchedAt))
+        TransferTimes(endpoint(index, true, old.arrival), endpoint(index, false, old.departure))
+    }
+}
