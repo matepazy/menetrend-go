@@ -92,7 +92,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
 
-@Composable private fun StopField(label: String, value: Station?, icon: ImageVector, modifier: Modifier = Modifier, onClick: () -> Unit) {
+@Composable private fun StopField(label: String, value: Station?, icon: ImageVector, modifier: Modifier = Modifier,
+    onClear: () -> Unit, onClick: () -> Unit) {
     Surface(onClick=onClick,shape=RoundedCornerShape(28.dp),color=MaterialTheme.colorScheme.surface,modifier=modifier.fillMaxWidth()) {
         Row(Modifier.padding(horizontal=4.dp,vertical=AppLayout.RelatedGap).heightIn(min=48.dp),verticalAlignment=Alignment.CenterVertically) {
             Icon(icon,null,tint=MaterialTheme.colorScheme.primary,modifier=Modifier.size(26.dp))
@@ -101,20 +102,29 @@ import androidx.lifecycle.repeatOnLifecycle
                 Text(label,style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)
                 Text(value?.name ?: "Megálló kiválasztása",style=MaterialTheme.typography.titleMedium,fontWeight=FontWeight.SemiBold)
             }
+            if(value!=null) StationClearButton(label,onClear)
         }
     }
 }
 
+@Composable private fun StationClearButton(label: String, onClick: () -> Unit) {
+    IconButton(onClick=onClick,modifier=Modifier.padding(start=AppLayout.CompactGap).size(48.dp)) {
+        Icon(Icons.Outlined.Close,"$label mező törlése",modifier=Modifier.size(20.dp),
+            tint=MaterialTheme.colorScheme.onSurfaceVariant)
+    }
+}
+
 @Composable private fun JourneyStopField(vm: AppState, label: String, value: Station?, icon: ImageVector,
-    active: Boolean, onOpen: () -> Unit, onDismiss: () -> Unit, allowCurrentLocation: Boolean = false, onSelected: (Station) -> Unit) {
+    active: Boolean, onOpen: () -> Unit, onDismiss: () -> Unit, onClear: () -> Unit,
+    allowCurrentLocation: Boolean = false, onSelected: (Station) -> Unit) {
     val spotlight=LocalStationFocus.current
     val focusGutter=with(LocalDensity.current) {AppLayout.PanelPadding.toPx()}
     Box(Modifier.fillMaxWidth()
         // Track the visible, animated bounds so the scrim follows the editor's reveal.
         .onGloballyPositioned {if(active) spotlight.bounds=it.boundsInWindow().inflate(focusGutter)}
         .animateContentSize(tween(AppMotion.StationFocus,easing=AppMotion.Arrival),alignment=Alignment.TopStart)) {
-        if(active) StationAutocomplete(vm,label,value,icon,onDismiss,onSelected,allowCurrentLocation)
-        else StopField(label,value,icon,Modifier.padding(end=48.dp+AppLayout.CompactGap),onOpen)
+        if(active) StationAutocomplete(vm,label,value,icon,onDismiss,onSelected,onClear,allowCurrentLocation)
+        else StopField(label,value,icon,Modifier.padding(end=48.dp+AppLayout.CompactGap),onClear,onOpen)
     }
 }
 
@@ -154,12 +164,12 @@ import androidx.lifecycle.repeatOnLifecycle
             Glass(Modifier.fillMaxWidth()) {
                 Box(Modifier.fillMaxWidth()) {
                     Column(Modifier.fillMaxWidth()) {
-                        JourneyStopField(vm,"Honnan?",vm.from,Icons.Outlined.TripOrigin,picker=="from",{picker="from"},::closePicker,allowCurrentLocation=true) {
+                        JourneyStopField(vm,"Honnan?",vm.from,Icons.Outlined.TripOrigin,picker=="from",{picker="from"},::closePicker,{vm.from=null},allowCurrentLocation=true) {
                             vm.from=it;vm.selectStation(it);closePicker()
                         }
                         HorizontalDivider(Modifier.padding(start=46.dp,end=48.dp+AppLayout.ItemGap,top=AppLayout.LabelGap,bottom=AppLayout.LabelGap),
                             color=if(picker==null) MaterialTheme.colorScheme.outlineVariant else Color.Transparent)
-                        JourneyStopField(vm,"Hová?",vm.to,Icons.Outlined.LocationOn,picker=="to",{picker="to"},::closePicker) {
+                        JourneyStopField(vm,"Hová?",vm.to,Icons.Outlined.LocationOn,picker=="to",{picker="to"},::closePicker,{vm.to=null}) {
                             vm.to=it;vm.selectStation(it);closePicker()
                         }
                     }
@@ -469,7 +479,7 @@ private class SwipeAction(val icon: ImageVector, val description: String, val co
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable private fun StationAutocomplete(vm: AppState, label: String, value: Station?, icon: ImageVector,
-    onDismiss: () -> Unit, onSelected: (Station) -> Unit, allowCurrentLocation: Boolean = false) {
+    onDismiss: () -> Unit, onSelected: (Station) -> Unit, onClear: () -> Unit, allowCurrentLocation: Boolean = false) {
     var input by rememberSaveable(label,stateSaver=TextFieldValue.Saver) {
         mutableStateOf(TextFieldValue(value?.name.orEmpty(),TextRange(0,value?.name?.length ?: 0)))
     }
@@ -529,7 +539,14 @@ private class SwipeAction(val icon: ImageVector, val description: String, val co
                     }},
                     keyboardOptions=KeyboardOptions(imeAction=ImeAction.Done),keyboardActions=KeyboardActions(onDone={onDismiss()}))
             }
-            IconButton(onClick=onDismiss) {Icon(Icons.Outlined.Close,"Megállókeresés bezárása")}
+            if(input.text.isNotEmpty() || value!=null) StationClearButton(label) {
+                input=TextFieldValue("")
+                onClear()
+                requester.requestFocus()
+            }
+            IconButton(onClick=onDismiss,modifier=Modifier.padding(start=AppLayout.CompactGap).size(48.dp)) {
+                Icon(Icons.Outlined.KeyboardArrowUp,"Megállókeresés bezárása")
+            }
         }
         AnimatedVisibility(revealSuggestions,
             enter=fadeIn(tween(AppMotion.Feedback))) {
