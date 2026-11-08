@@ -24,6 +24,7 @@ import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.util.lerp
 import androidx.compose.animation.animateColorAsState
@@ -628,24 +629,68 @@ private class SwipeAction(val icon: ImageVector, val description: String, val co
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Composable private fun JourneyTimePicker(vm: AppState, dismiss: () -> Unit) {
+@Composable internal fun JourneyTimePicker(vm: AppState, dismiss: () -> Unit) {
     val initial=remember {if(vm.useNow) LocalDateTime.now(Budapest).withSecond(0).withNano(0) else vm.dateTime}
     val timeState = rememberTimePickerState(initial.hour,initial.minute,is24Hour=true)
-    var arrive by remember {mutableStateOf(vm.arriveBy)}
+    var arrive by rememberSaveable {mutableStateOf(vm.arriveBy)}
     AppBottomSheet(onDismissRequest=dismiss,sheetState=rememberModalBottomSheetState(skipPartiallyExpanded=true),
         shape=RoundedCornerShape(topStart=36.dp,topEnd=36.dp)) {
         Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).imePadding().padding(horizontal=24.dp).padding(bottom=24.dp),
             verticalArrangement=Arrangement.spacedBy(AppLayout.ItemGap)) {
             Text("Utazás időpontja",style=MaterialTheme.typography.titleLarge)
-            TimeInput(timeState,modifier=Modifier.align(Alignment.CenterHorizontally))
-            Row(verticalAlignment=Alignment.CenterVertically) {Checkbox(arrive,{arrive=it});Text("Ekkorra érkezzek meg")}
-            TextButton(onClick={vm.useNow=true;vm.arriveBy=false;dismiss()}) {Text("Indulás most")}
-            Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(12.dp,Alignment.End)) {
+            JourneyTimeModeSelector(arrive,onSelect={arrive=it})
+            TimePicker(timeState,modifier=Modifier.align(Alignment.CenterHorizontally),
+                layoutType=TimePickerLayoutType.Vertical)
+            FlowRow(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(8.dp,Alignment.End),
+                verticalArrangement=Arrangement.spacedBy(8.dp)) {
+                TextButton(onClick={vm.useNow=true;vm.arriveBy=false;dismiss()}) {Text("Indulás most")}
+                Spacer(Modifier.weight(1f))
                 TextButton(onClick=dismiss) {Text("Mégse")}
                 Button(onClick={
                     vm.dateTime=initial.toLocalDate().atTime(timeState.hour,timeState.minute)
                     vm.useNow=false;vm.arriveBy=arrive;dismiss()
                 }) {Text("Kész")}
+            }
+        }
+    }
+}
+
+/** Matches the collection tabs' travelling pill, label tint and spring press feedback. */
+@Composable private fun JourneyTimeModeSelector(arrive: Boolean, onSelect: (Boolean) -> Unit) {
+    val colors=MaterialTheme.colorScheme
+    val gap=6.dp
+    val progress by animateFloatAsState(if(arrive) 1f else 0f,
+        spring(Spring.DampingRatioNoBouncy,Spring.StiffnessMediumLow),label="Journey time mode")
+    val presses=remember { List(2) { MutableInteractionSource() } }
+    val scales=presses.mapIndexed { index, press ->
+        val pressed by press.collectIsPressedAsState()
+        animateFloatAsState(if(pressed) .94f else 1f,
+            spring(Spring.DampingRatioMediumBouncy,Spring.StiffnessMedium),label="Journey time mode press $index")
+    }
+    Surface(Modifier.fillMaxWidth(),shape=MaterialTheme.shapes.large,color=colors.surface) {
+        BoxWithConstraints(Modifier.fillMaxWidth().padding(6.dp)) {
+            val tabWidth=(maxWidth-gap)/2
+            Box(Modifier.offset { androidx.compose.ui.unit.IntOffset((progress*(tabWidth+gap).toPx()).toInt(),0) }
+                .width(tabWidth).height(48.dp)
+                .graphicsLayer {
+                    val p=progress.coerceIn(0f,1f)
+                    val scale=scales[0].value*(1f-p)+scales[1].value*p
+                    scaleX=scale;scaleY=scale
+                }
+                .clip(RoundedCornerShape(26.dp)).background(colors.primaryContainer.copy(alpha=.65f)))
+            Row(Modifier.fillMaxWidth().selectableGroup(),horizontalArrangement=Arrangement.spacedBy(gap)) {
+                listOf("Indulás", "Érkezés").forEachIndexed { index, label ->
+                    val on=(if(index==0) 1f-progress else progress).coerceIn(0f,1f)
+                    val tint=androidx.compose.ui.graphics.lerp(colors.onSurfaceVariant,colors.primary,on)
+                    Box(Modifier.weight(1f).height(48.dp)
+                        .graphicsLayer { scaleX=scales[index].value;scaleY=scales[index].value }
+                        .clip(RoundedCornerShape(26.dp))
+                        .selectable(selected=arrive==(index==1),interactionSource=presses[index],
+                            indication=null,role=Role.RadioButton,onClick={onSelect(index==1)}),
+                        contentAlignment=Alignment.Center) {
+                        Text(label,style=MaterialTheme.typography.labelLarge,color=tint)
+                    }
+                }
             }
         }
     }
