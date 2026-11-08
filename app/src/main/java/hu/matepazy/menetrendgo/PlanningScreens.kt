@@ -161,7 +161,7 @@ import androidx.lifecycle.repeatOnLifecycle
         contentPadding=screenContentPadding(),verticalArrangement=Arrangement.spacedBy(AppLayout.ItemGap)) {
         item { Row(Modifier.fillMaxWidth().heightIn(min=48.dp),verticalAlignment=Alignment.CenterVertically) {
             Text("Hová indulunk?",style=MaterialTheme.typography.headlineMedium,fontWeight=FontWeight.Bold,modifier=Modifier.weight(1f))
-            FilledTonalIconButton(onClick={showAlerts=true},shape=CircleShape) {Icon(Icons.Outlined.NotificationsNone,"Forgalmi hírek")}
+            FilledTonalIconButton(onClick={showAlerts=true},shape=CircleShape) {Icon(Icons.Outlined.Campaign,"Forgalmi hírek")}
         } }
         item {
             Glass(Modifier.fillMaxWidth()) {
