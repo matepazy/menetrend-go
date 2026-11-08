@@ -155,7 +155,10 @@ import androidx.lifecycle.repeatOnLifecycle
     val collectionScope = rememberCoroutineScope()
     val collection = remember { CollectionPager(if(vm.showSavedSearches) 0f else 1f,collectionScope) }
     LaunchedEffect(vm.showSavedSearches) { collection.settle(if(vm.showSavedSearches) 0f else 1f) }
-    LazyColumn(Modifier.fillMaxSize().swipeHostDismiss(swipeHost).swipeBetweenTabs(swipeHost,collection) { vm.chooseSearchCollection(it) },contentPadding=screenContentPadding(),verticalArrangement=Arrangement.spacedBy(AppLayout.ItemGap)) {
+    LazyColumn(Modifier.fillMaxSize().swipeHostDismiss(swipeHost).swipeBetweenTabs(swipeHost,collection) { vm.chooseSearchCollection(it) },
+        // Keep suggestion drags and flings from scrolling the page, including at the list edges.
+        userScrollEnabled=picker==null,
+        contentPadding=screenContentPadding(),verticalArrangement=Arrangement.spacedBy(AppLayout.ItemGap)) {
         item { Row(Modifier.fillMaxWidth().heightIn(min=48.dp),verticalAlignment=Alignment.CenterVertically) {
             Text("Hová indulunk?",style=MaterialTheme.typography.headlineMedium,fontWeight=FontWeight.Bold,modifier=Modifier.weight(1f))
             FilledTonalIconButton(onClick={showAlerts=true},shape=CircleShape) {Icon(Icons.Outlined.NotificationsNone,"Forgalmi hírek")}
