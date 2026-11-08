@@ -1,12 +1,19 @@
 package hu.matepazy.menetrendgo
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
@@ -26,18 +33,27 @@ data class ServiceTime(val scheduled: Long, val estimate: Long, val realtime: Bo
 }
 
 @Composable fun ScheduledTime(time: ServiceTime, modifier: Modifier=Modifier,
-    style: TextStyle=MaterialTheme.typography.titleMedium, alignment: Alignment.Horizontal=Alignment.Start) {
+    style: TextStyle=MaterialTheme.typography.titleMedium, alignment: Alignment.Horizontal=Alignment.Start,
+    pulse: Boolean=false) {
+    val activeTimeModifier=if(pulse) {
+        val opacity=rememberInfiniteTransition(label="departure time pulse").animateFloat(
+            initialValue=1f,targetValue=.45f,
+            animationSpec=infiniteRepeatable(tween(1500,easing=FastOutSlowInEasing),RepeatMode.Reverse),
+            label="departure time opacity")
+        Modifier.graphicsLayer { alpha=opacity.value }
+    } else Modifier
     val textAlign=if(alignment==Alignment.End) TextAlign.End else TextAlign.Start
     val scheduledStyle=if(time.changed) style.copy(
         fontSize=(style.fontSize.value*.75f).coerceAtLeast(12f).sp,
         lineHeight=(style.lineHeight.value*.75f).coerceAtLeast(16f).sp
     ) else style
     Column(modifier,horizontalAlignment=alignment) {
-        Text(timeLabel(time.scheduled),style=scheduledStyle,fontWeight=FontWeight.Bold,textAlign=textAlign,
+        Text(timeLabel(time.scheduled),modifier=if(time.changed) Modifier else activeTimeModifier,
+            style=scheduledStyle,fontWeight=FontWeight.Bold,textAlign=textAlign,
             color=if(time.changed) MaterialTheme.colorScheme.error else LocalContentColor.current,
             textDecoration=if(time.changed) TextDecoration.LineThrough else TextDecoration.None)
         if(time.crossesDay) Text(dayLabel(time.scheduled).ifBlank {"Ma"},style=MaterialTheme.typography.labelSmall,textAlign=textAlign)
-        if(time.changed) Text(timeLabel(time.estimate),style=style,fontWeight=FontWeight.Bold,textAlign=textAlign)
+        if(time.changed) Text(timeLabel(time.estimate),modifier=activeTimeModifier,style=style,fontWeight=FontWeight.Bold,textAlign=textAlign)
         if(time.crossesDay) Text(dayLabel(time.estimate).ifBlank {"Ma"},style=MaterialTheme.typography.labelSmall,textAlign=textAlign)
     }
 }

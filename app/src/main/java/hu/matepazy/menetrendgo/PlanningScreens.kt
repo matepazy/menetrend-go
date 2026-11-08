@@ -713,12 +713,12 @@ private fun serviceType(leg: Leg): String = hungarianServiceName(leg.category, l
     }
 }
 
-@Composable private fun JourneyEndpoints(journey: Journey) {
+@Composable private fun JourneyEndpoints(journey: Journey, departingNow: Boolean=false) {
     val departure=journey.boardingLeg
     val arrival=journey.alightingLeg
     Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.Top) {
         Column(Modifier.weight(1f)) {
-            ScheduledTime(departure.departureTime,style=MaterialTheme.typography.headlineMedium)
+            ScheduledTime(departure.departureTime,style=MaterialTheme.typography.headlineMedium,pulse=departingNow)
             StationLabel(departure.from)
         }
         Icon(Icons.AutoMirrored.Outlined.ArrowForward,null,Modifier.padding(horizontal=12.dp,vertical=6.dp).size(24.dp),tint=MaterialTheme.colorScheme.onSurfaceVariant)
@@ -760,10 +760,14 @@ internal const val DeparturePaginationKey = "later-departures"
     var earlierAnchor by navigation::earlierAnchor
     var now by remember {mutableLongStateOf(System.currentTimeMillis())}
     LaunchedEffect(Unit) {
-        while (true) { now=System.currentTimeMillis(); delay(15_000) }
+        while (true) {
+            now=System.currentTimeMillis()
+            delay(minOf(15_000L,60_000L-now%60_000L))
+        }
     }
     val results=vm.filteredJourneys.sortedBy {it.boardingLeg.start}
-    val firstUpcoming=results.indexOfFirst {it.boardingLeg.start>=now}.let {if(it<0) results.size else it}
+    val currentMinute=now/60_000L
+    val firstUpcoming=results.indexOfFirst {it.boardingLeg.start/60_000L>=currentMinute}.let {if(it<0) results.size else it}
     val outline=MaterialTheme.colorScheme.outline
     // Anchor a service rather than the header, which stays at index zero when pages are prepended.
     fun rememberEarlierAnchor() {
@@ -805,15 +809,18 @@ internal const val DeparturePaginationKey = "later-departures"
         results.forEachIndexed { index, journey ->
             if(vm.earlierRequested && index==firstUpcoming) item(key="now") { NowDivider() }
             item(key=journey.key) {
-            val earlier=journey.boardingLeg.start<now
+            val departureMinute=journey.boardingLeg.start/60_000L
+            val earlier=departureMinute<currentMinute
+            val departingNow=departureMinute==currentMinute
             Surface(onClick={select(journey)},shape=RoundedCornerShape(32.dp),color=MaterialTheme.colorScheme.surface,tonalElevation=0.dp,
                 modifier=Modifier.semantics {if(earlier) stateDescription="Korábbi indulás"}.drawWithContent {
                     drawContent()
-                    if(earlier) {
+                    if(earlier || departingNow) {
                         val width=1.5.dp.toPx()
                         drawRoundRect(outline,topLeft=Offset(width/2,width/2),size=Size(size.width-width,size.height-width),
                             cornerRadius=CornerRadius(32.dp.toPx()-width/2),
-                            style=Stroke(width=width,pathEffect=PathEffect.dashPathEffect(floatArrayOf(6.dp.toPx(),4.dp.toPx()))))
+                            style=Stroke(width=width,pathEffect=if(earlier)
+                                PathEffect.dashPathEffect(floatArrayOf(6.dp.toPx(),4.dp.toPx())) else null))
                     }
                 }) {
                 Column(Modifier.fillMaxWidth().padding(AppLayout.PanelPadding),verticalArrangement=Arrangement.spacedBy(AppLayout.ItemGap)) {
@@ -824,7 +831,7 @@ internal const val DeparturePaginationKey = "later-departures"
                         }
                         Icon(Icons.Outlined.ChevronRight,null,Modifier.padding(start=8.dp))
                     }
-                    JourneyEndpoints(journey)
+                    JourneyEndpoints(journey,departingNow=departingNow)
                     Text(listOf(dayLabel(journey.boardingLeg.start),"${journey.serviceMinutes} perc",if(journey.changes==0) "Közvetlen" else "${journey.changes} átszállás").filter {it.isNotBlank()}.joinToString(" · "),style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)
                     JourneyAmenityIcons(journey)
                 }
