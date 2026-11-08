@@ -118,6 +118,8 @@ Journey legs and full trip timetables request MÁV `infoServices`. Journey servi
 
 ## Overview
 
+Vehicle article photos open a full-screen, theme-aware viewer from either the photo or its expand control. The decoded image is reused without another request. Pinch zoom is bounded to 1–5× with panning clamped to the fitted image, double-tap toggles 2.5× zoom around the tap, and an accessible zoom/reset action provides an alternative. Arrival and dismissal use the shared Compose motion timings with opacity and gentle image scaling, honoring Android's animator duration scale. The overlay remains mounted through dismissal and returns to the same article and carousel position through Close or system Back.
+
 The vehicle-model article retains the existing Read surface inside the full-height native sheet. Its curated Commons photos now download on demand at up to 960px, with a dedicated LRU cache capped at 12 photos and 12 MiB. Article text and attribution remain bundled. The image frame preserves layout while loading, names the loading state, and offers “Fotó újratöltése” after network failure without hiding the article. The original author, free licence, Commons file page and licence link remain in the source disclosure. New fleet entries preserve explicit variant matching and distinguish model capabilities from the facilities of an individual service.
 
 **Creative North Star: "Icy blue ground, ink text, royal-blue actions, fully rounded milky panels"**

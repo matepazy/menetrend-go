@@ -18,6 +18,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.ExpandMore
 import androidx.compose.material.icons.outlined.Link
+import androidx.compose.material.icons.outlined.OpenInFull
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -170,6 +171,7 @@ import kotlinx.coroutines.withContext
 }
 
 @Composable private fun FleetPhoto(photo: ModelPhoto, title: String) {
+    var enlarged by remember(photo.url) { mutableStateOf<ImageBitmap?>(null) }
     val context = LocalContext.current.applicationContext
     var attempt by remember(photo.url) { mutableIntStateOf(0) }
     val bitmap by produceState<Result<ImageBitmap>?>(null, photo.url, attempt) {
@@ -180,7 +182,14 @@ import kotlinx.coroutines.withContext
     }
     Surface(Modifier.fillMaxWidth().aspectRatio(1.5f).clip(MaterialTheme.shapes.small),
         color = MaterialTheme.colorScheme.surfaceContainer) {
-        bitmap?.getOrNull()?.let { Image(it, "$title · ${photo.caption}", Modifier.fillMaxSize(), contentScale = ContentScale.Fit) }
+        bitmap?.getOrNull()?.let { loaded ->
+            Box(Modifier.fillMaxSize().clickable(role = Role.Button, onClickLabel = "Fotó nagyítása") { enlarged = loaded }) {
+                Image(loaded, "$title · ${photo.caption}", Modifier.fillMaxSize(), contentScale = ContentScale.Fit)
+                FilledTonalIconButton(onClick = { enlarged = loaded }, modifier = Modifier.align(Alignment.BottomEnd).padding(8.dp)) {
+                    Icon(Icons.Outlined.OpenInFull, "Fotó nagyítása")
+                }
+            }
+        }
             ?: Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 if (bitmap == null) Column(horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(AppLayout.CompactGap)) {
@@ -193,6 +202,9 @@ import kotlinx.coroutines.withContext
                     TextButton(onClick = { attempt++ }) { Text("Fotó újratöltése") }
                 }
             }
+    }
+    enlarged?.let { loaded ->
+        FleetPhotoViewer(loaded, "$title · ${photo.caption}", onDismiss = { enlarged = null })
     }
 }
 
