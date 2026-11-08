@@ -7,6 +7,10 @@ html,body,#map{height:100%;margin:0;background:#e5edf3;font-family:Roboto,Arial,
 .vehicle .marker-artwork{width:48px;height:48px;overflow:visible;filter:drop-shadow(0 2px 4px #1234);pointer-events:none}
 .leaflet-top{top:var(--top-inset,0px)}
 #statusbar-feather{position:absolute;z-index:1100;top:0;left:0;right:0;height:var(--top-feather-height,0px);pointer-events:none;backdrop-filter:var(--top-feather-blur,none);-webkit-backdrop-filter:var(--top-feather-blur,none);background:linear-gradient(to bottom,rgba(var(--feather-rgb,237,244,250),.82),rgba(var(--feather-rgb,237,244,250),0));mask-image:linear-gradient(to bottom,#000 0%,#000 45%,transparent 100%);-webkit-mask-image:linear-gradient(to bottom,#000 0%,#000 45%,transparent 100%)}
+html,body,#map,.leaflet-container{background:var(--app-ground,#e5edf3)}
+#status,.leaflet-control-attribution,.leaflet-tooltip{background:var(--app-surface,#f8fbff);color:var(--app-ink,#112d43)}
+.leaflet-control-attribution a{color:var(--app-action,#2864d9)}
+.leaflet-tooltip{border-color:var(--app-surface,#f8fbff)}
 </style></head><body><div id="map" role="application" aria-label="Járművek térképe"></div><div id="status"></div><script>/* LEAFLET_JS */</script><script>
 L.Map.TouchZoom.prototype._onTouchEnd=function(){
  if(!this._moved||!this._zooming){this._zooming=false;return}
@@ -244,6 +248,11 @@ window.updateVehicles=v=>{vehicles=v;window.resizeMap();
 let bottomInset=0;window.setBottomInset=px=>{bottomInset=px;document.documentElement.style.setProperty('--bottom-inset',px+'px');document.getElementById('status').style.bottom=(px+48)+'px';reportLocation()};
 // The WebView owns its backdrop so Compose never has to record live map tiles.
 const statusbarFeather=document.createElement('div');statusbarFeather.id='statusbar-feather';statusbarFeather.setAttribute('aria-hidden','true');document.body.append(statusbarFeather);
+window.setAppTheme=(ground,surface,ink,action)=>{
+ const css=document.documentElement.style;
+ const hex=value=>'#'+(value>>>0).toString(16).padStart(8,'0').slice(-6);
+ for(const [role,value] of Object.entries({ground,surface,ink,action}))css.setProperty('--app-'+role,hex(value));
+};
 let topInset=0;window.setTopInset=(px,color,blur)=>{topInset=px;const style=document.documentElement.style;style.setProperty('--top-inset',px+'px');style.setProperty('--top-feather-height',(px>0?px+24:0)+'px');style.setProperty('--feather-rgb',[(color>>>16)&255,(color>>>8)&255,color&255].join(','));style.setProperty('--top-feather-blur',blur?'blur(18px)':'none');reportLocation()};
 window.centerOn=(lat,lon)=>{map.setView([lat,lon],12)};
 let userLocation=null,userDot=null;

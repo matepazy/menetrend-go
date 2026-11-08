@@ -12,16 +12,16 @@ colors:
   primary-container: "#DCEAFF"
   on-primary-container: "#174FAF"
   outline: "#71849C"
-  dark-primary: "#A8C7FF"
-  dark-on-primary: "#092B64"
-  dark-background: "#101D2A"
-  dark-ink: "#E6F0FF"
-  dark-surface: "#192B3D"
-  dark-surface-variant: "#253B51"
-  dark-muted-ink: "#B8CAE0"
-  dark-primary-container: "#294C7C"
-  dark-on-primary-container: "#D6E6FF"
-  dark-outline: "#8CA2BB"
+  dark-primary: "#9FC2FF"
+  dark-on-primary: "#082F65"
+  dark-background: "#111317"
+  dark-ink: "#E7E9EF"
+  dark-surface: "#1B1E24"
+  dark-surface-variant: "#303640"
+  dark-muted-ink: "#BEC6D2"
+  dark-primary-container: "#203F68"
+  dark-on-primary-container: "#D8E7FF"
+  dark-outline: "#8792A2"
   map-cluster: "#244C86"
   map-coach: "#0D687A"
 typography:
@@ -289,3 +289,10 @@ The journey route map is a separate subordinate Operate screen. It fills the ava
 The Bérletek screen is an Operate surface focused on expiry. A title and compact Hozzáadás action lead into current/upcoming passes sorted by expiry; the empty state has one full-width add action. Compact rounded cards show a wrapping pass name, validity status and expiry date. Upcoming cards also show their start date; other start dates remain in the editor. A labeled overflow menu holds edit and delete, retaining delete confirmation. Expired passes sit behind a collapsed, counted disclosure. Country and county passes use matching public-domain SVG contours by PM from Wikimedia Commons, converted to native outline vectors for Hungary and all 19 counties. All twenty use the same proportional sizing and stroke. Artwork occupies a fixed 40dp slot, follows the theme foreground and is decorative beside the accessible name. Local passes retain the city icon. Use megye and megyebérlet in screen copy. Imminent expiry (today through three days away) uses the error role; ordinary status and expired history use neutral ink. A compact Emlékeztetők row reports the actual reminder/system state and opens the schedule, existing reminder switches and Android notification settings. A visible Nem utazási igazolvány action opens the full notice and official conditions link. Dates use Hungarian month abbreviations. The full-height-capable, scrollable pass sheet groups type and validity controls, with native wrapping chips for Ország, Megye and Helyi. Local passes require a city name and use the same device-local storage and reminders. Their service acceptance stays unconfirmed. “30 napos” is the new-pass default: both displayed days count, so changing either date moves the other by 29 days. “Egyéni” leaves the dates independent and blocks reversed ranges. Existing saved dates are retained. Sheet state and draft values survive Android recreation; the editor respects keyboard insets and has an explicit close action.
 
 Journey endpoint labels follow time → bold town → stop name and a compact primary-colored platform badge, with departure aligned left and arrival aligned right. The town uses a compact 20sp line height above a single-line stop name, which ellipsizes when space is insufficient. Split only the first comma in provider names; unseparated names stay intact. Platform badges use provider platformCode, hide unknown values, and announce Vágány / kocsiállás to accessibility. Journey timeline endpoints share the same labels; transfers with different platforms retain separate arrival and departure rows. Expanded intermediate stops instead use an inline **town,** stop name: town and comma stay bold in primary ink, with regular-weight secondary ink for the stop at the same title-medium size. These labels wrap naturally when needed, and unseparated names have no added comma.
+
+
+## Dark and OLED appearance
+
+Dark mode uses cool charcoal, soft white text, slate secondary text and blue actions. Background #111317, panel #1B1E24 and stepped Material surface containers keep dense timetables distinct without a blue wash. Every Material role is specified, including secondary, tertiary, error, inverse and outline pairs.
+
+Appearance offers Rendszer szerint, Világos, Sötét and OLED sötét. OLED is an explicit dark choice with #000000 canvas, subtly lifted #111317 cards and panels, neutral raised containers and transparent surface tint. Cards remain visible against the black background. Selection persists and refreshes widgets immediately. Widgets use matching dark text and cards with a pure-black OLED shell. System bar icons, departure countdowns, native map controls and WebView attribution/status surfaces follow the selected theme. Map imagery and official transit artwork retain provider colors. Light mode is unchanged.

@@ -54,9 +54,12 @@ import kotlinx.coroutines.withContext
     val tracking by JourneyTracking.state.collectAsStateWithLifecycle()
     val bottomInset=LocalBottomOverlayInset.current.value
     val topInset=WindowInsets.safeDrawing.asPaddingValues().calculateTopPadding()
-    val featherColor=MaterialTheme.colorScheme.background.toArgb()
+    val mapColors=MaterialTheme.colorScheme
+    val featherColor=mapColors.background.toArgb()
+    val mapThemeScript="window.setAppTheme($featherColor,${mapColors.surface.toArgb()},${mapColors.onSurface.toArgb()},${mapColors.primary.toArgb()});"
     var web by remember {mutableStateOf<WebView?>(null)}
     var ready by remember {mutableStateOf(false)}
+    LaunchedEffect(ready,mapThemeScript) { if(ready) web?.evaluateJavascript(mapThemeScript,null) }
     var center by remember {mutableStateOf<Pair<Double,Double>?>(null)}
     var locationMessage by remember {mutableStateOf<String?>(null)}
     var locationVisible by remember {mutableStateOf(false)}
@@ -236,6 +239,7 @@ import kotlinx.coroutines.withContext
                     },"NativeMap")
                     webViewClient=object:WebViewClient() {
                         override fun onPageFinished(view: WebView, url: String) {
+                            view.evaluateJavascript(mapThemeScript,null)
                             view.evaluateJavascript("window.resizeMap && window.resizeMap();window.setBottomInset($bottomInset);window.setTopInset(${topInset.value},$featherColor,${android.os.Build.VERSION.SDK_INT>=31});",null)
                             ready=true
                         }

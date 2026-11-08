@@ -94,20 +94,40 @@ private val Light = lightColorScheme(primary=Color(0xFF2864D9), onPrimary=Color.
     surfaceContainerLowest=Color.White,surfaceContainerLow=Color(0xFFF1F7FD),
     surfaceContainer=Color(0xFFEAF2FA),surfaceContainerHigh=Color(0xFFE3EDF7),
     surfaceContainerHighest=Color(0xFFDBE7F3),surfaceTint=Color(0xFF2864D9))
-private val Dark = darkColorScheme(primary=Color(0xFFA8C7FF), onPrimary=Color(0xFF092B64),
-    background=Color(0xFF101D2A), onBackground=Color(0xFFE6F0FF), surface=Color(0xFF192B3D),
-    onSurface=Color(0xFFE6F0FF), surfaceVariant=Color(0xFF253B51), onSurfaceVariant=Color(0xFFB8CAE0),
-    primaryContainer=Color(0xFF294C7C), onPrimaryContainer=Color(0xFFD6E6FF), outline=Color(0xFF8CA2BB),
-    secondaryContainer=Color(0xFF294C7C),onSecondaryContainer=Color(0xFFD6E6FF),
-    surfaceDim=Color(0xFF101D2A),surfaceBright=Color(0xFF30465C),
-    surfaceContainerLowest=Color(0xFF0B1723),surfaceContainerLow=Color(0xFF152536),
-    surfaceContainer=Color(0xFF192B3D),surfaceContainerHigh=Color(0xFF203449),
-    surfaceContainerHighest=Color(0xFF293F55),surfaceTint=Color(0xFFA8C7FF))
+// Cool charcoal keeps the blue reserved for actions and selection.
+internal val Dark = darkColorScheme(
+    primary=Color(0xFF9FC2FF), onPrimary=Color(0xFF082F65),
+    primaryContainer=Color(0xFF203F68), onPrimaryContainer=Color(0xFFD8E7FF),
+    secondary=Color(0xFFB8C7DE), onSecondary=Color(0xFF243247),
+    secondaryContainer=Color(0xFF2B394C), onSecondaryContainer=Color(0xFFDCE6F5),
+    tertiary=Color(0xFF8FD3CD), onTertiary=Color(0xFF003735),
+    tertiaryContainer=Color(0xFF174E4B), onTertiaryContainer=Color(0xFFB0F0E9),
+    background=Color(0xFF111317), onBackground=Color(0xFFE7E9EF),
+    surface=Color(0xFF1B1E24), onSurface=Color(0xFFE7E9EF),
+    surfaceVariant=Color(0xFF303640), onSurfaceVariant=Color(0xFFBEC6D2),
+    outline=Color(0xFF8792A2), outlineVariant=Color(0xFF424A57),
+    error=Color(0xFFFFB4AB), onError=Color(0xFF690005),
+    errorContainer=Color(0xFF6F2424), onErrorContainer=Color(0xFFFFDAD6),
+    inverseSurface=Color(0xFFE7E9EF), inverseOnSurface=Color(0xFF2C3038),
+    inversePrimary=Color(0xFF2864D9), scrim=Color.Black,
+    surfaceDim=Color(0xFF111317), surfaceBright=Color(0xFF373C46),
+    surfaceContainerLowest=Color(0xFF0C0E12), surfaceContainerLow=Color(0xFF171A20),
+    surfaceContainer=Color(0xFF1B1E24), surfaceContainerHigh=Color(0xFF252A32),
+    surfaceContainerHighest=Color(0xFF303640), surfaceTint=Color(0xFF9FC2FF))
+
+// Keep the canvas black while charcoal panels remain distinct from it.
+internal val Oled = Dark.copy(
+    background=Color.Black, surface=Color(0xFF111317), surfaceDim=Color.Black,
+    surfaceBright=Color(0xFF292E36), surfaceContainerLowest=Color.Black,
+    surfaceContainerLow=Color(0xFF0C0E12), surfaceContainer=Color(0xFF111317),
+    surfaceContainerHigh=Color(0xFF1B1E24), surfaceContainerHighest=Color(0xFF252A32),
+    surfaceVariant=Color(0xFF252A32), surfaceTint=Color.Transparent)
+
 internal val LocalAppDarkTheme = staticCompositionLocalOf { false }
 
 @Composable fun MenetrendTheme(choice: String, content: @Composable () -> Unit) {
-    val dark = choice == "dark" || (choice == "system" && isSystemInDarkTheme())
-    val scheme=if(dark) Dark else Light
+    val dark = choice == "dark" || choice == "oled" || (choice == "system" && isSystemInDarkTheme())
+    val scheme=when { choice == "oled" -> Oled; dark -> Dark; else -> Light }
     val view=LocalView.current
     SideEffect {
         (view.context as? ComponentActivity)?.window?.let {window ->

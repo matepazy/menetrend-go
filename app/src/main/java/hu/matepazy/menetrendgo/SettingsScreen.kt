@@ -104,7 +104,7 @@ private enum class SettingsPage(val title: String) {
                     item {
                         SettingsGroup {
                             Column(Modifier.selectableGroup().padding(vertical = 4.dp)) {
-                                listOf("system", "light", "dark").forEach { value ->
+                                listOf("system", "light", "dark", "oled").forEach { value ->
                                     Row(
                                         Modifier.fillMaxWidth().selectable(vm.theme == value, role = Role.RadioButton, onClick = { vm.chooseTheme(value) })
                                             .padding(horizontal = 20.dp, vertical = 12.dp).heightIn(min = 48.dp),
@@ -117,7 +117,7 @@ private enum class SettingsPage(val title: String) {
                             }
                         }
                     }
-                    item { SettingsNote("A Rendszer szerint beállítás az Android világos vagy sötét megjelenését követi.") }
+                    item { SettingsNote("A Rendszer szerint beállítás az Android világos vagy sötét megjelenését követi. Az OLED sötét mód tiszta fekete hátteret használ.") }
                 }
                 SettingsPage.Notifications -> {
                     item {
@@ -267,6 +267,7 @@ private enum class SettingsPage(val title: String) {
 private fun themeLabel(value: String) = when (value) {
     "light" -> "Világos"
     "dark" -> "Sötét"
+    "oled" -> "OLED sötét"
     else -> "Rendszer szerint"
 }
 

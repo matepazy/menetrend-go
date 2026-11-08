@@ -26,14 +26,20 @@ class DepartureThemeTest {
             val prefs = context.getSharedPreferences("menetrendgo", 0)
             val original = prefs.getString("theme", null)
             try {
-                for (dark in listOf(false, true)) {
+                for (choice in listOf("light", "dark", "oled")) {
+                    val dark = choice != "light"
                     val host = departureThemeContext(context, !dark)
-                    prefs.edit().putString("theme", if (dark) "dark" else "light").commit()
+                    prefs.edit().putString("theme", choice).commit()
                     val selected = departureThemeContext(host)
                     assertEquals(dark, selected.resources.configuration.uiMode and 0x30 == 0x20)
                     val shell = RemoteViews(context.packageName, R.layout.stop_board_widget).apply {
                         applyDepartureTheme(selected)
                     }.apply(host, null)
+                    val panel = shell.findViewById<View>(R.id.widget_panel)
+                    val panelBitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888)
+                    panel.background.setBounds(0, 0, 100, 100)
+                    panel.background.draw(Canvas(panelBitmap))
+                    assertEquals(if (choice == "oled") android.graphics.Color.BLACK else selected.getColor(R.color.widget_surface), panelBitmap.getPixel(50, 50))
                     assertEquals(selected.getColor(R.color.widget_ink), shell.findViewById<TextView>(R.id.widget_station).currentTextColor)
                     val view = RemoteViews(context.packageName, R.layout.stop_board_widget_row).apply {
                         applyDepartureTheme(selected)
