@@ -892,15 +892,14 @@ internal fun sameJourneyStop(first: Station, second: Station): Boolean =
     val surface=MaterialTheme.colorScheme.surface
     val nodeOffset=with(LocalDensity.current) { MaterialTheme.typography.titleMedium.lineHeight.toDp()/2 }
     var rowTop by remember { mutableFloatStateOf(0f) }
-    Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min).onGloballyPositioned {
+    val timeGutter=64.dp * LocalDensity.current.fontScale
+    // Intrinsic height sees AnimatedVisibility's full content before its reveal finishes.
+    // Measure the content normally and draw the track at that same animated height.
+    Box(Modifier.fillMaxWidth().onGloballyPositioned {
         rowTop=it.positionInParent().y
     }) {
-        // Large sp values use Android's nonlinear scaling, so scale this gutter explicitly.
-        Box(Modifier.width(64.dp * LocalDensity.current.fontScale).padding(top=2.dp,end=8.dp)) {
-            time?.let {ScheduledTime(it,style=MaterialTheme.typography.labelLarge)}
-        }
-        Canvas(Modifier.width(24.dp).fillMaxHeight()) {
-            val x=size.width/2
+        Canvas(Modifier.matchParentSize()) {
+            val x=timeGutter.toPx()+12.dp.toPx()
             val nodeY=nodeOffset.toPx()
             fun segment(style: TimelineTrack?, top: Float, bottom: Float) {
                 if(style==null || bottom<=top) return
@@ -922,7 +921,14 @@ internal fun sameJourneyStop(first: Station, second: Station): Boolean =
                 drawCircle(surface,3.dp.toPx(),Offset(x,nodeY))
             }
         }
-        Column(Modifier.weight(1f).padding(start=12.dp,bottom=24.dp),content=content)
+        Row(Modifier.fillMaxWidth()) {
+            // Large sp values use Android's nonlinear scaling, so scale this gutter explicitly.
+            Box(Modifier.width(timeGutter).padding(top=2.dp,end=8.dp)) {
+                time?.let {ScheduledTime(it,style=MaterialTheme.typography.labelLarge)}
+            }
+            Spacer(Modifier.width(24.dp))
+            Column(Modifier.weight(1f).padding(start=12.dp,bottom=24.dp),content=content)
+        }
     }
 }
 

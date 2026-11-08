@@ -31,6 +31,50 @@ class JourneyTransfersUiTest {
     @Test fun walkingTransferShowsEachStopOnce() = showWalkingTransfer(false, 1f)
     @Test fun walkingTransferWrapsInDarkThemeWithLargeText() = showWalkingTransfer(true, 1.5f)
 
+    @Test fun intermediateStopsKeepArrivalAndTrackTogetherThroughoutAnimation() {
+        val now = System.currentTimeMillis()
+        val origin = Station("origin", "Indulóhely", 47.5, 19.0)
+        val destination = Station("destination", "Végállomás", 47.6, 19.1)
+        val stops = List(2) { origin.copy(id="middle-$it", name="Köztes hely $it") }
+        val leg = Leg("BUS", now, now+12*60_000, origin, destination,
+            "24", "test-trip", false, 0, stops, "")
+        val journey = Journey(720, listOf(leg), fetchedAt=now)
+        val vm = AppState(app).also { store.put("animation", it) }
+        compose.setContent { MenetrendTheme("light") {
+            Surface(Modifier.fillMaxSize()) {
+                JourneyScreen(vm, journey, {}, {}, {}, refreshTransfers=false)
+            }
+        } }
+        val toggle = compose.onNodeWithText("2 köztes megálló")
+        val arrival = compose.onNodeWithText("Végállomás")
+        val timetable = compose.onNodeWithText("Teljes járatmenetrend")
+        toggle.performScrollTo()
+        val collapsedTop = arrival.fetchSemanticsNode().boundsInRoot.top
+        val restingGap = collapsedTop-timetable.fetchSemanticsNode().boundsInRoot.bottom
+        compose.mainClock.autoAdvance = false
+
+        fun checkGap() {
+            val gap = arrival.fetchSemanticsNode().boundsInRoot.top-
+                timetable.fetchSemanticsNode().boundsInRoot.bottom
+            assertEquals("Arrival must follow the visible content without an empty track", restingGap, gap, 2f)
+        }
+
+        toggle.performClick()
+        repeat(8) {
+            compose.mainClock.advanceTimeBy(32)
+            checkGap()
+        }
+        val expandedTop = arrival.fetchSemanticsNode().boundsInRoot.top
+        assertTrue("Expanding stops must move the arrival down", expandedTop > collapsedTop)
+        toggle.performClick()
+        repeat(6) {
+            compose.mainClock.advanceTimeBy(32)
+            checkGap()
+        }
+        assertEquals(collapsedTop, arrival.fetchSemanticsNode().boundsInRoot.top, 2f)
+        compose.mainClock.autoAdvance = true
+    }
+
     private fun showWalkingTransfer(dark: Boolean, scale: Float) {
         val now = System.currentTimeMillis() + 60 * 60_000
         val origin = Station("a", "Kelenföld", 47.46, 19.02)
