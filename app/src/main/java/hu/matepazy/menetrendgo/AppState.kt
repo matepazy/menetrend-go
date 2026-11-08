@@ -1,6 +1,7 @@
 package hu.matepazy.menetrendgo
 
 import android.app.Application
+import android.os.SystemClock
 import androidx.compose.runtime.*
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
@@ -220,11 +221,11 @@ class AppState(app: Application) : AndroidViewModel(app) {
     }
     fun search(more: Boolean = false, earlier: Boolean = false) {
         if (more && searching) return
-        val criteria = if (more) activeSearch else {
+        val requestedCriteria = if (more) activeSearch else {
             val f = from ?: return; val t = to ?: return
             Search(f, t, if (useNow) LocalDateTime.now(Budapest) else dateTime, arriveBy).also {
                 activeSearch = it
-                // A captured position is not a reusable "current location" or a saved stop.
+                // Current-location searches do not belong in reusable stop history.
                 if(f.id.isNotBlank() && t.id.isNotBlank()) {
                     recents = (listOf(Recent(f, t)) + recents.filterNot { r -> r.from.id == f.id && r.to.id == t.id }).take(8)
                     prefs.edit().putString("recents", JSONArray(recents.map { r -> r.json() }).toString()).apply()
@@ -238,6 +239,15 @@ class AppState(app: Application) : AndroidViewModel(app) {
             failedSearchMore = more; failedSearchEarlier = earlier
             if (!more) { journeys = emptyList(); canLoadMore = false; canLoadEarlier = false; earlierRequested = false }
             try {
+                val criteria = if (more) requestedCriteria else {
+                    val (freshFrom, freshTo) = refreshSearchLocations(requestedCriteria.from, requestedCriteria.to, SystemClock.elapsedRealtime()) {
+                        currentDepartureLocation(getApplication())?.asCurrentLocationStation()
+                            ?: error("Nem sikerült meghatározni a helyzeted. Ellenőrizd a helyhozzáférést és a helymeghatározást, majd próbáld újra.")
+                    }
+                    if (from == requestedCriteria.from) from = freshFrom
+                    if (to == requestedCriteria.to) to = freshTo
+                    requestedCriteria.copy(from = freshFrom, to = freshTo).also { activeSearch = it }
+                }
                 val edge = if (more && journeys.isNotEmpty()) {
                     val epoch = if (earlier) journeys.minOf { it.end } - 60_000 else journeys.maxOf { it.start } + 60_000
                     Instant.ofEpochMilli(epoch).atZone(Budapest).toLocalDateTime()

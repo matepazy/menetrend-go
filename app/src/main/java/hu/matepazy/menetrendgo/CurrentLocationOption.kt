@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
 import android.os.CancellationSignal
+import android.os.SystemClock
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
@@ -78,7 +79,7 @@ internal fun CurrentLocationOption(onSelected: (Station) -> Unit, onBusyChanged:
                 } else {
                     val location = currentDepartureLocation(context)
                     if (location == null) error = "Nem sikerült meghatározni a helyzeted. Próbáld újra."
-                    else selected(Station("", "Jelenlegi helyzet", location.latitude, location.longitude))
+                    else selected(location.asCurrentLocationStation())
                 }
             } catch (e: CancellationException) { throw e }
             catch (_: SecurityException) { error = "Engedélyezd a helyhozzáférést a Beállításokban, majd próbáld újra." }
@@ -113,3 +114,8 @@ internal fun CurrentLocationOption(onSelected: (Station) -> Unit, onBusyChanged:
             style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
     }
 }
+
+internal fun Location.asCurrentLocationStation() = Station(
+    "", "Jelenlegi helyzet", latitude, longitude,
+    currentLocationCalculatedAt = SystemClock.elapsedRealtime()
+)

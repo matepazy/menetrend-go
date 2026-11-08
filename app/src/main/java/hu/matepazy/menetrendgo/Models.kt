@@ -14,7 +14,9 @@ fun dayLabel(millis: Long, today: LocalDate = LocalDate.now(Budapest)): String {
 fun JSONArray.objects(): List<JSONObject> = (0 until length()).mapNotNull { optJSONObject(it) }
 fun JSONObject.array(key: String): List<JSONObject> = optJSONArray(key)?.objects().orEmpty()
 data class Station(val id: String, val name: String, val lat: Double, val lon: Double,
-    val type: String = "", val modes: List<String> = emptyList(), val platform: String = "") {
+    val type: String = "", val modes: List<String> = emptyList(), val platform: String = "",
+    // Monotonic time for a one-shot current location. Never persisted with saved stops.
+    val currentLocationCalculatedAt: Long? = null) {
     val townName get() = name.substringBefore(',').trim()
     val stopName get() = name.substringAfter(',', "").trim()
     fun json() = JSONObject().put("id", id).put("name", name).put("lat", lat).put("lon", lon)
