@@ -1114,29 +1114,18 @@ internal fun sameJourneyStop(first: Station, second: Station): Boolean =
         if(detail!=null) {
             item {Text(if(vehicle==null) "Ehhez a járathoz most nincs élő járműpozíció." else "Élő járműpozíció elérhető · ${vm.mapRefreshSeconds} mp-es frissítés",color=MaterialTheme.colorScheme.onSurfaceVariant)}
             if(vehicle!=null) item {OutlinedButton(onClick=onMap,shape=CircleShape,modifier=Modifier.fillMaxWidth()){Text("Jármű a térképen")}}
-            val services=MavService.parseAll(detail)
-            if(services.isNotEmpty()) item {
-                Surface(shape=MaterialTheme.shapes.medium,color=MaterialTheme.colorScheme.surface) {
-                    MavServices(services,Modifier.padding(AppLayout.PanelPadding))
-                }
-            }
             itemsIndexed(detail.array("stoptimes")) {index,stop ->
                 val s=stop.optJSONObject("stop")
-                val scheduled=stop.optInt("scheduledDeparture",stop.optInt("scheduledArrival"))
-                val seconds=stop.optInt("realtimeDeparture",scheduled)
-                val serviceDate=if(!stop.isNull("serviceDay")) java.time.Instant.ofEpochSecond(stop.optLong("serviceDay")).atZone(Budapest).toLocalDate() else LocalDate.parse(day)
+                val time=tripStopTime(stop,day)
                 Surface(shape=MaterialTheme.shapes.medium,color=MaterialTheme.colorScheme.surface) {
                     Row(Modifier.fillMaxWidth().padding(AppLayout.PanelPadding),verticalAlignment=Alignment.Top,horizontalArrangement=Arrangement.spacedBy(AppLayout.RelatedGap)) {
                         Column(Modifier.width(with(LocalDensity.current) { 64.sp.toDp() })) {
-                            Text(timeLabel(vehicleStopTime(serviceDate,seconds.toLong())),style=MaterialTheme.typography.titleMedium,fontWeight=FontWeight.Bold)
-                            val late=stop.optInt("departureDelay")/60
-                            if(late!=0) Text("${if(late>0) "+" else ""}$late perc",style=MaterialTheme.typography.labelSmall,color=MaterialTheme.colorScheme.error)
+                            if(time!=null) ScheduledTime(time,style=MaterialTheme.typography.titleMedium)
                         }
                         Column(Modifier.weight(1f)) {
                             Text(s?.optString("name").orEmpty(),style=MaterialTheme.typography.titleMedium)
                             val platform=s?.optString("platformCode").orEmpty()
                             if(platform.isNotBlank() && platform!="null") Text("Vágány / kocsiállás: $platform",style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
-                            Text(if(stop.optBoolean("realtime")) "Élő adat · menetrend: ${timeLabel(vehicleStopTime(serviceDate,scheduled.toLong()))}" else "Menetrendi adat",style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
                 }
