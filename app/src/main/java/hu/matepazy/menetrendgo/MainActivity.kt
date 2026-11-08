@@ -245,9 +245,10 @@ val LocalBottomOverlayInset = staticCompositionLocalOf { 0.dp }
     var tripId by rememberSaveable { mutableStateOf("") }
     var tripDay by rememberSaveable { mutableStateOf(LocalDate.now(Budapest).toString()) }
     val owner = LocalLifecycleOwner.current
-    LaunchedEffect(tab, page, tripId, tripDay, vm.mapRefreshSeconds) {
+    LaunchedEffect(owner, tab, page, tripId, tripDay, vm.mapRefreshSeconds) {
         owner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-            if(tab == 1 || page == "trip" || page == "journey" || page == "routeMap" || page == "vehicleMap") {
+            // Maps own their polling in TransportMap, including embedded map views.
+            if(page == "trip" || tab == 0 && page == "journey") {
                 while(true) {
                     vm.refreshVehicles()
                     if(page == "trip" && tripId.isNotEmpty()) vm.loadTrip(tripId,tripDay)

@@ -1112,7 +1112,7 @@ internal fun sameJourneyStop(first: Station, second: Station): Boolean =
         if(vm.detailLoading && detail==null) item {LoadingRows()}
         if(vm.detailError!=null) item {InfoPanel("A menetrend nem tölthető be",vm.detailError!!){vm.loadTrip(id,day)}}
         if(detail!=null) {
-            item {Text(if(vehicle==null) "Ehhez a járathoz most nincs élő járműpozíció." else "Élő járműpozíció elérhető · 75 mp-es frissítés",color=MaterialTheme.colorScheme.onSurfaceVariant)}
+            item {Text(if(vehicle==null) "Ehhez a járathoz most nincs élő járműpozíció." else "Élő járműpozíció elérhető · ${vm.mapRefreshSeconds} mp-es frissítés",color=MaterialTheme.colorScheme.onSurfaceVariant)}
             if(vehicle!=null) item {OutlinedButton(onClick=onMap,shape=CircleShape,modifier=Modifier.fillMaxWidth()){Text("Jármű a térképen")}}
             val services=MavService.parseAll(detail)
             if(services.isNotEmpty()) item {

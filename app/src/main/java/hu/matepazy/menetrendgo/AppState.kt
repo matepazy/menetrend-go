@@ -318,7 +318,7 @@ class AppState(app: Application) : AndroidViewModel(app) {
         if (id.isBlank()) { detailError = "Ehhez a szakaszhoz nincs járatazonosító."; return }
         detailJob = viewModelScope.launch {
             detailLoading = true
-            try { detail = mav.trip(id,day) }
+            try { detail = mav.trip(id,day,refreshSeconds=mapRefreshSeconds) }
             catch (e: CancellationException) { throw e }
             catch (e: Exception) { detailError = e.message }
             finally { detailLoading = false }

@@ -9,6 +9,7 @@ import android.os.Bundle
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import android.os.Handler
 import android.os.Looper
@@ -34,6 +35,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import org.json.*
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -66,6 +68,14 @@ import kotlinx.coroutines.withContext
     val locationPermissions=remember {arrayOf(Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION)}
     val manager=remember {context.getSystemService(LocationManager::class.java)}
     val lifecycle=LocalLifecycleOwner.current.lifecycle
+    LaunchedEffect(lifecycle,vm.mapRefreshSeconds) {
+        lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            while(true) {
+                vm.refreshVehicles()
+                delay(vm.mapRefreshSeconds * 1_000L)
+            }
+        }
+    }
     val snackbars=remember {SnackbarHostState()}
     val scope=rememberCoroutineScope()
     var selectedVehicle by vm::mapVehicle

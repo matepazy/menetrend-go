@@ -90,11 +90,11 @@ class MavClient {
             }
         }
     }
-    suspend fun trip(id: String,day: String,forceRefresh: Boolean = false): JSONObject = withContext(Dispatchers.IO) {
+    suspend fun trip(id: String,day: String,forceRefresh: Boolean = false,refreshSeconds: Int = 75): JSONObject = withContext(Dispatchers.IO) {
         require(id.length in 1..250);LocalDate.parse(day)
         tripLock.withLock {
             val key="$id|$day";val now=System.currentTimeMillis()/1000
-            trips[key]?.takeIf {!forceRefresh && now-it.second<75}?.first ?: run {
+            trips[key]?.takeIf {!forceRefresh && now-it.second<refreshSeconds.coerceIn(15,90)}?.first ?: run {
                 val result=request("/index/graphql",MavQueries.trip(id,day)).optJSONObject("trip")
                     ?: throw IllegalStateException("Ehhez a járathoz nincs részletes menetrend.")
                 normalizeRoute(result.optJSONObject("route"),result.optString("tripShortName").ifBlank {result.optString("trainCategoryName")})

@@ -81,12 +81,12 @@ internal fun upcomingVehicleStops(stops: List<VehicleStop>, now: Long, detail: J
     var day by remember(vehicle.id) {mutableStateOf(LocalDate.now(Budapest).toString())}
     var now by remember {mutableLongStateOf(System.currentTimeMillis())}
     val lifecycle=LocalLifecycleOwner.current.lifecycle
-    LaunchedEffect(vehicle.id,lifecycle) {
+    LaunchedEffect(vehicle.id,lifecycle,vm.mapRefreshSeconds) {
         lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
             while(true) {
                 day=LocalDate.now(Budapest).toString()
                 vm.loadTrip(vehicle.id,day)
-                delay(75_000)
+                delay(vm.mapRefreshSeconds * 1_000L)
             }
         }
     }
