@@ -1,6 +1,12 @@
 package hu.matepazy.menetrendgo
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.WarningAmber
+import androidx.compose.material3.Icon
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -19,6 +25,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.dp
 import java.time.Instant
 
 data class ServiceTime(val scheduled: Long, val estimate: Long, val realtime: Boolean) {
@@ -34,7 +41,7 @@ data class ServiceTime(val scheduled: Long, val estimate: Long, val realtime: Bo
 
 @Composable fun ScheduledTime(time: ServiceTime, modifier: Modifier=Modifier,
     style: TextStyle=MaterialTheme.typography.titleMedium, alignment: Alignment.Horizontal=Alignment.Start,
-    pulse: Boolean=false) {
+    pulse: Boolean=false, warning: String?=null) {
     val activeTimeModifier=if(pulse) {
         val opacity=rememberInfiniteTransition(label="departure time pulse").animateFloat(
             initialValue=1f,targetValue=.45f,
@@ -47,13 +54,26 @@ data class ServiceTime(val scheduled: Long, val estimate: Long, val realtime: Bo
         fontSize=(style.fontSize.value*.75f).coerceAtLeast(12f).sp,
         lineHeight=(style.lineHeight.value*.75f).coerceAtLeast(16f).sp
     ) else style
+    @Composable fun ActiveTime(text: String, textStyle: TextStyle) {
+        if(warning==null) {
+            Text(text,modifier=activeTimeModifier,style=textStyle,fontWeight=FontWeight.Bold,textAlign=textAlign)
+        } else Row(verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(4.dp)) {
+            Text(text,modifier=activeTimeModifier.weight(1f,fill=false),style=textStyle,fontWeight=FontWeight.Bold,textAlign=textAlign)
+            Icon(Icons.Outlined.WarningAmber,contentDescription=warning,
+                modifier=Modifier.size(18.dp),tint=MaterialTheme.colorScheme.error)
+        }
+    }
     Column(modifier,horizontalAlignment=alignment) {
-        Text(timeLabel(time.scheduled),modifier=if(time.changed) Modifier else activeTimeModifier,
-            style=scheduledStyle,fontWeight=FontWeight.Bold,textAlign=textAlign,
-            color=if(time.changed) MaterialTheme.colorScheme.error else LocalContentColor.current,
-            textDecoration=if(time.changed) TextDecoration.LineThrough else TextDecoration.None)
+        if(!time.changed && warning!=null) {
+            ActiveTime(timeLabel(time.scheduled),scheduledStyle)
+        } else {
+            Text(timeLabel(time.scheduled),modifier=if(time.changed) Modifier else activeTimeModifier,
+                style=scheduledStyle,fontWeight=FontWeight.Bold,textAlign=textAlign,
+                color=if(time.changed) MaterialTheme.colorScheme.error else LocalContentColor.current,
+                textDecoration=if(time.changed) TextDecoration.LineThrough else TextDecoration.None)
+        }
         if(time.crossesDay) Text(dayLabel(time.scheduled).ifBlank {"Ma"},style=MaterialTheme.typography.labelSmall,textAlign=textAlign)
-        if(time.changed) Text(timeLabel(time.estimate),modifier=activeTimeModifier,style=style,fontWeight=FontWeight.Bold,textAlign=textAlign)
+        if(time.changed) ActiveTime(timeLabel(time.estimate),style)
         if(time.crossesDay) Text(dayLabel(time.estimate).ifBlank {"Ma"},style=MaterialTheme.typography.labelSmall,textAlign=textAlign)
     }
 }

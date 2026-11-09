@@ -762,12 +762,13 @@ private fun serviceType(leg: Leg): String = hungarianServiceName(leg.category, l
     }
 }
 
-@Composable private fun JourneyEndpoints(journey: Journey, departingNow: Boolean=false) {
+@Composable internal fun JourneyEndpoints(journey: Journey, departingNow: Boolean=false, leftEarly: Boolean=false) {
     val departure=journey.boardingLeg
     val arrival=journey.alightingLeg
     Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.Top) {
         Column(Modifier.weight(1f)) {
-            ScheduledTime(departure.departureTime,style=MaterialTheme.typography.headlineMedium,pulse=departingNow)
+            ScheduledTime(departure.departureTime,style=MaterialTheme.typography.headlineMedium,pulse=departingNow,
+                warning=if(leftEarly) LeftEarlyDescription else null)
             StationLabel(departure.from)
         }
         Icon(Icons.AutoMirrored.Outlined.ArrowForward,null,Modifier.padding(horizontal=12.dp,vertical=6.dp).size(24.dp),tint=MaterialTheme.colorScheme.onSurfaceVariant)
@@ -825,8 +826,10 @@ internal const val DeparturePaginationKey = "later-departures"
         }
     }
     val results=vm.filteredJourneys.sortedBy {it.boardingLeg.start}
-    val currentMinute=now/60_000L
-    val firstUpcoming=results.indexOfFirst {it.boardingLeg.start/60_000L>=currentMinute}.let {if(it<0) results.size else it}
+    val firstUpcoming=results.indexOfFirst {
+        val state=departurePresentation(it.boardingLeg.departureTime,now)
+        state==DeparturePresentation.Upcoming || state==DeparturePresentation.DepartingNow
+    }.let {if(it<0) results.size else it}
     val outline=MaterialTheme.colorScheme.outline
     // Anchor a service rather than the header, which stays at index zero when pages are prepended.
     fun rememberEarlierAnchor() {
@@ -869,11 +872,15 @@ internal const val DeparturePaginationKey = "later-departures"
             if(vm.earlierRequested && index==firstUpcoming) item(key="now") { NowDivider() }
             item(key=journey.key) {
             val walkingOnly=journey.legs.all {it.walking}
-            val departureMinute=journey.boardingLeg.start/60_000L
-            val earlier=departureMinute<currentMinute
-            val departingNow=departureMinute==currentMinute
+            val presentation=departurePresentation(journey.boardingLeg.departureTime,now)
+            val leftEarly=!walkingOnly && presentation==DeparturePresentation.LeftEarly
+            val earlier=presentation==DeparturePresentation.Past || leftEarly
+            val departingNow=presentation==DeparturePresentation.DepartingNow
             Surface(onClick={select(journey)},shape=RoundedCornerShape(32.dp),color=MaterialTheme.colorScheme.surface,tonalElevation=0.dp,
-                modifier=Modifier.semantics {if(earlier) stateDescription="Korábbi indulás"}.drawWithContent {
+                modifier=Modifier.semantics {
+                    if(leftEarly) stateDescription=LeftEarlyDescription
+                    else if(earlier) stateDescription="Korábbi indulás"
+                }.drawWithContent {
                     drawContent()
                     if(walkingOnly || earlier || departingNow) {
                         val width=1.5.dp.toPx()
@@ -891,7 +898,7 @@ internal const val DeparturePaginationKey = "later-departures"
                         }
                         Icon(Icons.Outlined.ChevronRight,null,Modifier.padding(start=8.dp))
                     }
-                    JourneyEndpoints(journey,departingNow=departingNow && !walkingOnly)
+                    JourneyEndpoints(journey,departingNow=departingNow && !walkingOnly,leftEarly=leftEarly)
                     Text(listOf(dayLabel(journey.boardingLeg.start),"${journey.serviceMinutes} perc",if(journey.changes==0) "Közvetlen" else "${journey.changes} átszállás").filter {it.isNotBlank()}.joinToString(" · "),style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)
                     JourneyAmenityIcons(journey)
                 }
