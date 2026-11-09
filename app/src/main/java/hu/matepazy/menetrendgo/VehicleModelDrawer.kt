@@ -94,6 +94,7 @@ import kotlinx.coroutines.withContext
     }
     val profile = result?.getOrNull()?.let { findVehicleModel(it, model, agencyName) }
         ?.let { vehicleModelForContext(it, mode, agencyName) }
+    var enlarged by remember(profile?.id) { mutableStateOf<Pair<Int, ImageBitmap>?>(null) }
     val pager = rememberPagerState(pageCount = { profile?.photos?.size ?: 0 })
     AppBottomSheet(onDismissRequest = dismiss,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
@@ -134,7 +135,7 @@ import kotlinx.coroutines.withContext
                     if (profile.photos.isNotEmpty()) item {
                         Column(verticalArrangement = Arrangement.spacedBy(AppLayout.CompactGap)) {
                             HorizontalPager(pager, key = { profile.photos[it].url }) { index ->
-                                FleetPhoto(profile.photos[index], profile.title)
+                                FleetPhoto(profile.photos[index], profile.title) { enlarged = index to it }
                             }
                             if (profile.photos.size > 1) Row(Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween) {
@@ -168,10 +169,12 @@ import kotlinx.coroutines.withContext
             }
         }
     }
+    enlarged?.let { (index, bitmap) ->
+        profile?.let { FleetPhotoViewer(it.photos, index, bitmap, onDismiss = { enlarged = null }) }
+    }
 }
 
-@Composable private fun FleetPhoto(photo: ModelPhoto, title: String) {
-    var enlarged by remember(photo.url) { mutableStateOf<ImageBitmap?>(null) }
+@Composable private fun FleetPhoto(photo: ModelPhoto, title: String, onEnlarge: (ImageBitmap) -> Unit) {
     val context = LocalContext.current.applicationContext
     var attempt by remember(photo.url) { mutableIntStateOf(0) }
     val bitmap by produceState<Result<ImageBitmap>?>(null, photo.url, attempt) {
@@ -183,9 +186,9 @@ import kotlinx.coroutines.withContext
     Surface(Modifier.fillMaxWidth().aspectRatio(1.5f).clip(MaterialTheme.shapes.small),
         color = MaterialTheme.colorScheme.surfaceContainer) {
         bitmap?.getOrNull()?.let { loaded ->
-            Box(Modifier.fillMaxSize().clickable(role = Role.Button, onClickLabel = "Fotó nagyítása") { enlarged = loaded }) {
+            Box(Modifier.fillMaxSize().clickable(role = Role.Button, onClickLabel = "Fotó nagyítása") { onEnlarge(loaded) }) {
                 Image(loaded, "$title · ${photo.caption}", Modifier.fillMaxSize(), contentScale = ContentScale.Fit)
-                FilledTonalIconButton(onClick = { enlarged = loaded }, modifier = Modifier.align(Alignment.BottomEnd).padding(8.dp)) {
+                FilledTonalIconButton(onClick = { onEnlarge(loaded) }, modifier = Modifier.align(Alignment.BottomEnd).padding(8.dp)) {
                     Icon(Icons.Outlined.OpenInFull, "Fotó nagyítása")
                 }
             }
@@ -202,9 +205,6 @@ import kotlinx.coroutines.withContext
                     TextButton(onClick = { attempt++ }) { Text("Fotó újratöltése") }
                 }
             }
-    }
-    enlarged?.let { loaded ->
-        FleetPhotoViewer(loaded, "$title · ${photo.caption}", onDismiss = { enlarged = null })
     }
 }
 

@@ -1,5 +1,8 @@
 package hu.matepazy.menetrendgo
 
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.toPixelMap
+import java.io.ByteArrayOutputStream
 import android.graphics.Bitmap
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalDensity
@@ -16,6 +19,60 @@ import java.io.File
 class FleetPhotoUiTest {
     @get:Rule val compose = createComposeRule()
 
+    @Test fun viewerPagesFromSelectedPhotoAndKeepsZoomedDragsInsidePhoto() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val bitmap = Bitmap.createBitmap(600, 400, Bitmap.Config.ARGB_8888).apply { eraseColor(android.graphics.Color.BLUE) }
+        val bytes = ByteArrayOutputStream().also { bitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }.toByteArray()
+        val photos = listOf("Első fotó", "Második fotó", "Harmadik fotó").mapIndexed { index, caption ->
+            ModelPhoto("https://upload.wikimedia.org/wikipedia/commons/test-viewer-$index.png", caption, "", "", "", "")
+        }
+        val cache = FleetPhotoCache(File(context.cacheDir, "fleet-photos"))
+        photos.forEach { cache.write(it.url, bytes) }
+        var open by mutableStateOf(true)
+        compose.setContent {
+            MenetrendTheme("light") {
+                if (open) FleetPhotoViewer(photos, 1, bitmap.asImageBitmap()) { open = false }
+            }
+        }
+        fun image(index: Int) = compose.onNode(hasContentDescription(photos[index].caption) and
+            SemanticsMatcher.keyIsDefined(SemanticsProperties.StateDescription))
+        compose.onNodeWithText("Második fotó").assertIsDisplayed()
+        compose.onNodeWithText("2 / 3").assertIsDisplayed()
+        image(1).performTouchInput { swipeLeft() }
+        compose.waitUntil(5_000) { compose.onAllNodes(hasContentDescription(photos[2].caption)).fetchSemanticsNodes().isNotEmpty() }
+        compose.onNodeWithText("Harmadik fotó").assertIsDisplayed()
+        compose.onNodeWithText("3 / 3").assertIsDisplayed()
+        image(2).performTouchInput { swipeLeft() }
+        compose.onNodeWithText("3 / 3").assertIsDisplayed()
+        image(2).performTouchInput { swipeRight() }
+        compose.waitUntil(5_000) { compose.onAllNodes(hasContentDescription(photos[1].caption)).fetchSemanticsNodes().isNotEmpty() }
+        image(1).performTouchInput { doubleClick(center) }
+        image(1).assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "Nagyítás: 250%"))
+        fun assertPhotoStillVisible() {
+            val pixels = image(1).captureToImage().toPixelMap()
+            val center = pixels[pixels.width / 2, pixels.height / 2]
+            assertTrue("Zoomed photo must remain visible after releasing a pan", center.blue > .9f && center.red < .1f)
+        }
+        image(1).performTouchInput { swipeLeft() }
+        compose.onNodeWithText("2 / 3").assertIsDisplayed()
+        assertPhotoStillVisible()
+        image(1).performTouchInput { swipeRight() }
+        assertPhotoStillVisible()
+        image(1).performTouchInput { swipeUp() }
+        assertPhotoStillVisible()
+        image(1).performTouchInput { swipeDown() }
+        assertPhotoStillVisible()
+        compose.onNodeWithContentDescription("Nagyítás visszaállítása").performClick()
+        image(1).performTouchInput { swipeRight() }
+        compose.waitUntil(5_000) { compose.onAllNodes(hasContentDescription(photos[0].caption)).fetchSemanticsNodes().isNotEmpty() }
+        compose.onNodeWithText("1 / 3").assertIsDisplayed()
+        image(0).performTouchInput { swipeRight() }
+        compose.onNodeWithText("1 / 3").assertIsDisplayed()
+        compose.onNodeWithContentDescription("Nagyított fotó bezárása").performClick()
+        compose.onNodeWithText("1 / 3").assertDoesNotExist()
+        photos.forEach { cache.remove(it.url) }
+    }
+
     @Test fun enlargedPhotoSupportsZoomAndReturnsToArticle() {
         var dark by mutableStateOf(false)
         compose.setContent {
@@ -28,7 +85,7 @@ class FleetPhotoUiTest {
         val photo = hasContentDescription("Stadler FLIRT ·", substring = true)
         compose.waitUntil(35_000) { compose.onAllNodes(photo).fetchSemanticsNodes().isNotEmpty() }
         compose.onNode(photo).performClick()
-        val viewer = photo and SemanticsMatcher.keyIsDefined(SemanticsProperties.StateDescription)
+        val viewer = SemanticsMatcher.keyIsDefined(SemanticsProperties.StateDescription) and hasContentDescription("MÁV-START Flirt motorvonat - 415 105")
         compose.onNode(viewer).assertIsDisplayed().assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "Nagyítás: 100%"))
         capture("enlarged-light")
         compose.onNode(viewer).performTouchInput { doubleClick(center) }
