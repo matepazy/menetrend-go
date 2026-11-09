@@ -105,8 +105,14 @@ class JourneyTrackingUiTest {
         val notification = manager.activeNotifications.single { it.id == JourneyTrackingService.ONGOING_ID }.notification
         assertTrue(notification.flags and android.app.Notification.FLAG_FOREGROUND_SERVICE != 0)
         val channel = manager.getNotificationChannel(notification.channelId)
-        assertEquals(NotificationManager.IMPORTANCE_DEFAULT, channel.importance)
-        assertNotNull(channel.sound)
+        assertEquals(NotificationManager.IMPORTANCE_LOW, channel.importance)
+        assertNull(channel.sound)
+        assertFalse(channel.shouldVibrate())
+        @Suppress("DEPRECATION")
+        assertNull(notification.contentView)
+        if (android.os.Build.VERSION.SDK_INT >= 36) {
+            assertTrue("Tracking must qualify as a Live Update", notification.hasPromotableCharacteristics())
+        }
         assertTrue(notification.flags and android.app.Notification.FLAG_ONLY_ALERT_ONCE != 0)
         notification.actions.single { it.title == "Leállítás" }.actionIntent.send()
         compose.waitUntil(5_000) { JourneyTracking.state.value.session == null }
@@ -176,7 +182,7 @@ class JourneyTrackingUiTest {
         assertEquals(100.0, JourneyTracking.state.value.session!!.progress!!, 0.01)
     }
 
-    @Test fun ongoingNotificationShowsMeasuredProgressAndStopsBesideTheBar() {
+    @Test fun ongoingLiveNotificationShowsMeasuredProgressAndStops() {
         val provider = "gps"
         shell("appops set com.android.shell android:mock_location allow")
         shell("cmd location providers add-test-provider $provider")
@@ -186,39 +192,20 @@ class JourneyTrackingUiTest {
             val manager = app.getSystemService(NotificationManager::class.java)
             fun notification() = manager.activeNotifications.first { it.id == JourneyTrackingService.ONGOING_ID }.notification
             compose.waitUntil(5_000) { manager.activeNotifications.any { it.id == JourneyTrackingService.ONGOING_ID } }
-            @Suppress("DEPRECATION")
-            fun content() = notification().contentView.apply(app, android.widget.FrameLayout(app))
-            instrumentation.runOnMainSync {
-                assertTrue(content().findViewById<android.widget.ProgressBar>(R.id.tracking_progress).isIndeterminate)
-            }
+            assertTrue(notification().extras.getBoolean(android.app.Notification.EXTRA_PROGRESS_INDETERMINATE))
             shell("cmd location providers set-test-provider-location $provider --location 47.585,19.375 --accuracy 5")
             compose.waitUntil(10_000) { JourneyTracking.state.value.estimate != null }
-            // The service publishes state immediately before updating its notification.
             compose.waitUntil(5_000) {
-                var ready = false
-                instrumentation.runOnMainSync {
-                    ready = !content().findViewById<android.widget.ProgressBar>(R.id.tracking_progress).isIndeterminate
-                }
-                ready
+                !notification().extras.getBoolean(android.app.Notification.EXTRA_PROGRESS_INDETERMINATE)
             }
-            instrumentation.runOnMainSync {
-                val view = content()
-                val bar = view.findViewById<android.widget.ProgressBar>(R.id.tracking_progress)
-                val stops = view.findViewById<android.widget.TextView>(R.id.tracking_stops)
-                assertTrue(bar.progress in 40..60)
-                assertEquals("1 megálló", stops.text.toString())
-                val width = (320 * app.resources.displayMetrics.density).toInt()
-                view.measure(android.view.View.MeasureSpec.makeMeasureSpec(width, android.view.View.MeasureSpec.EXACTLY),
-                    android.view.View.MeasureSpec.makeMeasureSpec(0, android.view.View.MeasureSpec.UNSPECIFIED))
-                view.layout(0, 0, width, view.measuredHeight)
-                assertTrue(bar.right < stops.left)
-                assertTrue(stops.right <= width)
-                @Suppress("DEPRECATION")
-                val expanded = notification().bigContentView.apply(app, android.widget.FrameLayout(app))
-                assertEquals("1 megálló", expanded.findViewById<android.widget.TextView>(R.id.tracking_stops).text.toString())
-                assertTrue(expanded.findViewById<android.widget.TextView>(R.id.tracking_eta).text.isNotBlank())
-                assertTrue(expanded.findViewById<android.widget.TextView>(R.id.tracking_status).text.isNotBlank())
-            }
+            assertTrue(notification().extras.getInt(android.app.Notification.EXTRA_PROGRESS) in 40..60)
+            assertNull(notification().extras.getCharSequence(android.app.Notification.EXTRA_SUB_TEXT))
+            assertEquals("A következő megállónál szállj le!",
+                notification().extras.getCharSequence(android.app.Notification.EXTRA_TEXT).toString())
+            assertTrue(notification().extras.getCharSequence(android.app.Notification.EXTRA_BIG_TEXT).toString().contains("érkezés:"))
+            @Suppress("DEPRECATION")
+            assertNull(notification().contentView)
+            if (android.os.Build.VERSION.SDK_INT >= 36) assertTrue(notification().hasPromotableCharacteristics())
             val postedAt = manager.activeNotifications.first { it.id == JourneyTrackingService.ONGOING_ID }.postTime
             val previousProgressAt = JourneyTracking.state.value.session!!.progressAt
             Thread.sleep(20_100)
@@ -352,18 +339,19 @@ class JourneyTrackingUiTest {
             val manager = app.getSystemService(NotificationManager::class.java)
             assertEquals(android.content.pm.PackageManager.PERMISSION_GRANTED,
                 app.checkSelfPermission(android.Manifest.permission.VIBRATE))
-            val channel = manager.getNotificationChannel(JourneyTrackingService.ALERTS)
-            assertTrue("Alighting alerts must request system notification vibration", channel.shouldVibrate())
-            assertEquals(NotificationManager.IMPORTANCE_HIGH, channel.importance)
+            val channel = manager.getNotificationChannel(JourneyTrackingService.ONGOING)
+            assertFalse("The live notification must stay silent", channel.shouldVibrate())
+            assertNull(channel.sound)
             shell("input keyevent 223")
             assertFalse("Exercise delivery with the screen off",
                 app.getSystemService(android.os.PowerManager::class.java).isInteractive)
             shell("cmd location providers set-test-provider-location $provider --location 47.67,19.6728 --accuracy 5")
             try { compose.waitUntil(10_000) { JourneyTracking.state.value.session?.alerted == true } }
             catch (e: Exception) { throw AssertionError("Alert state: ${JourneyTracking.state.value}", e) }
-            compose.waitUntil(5_000) { manager.activeNotifications.any { it.id == JourneyTrackingService.ALERT_ID } }
+            assertTrue("No separate alighting notification", manager.activeNotifications.none { it.id == JourneyTrackingService.ALERT_ID })
             assertNull("A detour fix must warn even without a route match", JourneyTracking.state.value.estimate)
-            val firstAlert = manager.activeNotifications.single { it.id == JourneyTrackingService.ALERT_ID }.postTime
+            val vibrations = shell("dumpsys vibrator_manager") + shell("dumpsys vibrator")
+            assertTrue("A direct alighting vibration must be recorded", vibrations.contains(app.packageName) && vibrations.contains("ALARM"))
             Thread.sleep(5_100)
             shell("cmd location providers set-test-provider-location $provider --location 47.67,19.67 --accuracy 5")
             assertFalse(JourneyTracking.state.value.session!!.awaitingBoarding)
@@ -372,7 +360,7 @@ class JourneyTrackingUiTest {
                 shell("cmd location providers set-test-provider-location $provider --location 47.67,19.67 --accuracy 5")
             }
             compose.waitUntil(10_000) { JourneyTracking.state.value.session?.awaitingBoarding == true }
-            assertEquals(firstAlert, manager.activeNotifications.single { it.id == JourneyTrackingService.ALERT_ID }.postTime)
+            assertTrue(manager.activeNotifications.none { it.id == JourneyTrackingService.ALERT_ID })
             compose.waitUntil(5_000) {
                 manager.activeNotifications.any { it.id == JourneyTrackingService.ONGOING_ID && it.notification.actions.any { action -> action.title == "Felszálltam" } }
             }
@@ -392,7 +380,7 @@ class JourneyTrackingUiTest {
                 shell("cmd location providers set-test-provider-location $provider --location ${nearbyDestination.lat},${nearbyDestination.lon} --accuracy 5")
             }
             compose.waitUntil(10_000) { JourneyTracking.state.value.session == null }
-            compose.waitUntil(5_000) { manager.activeNotifications.any { it.id == JourneyTrackingService.ALERT_ID } }
+            assertTrue("No separate alighting notification", manager.activeNotifications.none { it.id == JourneyTrackingService.ALERT_ID })
             assertNull(JourneyTracking.saved(app))
         } finally {
             shell("input keyevent 224"); shell("wm dismiss-keyguard")
@@ -436,7 +424,7 @@ class JourneyTrackingUiTest {
             catch (e: Exception) { throw AssertionError("Alert state: ${JourneyTracking.state.value}", e) }
             assertFalse(JourneyTracking.state.value.session!!.awaitingBoarding)
             val manager = app.getSystemService(NotificationManager::class.java)
-            compose.waitUntil(5_000) { manager.activeNotifications.any { it.id == JourneyTrackingService.ALERT_ID } }
+            assertTrue("No separate alighting notification", manager.activeNotifications.none { it.id == JourneyTrackingService.ALERT_ID })
         } finally {
             shell("cmd location providers remove-test-provider $provider")
             shell("appops set com.android.shell android:mock_location default")

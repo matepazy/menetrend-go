@@ -7,8 +7,8 @@ import android.content.*
 import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
 import android.location.*
+import android.media.AudioAttributes
 import android.os.*
-import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.ServiceCompat
@@ -58,9 +58,7 @@ internal object JourneyTracking {
     fun notificationsEnabled(context: Context): Boolean {
         val manager = context.getSystemService(NotificationManager::class.java)
         return NotificationManagerCompat.from(context).areNotificationsEnabled() &&
-            listOf(JourneyTrackingService.ONGOING, JourneyTrackingService.ALERTS).none {
-                manager.getNotificationChannel(it)?.importance == NotificationManager.IMPORTANCE_NONE
-            }
+            manager.getNotificationChannel(JourneyTrackingService.ONGOING)?.importance != NotificationManager.IMPORTANCE_NONE
     }
     fun start(context: Context, session: TrackingSession) {
         check(enabled(context)) { "A leszállási jelzés béta funkció nincs bekapcsolva." }
@@ -108,14 +106,13 @@ class JourneyTrackingService : Service(), LocationListener {
         super.onCreate()
         locations = getSystemService(LocationManager::class.java)
         val manager = getSystemService(NotificationManager::class.java)
-        manager.createNotificationChannel(NotificationChannel(ONGOING, "Utazás követése", NotificationManager.IMPORTANCE_DEFAULT))
-        manager.createNotificationChannel(NotificationChannel(ALERTS, "Leszállási figyelmeztetések", NotificationManager.IMPORTANCE_HIGH).apply {
-            description = "Figyelmeztetés a kiválasztott leszállóhely előtt"
-            enableVibration(true)
-            // Android delivers this with the notification, including while the screen is off.
-            // Existing channels retain the user's settings and their original default pattern.
-            vibrationPattern = longArrayOf(0, 500, 200, 500, 200, 800)
+        manager.createNotificationChannel(NotificationChannel(ONGOING, "Utazás követése", NotificationManager.IMPORTANCE_LOW).apply {
+            description = "Élő utazási állapot, hang és értesítési rezgés nélkül"
+            setSound(null, null)
+            enableVibration(false)
         })
+        // Clear a warning left by an older version. Proximity now uses the vibrator directly.
+        manager.cancel(ALERT_ID)
     }
 
     @SuppressLint("MissingPermission")
@@ -291,16 +288,17 @@ class JourneyTrackingService : Service(), LocationListener {
             progressAt = if (result != null) System.currentTimeMillis() else current.progressAt)
         message = when {
             destination.arrived -> "Megérkeztél a leszállóhelyhez."
+            result?.stopsRemaining == 1 -> "A következő megállónál szállj le!"
             current.alerted || destination.shouldAlert -> "Készülj a leszállásra!"
             result != null -> "${result.stopsRemaining} megálló a leszállásig"
             else -> "${destination.distance.toInt()} m a leszállóhelyig · légvonalban"
         }
         if (destination.shouldAlert) {
-            if (alert(current)) {
+            if (vibrateForAlighting()) {
                 session = session!!.copy(alerted = true)
                 JourneyTracking.persist(this, session!!, durable = true)
             } else {
-                message = "Nem sikerült elküldeni a jelzést. Ellenőrizd az értesítési engedélyeket."
+                message = "A telefon nem tudott rezegni. Készülj a leszállásra!"
             }
         }
         if (destination.arrived) {
@@ -342,53 +340,41 @@ class JourneyTrackingService : Service(), LocationListener {
             .setContentTitle(if (current.awaitingBoarding) "Átszállás · ${leg.to.name}" else "${leg.route} · ${leg.to.name}")
             .setContentText(message).setStyle(NotificationCompat.BigTextStyle().bigText(if (current.awaitingBoarding) message else "$message\n$eta"))
             .setContentIntent(open()).setOngoing(true).setOnlyAlertOnce(true).setShowWhen(false)
+            .setSilent(true)
             .setCategory(NotificationCompat.CATEGORY_NAVIGATION)
             .setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
             .addAction(0, "Leállítás", action("stop"))
         if (current.awaitingBoarding) builder.addAction(0, "Felszálltam", action("board"))
         if (!current.awaitingBoarding) {
             val progress = estimate
-            val title = "${leg.route} · ${leg.to.name}"
-            val stops = progress?.let { "${it.stopsRemaining} megálló" }
-                ?: destinationDistance?.let { "${it.toInt()} m · légvonalban" } ?: "Helyzetre vár"
-            fun content(layout: Int) = RemoteViews(packageName, layout).apply {
-                setTextViewText(R.id.tracking_title, title)
-                setTextViewText(R.id.tracking_stops, stops)
-                val total = progress?.let { it.progress + it.remainingMeters } ?: 0.0
-                val value = if (total > 0) ((progress!!.progress / total).coerceIn(0.0, 1.0) * 100).toInt() else 0
-                setProgressBar(R.id.tracking_progress, 100, value, progress == null)
-                setContentDescription(R.id.tracking_stops,
-                    progress?.let { "${it.stopsRemaining} megálló a leszállásig" }
-                        ?: destinationDistance?.let { "${it.toInt()} méter a leszállóhelyig légvonalban" } ?: "Helymeghatározás folyamatban")
-            }
-            builder.setStyle(NotificationCompat.DecoratedCustomViewStyle())
-                .setCustomContentView(content(R.layout.notification_journey))
-                .setCustomBigContentView(content(R.layout.notification_journey_expanded).apply {
-                    setInt(R.id.tracking_title, "setMaxLines", 2)
-                    setTextViewText(R.id.tracking_status, message)
-                    setTextViewText(R.id.tracking_eta, eta)
-                })
+            val total = progress?.let { it.progress + it.remainingMeters } ?: 0.0
+            val value = if (total > 0) ((progress!!.progress / total).coerceIn(0.0, 1.0) * 100).toInt() else 0
+            builder.setProgress(100, value, progress == null)
+            if (Build.VERSION.SDK_INT >= 36) builder.setShortCriticalText(
+                if (current.alerted || progress?.stopsRemaining == 1) "Leszállás" else "Követés")
         }
         if (Build.VERSION.SDK_INT >= 36) builder.setRequestPromotedOngoing(true)
         return builder.build()
     }
 
-    @SuppressLint("MissingPermission")
-    private fun alert(current: TrackingSession): Boolean {
-        if (!JourneyTracking.enabled(this) || !JourneyTracking.notificationsEnabled(this)) return false
-        val key = current.controlToken
-        if (getSystemService(NotificationManager::class.java).activeNotifications.any {
-                it.id == ALERT_ID && it.notification.extras.getString("trackingAlertKey") == key }) return true
-        val stop = current.leg.to.name
+    private fun vibrateForAlighting(): Boolean {
+        if (!JourneyTracking.enabled(this)) return false
         return try {
-            NotificationManagerCompat.from(this).notify(ALERT_ID,
-            NotificationCompat.Builder(this, ALERTS).setSmallIcon(R.drawable.ic_notification)
-                .setContentTitle("Hamarosan leszállás")
-                .setContentText("Készülj a leszállásra: $stop")
-                .setStyle(NotificationCompat.BigTextStyle().bigText("Készülj a leszállásra: $stop"))
-                .addExtras(Bundle().apply { putString("trackingAlertKey", key) }).setOnlyAlertOnce(true)
-                .setPriority(NotificationCompat.PRIORITY_HIGH).setCategory(NotificationCompat.CATEGORY_REMINDER)
-                .setContentIntent(open()).setAutoCancel(true).setVisibility(NotificationCompat.VISIBILITY_PRIVATE).build())
+            val vibrator = if (Build.VERSION.SDK_INT >= 31) getSystemService(VibratorManager::class.java).defaultVibrator
+                else @Suppress("DEPRECATION") getSystemService(Vibrator::class.java)
+            // Alarm usage permits this user-requested reminder while the screen is off.
+            // Android's vibration and Do Not Disturb settings still apply.
+            if (vibrator.hasVibrator()) {
+                val effect = VibrationEffect.createWaveform(longArrayOf(0, 500, 200, 500, 200, 800), -1)
+                if (Build.VERSION.SDK_INT >= 33) vibrator.vibrate(effect,
+                    VibrationAttributes.Builder().setUsage(VibrationAttributes.USAGE_ALARM).build())
+                else {
+                    @Suppress("DEPRECATION")
+                    vibrator.vibrate(effect, AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_ALARM)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION).build())
+                }
+            }
+            // No vibrator is a valid device capability, not a reason to retry every fix.
             true
         } catch (_: SecurityException) { false }
     }
@@ -421,9 +407,8 @@ class JourneyTrackingService : Service(), LocationListener {
     }
 
     companion object {
-        // A new ID upgrades existing installs too. Android cannot raise a channel's importance.
-        internal const val ONGOING = "journey_progress_audible"
-        internal const val ALERTS = "journey_alighting"
+        // A new channel removes the old default sound/vibration on existing installs too.
+        internal const val ONGOING = "journey_progress_live"
         internal const val ONGOING_ID = 7001
         internal const val ALERT_ID = 7002
     }

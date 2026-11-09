@@ -84,7 +84,7 @@ internal fun JourneyTrackingSheet(journey: Journey, selectedLegIndex: Int, onDis
             return
         }
         if (!JourneyTracking.notificationsEnabled(context)) {
-            error = "Engedélyezd az értesítéseket és a leszállási figyelmeztetéseket."
+            error = "Engedélyezd az értesítéseket az élő utazási állapot megjelenítéséhez."
             recovery = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
             return
         }
@@ -167,7 +167,7 @@ internal fun JourneyTrackingSheet(journey: Journey, selectedLegIndex: Int, onDis
                 Text("Jelzés a megálló közelében", style = MaterialTheme.typography.titleMedium)
                 Text("A térképen ${destinationAlertRadius(leg.mode).toInt()} méteres kört jelölünk a leszállóhely körül. Az előző megálló kisebb, szaggatott köre védi a korai jelzéstől. A nagy körön belül akkor figyelmeztetünk, ha már elhagytad az előző megálló körét a leszállóhely felé.",
                     style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Text("Felszállás után indítsd el. Közeledéskor sűrítjük a helyellenőrzést. Lezárt képernyőnél is jelzünk. Gyenge helyjelnél a jelzés késhet vagy elmaradhat.",
+                Text("Felszállás után indítsd el. Az utazást élő értesítésben követheted. A leszállóhely közelében a telefon külön rezgéssel jelez, lezárt képernyőnél is. A rezgést a telefon rezgési és Ne zavarjanak beállításai befolyásolhatják. Gyenge helyjelnél a jelzés késhet vagy elmaradhat.",
                     style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Button(onClick = { requestStart() }, enabled = !starting,
                     modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text(if (starting) "Indítás…" else "Jelzés indítása") }
