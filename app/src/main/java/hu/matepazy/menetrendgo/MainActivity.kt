@@ -342,7 +342,7 @@ val LocalBottomOverlayInset = staticCompositionLocalOf { 0.dp }
                                 page=="routeMap" && selected!=null -> JourneyScreen(vm,selected!!,{},onTrip={},onMap={},refreshTransfers=false)
                                 page=="trip" && selected!=null -> JourneyScreen(vm,selected!!,{},onTrip={},onMap={},refreshTransfers=false)
                                 page=="trip" && tab==1 -> NearbyScreen(vm)
-                                page=="journey" && journeyReturnPage=="results" -> ResultsScreen(vm,resultsNavigation,{}) {}
+                                page=="journey" && journeyReturnPage=="results" -> ResultsScreen(vm,resultsNavigation,{},refreshDepartures=false) {}
                                 else -> SearchScreen(vm) {}
                             }
                         }) {

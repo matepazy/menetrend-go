@@ -280,7 +280,7 @@ private fun themeLabel(value: String) = when (value) {
         ) {
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Rapid Refresh", style = MaterialTheme.typography.titleMedium)
-                Text("Bekapcsolva minden élő járműadatot mutató térkép 15, az utazás részletei 30 másodpercenként frissülnek. Kikapcsolva mindkettő 75 másodpercenként frissül.",
+                Text("Bekapcsolva minden élő járműadatot mutató térkép 15, az indulások és az utazás részletei 30 másodpercenként frissülnek. Kikapcsolva mindegyik 75 másodpercenként frissül.",
                     style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             Switch(checked = enabled, onCheckedChange = null)

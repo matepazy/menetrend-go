@@ -794,7 +794,8 @@ internal const val DeparturePaginationKey = "later-departures"
     }
 }
 
-@Composable fun ResultsScreen(vm: AppState, navigation: ResultsNavigationState, back: () -> Unit, select: (Journey) -> Unit) {
+@Composable fun ResultsScreen(vm: AppState, navigation: ResultsNavigationState, back: () -> Unit,
+    refreshDepartures: Boolean = true, select: (Journey) -> Unit) {
     var saveSearch by rememberSaveable {mutableStateOf(false)}
     val from=vm.resultFrom
     val to=vm.resultTo
@@ -803,6 +804,15 @@ internal const val DeparturePaginationKey = "later-departures"
         onSave={name,icon -> vm.saveSearch(from,to,name,icon);saveSearch=false},
         onDismiss={saveSearch=false},
         onDelete=if(saved==null) null else {{vm.removeSavedSearch(saved);saveSearch=false}})
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+    LaunchedEffect(lifecycle, refreshDepartures, vm.searchGeneration, vm.journeyRefreshSeconds) {
+        if (refreshDepartures) lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            while (true) {
+                vm.refreshDepartures()
+                delay(vm.journeyRefreshSeconds * 1_000L)
+            }
+        }
+    }
     val listState=navigation.listState
     DepartureAutoLoading(listState, enabled=vm.canLoadMore && !vm.searching && vm.searchError==null) {vm.search(true)}
     var earlierAnchor by navigation::earlierAnchor

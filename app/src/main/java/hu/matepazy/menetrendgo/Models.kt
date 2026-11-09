@@ -81,7 +81,7 @@ data class Journey(val duration: Int, val legs: List<Leg>, val rawGraphQl: Strin
     val boardingLeg get() = legs.firstOrNull { !it.walking } ?: legs.first()
     val alightingLeg get() = legs.lastOrNull { !it.walking } ?: legs.last()
     val serviceMinutes get() = ((alightingLeg.end - boardingLeg.start + 59_999) / 60_000).toInt()
-    val key get() = legs.joinToString("|") { "${it.tripId}:${it.start}:${it.from.name}" }
+    val key get() = legs.joinToString("|") { "${it.tripId}:${it.departureTime.scheduled}:${it.from.name}" }
     val changes get() = (legs.count { !it.walking } - 1).coerceAtLeast(0)
     companion object { fun parse(o: JSONObject) = Journey(o.optInt("duration"), o.array("legs").map(Leg::parse)) }
 }

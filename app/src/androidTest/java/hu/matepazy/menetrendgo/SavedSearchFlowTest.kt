@@ -81,7 +81,7 @@ class SavedSearchFlowTest {
                             if (planning) SearchScreen(vm, {}, { launches++ })
                             else {
                                 val list = rememberLazyListState()
-                                ResultsScreen(vm, remember(list) { ResultsNavigationState(list) }, { planning = true }, {})
+                                ResultsScreen(vm, remember(list) { ResultsNavigationState(list) }, { planning = true }, select = {})
                             }
                         }
                     }

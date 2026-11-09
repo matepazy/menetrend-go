@@ -277,6 +277,17 @@ class AppState(app: Application) : AndroidViewModel(app) {
         catch (e: Exception) { vehicleError = e.message ?: "Nem sikerült frissíteni a járműveket." }
         finally { vehiclesLoading = false }
     }
+    internal suspend fun refreshDepartures() {
+        if (searching || journeys.isEmpty()) return
+        val generation = searchGeneration
+        val snapshot = journeys
+        val refreshed = refreshDepartureJourneys(snapshot) { id, day -> mav.trip(id, day, forceRefresh = true) }
+        // Pagination can finish during the refresh. Keep its additions, and ignore a replaced search.
+        if (generation != searchGeneration) return
+        val replacements = snapshot.zip(refreshed).associate { (old, fresh) -> old.key to fresh }
+        journeys = journeys.map { replacements[it.key] ?: it }
+    }
+
     internal suspend fun refreshJourneyTimes(journey: Journey, previous: Map<Int, TransferTimes>) =
         refreshJourneyLegTimes(journey, previous) { id, day -> mav.trip(id, day, forceRefresh = true) }
 
