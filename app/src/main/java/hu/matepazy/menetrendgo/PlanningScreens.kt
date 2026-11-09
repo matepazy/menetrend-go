@@ -868,17 +868,18 @@ internal const val DeparturePaginationKey = "later-departures"
         results.forEachIndexed { index, journey ->
             if(vm.earlierRequested && index==firstUpcoming) item(key="now") { NowDivider() }
             item(key=journey.key) {
+            val walkingOnly=journey.legs.all {it.walking}
             val departureMinute=journey.boardingLeg.start/60_000L
             val earlier=departureMinute<currentMinute
             val departingNow=departureMinute==currentMinute
             Surface(onClick={select(journey)},shape=RoundedCornerShape(32.dp),color=MaterialTheme.colorScheme.surface,tonalElevation=0.dp,
                 modifier=Modifier.semantics {if(earlier) stateDescription="Korábbi indulás"}.drawWithContent {
                     drawContent()
-                    if(earlier || departingNow) {
+                    if(walkingOnly || earlier || departingNow) {
                         val width=1.5.dp.toPx()
                         drawRoundRect(outline,topLeft=Offset(width/2,width/2),size=Size(size.width-width,size.height-width),
                             cornerRadius=CornerRadius(32.dp.toPx()-width/2),
-                            style=Stroke(width=width,pathEffect=if(earlier)
+                            style=Stroke(width=width,pathEffect=if(earlier && !walkingOnly)
                                 PathEffect.dashPathEffect(floatArrayOf(6.dp.toPx(),4.dp.toPx())) else null))
                     }
                 }) {
@@ -890,7 +891,7 @@ internal const val DeparturePaginationKey = "later-departures"
                         }
                         Icon(Icons.Outlined.ChevronRight,null,Modifier.padding(start=8.dp))
                     }
-                    JourneyEndpoints(journey,departingNow=departingNow)
+                    JourneyEndpoints(journey,departingNow=departingNow && !walkingOnly)
                     Text(listOf(dayLabel(journey.boardingLeg.start),"${journey.serviceMinutes} perc",if(journey.changes==0) "Közvetlen" else "${journey.changes} átszállás").filter {it.isNotBlank()}.joinToString(" · "),style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)
                     JourneyAmenityIcons(journey)
                 }

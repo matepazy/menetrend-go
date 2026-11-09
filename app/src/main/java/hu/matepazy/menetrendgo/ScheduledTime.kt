@@ -38,7 +38,7 @@ data class ServiceTime(val scheduled: Long, val estimate: Long, val realtime: Bo
     val activeTimeModifier=if(pulse) {
         val opacity=rememberInfiniteTransition(label="departure time pulse").animateFloat(
             initialValue=1f,targetValue=.45f,
-            animationSpec=infiniteRepeatable(tween(1500,easing=FastOutSlowInEasing),RepeatMode.Reverse),
+            animationSpec=infiniteRepeatable(tween(125,easing=FastOutSlowInEasing),RepeatMode.Reverse),
             label="departure time opacity")
         Modifier.graphicsLayer { alpha=opacity.value }
     } else Modifier
