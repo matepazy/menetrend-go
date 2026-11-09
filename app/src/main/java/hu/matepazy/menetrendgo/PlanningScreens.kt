@@ -96,7 +96,8 @@ import androidx.lifecycle.repeatOnLifecycle
 @Composable private fun StopField(label: String, value: Station?, icon: ImageVector, modifier: Modifier = Modifier,
     onClear: () -> Unit, onClick: () -> Unit) {
     Surface(onClick=onClick,shape=RoundedCornerShape(28.dp),color=MaterialTheme.colorScheme.surface,modifier=modifier.fillMaxWidth()) {
-        Row(Modifier.padding(horizontal=4.dp,vertical=AppLayout.RelatedGap).heightIn(min=48.dp),verticalAlignment=Alignment.CenterVertically) {
+        // Reserve room for the overlaid swap button inside the full-width tap target.
+        Row(Modifier.padding(start=4.dp,end=4.dp+48.dp+AppLayout.CompactGap,top=AppLayout.RelatedGap,bottom=AppLayout.RelatedGap).heightIn(min=48.dp),verticalAlignment=Alignment.CenterVertically) {
             Icon(icon,null,tint=MaterialTheme.colorScheme.primary,modifier=Modifier.size(26.dp))
             Spacer(Modifier.width(16.dp))
             Column(Modifier.weight(1f)) {
@@ -125,7 +126,7 @@ import androidx.lifecycle.repeatOnLifecycle
         .onGloballyPositioned {if(active) spotlight.bounds=it.boundsInWindow().inflate(focusGutter)}
         .animateContentSize(tween(AppMotion.StationFocus,easing=AppMotion.Arrival),alignment=Alignment.TopStart)) {
         if(active) StationAutocomplete(vm,label,value,icon,onDismiss,onSelected,onClear,allowCurrentLocation)
-        else StopField(label,value,icon,Modifier.padding(end=48.dp+AppLayout.CompactGap),onClear,onOpen)
+        else StopField(label,value,icon,onClear=onClear,onClick=onOpen)
     }
 }
 
