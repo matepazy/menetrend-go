@@ -158,6 +158,12 @@ function groupMapStops(items,distance){
  }
  return groups;
 }
+function visibleMapStopGroups(items,project,distance,isVisible){
+ const selected=new Set(selectMapStops(items,project,24).map(s=>s.id));
+ // Collision selection may hide a platform, but never part of a visible group.
+ // Keep offscreen members mounted as well so panning reveals the full group.
+ return groupMapStops(items,distance).filter(group=>group.some(s=>selected.has(s.id))&&group.some(isVisible));
+}
 // Convex hull of padded circles produces a rounded enclosure for pairs and
 // interchanges, with constant screen-space padding at every street-level zoom.
 function mapStopOutline(points,padding=18){
@@ -205,10 +211,11 @@ function mapStopBackground(stop){
 function drawStops(){
  stopMarkers.clearLayers();if(!stopsEnabled||map.getZoom()<stopMinZoom)return;
  const zoom=map.getZoom(),project=s=>map.project([s.lat,s.lon],zoom);
- const selected=selectMapStops(stops,project,24);
  const bounds=map.getBounds().pad(.1);
- groupMapStops(selected,(a,b)=>L.latLng(a.lat,a.lon).distanceTo([b.lat,b.lon])).forEach(group=>{
-  if(group.length<2||!group.some(s=>bounds.contains([s.lat,s.lon])))return;
+ const groups=visibleMapStopGroups(stops,project,(a,b)=>L.latLng(a.lat,a.lon).distanceTo([b.lat,b.lon]),s=>bounds.contains([s.lat,s.lon]));
+ const selected=groups.flat();
+ groups.forEach(group=>{
+  if(group.length<2)return;
   const points=group.map(project);
   L.polygon(mapStopOutline(points).map(p=>map.unproject([p.x,p.y],zoom)),{pane:'stopGroups',color:'#737b80',weight:1.5,opacity:.55,fillColor:'#737b80',fillOpacity:.12,interactive:false,smoothFactor:0}).addTo(stopMarkers);
   const center={x:points.reduce((n,p)=>n+p.x,0)/points.length,y:points.reduce((n,p)=>n+p.y,0)/points.length};
@@ -216,7 +223,7 @@ function drawStops(){
   const label=document.createElement('div');label.textContent=group[0].name;
   L.marker(map.unproject([center.x,center.y],zoom),{pane:'stopNames',interactive:false,keyboard:false,icon:L.divIcon({html:label,className:'stop-group-label',iconSize:[140,42],iconAnchor:[70,7]})}).addTo(stopMarkers);
  });
- selected.filter(s=>bounds.contains([s.lat,s.lon])).forEach(s=>{
+ selected.forEach(s=>{
   const hit=document.createElement('div');hit.className='hit';
   const dot=document.createElement('div');dot.className='stop-dot';dot.style.background=mapStopBackground(s);hit.append(dot);
   const marker=L.marker([s.lat,s.lon],{icon:L.divIcon({html:hit,iconSize:[48,48],iconAnchor:[24,24],className:''}),title:s.name+' · indulási tábla',keyboard:true,zIndexOffset:-500}).addTo(stopMarkers);
@@ -235,7 +242,8 @@ function drawStops(){
 function reportStopViewport(){
  if(!stopsEnabled)return;
  if(map.getZoom()<stopMinZoom){if(window.NativeMap)NativeMap.stopViewport(0,0,0);return}
- const c=map.getCenter(),r=Math.min(15000,Math.max(100,Math.ceil(c.distanceTo(map.getBounds().getNorthEast())*1.1)));
+ // Include the maximum group diameter beyond the visible request area.
+ const c=map.getCenter(),r=Math.min(15000,Math.max(100,Math.ceil(c.distanceTo(map.getBounds().getNorthEast())*1.1))+300);
  if(window.NativeMap)NativeMap.stopViewport(c.lat,c.lng,r);
 }
 window.setStopsEnabled=enabled=>{stopsEnabled=enabled;drawStops();reportStopViewport()};

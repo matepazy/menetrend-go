@@ -45,3 +45,23 @@ test('street-level selection reveals nearby platforms while suppressing coincide
   const items = [stop('a', 'Megálló', 0), stop('b', 'Megálló', 30), stop('c', 'Megálló', 2)];
   assert.equal(context.selectMapStops(items, s => s, 24).map(s => s.id).join(','), 'a,b');
 });
+
+test('one selected member reveals all group members including collision-suppressed platforms', () => {
+  const items = [stop('a', 'Megálló', 0), stop('b', 'Megálló', 2), stop('c', 'Megálló', 30)];
+  const groups = context.visibleMapStopGroups(items, s => s, distance, () => true);
+  assert.equal(groups.length, 1);
+  assert.equal(groups.flat().map(s => s.id).join(','), 'a,b,c');
+});
+
+test('visible group stays complete when the selected member is outside the viewport', () => {
+  const items = [stop('a', 'Megálló', 0), stop('b', 'Megálló', 2)];
+  const groups = context.visibleMapStopGroups(items, s => s, distance, s => s.id === 'b');
+  assert.equal(groups.flat().map(s => s.id).join(','), 'a,b');
+  assert.equal(context.visibleMapStopGroups(items, s => s, distance, () => false).length, 0);
+});
+
+test('fully suppressed groups stay hidden and distant namesakes are not revealed', () => {
+  const items = [stop('a', 'Másik megálló', 0), stop('b', 'Megálló', 2), stop('c', 'Megálló', 3), stop('d', 'Megálló', 500)];
+  const groups = context.visibleMapStopGroups(items, s => s, distance, s => s.x < 100);
+  assert.equal(groups.flat().map(s => s.id).join(','), 'a');
+});
