@@ -3,6 +3,8 @@
 <style>/* LEAFLET_CSS */
 html,body,#map{height:100%;margin:0;background:#e5edf3;font-family:Roboto,Arial,sans-serif}.leaflet-tile-pane{pointer-events:none}.hit{width:48px;height:48px;display:flex;align-items:center;justify-content:center}.cluster{background:#244c86;color:white;border:3px solid white;border-radius:50%;width:34px;height:34px;display:flex;align-items:center;justify-content:center;font:bold 13px Roboto,Arial;box-shadow:0 2px 8px #1234}.vehicle.compact{width:28px;height:28px;min-width:0;padding:0;border-radius:50%}.vehicle svg{width:20px;height:20px;flex-shrink:0}.vehicle{display:flex;align-items:center;justify-content:center;gap:5px}.vehicle{flex-shrink:0;width:max-content;background:#2864d9;color:white;border:2px solid white;border-radius:22px;padding:6px 10px;white-space:nowrap;font:bold 13px Roboto,Arial;box-shadow:0 2px 8px #1234;min-width:20px;text-align:center}.bus{background:#0d687a}#status{position:absolute;z-index:1000;bottom:36px;left:12px;right:78px;background:#f8fbfff2;color:#112d43;border-radius:18px;padding:10px;font-size:12px;display:none}.leaflet-control-attribution{font-size:10px!important;max-width:240px;white-space:normal;margin-right:18px!important;margin-bottom:calc(var(--bottom-inset,0px) + 12px)!important;border-radius:12px;padding:4px 8px!important}.leaflet-tooltip{border-radius:16px;padding:10px}
 .hit{user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.stop-dot{width:14px;height:14px;border-radius:50%;box-sizing:border-box;box-shadow:0 0 0 1px #fff,0 2px 4px #1234}
+.stop-group-label{pointer-events:none!important;background:none;border:0;text-align:center;color:var(--app-ink,#112d43);font:600 12px/14px Roboto,Arial,sans-serif;text-shadow:0 1px 2px var(--app-surface,#f8fbff),1px 0 2px var(--app-surface,#f8fbff),-1px 0 2px var(--app-surface,#f8fbff),0 -1px 2px var(--app-surface,#f8fbff)}
 .vehicle.compact{position:relative;width:48px;height:48px;background:transparent!important;border:0;padding:0;box-shadow:none}
 .vehicle .marker-artwork{width:48px;height:48px;overflow:visible;filter:drop-shadow(0 2px 4px #1234);pointer-events:none}
 .leaflet-top{top:var(--top-inset,0px)}
@@ -30,9 +32,9 @@ let bindMapActivation;
  function cancelActivation(){clearTimeout(pendingActivation);pendingActivation=0}
  bindMapActivation=(marker,action)=>marker.on('click',e=>{
   // Keyboard activation stays immediate; pointer taps wait for a possible zoom gesture.
-  if(e.originalEvent?.type==='keypress'||e.originalEvent?.detail===0&&!e.originalEvent?.sourceCapabilities?.firesTouchEvents){action();return}
+  if(e.originalEvent?.type==='keypress'||e.originalEvent?.detail===0&&!e.originalEvent?.sourceCapabilities?.firesTouchEvents){action(e);return}
   if(doubleTap||Date.now()<suppressUntil)return;
-  cancelActivation();pendingActivation=setTimeout(()=>{pendingActivation=0;action()},doubleTapMs);
+  cancelActivation();pendingActivation=setTimeout(()=>{pendingActivation=0;action(e)},doubleTapMs);
  });
  function endSwipe(){
   if(doubleTap&&suppressUntil===Infinity)suppressUntil=Date.now()+500;
@@ -138,9 +140,38 @@ window.setMapType=(type,customUrl='',unofficialGoogleMap=false)=>{
 window.setMapType('standard');
 const stopMarkers=L.layerGroup().addTo(map);let stops=[],stopsEnabled=false;
 const stopMinZoom=16;
+map.createPane('stopGroups');map.getPane('stopGroups').style.zIndex=390;map.getPane('stopGroups').style.pointerEvents='none';
+map.createPane('stopNames');map.getPane('stopNames').style.zIndex=590;map.getPane('stopNames').style.pointerEvents='none';
+/* STOP_GROUPS_START */
+// Exact names, bounded geographic diameter and stable IDs keep unrelated stops
+// separate. Grouping is visual only: every circle retains its provider identity.
+function groupMapStops(items,distance){
+ const names=new Map(),groups=[];
+ for(const stop of [...items].sort((a,b)=>a.id<b.id?-1:a.id>b.id?1:0)){
+  const key=stop.name.normalize('NFC').trim().replace(/\s+/g,' ').toLocaleLowerCase('hu');
+  if(!key){groups.push([stop]);continue}
+  if(!names.has(key))names.set(key,[]);
+  const candidates=names.get(key);
+  let group=candidates.find(g=>g.every(other=>distance(stop,other)<=300));
+  if(!group){group=[];candidates.push(group);groups.push(group)}
+  group.push(stop);
+ }
+ return groups;
+}
+// Convex hull of padded circles produces a rounded enclosure for pairs and
+// interchanges, with constant screen-space padding at every street-level zoom.
+function mapStopOutline(points,padding=18){
+ const padded=points.flatMap(p=>Array.from({length:24},(_,i)=>{
+  const angle=i*Math.PI/12;return {x:p.x+Math.cos(angle)*padding,y:p.y+Math.sin(angle)*padding};
+ })).sort((a,b)=>a.x-b.x||a.y-b.y);
+ const cross=(a,b,c)=>(b.x-a.x)*(c.y-a.y)-(b.y-a.y)*(c.x-a.x);
+ const half=sequence=>{const hull=[];for(const p of sequence){while(hull.length>1&&cross(hull[hull.length-2],hull[hull.length-1],p)<=0)hull.pop();hull.push(p)}return hull.slice(0,-1)};
+ return [...half(padded),...half([...padded].reverse())];
+}
+/* STOP_GROUPS_END */
 /* STOP_SELECTION_START */
-// Screen-space collision handling: preserve useful stations without overlapping
-// 48px tap targets. World-pixel positions and provider IDs keep panning stable.
+// Screen-space collision handling preserves useful stations at the requested
+// spacing. World-pixel positions and provider IDs keep panning stable.
 function selectMapStops(items,project,spacing=48){
  const priority=s=>{
   const modes=new Set(s.modes||[]);
@@ -168,17 +199,37 @@ function mapStopBackground(stop){
  const colors=[...new Set((stop.modes||[]).filter(mode=>Object.hasOwn(officialVehicleColors,mode)).map(mode=>officialVehicleColors[mode]))];
  if(!colors.length)colors.push('#4e6581');
  const segments=colors.map((color,i)=>color+' '+(i*100/colors.length)+'% '+((i+1)*100/colors.length)+'%');
- return 'radial-gradient(circle,#f8fbff 0 3px,transparent 3.2px),conic-gradient('+segments.join(',')+')';
+ return 'radial-gradient(circle,#f8fbff 0 4px,transparent 4.2px),conic-gradient('+segments.join(',')+')';
 }
 /* STOP_COLORS_END */
 function drawStops(){
  stopMarkers.clearLayers();if(!stopsEnabled||map.getZoom()<stopMinZoom)return;
- selectMapStops(stops,s=>map.project([s.lat,s.lon],map.getZoom()))
- .filter(s=>map.getBounds().pad(.1).contains([s.lat,s.lon])).forEach(s=>{
+ const zoom=map.getZoom(),project=s=>map.project([s.lat,s.lon],zoom);
+ const selected=selectMapStops(stops,project,24);
+ const bounds=map.getBounds().pad(.1);
+ groupMapStops(selected,(a,b)=>L.latLng(a.lat,a.lon).distanceTo([b.lat,b.lon])).forEach(group=>{
+  if(group.length<2||!group.some(s=>bounds.contains([s.lat,s.lon])))return;
+  const points=group.map(project);
+  L.polygon(mapStopOutline(points).map(p=>map.unproject([p.x,p.y],zoom)),{pane:'stopGroups',color:'#737b80',weight:1.5,opacity:.55,fillColor:'#737b80',fillOpacity:.12,interactive:false,smoothFactor:0}).addTo(stopMarkers);
+  const center={x:points.reduce((n,p)=>n+p.x,0)/points.length,y:points.reduce((n,p)=>n+p.y,0)/points.length};
+  if(points.some(p=>Math.abs(p.x-center.x)<70&&Math.abs(p.y-center.y)<22))center.y=Math.max(...points.map(p=>p.y))+30;
+  const label=document.createElement('div');label.textContent=group[0].name;
+  L.marker(map.unproject([center.x,center.y],zoom),{pane:'stopNames',interactive:false,keyboard:false,icon:L.divIcon({html:label,className:'stop-group-label',iconSize:[140,42],iconAnchor:[70,7]})}).addTo(stopMarkers);
+ });
+ selected.filter(s=>bounds.contains([s.lat,s.lon])).forEach(s=>{
   const hit=document.createElement('div');hit.className='hit';
-  const dot=document.createElement('div');dot.style.cssText='width:10px;height:10px;border-radius:50%;box-sizing:border-box;box-shadow:0 0 0 1px #fff,0 2px 4px #1234';dot.style.background=mapStopBackground(s);hit.append(dot);
+  const dot=document.createElement('div');dot.className='stop-dot';dot.style.background=mapStopBackground(s);hit.append(dot);
   const marker=L.marker([s.lat,s.lon],{icon:L.divIcon({html:hit,iconSize:[48,48],iconAnchor:[24,24],className:''}),title:s.name+' · indulási tábla',keyboard:true,zIndexOffset:-500}).addTo(stopMarkers);
-  bindMapActivation(marker,()=>{if(window.NativeMap)NativeMap.selectStop(s.id)});
+  bindMapActivation(marker,event=>{
+   // Closely spaced platforms share target space. Pointer taps choose the
+   // nearest circle, while keyboard activation always opens the focused stop.
+   let chosen=s;
+   if(event?.originalEvent&&event.originalEvent.type!=='keypress'&&event.originalEvent.detail!==0){
+    const point=map.mouseEventToContainerPoint(event.originalEvent);
+    chosen=selected.reduce((best,stop)=>map.latLngToContainerPoint([stop.lat,stop.lon]).distanceTo(point)<map.latLngToContainerPoint([best.lat,best.lon]).distanceTo(point)?stop:best,s);
+   }
+   if(window.NativeMap)NativeMap.selectStop(chosen.id);
+  });
  });
 }
 function reportStopViewport(){
