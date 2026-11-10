@@ -5,9 +5,42 @@ import {test} from 'node:test';
 
 const html = readFileSync(new URL('../app/src/main/assets/map.html', import.meta.url), 'utf8');
 const context = vm.createContext({});
-for (const section of ['STOP_GROUPS', 'STOP_SELECTION']) {
+for (const section of ['STOP_GROUPS', 'STOP_SELECTION', 'VEHICLE_MOTION']) {
   vm.runInContext(html.split(`/* ${section}_START */`)[1].split(`/* ${section}_END */`)[0], context);
 }
+const position=(lat,lon)=>({lat,lon});
+test('vehicle interpolation follows both sides of a bend without cutting its corner',()=>{
+  const path=context.vehiclePath([[19,47],[19.01,47],[19.01,47.01]]);
+  const move=context.vehicleMovement(path,position(47,19),position(47.01,19.01));
+  assert.ok(move);
+  for(let t=0;t<=1;t+=.01){
+    const p=context.vehiclePointAt(path,move.start+(move.end-move.start)*t);
+    assert.ok(Math.abs(p.lat-47)<1e-9||Math.abs(p.lon-19.01)<1e-9);
+  }
+  const end=context.vehiclePointAt(path,move.end);
+  assert.ok(Math.abs(end.lat-47.01)<1e-9&&Math.abs(end.lon-19.01)<1e-9);
+});
+test('interrupted updates continue from their displayed point on the route',()=>{
+  const path=context.vehiclePath([[19,47],[19.01,47],[19.01,47.01]]);
+  const first=context.vehicleMovement(path,position(47,19),position(47.005,19.01));
+  const current=context.vehiclePointAt(path,(first.start+first.end)/2);
+  const next=context.vehicleMovement(path,current,position(47.01,19.01));
+  const start=context.vehiclePointAt(path,next.start);
+  assert.ok(Math.hypot(start.lat-current.lat,start.lon-current.lon)<1e-9);
+});
+test('missing, malformed and zero-length geometry cannot invent a path',()=>{
+  for(const input of [null,[],[[19,47]],[[19,47],[19,47]],[[19,47],[NaN,48]],[[19,47],[181,48]]])assert.equal(context.vehiclePath(input),null);
+  assert.equal(context.vehicleMovement(null,position(47,19),position(47,20)),null);
+});
+test('off-route fixes, backwards jitter, stationary points and large corrections snap',()=>{
+  const path=context.vehiclePath([[19,47],[19.1,47]]);
+  for(const [a,b] of [[position(48,19),position(48,19.01)],[position(47,19.01),position(47,19)],[position(47,19),position(47,19)],[position(47,19),position(47,20)]])assert.equal(context.vehicleMovement(path,a,b),null);
+});
+test('duplicate vertices and crossings choose a short forward passage rather than a lap',()=>{
+  const path=context.vehiclePath([[19,47],[19,47],[19.01,47],[19.01,47.01],[19,47.01],[19,47],[19.01,47]]);
+  const move=context.vehicleMovement(path,position(47,19.002),position(47,19.008));
+  assert.ok(move&&move.end-move.start<500);
+});
 const stop = (id, name, x, y = 0) => ({id, name, x, y});
 const distance = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
 

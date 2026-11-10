@@ -49,6 +49,18 @@ class MavClient {
     suspend fun nearbyStops(lat: Double, lon: Double, radius: Int): List<Station> = withContext(Dispatchers.IO) {
         parseMapStops(request("/index/graphql", MavQueries.nearbyStops(lat, lon, radius)))
     }
+    /** Fetch shapes only for visible markers, rather than repeating every shape in the live feed. */
+    suspend fun vehiclePaths(ids: List<String>): JSONObject = withContext(Dispatchers.IO) {
+        val selected=ids.distinct().take(24).filter {it.length in 1..250}
+        if(selected.isEmpty()) return@withContext JSONObject()
+        val query=selected.mapIndexed {i,id->"p$i:trip(id:${MavQueries.quote(id)}) {geometry}"}.joinToString(" ","{","}")
+        val data=request("/index/graphql",query)
+        JSONObject().apply {
+            selected.forEachIndexed {i,id->
+                data.optJSONObject("p$i")?.optJSONArray("geometry")?.let {put(id,it)}
+            }
+        }
+    }
     suspend fun stopDepartures(id: String, now: Long = System.currentTimeMillis()): List<StopDeparture> = withContext(Dispatchers.IO) {
         parseStopDepartures(request("/index/graphql", MavQueries.stopDepartures(id, now)), now)
     }

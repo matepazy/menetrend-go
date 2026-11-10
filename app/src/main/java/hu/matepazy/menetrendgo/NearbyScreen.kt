@@ -160,6 +160,7 @@ import kotlinx.coroutines.withContext
         }
         val observer=LifecycleEventObserver {_,event ->
             if(event==Lifecycle.Event.ON_START) {
+                web?.evaluateJavascript("window.setVehicleMotionEnabled(${android.animation.ValueAnimator.areAnimatorsEnabled()});",null)
                 allowed=ContextCompat.checkSelfPermission(context,Manifest.permission.ACCESS_COARSE_LOCATION)==PackageManager.PERMISSION_GRANTED
                 preciseAllowed=ContextCompat.checkSelfPermission(context,Manifest.permission.ACCESS_FINE_LOCATION)==PackageManager.PERMISSION_GRANTED
                 start()
@@ -230,6 +231,18 @@ import kotlinx.coroutines.withContext
                     settings.mixedContentMode=WebSettings.MIXED_CONTENT_NEVER_ALLOW
                     settings.userAgentString="MenetrendGO/${BuildConfig.VERSION_NAME} (Android; https://github.com/matepazy/menetrend-go)"
                     addJavascriptInterface(object {
+                        @JavascriptInterface fun requestVehiclePaths(json: String) {Handler(Looper.getMainLooper()).post {
+                            val ids=runCatching {JSONArray(json).let {items->
+                                (0 until minOf(items.length(),24)).map {items.getString(it)}
+                            }}.getOrDefault(emptyList()).filter {id->currentVehicles.any {it.id==id}}
+                            scope.launch {
+                                try {
+                                    val paths=stopClient.vehiclePaths(ids)
+                                    web?.evaluateJavascript("window.updateVehiclePaths($paths);",null)
+                                } catch(e: kotlinx.coroutines.CancellationException) {throw e}
+                                catch(_: Exception) { /* Keep live positions usable without a shape. */ }
+                            }
+                        }}
                         @JavascriptInterface fun locationInView(visible: Boolean) {Handler(Looper.getMainLooper()).post {locationVisible=visible}}
                         @JavascriptInterface fun stopViewport(lat: Double,lon: Double,radius: Int) {Handler(Looper.getMainLooper()).post {
                             stopViewport=if(radius in 100..15000 && lat.isFinite() && lon.isFinite() && lat in -90.0..90.0 && lon in -180.0..180.0) Triple(lat,lon,radius) else null
@@ -239,6 +252,7 @@ import kotlinx.coroutines.withContext
                     },"NativeMap")
                     webViewClient=object:WebViewClient() {
                         override fun onPageFinished(view: WebView, url: String) {
+                            view.evaluateJavascript("window.setVehicleMotionEnabled(${android.animation.ValueAnimator.areAnimatorsEnabled()});",null)
                             view.evaluateJavascript(mapThemeScript,null)
                             view.evaluateJavascript("window.resizeMap && window.resizeMap();window.setBottomInset($bottomInset);window.setTopInset(${topInset.value},$featherColor,${android.os.Build.VERSION.SDK_INT>=31});",null)
                             ready=true
