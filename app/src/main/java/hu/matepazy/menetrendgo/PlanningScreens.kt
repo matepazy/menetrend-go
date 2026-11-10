@@ -1030,7 +1030,7 @@ internal fun sameJourneyStop(first: Station, second: Station): Boolean =
     var rawOpen by remember(journey.key) { mutableStateOf(false) }
     val journeyVehicles=routeVehicles(journey,vm.vehicles,System.currentTimeMillis()).associateBy {it.id}
     LazyColumn(Modifier.fillMaxSize(),contentPadding=screenContentPadding(),verticalArrangement=Arrangement.spacedBy(AppLayout.ItemGap)) {
-        item {PageTitle("Utazás részletei", listOf(dayLabel(journey.start),"${journey.minutes} perc").filter {it.isNotBlank()}.joinToString(" · "),back) {
+        item {PageTitle("Utazás részletei", dayLabel(journey.start).takeIf {it.isNotBlank()},back) {
             if(vm.showRawGraphQl) Box {
                 IconButton(onClick={menuOpen=true}) {Icon(Icons.Outlined.MoreVert,"További lehetőségek")}
                 DropdownMenu(expanded=menuOpen,onDismissRequest={menuOpen=false}) {
@@ -1038,7 +1038,6 @@ internal fun sameJourneyStop(first: Station, second: Station): Boolean =
                 }
             }
         }}
-        item { MainButton("Útvonal a térképen",Icons.Outlined.Map,onClick=onMap) }
         item {
             Surface(shape=RoundedCornerShape(32.dp),color=MaterialTheme.colorScheme.surface) {
                 Column(Modifier.fillMaxWidth().padding(AppLayout.PanelPadding)) {
@@ -1124,14 +1123,7 @@ internal fun sameJourneyStop(first: Station, second: Station): Boolean =
                                     JourneyIntermediateStops(leg,legTimes[index]?.intermediate.orEmpty())
                                 }
                             }
-                            if(leg.tripId.isNotBlank()) TimelineRow(null,track,bottomPadding=AppLayout.ItemGap) {
-                                TextButton(onClick={onTrip(leg)},shape=MaterialTheme.shapes.extraSmall,
-                                    contentPadding=PaddingValues(vertical=AppLayout.ItemGap),modifier=Modifier.fillMaxWidth().heightIn(min=48.dp)) {
-                                    Text("Teljes járatmenetrend",Modifier.weight(1f))
-                                    Icon(Icons.Outlined.ChevronRight,null,Modifier.size(20.dp))
-                                }
-                            }
-                            else TimelineRow(null,track,bottomPadding=AppLayout.ItemGap) {}
+                            TimelineRow(null,track,bottomPadding=AppLayout.ItemGap) {}
                         }
                         // A shared stop at the same time is one interchange node, not two repeated rows.
                         val sharedStop=next!=null && !next.walking && index !in transfers && sameJourneyStop(next.from,leg.to) && next.start==leg.end && next.departureTime==leg.arrivalTime
@@ -1154,6 +1146,31 @@ internal fun sameJourneyStop(first: Station, second: Station): Boolean =
                             if(wait>=1) TimelineRow(null,connection) {
                                 Text("$wait perc várakozás",style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)
                             }
+                        }
+                    }
+                    val timetableLegs=journey.legs.filter { !it.walking && it.tripId.isNotBlank() }
+                    HorizontalDivider(Modifier.padding(vertical=AppLayout.ItemGap),color=MaterialTheme.colorScheme.outlineVariant)
+                    Column(Modifier.fillMaxWidth(),verticalArrangement=Arrangement.spacedBy(AppLayout.CompactGap)) {
+                            timetableLegs.forEach {leg ->
+                                Column(verticalArrangement=Arrangement.spacedBy(AppLayout.LabelGap)) {
+                                    if(timetableLegs.size>1) RouteBadge(leg)
+                                    TextButton(onClick={onTrip(leg)},shape=MaterialTheme.shapes.extraSmall,
+                                        contentPadding=PaddingValues(vertical=AppLayout.CompactGap),
+                                        modifier=Modifier.fillMaxWidth().heightIn(min=48.dp)) {
+                                        Icon(Icons.Outlined.Schedule,null,Modifier.size(20.dp))
+                                        Spacer(Modifier.width(AppLayout.CompactGap))
+                                        Text("Teljes járatmenetrend",Modifier.weight(1f))
+                                        Icon(Icons.Outlined.ChevronRight,null,Modifier.size(20.dp))
+                                    }
+                                }
+                            }
+                        TextButton(onClick=onMap,modifier=Modifier.fillMaxWidth().heightIn(min=48.dp),
+                            shape=MaterialTheme.shapes.extraSmall,
+                            contentPadding=PaddingValues(vertical=AppLayout.CompactGap)) {
+                            Icon(Icons.Outlined.Map,null,Modifier.size(20.dp))
+                            Spacer(Modifier.width(AppLayout.CompactGap))
+                            Text("Útvonal a térképen",Modifier.weight(1f))
+                            Icon(Icons.Outlined.ChevronRight,null,Modifier.size(20.dp))
                         }
                     }
                 }
