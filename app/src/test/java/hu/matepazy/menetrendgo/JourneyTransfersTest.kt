@@ -49,6 +49,17 @@ class JourneyTransfersTest {
         .put("realtimeArrival", seconds+120).put("realtime", true).put("stop", station.json().put("gtfsId", station.id))
     private fun trip(vararg entries: JSONObject) = JSONObject().put("gtfsId", "trip").put("stoptimes", JSONArray(entries.toList()))
 
+    @Test fun tripVehicleModelRequiresTheExactDepartureOccurrenceAndNoCoordinates() {
+        val leg=leg((day+89_000)*1000,(day+90_000)*1000)
+        val response=trip(entry(89_000).put("scheduledDeparture",89_000))
+            .put("vehiclePositions",JSONArray().put(JSONObject().put("vehicleModel","Bombardier-TRAXX").put("licensePlate","480 001")))
+        assertEquals(JourneyVehicleDetails("Bombardier-TRAXX","480 001"),journeyVehicleDetails(response,leg))
+        assertNull(journeyVehicleDetails(response,leg.copy(tripId="different")))
+        assertNull(journeyVehicleDetails(response,leg.copy(start=leg.start+86_400_000)))
+        response.put("vehiclePositions",JSONArray().put(JSONObject().put("vehicleModel",JSONObject.NULL)))
+        assertNull(journeyVehicleDetails(response,leg))
+    }
+
     @Test fun directJourneyRefreshesBothEndpointsWithOneRequestAndSkipsWalking() = runBlocking {
         val start = (day + 89_000) * 1000
         val end = (day + 90_000) * 1000

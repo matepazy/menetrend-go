@@ -713,11 +713,12 @@ private fun serviceIcon(leg: Leg): ImageVector = when(leg.mode) {
 
 private fun serviceType(leg: Leg): String = hungarianServiceName(leg.category, leg.mode)
 
-@Composable fun RouteBadge(leg: Leg, contentPadding: PaddingValues = PaddingValues(start=6.dp,end=12.dp,top=5.dp,bottom=5.dp)) {
+@Composable fun RouteBadge(leg: Leg, contentPadding: PaddingValues = PaddingValues(start=6.dp,end=12.dp,top=5.dp,bottom=5.dp),
+    shape: androidx.compose.ui.graphics.Shape = CircleShape) {
     val logo=leg.routeLogo
     val color=if(logo!=null) Color.Transparent else serviceColor(leg)
     val foreground=if(logo!=null) MaterialTheme.colorScheme.onSurface else if(color.luminance()>.179f) Color.Black else Color.White
-    Surface(shape=if(logo!=null) androidx.compose.ui.graphics.RectangleShape else CircleShape,color=color,contentColor=foreground,
+    Surface(shape=if(logo!=null) androidx.compose.ui.graphics.RectangleShape else shape,color=color,contentColor=foreground,
         modifier=Modifier.semantics(mergeDescendants=true) { contentDescription="${serviceType(leg)} ${if(leg.walking) "" else leg.route}" }) {
         Row(Modifier.padding(contentPadding),verticalAlignment=Alignment.CenterVertically) {
             if(logo!=null) {
@@ -936,8 +937,8 @@ internal fun sameJourneyStop(first: Station, second: Station): Boolean =
     first.platform == second.platform && if (first.id.isNotBlank() && second.id.isNotBlank()) first.id == second.id
     else first.name == second.name && kotlin.math.abs(first.lat-second.lat) < .0001 && kotlin.math.abs(first.lon-second.lon) < .0001
 
-@Composable internal fun JourneyStationLabel(station: Station, mode: String) = Column {
-    StationLabel(station.copy(platform=""), wrapStopName=true)
+@Composable internal fun JourneyStationLabel(station: Station, mode: String, intermediate: Boolean = false) = Column {
+    StationLabel(station.copy(platform=""), inlineName=intermediate, wrapStopName=true)
     val platform = station.platform.takeIf { it.isNotBlank() }?.let {
         when (mode) {
             "RAIL", "SUBURBAN_RAILWAY" -> "$it. vágány"
@@ -952,11 +953,13 @@ internal fun sameJourneyStop(first: Station, second: Station): Boolean =
 /** Each stop joins its incoming and outgoing tracks at the marker, never at a row boundary. */
 @Composable private fun TimelineRow(time: ServiceTime?, track: TimelineTrack, stop: Boolean=false,
     incoming: TimelineTrack?=track, outgoing: TimelineTrack?=track,
+    intermediate: Boolean=false, bottomPadding: androidx.compose.ui.unit.Dp=AppLayout.ItemGap,
+    durationMinutes: Long?=null,
     content: @Composable ColumnScope.() -> Unit) {
     val surface=MaterialTheme.colorScheme.surface
     val nodeOffset=with(LocalDensity.current) { MaterialTheme.typography.titleMedium.lineHeight.toDp()/2 }
     var rowTop by remember { mutableFloatStateOf(0f) }
-    val timeGutter=64.dp * LocalDensity.current.fontScale
+    val timeGutter=56.dp * LocalDensity.current.fontScale
     // Intrinsic height sees AnimatedVisibility's full content before its reveal finishes.
     // Measure the content normally and draw the track at that same animated height.
     Box(Modifier.fillMaxWidth().onGloballyPositioned {
@@ -981,17 +984,19 @@ internal fun sameJourneyStop(first: Station, second: Station): Boolean =
                 segment(outgoing,nodeY,size.height)
             } else segment(track,0f,size.height)
             if(stop) {
-                drawCircle(track.color,6.dp.toPx(),Offset(x,nodeY))
-                drawCircle(surface,3.dp.toPx(),Offset(x,nodeY))
+                drawCircle(track.color,(if(intermediate) 4.dp else 6.dp).toPx(),Offset(x,nodeY))
+                drawCircle(surface,(if(intermediate) 2.dp else 3.dp).toPx(),Offset(x,nodeY))
             }
         }
         Row(Modifier.fillMaxWidth()) {
             // Large sp values use Android's nonlinear scaling, so scale this gutter explicitly.
             Box(Modifier.width(timeGutter).padding(top=2.dp,end=8.dp)) {
                 time?.let {ScheduledTime(it,style=MaterialTheme.typography.labelLarge)}
+                if(time==null && durationMinutes!=null) Text("$durationMinutes perc",
+                    style=MaterialTheme.typography.labelMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)
             }
             Spacer(Modifier.width(24.dp))
-            Column(Modifier.weight(1f).padding(start=12.dp,bottom=24.dp),content=content)
+            Column(Modifier.weight(1f).padding(start=AppLayout.CompactGap,bottom=bottomPadding),content=content)
         }
     }
 }
@@ -1063,7 +1068,8 @@ internal fun sameJourneyStop(first: Station, second: Station): Boolean =
                             else JourneyStationLabel(leg.from,leg.mode)
                             if(index>0 && dayLabel(leg.start)!=dayLabel(journey.start)) Text(dayLabel(leg.start),style=MaterialTheme.typography.labelMedium)
                         }
-                        TimelineRow(null,track) {
+                        TimelineRow(null,track,bottomPadding=if(walking) AppLayout.ItemGap else AppLayout.LabelGap,
+                            durationMinutes=if(walking) null else (leg.end-leg.start+59_999)/60_000) {
                             if(walking) {
                                 Row(verticalAlignment=Alignment.CenterVertically) {
                                     Icon(Icons.AutoMirrored.Outlined.DirectionsWalk,null,Modifier.size(20.dp))
@@ -1071,42 +1077,69 @@ internal fun sameJourneyStop(first: Station, second: Station): Boolean =
                                     Text("${(leg.end-leg.start+59_999)/60_000} perc gyaloglás",style=MaterialTheme.typography.bodyMedium)
                                 }
                             } else {
-                                RouteBadge(leg)
-                                Text("${serviceType(leg)} · ${((leg.end-leg.start+59_999)/60_000)} perc",Modifier.padding(top=8.dp),style=MaterialTheme.typography.bodyMedium)
-                                journeyVehicles[leg.tripId]?.takeIf {it.modelAndRegistration.isNotBlank()}?.let {vehicle ->
-                                    VehicleModelLabel(vehicle,Modifier.padding(top=AppLayout.LabelGap))
+                                RouteBadge(leg,contentPadding=if(leg.routeLogo!=null) PaddingValues(vertical=AppLayout.LabelGap)
+                                    else PaddingValues(start=6.dp,end=12.dp,top=5.dp,bottom=5.dp),shape=MaterialTheme.shapes.extraSmall)
+                                serviceType(leg).takeUnless {leg.route.contains(it,ignoreCase=true)}?.let {
+                                    Text(it,Modifier.padding(top=AppLayout.LabelGap),style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)
+                                }
+                                if(leg.headsign.isNotBlank()) Row(
+                                    Modifier.fillMaxWidth().padding(top=AppLayout.LabelGap).semantics(mergeDescendants=true) {},
+                                    horizontalArrangement=Arrangement.spacedBy(AppLayout.CompactGap),verticalAlignment=Alignment.Top) {
+                                    Icon(Icons.AutoMirrored.Outlined.ArrowForward,"Irány",Modifier.size(20.dp),tint=MaterialTheme.colorScheme.onSurfaceVariant)
+                                    Text(leg.headsign,Modifier.weight(1f),style=MaterialTheme.typography.bodyMedium)
+                                }
+                                val mapVehicle=journeyVehicles[leg.tripId]
+                                val tripVehicle=legTimes[index]?.vehicle
+                                val vehicle=tripVehicle?.takeIf {it.model.isNotBlank()}
+                                    ?: mapVehicle?.takeIf {it.modelAndRegistration.isNotBlank()}?.let {JourneyVehicleDetails(it.model,it.registration)}
+                                    ?: tripVehicle
+                                vehicle?.takeIf {it.model.isNotBlank() || it.registration.isNotBlank()}?.let {
+                                    VehicleModelLabel(it.model,it.registration,leg.mode,leg.agencyName,Modifier.padding(top=AppLayout.LabelGap))
                                 }
                                 JourneyLegAlerts(leg,Modifier.padding(top=AppLayout.LabelGap))
-                                if(leg.headsign.isNotBlank()) Text("Irány: ${leg.headsign}",Modifier.padding(top=4.dp),style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)
                                 if(!transferDeparture.realtime && !(legTimes[index]?.arrival?.time ?: leg.arrivalTime).realtime)
-                                    Text("Menetrend szerint · élő adat nem érhető el",Modifier.padding(top=8.dp),style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
-                                var expanded by remember(journey.key,index) { mutableStateOf(false) }
-                                if(leg.intermediate.isNotEmpty()) {
-                                    val disclosureRotation by animateFloatAsState(if(expanded) 180f else 0f,
-                                        tween(AppMotion.Reveal,easing=AppMotion.State),label="Intermediate stops")
-                                    TextButton(onClick={expanded=!expanded},contentPadding=PaddingValues(horizontal=0.dp),modifier=Modifier.heightIn(min=48.dp)
+                                    Text("Élő adat nem érhető el",Modifier.padding(top=AppLayout.LabelGap),style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                        }
+                        if(!walking) {
+                            var expanded by rememberSaveable(journey.key,index) { mutableStateOf(false) }
+                            if(leg.intermediate.isNotEmpty()) {
+                                val disclosureRotation by animateFloatAsState(if(expanded) 180f else 0f,
+                                    tween(AppMotion.Reveal,easing=AppMotion.State),label="Intermediate stops")
+                                TimelineRow(null,track,bottomPadding=0.dp) {
+                                    TextButton(onClick={expanded=!expanded},shape=MaterialTheme.shapes.extraSmall,
+                                        contentPadding=PaddingValues(AppLayout.CompactGap),modifier=Modifier.fillMaxWidth().heightIn(min=48.dp)
                                         .semantics {stateDescription=if(expanded) "Kibontva" else "Összecsukva"}) {
                                         Text("${leg.intermediate.size} köztes megálló",Modifier.weight(1f))
                                         Icon(Icons.Outlined.ExpandMore,if(expanded) "Megállók elrejtése" else "Megállók megjelenítése",
                                             Modifier.graphicsLayer {rotationZ=disclosureRotation})
                                     }
-                                    AnimatedVisibility(expanded,
-                                        enter=expandVertically(tween(AppMotion.Reveal,easing=AppMotion.Arrival),expandFrom=Alignment.Top)+fadeIn(tween(AppMotion.Feedback)),
-                                        exit=shrinkVertically(tween(AppMotion.Dismiss,easing=AppMotion.State),shrinkTowards=Alignment.Top)+fadeOut(tween(AppMotion.Dismiss))) {
-                                    Column { leg.intermediate.forEach {stop ->
-                                        Box(Modifier.padding(vertical=AppLayout.CompactGap)) {StationLabel(stop,inlineName=true)}
-                                    } }
+                                }
+                                AnimatedVisibility(expanded,
+                                    enter=expandVertically(tween(AppMotion.Reveal,easing=AppMotion.Arrival),expandFrom=Alignment.Top)+fadeIn(tween(AppMotion.Feedback)),
+                                    exit=shrinkVertically(tween(AppMotion.Dismiss,easing=AppMotion.State),shrinkTowards=Alignment.Top)+fadeOut(tween(AppMotion.Dismiss))) {
+                                    Column {
+                                        leg.intermediate.forEach {stop ->
+                                            TimelineRow(null,track,stop=true,intermediate=true,bottomPadding=AppLayout.RelatedGap) {
+                                                JourneyStationLabel(stop,leg.mode,intermediate=true)
+                                            }
+                                        }
                                     }
                                 }
-                                if(leg.tripId.isNotBlank()) TextButton(onClick={onTrip(leg)},contentPadding=PaddingValues(horizontal=0.dp),modifier=Modifier.heightIn(min=48.dp)) {
-                                    Text("Teljes járatmenetrend",Modifier.weight(1f));Icon(Icons.Outlined.ChevronRight,null)
+                            }
+                            if(leg.tripId.isNotBlank()) TimelineRow(null,track,bottomPadding=AppLayout.LabelGap) {
+                                TextButton(onClick={onTrip(leg)},shape=MaterialTheme.shapes.extraSmall,
+                                    contentPadding=PaddingValues(AppLayout.CompactGap),modifier=Modifier.fillMaxWidth().heightIn(min=48.dp)) {
+                                    Text("Teljes járatmenetrend",Modifier.weight(1f))
+                                    Icon(Icons.Outlined.ChevronRight,null)
                                 }
                             }
                         }
                         // A shared stop at the same time is one interchange node, not two repeated rows.
                         val sharedStop=next!=null && !next.walking && index !in transfers && sameJourneyStop(next.from,leg.to) && next.start==leg.end && next.departureTime==leg.arrivalTime
                         val transferArrival = legTimes[index]?.arrival?.time ?: leg.arrivalTime
-                        if(!sharedStop && !repeatedWalkEnd) TimelineRow(if (transferWalk) null else transferArrival,track,stop=true,outgoing=if(next==null) null else connection) {
+                        if(!sharedStop && !repeatedWalkEnd) TimelineRow(if (transferWalk) null else transferArrival,track,stop=true,outgoing=if(next==null) null else connection,
+                            bottomPadding=if(next==null) 0.dp else AppLayout.ItemGap) {
                             if (vm.journeyTrackingBetaEnabled && !walking) JourneyTrackingStop(journey, index) { trackingLeg = index }
                             else if(walking) StationLabel(leg.to,wrapStopName=true)
                             else JourneyStationLabel(leg.to,leg.mode)

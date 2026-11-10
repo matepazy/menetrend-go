@@ -49,22 +49,25 @@ class JourneyAlertsUiTest {
                 }
             }
         } }
-        compose.onNodeWithText("Vonat műszaki hibája miatti késés").performScrollTo().assertIsDisplayed()
-        compose.onNodeWithContentDescription("Figyelmeztetés", useUnmergedTree = true).assertExists()
-        // Titles only: validity, description and links stay in the drawer.
+        compose.onNodeWithText("2 figyelmeztetés").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Vonat műszaki hibája miatti késés").assertDoesNotExist()
+        compose.onNodeWithText("Módosított útvonalon",substring=true).assertDoesNotExist()
+        // The timeline shows only the count. Every notice remains available in the drawer.
         compose.onNodeWithText("Érvényes", substring = true).assertDoesNotExist()
         compose.onNodeWithText("Pótlás: Iskola utca", substring = true).assertDoesNotExist()
         capture("alerts-${if (dark) "dark-large" else "light"}")
-        compose.onNodeWithText("Módosított útvonalon", substring = true).performScrollTo().performClick()
+        compose.onNodeWithText("2 figyelmeztetés").performClick()
         compose.onNodeWithContentDescription("Közlemény bezárása").assertIsDisplayed()
-        compose.onNodeWithText("Érvényes júl. 1. – visszavonásig").assertIsDisplayed()
+        compose.onNodeWithText("Vonat műszaki hibája miatti késés").assertExists()
+        compose.onNodeWithText("Módosított útvonalon", substring=true).performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Érvényes júl. 1. – visszavonásig").performScrollTo().assertIsDisplayed()
         compose.onNodeWithText("Pótlás: Iskola utca", substring = true).assertExists()
         compose.onNodeWithText("Részletek a szolgáltatónál").assertExists()
         capture("alerts-${if (dark) "dark-large" else "light"}-drawer")
-        compose.onNodeWithContentDescription("Közlemény bezárása").performClick()
+        compose.onNodeWithContentDescription("Közlemény bezárása").performScrollTo().performClick()
         compose.waitUntil(5_000) { compose.onAllNodesWithContentDescription("Közlemény bezárása").fetchSemanticsNodes().isEmpty() }
-        compose.onNodeWithText("Vonat műszaki hibája miatti késés").performClick()
-        compose.onNodeWithText("Érvényes", substring = true).assertIsDisplayed()
+        compose.onNodeWithText("2 figyelmeztetés").performClick()
+        compose.onNodeWithText("Vonat műszaki hibája miatti késés").assertIsDisplayed()
         capture("alerts-${if (dark) "dark-large" else "light"}-drawer-mav")
     }
 

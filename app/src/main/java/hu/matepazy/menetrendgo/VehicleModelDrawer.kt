@@ -48,12 +48,17 @@ import kotlinx.coroutines.withContext
 
 /** The label owns only its model sheet. Dismissing it cannot clear the selected map vehicle. */
 @Composable fun VehicleModelLabel(vehicle: Vehicle, modifier: Modifier = Modifier) {
-    var open by rememberSaveable(vehicle.model) { mutableStateOf(false) }
+    VehicleModelLabel(vehicle.model, vehicle.registration, vehicle.mode, vehicle.agencyName, modifier)
+}
+
+@Composable internal fun VehicleModelLabel(model: String, registration: String, mode: String, agencyName: String,
+    modifier: Modifier = Modifier) {
+    var open by rememberSaveable(model) { mutableStateOf(false) }
     var layout by remember { mutableStateOf<TextLayoutResult?>(null) }
     val color = MaterialTheme.colorScheme.primary
     FlowRow(modifier, horizontalArrangement = Arrangement.spacedBy(AppLayout.CompactGap),
         itemVerticalAlignment = Alignment.CenterVertically) {
-        if (vehicle.model.isNotBlank()) Text(vehicle.model, style = MaterialTheme.typography.bodyMedium,
+        if (model.isNotBlank()) Text(model, style = MaterialTheme.typography.bodyMedium,
             color = color, onTextLayout = { layout = it }, modifier = Modifier
                 .heightIn(min = 48.dp)
                 .clickable(role = Role.Button, onClickLabel = "Járműtípus bemutatása") { open = true }
@@ -69,10 +74,10 @@ import kotlinx.coroutines.withContext
                         }
                     }
                 })
-        if (vehicle.registration.isNotBlank()) Text(vehicle.registration,
+        if (registration.isNotBlank()) Text(registration,
             style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
-    if (open) VehicleModelDrawer(vehicle.model, vehicle.mode, vehicle.agencyName) { open = false }
+    if (open) VehicleModelDrawer(model, mode, agencyName) { open = false }
 }
 
 /**

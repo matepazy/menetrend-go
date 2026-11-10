@@ -24,22 +24,24 @@ import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.fromHtml
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import java.time.LocalDate
 
-/** Provider notices for one ride: quiet tappable titles in the timeline; details open in a drawer. */
+/** One counted disclosure per ride, with every provider notice preserved in its drawer. */
 @Composable
 internal fun JourneyLegAlerts(leg: Leg, modifier: Modifier = Modifier) {
     if (leg.alerts.isEmpty()) return
-    var openId by rememberSaveable(leg.tripId, leg.start) { mutableStateOf<String?>(null) }
-    // Rows carry their own 48dp touch height, so they stack without extra gaps.
-    Column(modifier.fillMaxWidth()) {
-        leg.alerts.forEach { alert -> JourneyAlertTitle(alert) { openId = alert.id } }
+    var open by rememberSaveable(leg.tripId, leg.start) { mutableStateOf(false) }
+    val representative=leg.alerts.firstOrNull {it.warning} ?: leg.alerts.first()
+    Row(modifier.fillMaxWidth().heightIn(min=48.dp).clip(MaterialTheme.shapes.small)
+        .clickable(onClickLabel="Figyelmeztetések megnyitása",role=Role.Button,onClick={open=true})
+        .padding(vertical=AppLayout.CompactGap),verticalAlignment=Alignment.CenterVertically,
+        horizontalArrangement=Arrangement.spacedBy(AppLayout.CompactGap)) {
+        Icon(representative.icon,null,Modifier.size(20.dp),tint=representative.tint())
+        Text("${leg.alerts.size} figyelmeztetés",Modifier.weight(1f),style=MaterialTheme.typography.bodyMedium,fontWeight=FontWeight.Medium)
+        Icon(Icons.Outlined.ChevronRight,null,Modifier.size(20.dp),tint=MaterialTheme.colorScheme.onSurfaceVariant)
     }
-    leg.alerts.firstOrNull { it.id == openId }?.let { alert ->
-        JourneyAlertDrawer(alert, leg) { openId = null }
-    }
+    if(open) JourneyAlertDrawer(leg) {open=false}
 }
 
 internal val MavAlert.icon: ImageVector get() = if (warning) Icons.Outlined.WarningAmber else Icons.Outlined.Info
@@ -47,27 +49,11 @@ internal val MavAlert.kind: String get() = if (warning) "Figyelmeztetés" else "
 @Composable internal fun MavAlert.tint(): Color =
     if (warning) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
 
-@Composable
-private fun JourneyAlertTitle(alert: MavAlert, open: () -> Unit) {
-    val title = remember(alert.title) { plainAlertText(alert.title) }
-    Row(Modifier.fillMaxWidth().heightIn(min = 48.dp).clip(MaterialTheme.shapes.small)
-        .clickable(onClickLabel = "Közlemény megnyitása", role = Role.Button, onClick = open)
-        .padding(vertical = AppLayout.CompactGap),
-        verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(AppLayout.CompactGap)) {
-        Icon(alert.icon, alert.kind, Modifier.size(20.dp), tint = alert.tint())
-        Text(title, Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium,
-            maxLines = 2, overflow = TextOverflow.Ellipsis)
-        Icon(Icons.Outlined.ChevronRight, null, Modifier.size(20.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
-    }
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun JourneyAlertDrawer(alert: MavAlert, leg: Leg, dismiss: () -> Unit) {
+private fun JourneyAlertDrawer(leg: Leg, dismiss: () -> Unit) {
     val linkColor = MaterialTheme.colorScheme.primary
     val links = TextLinkStyles(SpanStyle(color = linkColor, textDecoration = TextDecoration.Underline))
-    val title = remember(alert.title, linkColor) { alertMarkup(alert.title, links) }
-    val body = remember(alert.body, linkColor) { alert.body.takeIf(String::isNotBlank)?.let { alertMarkup(it, links) } }
     val travelDay = remember(leg.start) { java.time.Instant.ofEpochMilli(leg.start).atZone(Budapest).toLocalDate() }
     AppBottomSheet(onDismissRequest = dismiss) {
         Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState())
@@ -78,19 +64,24 @@ private fun JourneyAlertDrawer(alert: MavAlert, leg: Leg, dismiss: () -> Unit) {
             }
             Text("${leg.from.name} → ${leg.to.name}", Modifier.padding(top = AppLayout.CompactGap),
                 style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Row(Modifier.padding(top = AppLayout.SheetPadding), horizontalArrangement = Arrangement.spacedBy(AppLayout.RelatedGap)) {
-                // Optically centre the icon on the headline's first 32sp line.
-                Icon(alert.icon, alert.kind, Modifier.padding(top = 2.dp).size(28.dp), tint = alert.tint())
-                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(AppLayout.LabelGap)) {
-                    Text(title, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
-                    alertValidity(alert, travelDay)?.let {
-                        Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            leg.alerts.forEachIndexed {index,alert ->
+                if(index>0) HorizontalDivider(Modifier.padding(top=AppLayout.SheetPadding))
+                val title=remember(alert.title,linkColor) {alertMarkup(alert.title,links)}
+                val body=remember(alert.body,linkColor) {alert.body.takeIf(String::isNotBlank)?.let {alertMarkup(it,links)}}
+                Row(Modifier.padding(top = AppLayout.SheetPadding), horizontalArrangement = Arrangement.spacedBy(AppLayout.RelatedGap)) {
+                    // Optically centre the icon on the headline's first 32sp line.
+                    Icon(alert.icon, alert.kind, Modifier.padding(top = 2.dp).size(28.dp), tint = alert.tint())
+                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(AppLayout.LabelGap)) {
+                        Text(title, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+                        alertValidity(alert, travelDay)?.let {
+                            Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
                     }
                 }
+                body?.let { Text(it, Modifier.padding(top = AppLayout.SheetPadding), style = MaterialTheme.typography.bodyLarge) }
+                if (alert.url.isNotBlank()) ProviderAlertLink(alert.url,
+                    Modifier.padding(top = AppLayout.SheetPadding).heightIn(min = 52.dp))
             }
-            body?.let { Text(it, Modifier.padding(top = AppLayout.SheetPadding), style = MaterialTheme.typography.bodyLarge) }
-            if (alert.url.isNotBlank()) ProviderAlertLink(alert.url,
-                Modifier.padding(top = AppLayout.SheetPadding).heightIn(min = 52.dp))
         }
     }
 }

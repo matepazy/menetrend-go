@@ -31,6 +31,57 @@ class JourneyTransfersUiTest {
     @Test fun walkingTransferShowsEachStopOnce() = showWalkingTransfer(false, 1f)
     @Test fun walkingTransferWrapsInDarkThemeWithLargeText() = showWalkingTransfer(true, 1.5f)
 
+    @Test fun itineraryKeepsDetailsVisibleInLightTheme() = showItinerary(false, 1f)
+    @Test fun itineraryKeepsDetailsVisibleWithLargeDarkText() = showItinerary(true, 1.5f)
+    @Test fun longItineraryRouteWrapsWithLargeText() = showItinerary(true, 1.5f, true)
+
+    private fun showItinerary(dark: Boolean, scale: Float, longRoute: Boolean = false) {
+        val now = System.currentTimeMillis()
+        val origin = Station("origin", "Budapest-Déli", 47.5, 19.0, platform="2")
+        val destination = Station("destination", "Székesfehérvár", 47.19, 18.42, platform="1")
+        val middle = Station("middle", "Budapest-Kelenföld", 47.46, 19.02, platform="4")
+        val route = if(longRoute) "9708 Gyorsvonat hosszú járatnévvel" else "9708 Gyorsvonat"
+        val leg = Leg("RAIL", now, now+45*60_000, origin, destination,
+            route, "fixture-trip", true, 180, listOf(middle), "",
+            category="sebesvonat", headsign="Tapolca", arrivalDelay=180)
+        val journey = Journey(2700, listOf(leg), fetchedAt=now)
+        val vm = AppState(app).also { store.put("itinerary", it) }
+        var openedTrip: Leg? = null
+        compose.setContent { MenetrendTheme(if(dark) "dark" else "light") {
+            CompositionLocalProvider(LocalDensity provides Density(LocalDensity.current.density, scale)) {
+                Surface(Modifier.fillMaxSize(), color=MaterialTheme.colorScheme.background) {
+                    JourneyScreen(vm, journey, {}, { openedTrip=it }, {}, refreshTransfers=false)
+                }
+            }
+        } }
+        compose.onNodeWithText("Tapolca").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Budapest-Kelenföld").assertDoesNotExist()
+        compose.onNodeWithText("Járműtípus nem érhető el").assertDoesNotExist()
+        compose.onNodeWithText("2. vágány").assertExists()
+        compose.onNodeWithText("1. vágány").assertExists()
+        compose.onNodeWithText(timeLabel(leg.departureTime.scheduled)).assertExists()
+        compose.onNodeWithText(timeLabel(leg.start)).assertExists()
+        if(longRoute) {
+            val layouts = mutableListOf<androidx.compose.ui.text.TextLayoutResult>()
+            compose.onNodeWithText(route, useUnmergedTree=true).performSemanticsAction(
+                androidx.compose.ui.semantics.SemanticsActions.GetTextLayoutResult) { it(layouts) }
+            assertTrue("Long route names must wrap", layouts.single().lineCount > 1)
+            assertFalse("The full route name must remain visible", layouts.single().hasVisualOverflow)
+        }
+        val bitmap = instrumentation.uiAutomation.takeScreenshot()
+        File(app.getExternalFilesDir(null), "itinerary-${if(longRoute) "long-route" else if(dark) "dark-large" else "light"}.png").outputStream().use {
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, it)
+        }
+        bitmap.recycle()
+        compose.onNodeWithText("1 köztes megálló").performClick()
+        compose.onNodeWithText("4. vágány").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("1 köztes megálló").performClick()
+        compose.onNodeWithText("Budapest-Kelenföld").assertDoesNotExist()
+        compose.onNodeWithText("Tapolca").assertExists()
+        compose.onNodeWithText("Teljes járatmenetrend").performScrollTo().performClick()
+        compose.runOnIdle { assertEquals(leg, openedTrip) }
+    }
+
     @Test fun intermediateStopsKeepArrivalAndTrackTogetherThroughoutAnimation() {
         val now = System.currentTimeMillis()
         val origin = Station("origin", "Indulóhely", 47.5, 19.0)
@@ -48,6 +99,7 @@ class JourneyTransfersUiTest {
         val toggle = compose.onNodeWithText("2 köztes megálló")
         val arrival = compose.onNodeWithText("Végállomás")
         val timetable = compose.onNodeWithText("Teljes járatmenetrend")
+        compose.onNodeWithText("Köztes hely 0").assertDoesNotExist()
         toggle.performScrollTo()
         val collapsedTop = arrival.fetchSemanticsNode().boundsInRoot.top
         val restingGap = collapsedTop-timetable.fetchSemanticsNode().boundsInRoot.bottom

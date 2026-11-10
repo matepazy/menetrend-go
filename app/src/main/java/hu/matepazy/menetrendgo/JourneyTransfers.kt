@@ -12,7 +12,17 @@ internal data class TransferEstimate(val time: ServiceTime, val fetchedAt: Long,
     val cancelled: Boolean = false)
 internal data class TransferAlternative(val time: ServiceTime, val route: String, val fetchedAt: Long)
 internal data class TransferTimes(val arrival: TransferEstimate, val departure: TransferEstimate,
-    val nextDeparture: TransferAlternative? = null)
+    val nextDeparture: TransferAlternative? = null, val vehicle: JourneyVehicleDetails? = null)
+
+internal data class JourneyVehicleDetails(val model: String, val registration: String)
+
+/** Trip metadata can report a model even when no usable map coordinates are available. */
+internal fun journeyVehicleDetails(trip: JSONObject, leg: Leg): JourneyVehicleDetails? {
+    if(transferStopEstimate(trip,leg,false,0)==null) return null
+    fun JSONObject.text(key: String) = optString(key).trim().takeUnless {isNull(key) || it.equals("null",true)}.orEmpty()
+    val vehicles=trip.array("vehiclePositions").map { JourneyVehicleDetails(it.text("vehicleModel"),it.text("licensePlate")) }
+    return vehicles.firstOrNull {it.model.isNotBlank()} ?: vehicles.firstOrNull {it.registration.isNotBlank()}
+}
 internal enum class TransferRisk { Scheduled, Unknown, Tight, Missed, Available, Cancelled, Past }
 internal data class TransferAssessment(val risk: TransferRisk, val remainingMillis: Long)
 
@@ -119,6 +129,9 @@ internal suspend fun refreshJourneyLegTimes(journey: Journey, previous: Map<Int,
         val leg = journey.legs[index]
         val old = previous[index] ?: TransferTimes(TransferEstimate(leg.arrivalTime, journey.fetchedAt),
             TransferEstimate(leg.departureTime, journey.fetchedAt))
-        TransferTimes(endpoint(index, true, old.arrival), endpoint(index, false, old.departure))
+        val arrival=endpoint(index, true, old.arrival)
+        val departure=endpoint(index, false, old.departure)
+        val vehicle=trips.values.filterNotNull().firstNotNullOfOrNull {journeyVehicleDetails(it,leg)}
+        TransferTimes(arrival,departure,vehicle=vehicle)
     }
 }
