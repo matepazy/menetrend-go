@@ -1083,9 +1083,12 @@ internal fun sameJourneyStop(first: Station, second: Station): Boolean =
                                     Text(it,Modifier.padding(top=AppLayout.LabelGap),style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)
                                 }
                                 if(leg.headsign.isNotBlank()) Row(
-                                    Modifier.fillMaxWidth().padding(top=AppLayout.LabelGap).semantics(mergeDescendants=true) {},
+                                    Modifier.fillMaxWidth().padding(top=AppLayout.LabelGap,bottom=AppLayout.RelatedGap).semantics(mergeDescendants=true) {},
                                     horizontalArrangement=Arrangement.spacedBy(AppLayout.CompactGap),verticalAlignment=Alignment.Top) {
-                                    Icon(Icons.AutoMirrored.Outlined.ArrowForward,"Irány",Modifier.size(20.dp),tint=MaterialTheme.colorScheme.onSurfaceVariant)
+                                    Box(Modifier.width(20.dp).height(with(LocalDensity.current) {MaterialTheme.typography.bodyMedium.lineHeight.toDp()}),
+                                        contentAlignment=Alignment.Center) {
+                                        Icon(Icons.AutoMirrored.Outlined.ArrowForward,"Irány",Modifier.size(20.dp),tint=MaterialTheme.colorScheme.onSurfaceVariant)
+                                    }
                                     Text(leg.headsign,Modifier.weight(1f),style=MaterialTheme.typography.bodyMedium)
                                 }
                                 val mapVehicle=journeyVehicles[leg.tripId]
@@ -1108,11 +1111,11 @@ internal fun sameJourneyStop(first: Station, second: Station): Boolean =
                                     tween(AppMotion.Reveal,easing=AppMotion.State),label="Intermediate stops")
                                 TimelineRow(null,track,bottomPadding=0.dp) {
                                     TextButton(onClick={expanded=!expanded},shape=MaterialTheme.shapes.extraSmall,
-                                        contentPadding=PaddingValues(AppLayout.CompactGap),modifier=Modifier.fillMaxWidth().heightIn(min=48.dp)
+                                        contentPadding=PaddingValues(vertical=AppLayout.ItemGap),modifier=Modifier.fillMaxWidth().heightIn(min=48.dp)
                                         .semantics {stateDescription=if(expanded) "Kibontva" else "Összecsukva"}) {
                                         Text("${leg.intermediate.size} köztes megálló",Modifier.weight(1f))
                                         Icon(Icons.Outlined.ExpandMore,if(expanded) "Megállók elrejtése" else "Megállók megjelenítése",
-                                            Modifier.graphicsLayer {rotationZ=disclosureRotation})
+                                            Modifier.size(20.dp).graphicsLayer {rotationZ=disclosureRotation})
                                     }
                                 }
                                 AnimatedVisibility(expanded,
@@ -1127,13 +1130,14 @@ internal fun sameJourneyStop(first: Station, second: Station): Boolean =
                                     }
                                 }
                             }
-                            if(leg.tripId.isNotBlank()) TimelineRow(null,track,bottomPadding=AppLayout.LabelGap) {
+                            if(leg.tripId.isNotBlank()) TimelineRow(null,track,bottomPadding=AppLayout.ItemGap) {
                                 TextButton(onClick={onTrip(leg)},shape=MaterialTheme.shapes.extraSmall,
-                                    contentPadding=PaddingValues(AppLayout.CompactGap),modifier=Modifier.fillMaxWidth().heightIn(min=48.dp)) {
+                                    contentPadding=PaddingValues(vertical=AppLayout.ItemGap),modifier=Modifier.fillMaxWidth().heightIn(min=48.dp)) {
                                     Text("Teljes járatmenetrend",Modifier.weight(1f))
-                                    Icon(Icons.Outlined.ChevronRight,null)
+                                    Icon(Icons.Outlined.ChevronRight,null,Modifier.size(20.dp))
                                 }
                             }
+                            else TimelineRow(null,track,bottomPadding=AppLayout.ItemGap) {}
                         }
                         // A shared stop at the same time is one interchange node, not two repeated rows.
                         val sharedStop=next!=null && !next.walking && index !in transfers && sameJourneyStop(next.from,leg.to) && next.start==leg.end && next.departureTime==leg.arrivalTime
