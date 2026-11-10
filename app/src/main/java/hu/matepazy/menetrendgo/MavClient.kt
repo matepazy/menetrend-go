@@ -177,7 +177,7 @@ object MavQueries {
         transportModes:[${searchVehicleModes(vehicles).joinToString(",") { "{mode:$it}" }}],minTransferTime:120,maxWalkDistance:2000,
         searchParameters:[${filters.sortedBy { it.ordinal }.mapNotNull { it.providerSearchCode }.joinToString(",", transform=::quote)}]) {
         itineraries {duration walkTime waitingTime legs {mode startTime endTime duration distance realTime departureDelay arrivalDelay
-        from {name lat lon stop {gtfsId platformCode}} to {name lat lon stop {gtfsId platformCode}} intermediateStops {name lat lon platformCode} legGeometry {points}
+        from {name lat lon stop {gtfsId platformCode}} to {name lat lon stop {gtfsId platformCode}} intermediateStops {gtfsId name lat lon platformCode} legGeometry {points}
         $services
         $alerts
         route {shortName longName mode color textColor agency {name}} trip {gtfsId tripShortName tripHeadsign trainCategoryName $alerts}}}}}

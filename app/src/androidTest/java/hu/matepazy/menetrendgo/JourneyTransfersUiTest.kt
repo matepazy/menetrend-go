@@ -34,6 +34,34 @@ class JourneyTransfersUiTest {
     @Test fun itineraryKeepsDetailsVisibleInLightTheme() = showItinerary(false, 1f)
     @Test fun itineraryKeepsDetailsVisibleWithLargeDarkText() = showItinerary(true, 1.5f)
     @Test fun longItineraryRouteWrapsWithLargeText() = showItinerary(true, 1.5f, true)
+    @Test fun intermediateStopTimesFollowTheLeftGutter() = showIntermediateTimes(false,1f)
+    @Test fun intermediateStopTimesWrapSafelyWithLargeDarkText() = showIntermediateTimes(true,1.5f)
+
+    private fun showIntermediateTimes(dark: Boolean, scale: Float) {
+        val now=(System.currentTimeMillis()/60_000)*60_000
+        val stops=listOf(Station("a","Budafok",47.4,19.0,platform="1"),Station("b","Budatétény",47.4,19.0,platform="2"),
+            Station("c","Barosstelep",47.4,19.0,platform="2"))
+        val leg=Leg("RAIL",now,now+45*60_000,stops.first(),stops.last(),"S30","trip",true,0,stops,"")
+        val times=listOf(ServiceTime(now+5*60_000,now+7*60_000,true),ServiceTime(now+10*60_000,now+10*60_000,false),null)
+        compose.setContent {MenetrendTheme(if(dark) "dark" else "light") {
+            CompositionLocalProvider(LocalDensity provides Density(LocalDensity.current.density,scale)) {
+                Surface(Modifier.fillMaxSize(),color=MaterialTheme.colorScheme.surface) {
+                    Column(Modifier.safeDrawingPadding().padding(AppLayout.PanelPadding)) {JourneyIntermediateStops(leg,times)}
+                }
+            }
+        }}
+        val time=compose.onNodeWithText(timeLabel(times[0]!!.estimate)).assertIsDisplayed().fetchSemanticsNode().boundsInRoot
+        val stop=compose.onNodeWithText("Budafok").assertIsDisplayed().fetchSemanticsNode().boundsInRoot
+        assertTrue("Time must sit to the left of its station",time.right<stop.left)
+        compose.onNodeWithText(timeLabel(times[0]!!.scheduled)).assertIsDisplayed()
+        compose.onNodeWithText(timeLabel(times[1]!!.scheduled)).assertIsDisplayed()
+        compose.onNodeWithText("Barosstelep").assertIsDisplayed()
+        val bitmap=instrumentation.uiAutomation.takeScreenshot()
+        File(app.getExternalFilesDir(null),"intermediate-times-${if(dark) "dark-large" else "light"}.png").outputStream().use {
+            bitmap.compress(Bitmap.CompressFormat.PNG,100,it)
+        }
+        bitmap.recycle()
+    }
 
     private fun showItinerary(dark: Boolean, scale: Float, longRoute: Boolean = false) {
         val now = System.currentTimeMillis()

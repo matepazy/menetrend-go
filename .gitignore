@@ -36,3 +36,5 @@ scripts/*
 !scripts/refresh-fleet-photo-urls.mjs
 start_emu.bat
 CHANGELOG.md
+.codex/
+.gemini/

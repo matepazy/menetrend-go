@@ -23,7 +23,7 @@ data class Station(val id: String, val name: String, val lat: Double, val lon: D
         .put("type", type).put("modes", JSONArray(modes)).put("platformCode", platform)
     companion object { fun parse(o: JSONObject): Station {
         val modes=o.optJSONArray("modes")
-        return Station(o.optString("id").ifBlank { o.optJSONObject("stop")?.optString("gtfsId").orEmpty() }, o.getString("name"), o.getDouble("lat"), o.getDouble("lon"),
+        return Station(o.optString("id").ifBlank {o.optString("gtfsId").ifBlank { o.optJSONObject("stop")?.optString("gtfsId").orEmpty() }}, o.getString("name"), o.getDouble("lat"), o.getDouble("lon"),
             o.optString("type"), if(modes==null) emptyList() else (0 until modes.length()).map {modes.getString(it)},
             (o.optJSONObject("stop") ?: o).optString("platformCode").trim().takeUnless {it.equals("null",ignoreCase=true)}.orEmpty())
     } }

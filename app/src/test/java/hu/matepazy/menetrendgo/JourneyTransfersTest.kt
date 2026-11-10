@@ -49,6 +49,27 @@ class JourneyTransfersTest {
         .put("realtimeArrival", seconds+120).put("realtime", true).put("stop", station.json().put("gtfsId", station.id))
     private fun trip(vararg entries: JSONObject) = JSONObject().put("gtfsId", "trip").put("stoptimes", JSONArray(entries.toList()))
 
+    @Test fun intermediateTimesRespectTheRiddenSegmentRepeatedStopsAndMissingData() {
+        val leg=leg((day+89_000)*1000,(day+90_000)*1000).copy(intermediate=listOf(station,station,station.copy(id="missing")))
+        fun departure(seconds: Long)=entry(seconds).put("scheduledDeparture",seconds).put("realtimeDeparture",seconds+60)
+        val response=trip(departure(88_000),departure(89_000),departure(89_200),entry(89_600),entry(90_000),departure(91_000))
+        val times=journeyIntermediateTimes(response,leg)!!
+        assertEquals(ServiceTime((day+89_200)*1000,(day+89_260)*1000,true),times[0])
+        assertEquals(ServiceTime((day+89_600)*1000,(day+89_720)*1000,true),times[1])
+        assertNull(times[2])
+        assertNull(journeyIntermediateTimes(response,leg.copy(tripId="other")))
+        assertNull(journeyIntermediateTimes(response,leg.copy(start=leg.start+86_400_000)))
+        response.getJSONArray("stoptimes").getJSONObject(2).remove("serviceDay")
+        assertNull(journeyIntermediateTimes(response,leg)!![0])
+    }
+
+    @Test fun intermediateStopsRetainProviderIds() {
+        val json=station.json().apply {remove("id")}.put("gtfsId",station.id)
+        assertEquals(station.id,Station.parse(json).id)
+        assertTrue(MavQueries.plan(station,station,java.time.LocalDateTime.of(2026,11,10,12,0),false)
+            .contains("intermediateStops {gtfsId"))
+    }
+
     @Test fun tripVehicleModelRequiresTheExactDepartureOccurrenceAndNoCoordinates() {
         val leg=leg((day+89_000)*1000,(day+90_000)*1000)
         val response=trip(entry(89_000).put("scheduledDeparture",89_000))
@@ -63,16 +84,17 @@ class JourneyTransfersTest {
     @Test fun directJourneyRefreshesBothEndpointsWithOneRequestAndSkipsWalking() = runBlocking {
         val start = (day + 89_000) * 1000
         val end = (day + 90_000) * 1000
-        val journey = Journey(1000, listOf(leg(start - 60_000, start, "WALK"), leg(start, end)))
+        val journey = Journey(1000, listOf(leg(start - 60_000, start, "WALK"), leg(start, end).copy(intermediate=listOf(station))))
         var requests = 0
         val refreshed = refreshJourneyLegTimes(journey, emptyMap()) { _, _ ->
             requests++
-            trip(entry(89_000).put("scheduledDeparture", 89_000).put("realtimeDeparture", 89_060), entry())
+            trip(entry(89_000).put("scheduledDeparture", 89_000).put("realtimeDeparture", 89_060), entry(89_500),entry())
         }
         assertEquals(setOf(1), refreshed.keys)
         assertEquals(1, requests)
         assertEquals(start + 60_000, refreshed.getValue(1).departure.time.estimate)
         assertEquals(end + 120_000, refreshed.getValue(1).arrival.time.estimate)
+        assertEquals((day+89_620)*1000,refreshed.getValue(1).intermediate.single()!!.estimate)
     }
 
     @Test fun journeyRefreshRetainsLastKnownTimesOnFailureAndPropagatesCancellation() = runBlocking {

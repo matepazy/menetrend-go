@@ -1121,13 +1121,7 @@ internal fun sameJourneyStop(first: Station, second: Station): Boolean =
                                 AnimatedVisibility(expanded,
                                     enter=expandVertically(tween(AppMotion.Reveal,easing=AppMotion.Arrival),expandFrom=Alignment.Top)+fadeIn(tween(AppMotion.Feedback)),
                                     exit=shrinkVertically(tween(AppMotion.Dismiss,easing=AppMotion.State),shrinkTowards=Alignment.Top)+fadeOut(tween(AppMotion.Dismiss))) {
-                                    Column {
-                                        leg.intermediate.forEach {stop ->
-                                            TimelineRow(null,track,stop=true,intermediate=true,bottomPadding=AppLayout.RelatedGap) {
-                                                JourneyStationLabel(stop,leg.mode,intermediate=true)
-                                            }
-                                        }
-                                    }
+                                    JourneyIntermediateStops(leg,legTimes[index]?.intermediate.orEmpty())
                                 }
                             }
                             if(leg.tripId.isNotBlank()) TimelineRow(null,track,bottomPadding=AppLayout.ItemGap) {
@@ -1180,6 +1174,17 @@ internal fun sameJourneyStop(first: Station, second: Station): Boolean =
     }
     if (vm.journeyTrackingBetaEnabled) trackingLeg?.let { index -> JourneyTrackingSheet(journey, index) { trackingLeg = null } }
     if(vm.showRawGraphQl && rawOpen) RawGraphQlSheet(journey.rawGraphQl) {rawOpen=false}
+}
+
+@Composable internal fun JourneyIntermediateStops(leg: Leg, times: List<ServiceTime?>) {
+    val track=TimelineTrack(serviceColor(leg))
+    Column {
+        leg.intermediate.forEachIndexed {index,stop ->
+            TimelineRow(times.getOrNull(index),track,stop=true,intermediate=true,bottomPadding=AppLayout.RelatedGap) {
+                JourneyStationLabel(stop,leg.mode,intermediate=true)
+            }
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
