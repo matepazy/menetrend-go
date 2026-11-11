@@ -74,7 +74,6 @@ class AppState(app: Application) : AndroidViewModel(app) {
     val mapRefreshSeconds get() = if (rapidRefresh) 15 else 75
     val journeyRefreshSeconds get() = if (rapidRefresh) 30 else 75
     var customMapEnabled by mutableStateOf(prefs.getBoolean("custom_map_enabled", false)); private set
-    var unofficialGoogleMapEnabled by mutableStateOf(prefs.getBoolean("unofficial_google_map_enabled", false)); private set
     var mapType by mutableStateOf(MapType.fromId(prefs.getString("map_type", "standard"))); private set
     var vehicleFilters by mutableStateOf(MapVehicleFilter.entries.filter { prefs.getBoolean(it.prefKey, it.defaultEnabled) }.toSet()); private set
     val showLocalBuses get() = MapVehicleFilter.LocalBus in vehicleFilters
@@ -190,10 +189,6 @@ class AppState(app: Application) : AndroidViewModel(app) {
         customMapEnabled=enabled
         if (!enabled && mapType == MapType.Custom) mapType=MapType.Standard
         prefs.edit().putBoolean("custom_map_enabled",enabled).putString("map_type",mapType.id).apply()
-    }
-    fun chooseUnofficialGoogleMapEnabled(enabled: Boolean) {
-        unofficialGoogleMapEnabled = enabled
-        prefs.edit().putBoolean("unofficial_google_map_enabled", enabled).apply()
     }
     fun applyCustomMapUrl(value: String) {
         val url=value.trim()

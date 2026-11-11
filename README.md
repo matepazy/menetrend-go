@@ -43,7 +43,7 @@ A beépített frissítéskezelő ugyanezt a nyilvános kiadási listát használ
 - Android SDK Platform 37. Az alkalmazás `targetSdk` értéke jelenleg 36.
 - Android Studio vagy parancssori Android SDK-eszközök.
 
-A Gradle Wrapper a repó része, külön Gradle-telepítés nem szükséges. A függőségek és a Gradle első letöltéséhez internetkapcsolat kell. Az Android-alkalmazáshoz külön szerver, API-kulcs vagy GitHub-token nem szükséges.
+A Gradle Wrapper a repó része, külön Gradle-telepítés nem szükséges. A függőségek és a Gradle első letöltéséhez internetkapcsolat kell. Az Android-alkalmazáshoz külön szerver vagy GitHub-token nem szükséges. Az alapértelmezett Google térképhez saját Maps SDK for Android API-kulcs kell.
 
 ```sh
 git clone https://github.com/matepazy/menetrend-go.git
@@ -58,6 +58,23 @@ sdk.dir=/path/to/Android/Sdk
 ```
 
 Windows alatt például `sdk.dir=C:/Users/USERNAME/AppData/Local/Android/Sdk`. A `local.properties` gépspecifikus fájl, ezért a Git figyelmen kívül hagyja.
+
+### Google Maps API-kulcs
+
+Az Alap, Műhold és Hibrid térkép a hivatalos Google Maps SDK for Androidot használja. A Vasúti és Saját térkép továbbra is Leaflet-alapú.
+
+1. A [Google Cloud Console](https://console.cloud.google.com/google/maps-apis/credentials) projektjében kapcsold be a **Maps SDK for Android** szolgáltatást és a számlázást, majd hozz létre API-kulcsot.
+2. A repó gyökerében található, Gitből kizárt `local.properties` fájlban add meg a kulcsot az SDK útvonala alatt. A `local.properties.example` mintaként használható:
+
+```properties
+sdk.dir=C:/Users/USERNAME/AppData/Local/Android/Sdk
+MAPS_API_KEY=IDE_MASOLD_A_GOOGLE_MAPS_ANDROID_API_KULCSOT
+```
+
+3. Korlátozd a kulcsot a **Maps SDK for Android** API-ra, Android-alkalmazásként pedig a `hu.matepazy.menetrendgo` csomagnévre és a megfelelő aláírókulcs SHA-1 ujjlenyomatára. A debug és release aláírás külön ujjlenyomatot használ. Ezeket a `.\gradlew.bat :app:signingReport` paranccsal listázhatod. Google Play App Signing esetén a Play Console alkalmazásaláíró tanúsítványa is szükséges.
+4. Szinkronizáld a Gradle-projektet, majd fordítsd újra és telepítsd az alkalmazást. A kulcs fordításkor kerül a manifestbe. Ne másold forráskódba vagy verziókövetett fájlba.
+
+CI-környezetben a `MAPS_API_KEY` környezeti változó is használható, amely elsőbbséget élvez a helyi fájllal szemben. Kulcs nélkül a Google térkép beállítási üzenetet mutat, a Vasúti és Saját térkép használható marad. A Google térképhez Google Play-szolgáltatásokat tartalmazó telefon vagy emulátor szükséges. Hitelesítési hiba esetén ellenőrizd a szolgáltatás engedélyezését, a számlázást és a csomagnév/SHA-1 korlátozásokat a [Google beállítási útmutatója](https://developers.google.com/maps/documentation/android-sdk/get-api-key) alapján.
 
 ### Fordítás és ellenőrzés
 
@@ -137,7 +154,7 @@ Az indulási tábla bal oldalon a járat hivatalos jelét és nevét, jobb oldal
 
 A **Widget a kezdőképernyőre** gomb az adott megállóhoz kér Android-widgetet. A kezdőképernyő widgetválasztójából is hozzáadható: ekkor kereséssel választható ki a pontos megálló. Több widget különböző megállót is követhet. A widget ugyanazt a járat-balra / visszaszámlálás-jobbra elrendezést és a beépített hivatalos MÁV-jelképeket használja. A tárolt indulási időkből a visszaszámlálást hálózati kérés nélkül, nem ébresztő helyi időzítővel frissíti; az Android ezt is késleltetheti. A widget átméretezhető, kézzel frissíthető, és a táblára koppintva megnyitja a teljes indulási listát. Egy adatfrissítés a következő tíz indulást tárolja. Az elindult járatok helyére a helyi készlet következő elemei kerülnek, új hálózati kérés nélkül. Az Indulások laphoz illő, lekerekített kártyák és tudatos térközök tagolják az indulásokat; a hivatalos jel és az úti cél azonos bal szélhez igazodik; a widget a tényleges szövegméret és sortörések alapján annyi teljes indulást mutat, amennyi elfér, ötös megjelenítési korlát nélkül. Friss adatot kér ötpercenként (tízperces ütemezési határidővel), a helyi készlet elfogyásakor, a widgetből történő megnyitáskor és a frissítés gomb megnyomásakor. Az Android energiatakarékossága vagy a kapcsolat hiánya késleltetheti a háttérfeladatot. Az elindult járat azonnal kikerül a helyi listából; sikertelen kérésnél legalább egy perc telik el az újrapróbálásig. A widget és a megálló munkalapja csak a legutóbbi frissítés óta eltelt időt mutatja, frissítési gyakoriságot nem. Az utolsó frissítés kora mindig látható, a háttérben frissülő widget nem folyamatosan nyitott élő nézet.
 
-Az alkalmazás közvetlenül, HTTPS-en éri el a MÁVPlusz OTP GraphQL- és megállókereső végpontjait. A lekérdezések és az adatok feldolgozásának felépítése a [hovamegy.hu](https://github.com/matepazy/hovamegy.hu) megoldását követi. A térkép Leafletet használ egy WebView-ban, a többi felület natív Compose.
+Az alkalmazás közvetlenül, HTTPS-en éri el a MÁVPlusz OTP GraphQL- és megállókereső végpontjait. A lekérdezések és az adatok feldolgozásának felépítése a [hovamegy.hu](https://github.com/matepazy/hovamegy.hu) megoldását követi. Az alapértelmezett térkép a natív Google Maps SDK for Androidot használja. A Vasúti és Saját térkép Leafletet használ egy WebView-ban, a többi felület natív Compose.
 
 A bérletek, keresési előzmények és beállítások az eszközön maradnak. Nincs felhasználói fiók vagy analitikai SDK. A hozzávetőleges helyhozzáférés opcionális, és a térkép középre igazítására szolgál. A menetrendi kérések a kereséshez szükséges adatokat elküldik a MÁVPlusznak, a térképszolgáltatók pedig a csempekérésekből látják a megtekintett területet és a hálózati kapcsolat adatait. A frissítésellenőrzés a GitHub nyilvános API-ját hívja.
 
@@ -145,6 +162,7 @@ A bérletnyilvántartás nem jegytárca, a rögzített adatok nem igazolják az 
 
 ## Felhasznált térképek és források
 
+- [Google Maps SDK for Android](https://developers.google.com/maps/documentation/android-sdk) – az Alap, Műhold és Hibrid térképek.
 - [Leaflet](https://leafletjs.com/) – a beágyazott példány licence: `app/src/main/assets/leaflet-LICENSE.txt`.
 - OpenStreetMap, Esri és OpenRailwayMap – a térképen feltüntetett forrásmegjelölésekkel. A térképszolgáltatók használati feltételei a saját példányokra is vonatkoznak.
 - Megyehatárok – az adatok eredete és felhasználási feltételei: [hungary-counties-LICENSE.md](app/src/main/assets/hungary-counties-LICENSE.md).

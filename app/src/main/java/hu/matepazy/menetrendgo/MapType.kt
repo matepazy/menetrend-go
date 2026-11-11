@@ -3,20 +3,13 @@ package hu.matepazy.menetrendgo
 import java.net.URI
 
 enum class MapType(val id: String, val title: String, val summary: String) {
-    Standard("standard", "Alap", "Utcák és települések · OpenStreetMap"),
-    Satellite("satellite", "Műhold", "Műhold- és légifelvételek · Esri"),
-    Hybrid("hybrid", "Hibrid", "Műholdkép utakkal és feliratokkal · Esri"),
+    Standard("standard", "Alap", "Utcák és települések · Google"),
+    Satellite("satellite", "Műhold", "Műhold- és légifelvételek · Google"),
+    Hybrid("hybrid", "Hibrid", "Műholdkép utakkal és feliratokkal · Google"),
     Rail("rail", "Vasúti", "Vasútvonalak és állomások · OpenRailwayMap"),
     Custom("custom", "Saját térkép", "A megadott csempeforrás");
 
-    fun summary(unofficialGoogleMapEnabled: Boolean): String = if (unofficialGoogleMapEnabled) {
-        when (this) {
-            Standard -> "Utcák és települések · Google"
-            Satellite -> "Műhold- és légifelvételek · Google"
-            Hybrid -> "Műholdkép utakkal és feliratokkal · Google"
-            else -> summary
-        }
-    } else summary
+    val usesGoogleMaps get() = this in setOf(Standard, Satellite, Hybrid)
 
     companion object {
         fun fromId(id: String?) = entries.firstOrNull { it.id == id } ?: Standard

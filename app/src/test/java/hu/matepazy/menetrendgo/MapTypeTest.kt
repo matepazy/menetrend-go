@@ -4,6 +4,13 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class MapTypeTest {
+    @Test fun normalMapTypesUseOfficialSdkAndSpecialLayersUseLeaflet() {
+        assertTrue(MapType.fromId(null).usesGoogleMaps)
+        assertTrue(MapType.Satellite.usesGoogleMaps)
+        assertTrue(MapType.Hybrid.usesGoogleMaps)
+        assertFalse(MapType.Rail.usesGoogleMaps)
+        assertFalse(MapType.Custom.usesGoogleMaps)
+    }
     @Test fun acceptsRasterTemplatesAndQueryTokens() {
         assertTrue(validMapTileUrl("https://tiles.example.com/{z}/{x}/{y}.png?key=abc&scale={r}"))
         assertTrue(validMapTileUrl("https://{s}.example.com/{z}/{x}/{y}.jpg"))

@@ -6,6 +6,12 @@ plugins {
 }
 
 val signingPropertiesFile = rootProject.file("signing/signing.properties")
+val localProperties = Properties().apply {
+    val file = rootProject.file("local.properties")
+    if (file.isFile) file.inputStream().use { load(it) }
+}
+val mapsApiKey = providers.environmentVariable("MAPS_API_KEY")
+    .orElse(localProperties.getProperty("MAPS_API_KEY", "")).get().trim()
 val signingProperties = Properties().apply {
     if (signingPropertiesFile.isFile) {
         signingPropertiesFile.inputStream().use { load(it) }
@@ -22,6 +28,8 @@ android {
         versionCode = 1
         versionName = "v1.4.3"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        manifestPlaceholders["MAPS_API_KEY"] = mapsApiKey
+        buildConfigField("boolean", "MAPS_API_KEY_CONFIGURED", mapsApiKey.isNotEmpty().toString())
     }
     signingConfigs {
         if (signingPropertiesFile.isFile) {
@@ -50,6 +58,7 @@ android {
     compileOptions { sourceCompatibility = JavaVersion.VERSION_17; targetCompatibility = JavaVersion.VERSION_17 }
 }
 dependencies {
+    implementation("com.google.android.gms:play-services-maps:20.0.0")
     implementation("io.noties.markwon:core:4.6.2")
     implementation("io.noties.markwon:ext-strikethrough:4.6.2")
     implementation("com.squareup.okhttp3:okhttp:4.10.0")

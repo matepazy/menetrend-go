@@ -28,6 +28,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.*
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
@@ -56,10 +57,11 @@ import kotlinx.coroutines.withContext
     val topInset=WindowInsets.safeDrawing.asPaddingValues().calculateTopPadding()
     val mapColors=MaterialTheme.colorScheme
     val featherColor=mapColors.background.toArgb()
-    val mapThemeScript="window.setAppTheme($featherColor,${mapColors.surface.toArgb()},${mapColors.onSurface.toArgb()},${mapColors.primary.toArgb()});"
-    var web by remember {mutableStateOf<WebView?>(null)}
+    val mapTheme = listOf(featherColor,mapColors.surface.toArgb(),mapColors.onSurface.toArgb(),mapColors.primary.toArgb())
+    val googleMap = vm.effectiveMapType.usesGoogleMaps
+    var mapSurface by remember {mutableStateOf<TransportMapSurface?>(null)}
     var ready by remember {mutableStateOf(false)}
-    LaunchedEffect(ready,mapThemeScript) { if(ready) web?.evaluateJavascript(mapThemeScript,null) }
+    LaunchedEffect(ready,mapTheme) { if(ready) mapSurface?.call("setAppTheme",*mapTheme.toTypedArray()) }
     var center by remember {mutableStateOf<Pair<Double,Double>?>(null)}
     var locationMessage by remember {mutableStateOf<String?>(null)}
     var locationVisible by remember {mutableStateOf(false)}
@@ -94,7 +96,7 @@ import kotlinx.coroutines.withContext
     val stopClient = remember {MavClient()}
     val stopsEnabled = vm.showMapStops && !routeOnly
     LaunchedEffect(ready,stopsEnabled) {
-        if(ready) web?.evaluateJavascript("window.setStopsEnabled($stopsEnabled);",null)
+        if(ready) mapSurface?.call("setStopsEnabled",stopsEnabled)
         if(!stopsEnabled) {mapStops=emptyList();selectedStop=null}
     }
     LaunchedEffect(stopViewport,stopsEnabled,vm.vehicleUpdated) {
@@ -106,7 +108,7 @@ import kotlinx.coroutines.withContext
         catch(e: Exception) {mapStops=emptyList();snackbars.showSnackbar("A megállók nem tölthetők be. Frissítsd a térképet az újrapróbáláshoz.")}
     }
     LaunchedEffect(ready,mapStops,stopsEnabled) {
-        if(ready) web?.evaluateJavascript("window.updateStops(${JSONArray(if(stopsEnabled) mapStops.map {it.json()} else emptyList<JSONObject>())});",null)
+        if(ready) mapSurface?.call("updateStops",JSONArray(if(stopsEnabled) mapStops.map {it.json()} else emptyList<JSONObject>()))
     }
     val allVehicles=remember(vm.vehicles,routeOnly,vm.vehicleFilters) {
         if(routeOnly) vm.vehicles else mapLayerVehicles(vm.vehicles,vm.vehicleFilters)
@@ -160,7 +162,7 @@ import kotlinx.coroutines.withContext
         }
         val observer=LifecycleEventObserver {_,event ->
             if(event==Lifecycle.Event.ON_START) {
-                web?.evaluateJavascript("window.setVehicleMotionEnabled(${android.animation.ValueAnimator.areAnimatorsEnabled()});",null)
+                mapSurface?.call("setVehicleMotionEnabled",android.animation.ValueAnimator.areAnimatorsEnabled())
                 allowed=ContextCompat.checkSelfPermission(context,Manifest.permission.ACCESS_COARSE_LOCATION)==PackageManager.PERMISSION_GRANTED
                 preciseAllowed=ContextCompat.checkSelfPermission(context,Manifest.permission.ACCESS_FINE_LOCATION)==PackageManager.PERMISSION_GRANTED
                 start()
@@ -179,9 +181,11 @@ import kotlinx.coroutines.withContext
                     .put("heading",vehicle.heading ?: JSONObject.NULL)
                     .put("color",serviceColorHex(vehicle.badgeLeg()))
                     .put("type",hungarianServiceName(vehicle.category,vehicle.mode))
-            }).toString() }
+            }) }
             val route=JSONArray(journey?.legs.orEmpty().map {leg->JSONObject().put("geometry",leg.geometry).put("from",leg.from.json()).put("to",leg.to.json()).put("walking",leg.walking).put("color",serviceColorHex(leg))})
-            web?.evaluateJavascript("window.setRouteMode($routeOnly);window.updateVehicles($array);window.updateRoute($route);",null)
+            mapSurface?.call("setRouteMode",routeOnly)
+            mapSurface?.call("updateVehicles",array)
+            mapSurface?.call("updateRoute",route)
         }
     }
     val alertSession = tracking.session?.takeIf { JourneyTracking.enabled(context) && !it.awaitingBoarding &&
@@ -193,21 +197,21 @@ import kotlinx.coroutines.withContext
                 .put("radius", destinationAlertRadius(leg.mode)).put("name", leg.to.name)
                 .put("guard", destinationGuard(leg)?.let { guard -> guard.stop.json().put("radius", guard.radius) })
                 .put("color", "#%06x".format(alertColor and 0xFFFFFF)) }
-            web?.evaluateJavascript("window.updateDestinationAlert(${area ?: "null"});", null)
+            mapSurface?.call("updateDestinationAlert",area)
         }
     }
-    LaunchedEffect(ready,vm.effectiveMapType,vm.customMapUrl,vm.unofficialGoogleMapEnabled) {
-        if(ready) web?.evaluateJavascript("window.setMapType(${JSONObject.quote(vm.effectiveMapType.id)},${JSONObject.quote(vm.customMapUrl)},${vm.unofficialGoogleMapEnabled});",null)
+    LaunchedEffect(ready,vm.effectiveMapType,vm.customMapUrl) {
+        if(ready) mapSurface?.call("setMapType",vm.effectiveMapType.id,vm.customMapUrl)
     }
-    LaunchedEffect(ready,bottomInset) {if(ready) web?.evaluateJavascript("window.setBottomInset($bottomInset);",null)}
+    LaunchedEffect(ready,bottomInset) {if(ready) mapSurface?.call("setBottomInset",bottomInset)}
     LaunchedEffect(ready,topInset,featherColor) {
-        if(ready) web?.evaluateJavascript("window.setTopInset(${topInset.value},$featherColor,${android.os.Build.VERSION.SDK_INT>=31});",null)
+        if(ready) mapSurface?.call("setTopInset",topInset.value,featherColor,android.os.Build.VERSION.SDK_INT>=31)
     }
     LaunchedEffect(ready,center,recenter) {
         val position=center
         if(ready && position!=null) {
             val move=recenter || (!hasCentered && journey==null && focusedId==null)
-            web?.evaluateJavascript("window.updateLocation(${position.first},${position.second},$move);",null)
+            mapSurface?.call("updateLocation",position.first,position.second,move)
             hasCentered=true
             recenter=false
         }
@@ -215,13 +219,29 @@ import kotlinx.coroutines.withContext
     var focusedOnce by remember(focusedId) {mutableStateOf(false)}
     LaunchedEffect(ready,focusedId,visibleVehicles) {
         if(ready && focusedId!=null && !focusedOnce) visibleVehicles.firstOrNull()?.let {
-            web?.evaluateJavascript("window.centerOn(${it.lat},${it.lon});",null)
+            mapSurface?.call("centerOn",it.lat,it.lon)
             focusedOnce=true
         }
     }
-    DisposableEffect(Unit) {onDispose {web?.removeJavascriptInterface("NativeMap");web?.destroy();web=null}}
+    DisposableEffect(googleMap) {
+        ready=false
+        focusedOnce=false
+        hasCentered=false
+        onDispose {mapSurface?.dispose();mapSurface=null;ready=false}
+    }
     Box(Modifier.fillMaxSize()) {
-            AndroidView(modifier=Modifier.fillMaxSize(),factory={ctx->
+        key(googleMap) {
+        if (googleMap) {
+            GoogleTransportMap(
+                modifier=Modifier.fillMaxSize().testTag("google-transport-map"),
+                onReady={mapSurface=it;ready=true},
+                onVehicle={id->currentVehicles.find {it.id==id}?.let(onSelect)},
+                onStop={id->currentStops.find {it.id==id}?.let {selectedStop=it}},
+                onViewport={lat,lon,radius->stopViewport=Triple(lat,lon,radius)},
+                onLocationVisible={locationVisible=it},
+                loadPaths={ids->stopClient.vehiclePaths(ids)}
+            )
+        } else AndroidView(modifier=Modifier.fillMaxSize(),factory={ctx->
                 WebView(ctx).apply {
                     if(BuildConfig.DEBUG) WebView.setWebContentsDebuggingEnabled(true)
                     layoutParams=android.view.ViewGroup.LayoutParams(android.view.ViewGroup.LayoutParams.MATCH_PARENT,android.view.ViewGroup.LayoutParams.MATCH_PARENT)
@@ -238,7 +258,7 @@ import kotlinx.coroutines.withContext
                             scope.launch {
                                 try {
                                     val paths=stopClient.vehiclePaths(ids)
-                                    web?.evaluateJavascript("window.updateVehiclePaths($paths);",null)
+                                    mapSurface?.call("updateVehiclePaths",paths)
                                 } catch(e: kotlinx.coroutines.CancellationException) {throw e}
                                 catch(_: Exception) { /* Keep live positions usable without a shape. */ }
                             }
@@ -250,10 +270,13 @@ import kotlinx.coroutines.withContext
                         @JavascriptInterface fun selectStop(id: String) {Handler(Looper.getMainLooper()).post {currentStops.find {it.id==id}?.let {selectedStop=it}}}
                         @JavascriptInterface fun selectVehicle(id: String) {Handler(Looper.getMainLooper()).post {currentVehicles.find {it.id==id}?.let(onSelect)}}
                     },"NativeMap")
+                    val surface=LeafletMapSurface(this)
+                    mapSurface=surface
                     webViewClient=object:WebViewClient() {
                         override fun onPageFinished(view: WebView, url: String) {
+                            if(mapSurface !== surface)return
                             view.evaluateJavascript("window.setVehicleMotionEnabled(${android.animation.ValueAnimator.areAnimatorsEnabled()});",null)
-                            view.evaluateJavascript(mapThemeScript,null)
+                            view.evaluateJavascript("window.setAppTheme(${mapTheme.joinToString()});",null)
                             view.evaluateJavascript("window.resizeMap && window.resizeMap();window.setBottomInset($bottomInset);window.setTopInset(${topInset.value},$featherColor,${android.os.Build.VERSION.SDK_INT>=31});",null)
                             ready=true
                         }
@@ -267,9 +290,9 @@ import kotlinx.coroutines.withContext
                         .replace("/* LEAFLET_CSS */",ctx.assets.open("leaflet.css").bufferedReader().use {it.readText()})
                         .replace("/* VEHICLE_ICONS */",ctx.assets.open("vehicle-icons.js").bufferedReader().use {it.readText()})
                     loadDataWithBaseURL("https://menetrendgo.local/",html,"text/html","utf-8",null)
-                    web=this
                 }
             })
+        }
         if(!routeOnly) {
             AnimatedVisibility(!searchFocused,modifier=Modifier.align(Alignment.TopStart),
                 enter=fadeIn(tween(AppMotion.Feedback)),exit=fadeOut(tween(AppMotion.Feedback))) {
