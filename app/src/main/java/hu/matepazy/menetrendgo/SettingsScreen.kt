@@ -33,7 +33,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 
 private enum class SettingsPage(val title: String) {
     Home("Beállítások"), Appearance("Megjelenés"), Notifications("Értesítések"),
-    Updates("Frissítések"), About("Az alkalmazásról"), Developer("Fejlesztői beállítások");
+    Updates("Frissítések"), Extras("Kiegészítő funkciók"), About("Az alkalmazásról"), Developer("Fejlesztői beállítások");
 
     val parent: SettingsPage get() = when (this) {
         Developer -> About
@@ -89,11 +89,29 @@ private enum class SettingsPage(val title: String) {
                             SettingsRow("Megjelenés", themeLabel(vm.theme), onClick = { navigate(SettingsPage.Appearance) })
                             SettingsRow("Értesítések", if (!notificationsEnabled) "Kikapcsolva az Androidban" else "${vm.passReminders.size} / ${PassReminder.entries.size} emlékeztető bekapcsolva", onClick = { navigate(SettingsPage.Notifications) })
                             SettingsRow("Frissítések", if (vm.updates.enabled) "Automatikus ellenőrzés bekapcsolva" else "Kézi ellenőrzés", onClick = { navigate(SettingsPage.Updates) })
+                            SettingsRow("Kiegészítő funkciók", if (vm.journeyTrackingBetaEnabled) "1 funkció bekapcsolva" else "Nincs aktív kiegészítő funkció", onClick = { navigate(SettingsPage.Extras) })
                         }
                     }
                     item {
                         SettingsGroup {
                             SettingsRow("Az alkalmazásról", "MenetrendGO · ${BuildConfig.VERSION_NAME}", onClick = { navigate(SettingsPage.About) })
+                        }
+                    }
+                }
+                SettingsPage.Extras -> {
+                    item {
+                        SettingsGroup {
+                            Row(
+                                Modifier.fillMaxWidth().toggleable(vm.journeyTrackingBetaEnabled, role = Role.Switch, onValueChange = vm::chooseJourneyTrackingBeta).padding(AppLayout.PanelPadding),
+                                verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)
+                            ) {
+                                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    Text("Leszállási jelzés (béta)", style = MaterialTheme.typography.titleMedium)
+                                    Text("Kísérleti leszállási figyelmeztetés. Bekapcsolva csengő jelenik meg a leszállóhelyek mellett. Kikapcsoláskor az aktív jelzés is leáll.",
+                                        style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                }
+                                Switch(checked = vm.journeyTrackingBetaEnabled, onCheckedChange = null)
+                            }
                         }
                     }
                 }
@@ -185,21 +203,6 @@ private enum class SettingsPage(val title: String) {
                     }
                 }
                 SettingsPage.Developer -> {
-                    item {
-                        SettingsGroup {
-                            Row(
-                                Modifier.fillMaxWidth().toggleable(vm.journeyTrackingBetaEnabled, role = Role.Switch, onValueChange = vm::chooseJourneyTrackingBeta).padding(AppLayout.PanelPadding),
-                                verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)
-                            ) {
-                                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                    Text("Leszállási jelzés (béta)", style = MaterialTheme.typography.titleMedium)
-                                    Text("Kísérleti leszállási figyelmeztetés. Bekapcsolva csengő jelenik meg a leszállóhelyek mellett. Kikapcsoláskor az aktív jelzés is leáll.",
-                                        style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                }
-                                Switch(checked = vm.journeyTrackingBetaEnabled, onCheckedChange = null)
-                            }
-                        }
-                    }
                     item {
                         SettingsGroup {
                             Row(

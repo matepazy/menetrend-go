@@ -120,7 +120,7 @@ class JourneyTrackingUiTest {
         assertNull(JourneyTracking.saved(app))
     }
 
-    @Test fun betaIsHiddenByDefaultAndDeveloperTogglePersistsAndStopsTracking() {
+    @Test fun betaIsHiddenByDefaultAndExtraTogglePersistsAndStopsTracking() {
         app.getSharedPreferences("menetrendgo", 0).edit().remove("journey_tracking_beta_enabled").commit()
         val vm = AppState(app).also { store.put("beta-settings", it) }
         assertFalse(vm.journeyTrackingBetaEnabled)
@@ -142,15 +142,14 @@ class JourneyTrackingUiTest {
             page = "home"
         }
         compose.onNodeWithText("Leszállási jelzés aktív").assertDoesNotExist()
-        compose.runOnIdle { vm.unlockDeveloperSettings(); page = "settings" }
-        compose.onNodeWithText("Az alkalmazásról").performClick()
-        compose.onNode(hasScrollAction()).performScrollToNode(hasText("Fejlesztői beállítások"))
-        compose.onNodeWithText("Fejlesztői beállítások").performClick()
+        compose.runOnIdle { page = "settings" }
+        compose.onNodeWithText("Nincs aktív kiegészítő funkció").assertIsDisplayed()
+        compose.onNodeWithText("Kiegészítő funkciók").performClick()
         compose.onNodeWithText("Leszállási jelzés (béta)").assertIsOff().performClick().assertIsOn()
         assertTrue(JourneyTracking.enabled(app))
         val restored = AppState(app).also { store.put("beta-restored", it) }
         assertTrue(restored.journeyTrackingBetaEnabled)
-        screenshot("tracking-beta-developer-setting")
+        screenshot("tracking-beta-extra-setting")
         compose.runOnIdle { JourneyTracking.clear(app); page = "journey" }
         startAlerts()
         openAlerts()
