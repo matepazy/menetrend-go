@@ -87,6 +87,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import org.json.JSONObject
 import kotlinx.coroutines.*
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.time.*
 import java.time.format.DateTimeFormatter
 import androidx.lifecycle.Lifecycle
@@ -1007,17 +1009,31 @@ internal fun sameJourneyStop(first: Station, second: Station): Boolean =
     var legTimes by remember(journey) { mutableStateOf<Map<Int, TransferTimes>>(emptyMap()) }
     var transferTimes by remember(journey) { mutableStateOf(transfers.mapValues { initialTransferTimes(journey, it.value) }) }
     var transferNow by remember(journey) { mutableLongStateOf(System.currentTimeMillis()) }
+    val refreshMutex = remember(journey) { Mutex() }
+    suspend fun refreshJourney() {
+        // A pull during automatic refresh joins that request instead of fetching twice.
+        if (!refreshMutex.tryLock()) {
+            refreshMutex.withLock { }
+            return
+        }
+        try {
+            legTimes = vm.refreshJourneyTimes(journey, legTimes)
+            transferNow = System.currentTimeMillis()
+            transferTimes = transfers.mapValues { (_, connection) ->
+                TransferTimes(legTimes.getValue(connection.incomingIndex).arrival,
+                    legTimes.getValue(connection.outgoingIndex).departure)
+            }
+            transferTimes = vm.refreshTransferAlternatives(journey, transferTimes)
+        } finally {
+            refreshMutex.unlock()
+        }
+    }
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     LaunchedEffect(journey, refreshTransfers, lifecycle, vm.journeyRefreshSeconds) {
         if (refreshTransfers) lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
             launch { while (true) { transferNow = System.currentTimeMillis(); delay(15_000) } }
             while (true) {
-                legTimes = vm.refreshJourneyTimes(journey, legTimes)
-                transferTimes = transfers.mapValues { (_, connection) ->
-                    TransferTimes(legTimes.getValue(connection.incomingIndex).arrival,
-                        legTimes.getValue(connection.outgoingIndex).departure)
-                }
-                transferTimes = vm.refreshTransferAlternatives(journey, transferTimes)
+                refreshJourney()
                 delay(vm.journeyRefreshSeconds * 1_000L)
             }
         }
@@ -1029,6 +1045,10 @@ internal fun sameJourneyStop(first: Station, second: Station): Boolean =
     var menuOpen by remember(journey.key) { mutableStateOf(false) }
     var rawOpen by remember(journey.key) { mutableStateOf(false) }
     val journeyVehicles=routeVehicles(journey,vm.vehicles,System.currentTimeMillis()).associateBy {it.id}
+    JourneyRefreshLayout(refreshKey=journey, onRefresh={
+        refreshJourney()
+        check(legTimes.values.none {it.arrival.failed || it.departure.failed})
+    }) { refreshError ->
     LazyColumn(Modifier.fillMaxSize(),contentPadding=screenContentPadding(),verticalArrangement=Arrangement.spacedBy(AppLayout.ItemGap)) {
         item {PageTitle("Utazás részletei", dayLabel(journey.start).takeIf {it.isNotBlank()},back) {
             if(vm.showRawGraphQl) Box {
@@ -1038,6 +1058,9 @@ internal fun sameJourneyStop(first: Station, second: Station): Boolean =
                 }
             }
         }}
+        if (refreshError != null) item {
+            Text(refreshError, color=MaterialTheme.colorScheme.error, style=MaterialTheme.typography.bodyMedium)
+        }
         item {
             Surface(shape=RoundedCornerShape(32.dp),color=MaterialTheme.colorScheme.surface) {
                 Column(Modifier.fillMaxWidth().padding(AppLayout.PanelPadding)) {
@@ -1188,6 +1211,7 @@ internal fun sameJourneyStop(first: Station, second: Station): Boolean =
             }
         }
         item {val advice=passAdvice(vm.passes,journey,vm.passGeography);InfoPanel(advice.title,advice.detail)}
+    }
     }
     if (vm.journeyTrackingBetaEnabled) trackingLeg?.let { index -> JourneyTrackingSheet(journey, index) { trackingLeg = null } }
     if(vm.showRawGraphQl && rawOpen) RawGraphQlSheet(journey.rawGraphQl) {rawOpen=false}
