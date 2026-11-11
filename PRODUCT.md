@@ -3,7 +3,10 @@
 <!-- impeccable:product-schema 1 -->
 
 ## Platform
-Android, Kotlin and Jetpack Compose, with a bundled Leaflet map in a WebView.
+android
+
+## Implementation
+Kotlin and Jetpack Compose, with the official Google Maps SDK for the default map and bundled Leaflet for railway and custom tile layers.
 
 ## Product
 A Hungarian transit app for journey planning, live vehicles, stops and departures. MÁV data is requested directly on the device. Existing functionality also includes saved searches and passes.

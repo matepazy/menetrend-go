@@ -339,7 +339,7 @@ val LocalBottomOverlayInset = staticCompositionLocalOf { 0.dp }
                 Box(Modifier.fillMaxSize().padding(top=inset.calculateTopPadding()).imePadding(),contentAlignment=Alignment.TopCenter) {
                     CompositionLocalProvider(LocalBottomOverlayInset provides inset.calculateBottomPadding()) {
                     // The bar has a 6dp outer top margin; keep the feather below its surface edge.
-                    FeatheredContent(enabled=tab!=1 && !mapScreen,bottomHeight=if(wide) 0.dp else (inset.calculateBottomPadding()-6.dp).coerceAtLeast(0.dp)) {
+                    FeatheredContent(enabled=(tab!=1 && !mapScreen) || vm.effectiveMapType.usesGoogleMaps,bottomHeight=if(wide) 0.dp else (inset.calculateBottomPadding()-6.dp).coerceAtLeast(0.dp)) {
                     Box(Modifier.widthIn(max=if(mapScreen) Dp.Infinity else if(tab==1) 1600.dp else 760.dp).fillMaxSize()) {
                         PredictiveBackPane(enabled=(page!="search" || tab!=0) && vm.mapVehicle==null,onBack=::back,preview={
                             when {

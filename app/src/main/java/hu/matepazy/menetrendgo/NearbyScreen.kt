@@ -237,7 +237,7 @@ import kotlinx.coroutines.withContext
                 onReady={mapSurface=it;ready=true},
                 onVehicle={id->currentVehicles.find {it.id==id}?.let(onSelect)},
                 onStop={id->currentStops.find {it.id==id}?.let {selectedStop=it}},
-                onViewport={lat,lon,radius->stopViewport=Triple(lat,lon,radius)},
+                onViewport={lat,lon,radius->stopViewport=if(radius in 100..15000)Triple(lat,lon,radius) else null},
                 onLocationVisible={locationVisible=it},
                 loadPaths={ids->stopClient.vehiclePaths(ids)}
             )

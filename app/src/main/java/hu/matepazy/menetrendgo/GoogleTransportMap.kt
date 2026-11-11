@@ -3,10 +3,7 @@ package hu.matepazy.menetrendgo
 import android.animation.ValueAnimator
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
-import android.graphics.Bitmap
-import android.graphics.Canvas
 import android.graphics.Color
-import android.graphics.Paint
 import android.webkit.WebView
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
@@ -74,7 +71,7 @@ internal fun GoogleTransportMap(
         }
         return
     }
-    val view=remember {MapView(context).apply {onCreate(null)}}
+    val view=remember {TransportGoogleMapView(context).apply {onCreate(null)}}
     var surface by remember {mutableStateOf<GoogleMapSurface?>(null)}
     DisposableEffect(view,lifecycle) {
         var active=true
@@ -94,7 +91,7 @@ internal fun GoogleTransportMap(
         context.registerComponentCallbacks(memory)
         view.getMapAsync {map->
             if (active && lifecycle.currentState!=Lifecycle.State.DESTROYED) {
-                surface=GoogleMapSurface(map,view.resources.displayMetrics.density,
+                surface=GoogleMapSurface(map,view,
                     {selectVehicle(it)},{selectStop(it)},
                     {lat,lon,radius->viewport(lat,lon,radius)},{locationVisible(it)},
                     {ids->scope.launch {
@@ -119,6 +116,18 @@ internal fun GoogleTransportMap(
     AndroidView(modifier=modifier,factory={view})
 }
 
+private class TransportGoogleMapView(context:android.content.Context):MapView(context) {
+    var lastTap:android.graphics.Point?=null
+    var lastTapAt=0L
+    override fun dispatchTouchEvent(event:android.view.MotionEvent):Boolean {
+        if(event.actionMasked==android.view.MotionEvent.ACTION_UP) {
+            lastTap=android.graphics.Point(event.x.toInt(),event.y.toInt())
+            lastTapAt=android.os.SystemClock.elapsedRealtime()
+        }
+        return super.dispatchTouchEvent(event)
+    }
+}
+
 private class MapMemoryCallbacks(private val view:MapView):android.content.ComponentCallbacks {
     @Deprecated("Legacy memory callback")
     override fun onLowMemory() {view.onLowMemory()}
@@ -127,13 +136,18 @@ private class MapMemoryCallbacks(private val view:MapView):android.content.Compo
 
 private class GoogleMapSurface(
     private val map:GoogleMap,
-    private val density:Float,
+    private val view:TransportGoogleMapView,
     private val selectVehicle:(String)->Unit,
     private val selectStop:(String)->Unit,
     private val viewport:(Double,Double,Int)->Unit,
     private val locationVisible:(Boolean)->Unit,
     private val requestPaths:(List<String>)->Unit
 ):TransportMapSurface {
+    private val density=view.resources.displayMetrics.density
+    private val artwork=NativeMapArtwork(view.context)
+    private var ink=0xff112d43.toInt()
+    private var surfaceColor=0xfff8fbff.toInt()
+    private var dark=false
     private var vehicles=JSONArray()
     private var stops=JSONArray()
     private var stopsEnabled=false
@@ -141,10 +155,10 @@ private class GoogleMapSurface(
     private var motionEnabled=true
     private var top=0
     private var bottom=0
-    private var location:Circle?=null
+    private var location:Marker?=null
     private var routeKey=""
     private val routes=mutableListOf<Polyline>()
-    private val routeStops=mutableListOf<Circle>()
+    private val routeStops=mutableListOf<Marker>()
     private val alerts=mutableListOf<Circle>()
     private val vehicleMarkers=mutableMapOf<String,Marker>()
     private val stopMarkers=mutableListOf<Marker>()
@@ -152,11 +166,13 @@ private class GoogleMapSurface(
     private val targets=mutableMapOf<String,LatLng>()
     private val pathCache=linkedMapOf<String,List<GeoPoint>>()
     private val requestedPaths=linkedSetOf<String>()
-    private val icons=linkedMapOf<String,BitmapDescriptor>()
+    private val stopEnclosures=mutableListOf<Polygon>()
+    private val stopLabels=mutableListOf<GroundOverlay>()
+    private var displayedStops=emptyList<Station>()
     private var destroyed=false
 
     init {
-        map.uiSettings.apply {isZoomControlsEnabled=false;isMapToolbarEnabled=false;isMyLocationButtonEnabled=false;isCompassEnabled=false}
+        map.uiSettings.apply {isZoomControlsEnabled=false;isMapToolbarEnabled=false;isMyLocationButtonEnabled=false;isCompassEnabled=false;isRotateGesturesEnabled=false;isTiltGesturesEnabled=false}
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(47.17,19.5),7f))
         map.setOnCameraIdleListener {
             drawVehicles(false)
@@ -167,8 +183,24 @@ private class GoogleMapSurface(
             val tag=marker.tag as? Pair<*,*>
             when(tag?.first) {
                 "vehicle"->selectVehicle(tag.second as String)
-                "stop"->selectStop(tag.second as String)
-                "cluster"->map.animateCamera(CameraUpdateFactory.newLatLngZoom(marker.position,map.cameraPosition.zoom+2f))
+                "stop"->{
+                    val tap=view.lastTap?.takeIf {android.os.SystemClock.elapsedRealtime()-view.lastTapAt<500}
+                    val nearest=if(tap!=null)displayedStops.minByOrNull {stop->
+                        val point=map.projection.toScreenLocation(LatLng(stop.lat,stop.lon))
+                        hypot((point.x-tap.x).toDouble(),(point.y-tap.y).toDouble())
+                    }?.id else null
+                    selectStop(nearest ?: tag.second as String)
+                }
+                "cluster"->{
+                    @Suppress("UNCHECKED_CAST") val points=tag.second as List<LatLng>
+                    val bounds=LatLngBounds.builder().apply {points.forEach(::include)}.build()
+                    val screen=points.map(map.projection::toScreenLocation)
+                    val spanX=(screen.maxOf {it.x}-screen.minOf {it.x}).coerceAtLeast(1)
+                    val spanY=(screen.maxOf {it.y}-screen.minOf {it.y}).coerceAtLeast(1)
+                    val factor=min((view.width-120*density).coerceAtLeast(1f)/spanX,(view.height-top-bottom-120*density).coerceAtLeast(1f)/spanY)
+                    val zoom=min(19.0,min(map.cameraPosition.zoom+3.0,map.cameraPosition.zoom+ln(factor.toDouble())/ln(2.0)))
+                    map.animateCamera(CameraUpdateFactory.newLatLngZoom(bounds.center,zoom.toFloat()))
+                }
             }
             true
         }
@@ -176,11 +208,17 @@ private class GoogleMapSurface(
     override fun call(name:String,vararg args:Any?) {
         if(destroyed)return
         when(name) {
-            "setMapType"->map.mapType=when(args[0]) {"satellite"->GoogleMap.MAP_TYPE_SATELLITE;"hybrid"->GoogleMap.MAP_TYPE_HYBRID;else->GoogleMap.MAP_TYPE_NORMAL}
+            "setMapType"->{
+                map.mapType=when(args[0]) {"satellite"->GoogleMap.MAP_TYPE_SATELLITE;"hybrid"->GoogleMap.MAP_TYPE_HYBRID;else->GoogleMap.MAP_TYPE_NORMAL}
+                applyBasemapStyle()
+            }
             "setAppTheme"->{
                 val color=(args[0] as Number).toInt()
-                val dark=Color.red(color)*.299+Color.green(color)*.587+Color.blue(color)*.114<128
-                map.setMapStyle(if(dark) MapStyleOptions("""[{"elementType":"geometry","stylers":[{"color":"#242424"}]},{"elementType":"labels.text.fill","stylers":[{"color":"#bdbdbd"}]},{"elementType":"labels.text.stroke","stylers":[{"color":"#212121"}]},{"featureType":"road","elementType":"geometry","stylers":[{"color":"#383838"}]},{"featureType":"water","elementType":"geometry","stylers":[{"color":"#111820"}]}]""") else null)
+                dark=Color.red(color)*.299+Color.green(color)*.587+Color.blue(color)*.114<128
+                surfaceColor=(args[1] as Number).toInt()
+                ink=(args[2] as Number).toInt()
+                applyBasemapStyle()
+                drawStops()
             }
             "setBottomInset"->{bottom=((args[0] as Number).toFloat()*density).toInt();padding()}
             "setTopInset"->{top=((args[0] as Number).toFloat()*density).toInt();padding()}
@@ -188,7 +226,7 @@ private class GoogleMapSurface(
             "setVehicleMotionEnabled"->{motionEnabled=args[0] as Boolean;if(!motionEnabled)finishMotion()}
             "setStopsEnabled"->{stopsEnabled=args[0] as Boolean;drawStops();reportViewport()}
             "updateStops"->{stops=args[0] as JSONArray;drawStops()}
-            "updateVehicles"->{vehicles=args[0] as JSONArray;drawVehicles(true)}
+            "updateVehicles"->{requestedPaths.clear();vehicles=args[0] as JSONArray;drawVehicles(true)}
             "updateVehiclePaths"->{
                 val items=args[0] as JSONObject
                 items.keys().forEach {id->
@@ -200,8 +238,8 @@ private class GoogleMapSurface(
             }
             "updateLocation"->{
                 val point=LatLng((args[0] as Number).toDouble(),(args[1] as Number).toDouble())
-                if(location==null)location=map.addCircle(CircleOptions().center(point).radius(8.0).fillColor(Color.rgb(40,100,217)).strokeColor(Color.WHITE).strokeWidth(3*density).zIndex(5f))
-                location?.center=point
+                if(location==null)location=map.addMarker(MarkerOptions().position(point).icon(artwork.dot(8f,0xff2864d9.toInt(),Color.WHITE,3f)).anchor(.5f,.5f).title("Jelenlegi helyzet").zIndex(5f))
+                location?.position=point
                 if(args[2] as Boolean)map.animateCamera(CameraUpdateFactory.newLatLngZoom(point,max(14f,map.cameraPosition.zoom)))
                 reportViewport()
             }
@@ -224,31 +262,74 @@ private class GoogleMapSurface(
     private fun padding() {map.setPadding((12*density).toInt(),top+(12*density).toInt(),(12*density).toInt(),bottom+(12*density).toInt())}
     private fun JSONObject.point()=LatLng(getDouble("lat"),getDouble("lon"))
     private fun color(item:JSONObject)=runCatching {Color.parseColor(item.optString("color"))}.getOrDefault(Color.rgb(40,100,217))
+    private fun applyBasemapStyle() {
+        val rules=JSONArray()
+        if(dark) {
+            rules.put(JSONObject("""{"elementType":"geometry","stylers":[{"color":"#242424"}]}"""))
+            rules.put(JSONObject("""{"elementType":"labels.text.fill","stylers":[{"color":"#bdbdbd"}]}"""))
+            rules.put(JSONObject("""{"elementType":"labels.text.stroke","stylers":[{"color":"#212121"}]}"""))
+            rules.put(JSONObject("""{"featureType":"road","elementType":"geometry","stylers":[{"color":"#383838"}]}"""))
+            rules.put(JSONObject("""{"featureType":"water","elementType":"geometry","stylers":[{"color":"#111820"}]}"""))
+        }
+        // Google remains the basemap. The app's own live transport layers own the foreground.
+        rules.put(JSONObject("""{"featureType":"poi","elementType":"labels","stylers":[{"visibility":"off"}]}"""))
+        rules.put(JSONObject("""{"featureType":"transit","elementType":"labels.icon","stylers":[{"visibility":"off"}]}"""))
+        map.setMapStyle(MapStyleOptions(rules.toString()))
+    }
     private fun reportViewport() {
-        val bounds=map.projection.visibleRegion.latLngBounds
-        locationVisible(location?.center?.let(bounds::contains) ?: false)
-        location?.radius=8*156543.03392*cos(location!!.center.latitude*PI/180)/2.0.pow(map.cameraPosition.zoom.toDouble())*density
-        if(!stopsEnabled || map.cameraPosition.zoom<16f)return
+        val point=location?.position?.let(map.projection::toScreenLocation)
+        locationVisible(point!=null && point.x>=8*density && point.x<=view.width-8*density && point.y>=top+8*density && point.y<=view.height-bottom-32*density)
+        if(!stopsEnabled)return
+        if(map.cameraPosition.zoom<16f) {viewport(0.0,0.0,0);return}
         val center=map.cameraPosition.target
+        val bounds=map.projection.visibleRegion.latLngBounds
         val result=FloatArray(1)
         android.location.Location.distanceBetween(center.latitude,center.longitude,bounds.northeast.latitude,bounds.northeast.longitude,result)
-        viewport(center.latitude,center.longitude,result[0].toInt().coerceIn(100,15000))
+        viewport(center.latitude,center.longitude,(ceil(result[0]*1.1).toInt()+300).coerceIn(100,15000))
     }
     private fun drawStops() {
         stopMarkers.forEach {it.remove()};stopMarkers.clear()
+        stopEnclosures.forEach {it.remove()};stopEnclosures.clear()
+        stopLabels.forEach {it.remove()};stopLabels.clear()
+        displayedStops=emptyList()
         if(!stopsEnabled || map.cameraPosition.zoom<16f)return
-        for(i in 0 until stops.length()) {
-            val stop=stops.getJSONObject(i)
-            map.addMarker(MarkerOptions().position(stop.point()).title(stop.optString("name"))
-                .icon(icon("•",Color.rgb(78,101,129))).anchor(.5f,.5f).zIndex(1f))?.let {it.tag="stop" to stop.getString("id");stopMarkers.add(it)}
+        val all=stops.objects().mapNotNull {runCatching {Station.parse(it)}.getOrNull()}
+        val selected=selectNativeMapStops(all,map.cameraPosition.zoom.toDouble())
+        val groups=groupNativeMapStops(all).filter {group->
+            group.any {it.id in selected} && group.any {
+                val p=map.projection.toScreenLocation(LatLng(it.lat,it.lon))
+                p.x in (-view.width/10)..(view.width*11/10) && p.y in (-view.height/10)..(view.height*11/10)
+            }
+        }
+        displayedStops=groups.flatten()
+        groups.forEach {group->
+            if(group.size>1) {
+                val points=group.map {val p=map.projection.toScreenLocation(LatLng(it.lat,it.lon));MapPixel(p.x.toDouble(),p.y.toDouble())}
+                val outline=nativeMapStopOutline(points,18.0*density).map {map.projection.fromScreenLocation(android.graphics.Point(it.x.toInt(),it.y.toInt()))}
+                map.addPolygon(PolygonOptions().addAll(outline).strokeColor(0x8c737b80.toInt()).strokeWidth(1.5f*density)
+                    .fillColor(0x1f737b80).zIndex(.5f).clickable(false))?.let(stopEnclosures::add)
+                val x=points.map {it.x}.average()
+                var y=points.map {it.y}.average()
+                if(points.any {abs(it.x-x)<70*density && abs(it.y-y)<22*density})y=points.maxOf {it.y}+30*density
+                val sw=map.projection.fromScreenLocation(android.graphics.Point((x-70*density).toInt(),(y+56*density).toInt()))
+                val ne=map.projection.fromScreenLocation(android.graphics.Point((x+70*density).toInt(),y.toInt()))
+                map.addGroundOverlay(GroundOverlayOptions().image(artwork.label(group.first().name,ink,surfaceColor))
+                    .positionFromBounds(LatLngBounds(sw,ne)).zIndex(1.5f).clickable(false))?.let(stopLabels::add)
+            }
+        }
+        displayedStops.forEach {stop->
+            map.addMarker(MarkerOptions().position(LatLng(stop.lat,stop.lon)).title(stop.name+" · indulási tábla")
+                .icon(artwork.stop(stop.modes)).anchor(.5f,.5f).zIndex(1f))?.let {it.tag="stop" to stop.id;stopMarkers.add(it)}
         }
     }
     private fun drawVehicles(animate:Boolean) {
-        val bounds=map.projection.visibleRegion.latLngBounds
-        val visible=(0 until vehicles.length()).map {vehicles.getJSONObject(it)}.filter {bounds.contains(it.point())}
+        val visible=vehicles.objects().filter {
+            val point=map.projection.toScreenLocation(it.point())
+            point.x in (-view.width/5)..(view.width*6/5) && point.y in (-view.height/5)..(view.height*6/5)
+        }
         val cells=visible.groupBy {v->
             val point=map.projection.toScreenLocation(v.point())
-            if(map.cameraPosition.zoom>=14f) v.getString("id") else "${floor(point.x/(64*density))},${floor(point.y/(64*density))}"
+            if(routeMode) v.getString("id") else "${floor(point.x/(64*density))},${floor(point.y/(64*density))}"
         }
         val keep=mutableSetOf<String>()
         val paths=mutableListOf<String>()
@@ -259,9 +340,10 @@ private class GoogleMapSurface(
             keep.add(id)
             val point=if(cluster)LatLng(items.map {it.getDouble("lat")}.average(),items.map {it.getDouble("lon")}.average()) else v.point()
             val marker=vehicleMarkers[id] ?: map.addMarker(MarkerOptions().position(point).anchor(.5f,.5f).zIndex(2f))?.also {vehicleMarkers[id]=it} ?: return@forEach
-            marker.title=if(cluster) "${items.size} jármű" else "${v.optString("name")} · ${v.optString("headsign")}" 
-            marker.tag=(if(cluster) "cluster" else "vehicle") to id
-            marker.setIcon(icon(if(cluster) items.size.toString() else v.optString("name").ifBlank {v.optString("type","Jármű")},if(cluster)Color.rgb(36,76,134) else color(v)))
+            marker.title=if(cluster) "${items.size} jármű · nagyítás" else "${v.optString("type")} ${v.optString("name")} ${v.optString("headsign")}"
+            marker.tag=if(cluster) "cluster" to items.map {it.point()} else "vehicle" to id
+            val heading=v.optDouble("heading").takeIf {it.isFinite() && it in 0.0..360.0}
+            marker.setIcon(if(cluster) artwork.cluster(items.size) else artwork.vehicle(v.optString("mode"),heading))
             if(!cluster && !pathCache.containsKey(id) && id !in requestedPaths && paths.size<24)paths.add(id)
             if(animate) {
                 animations.remove(id)?.cancel()
@@ -271,7 +353,7 @@ private class GoogleMapSurface(
                     targets[id]=point
                     animations[id]=ValueAnimator.ofFloat(0f,1f).apply {
                         duration=1000
-                        interpolator=android.view.animation.LinearInterpolator()
+                        interpolator=android.view.animation.DecelerateInterpolator(1.5f)
                         addUpdateListener {marker.position=movement(it.animatedFraction)}
                         addListener(object:AnimatorListenerAdapter() {
                             override fun onAnimationEnd(animation:Animator) {
@@ -292,24 +374,6 @@ private class GoogleMapSurface(
         }
     }
     fun retryPaths(ids:List<String>) {requestedPaths.removeAll(ids.toSet())}
-    private fun icon(label:String,color:Int):BitmapDescriptor {
-        val text=label.take(24)
-        val key="$text:$color"
-        return icons.getOrPut(key) {
-            val paint=Paint(Paint.ANTI_ALIAS_FLAG).apply {textSize=13*density;typeface=android.graphics.Typeface.DEFAULT_BOLD}
-            val width=max(32*density,paint.measureText(text)+20*density)
-            val height=34*density
-            val bitmap=Bitmap.createBitmap(width.toInt(),height.toInt(),Bitmap.Config.ARGB_8888)
-            val canvas=Canvas(bitmap)
-            paint.color=Color.WHITE
-            canvas.drawRoundRect(0f,0f,width,height,height/2,height/2,paint)
-            paint.color=color
-            canvas.drawRoundRect(2*density,2*density,width-2*density,height-2*density,height/2,height/2,paint)
-            paint.color=Color.WHITE
-            canvas.drawText(text,(width-paint.measureText(text))/2,(height-paint.ascent()-paint.descent())/2,paint)
-            BitmapDescriptorFactory.fromBitmap(bitmap).also {bitmap.recycle()}
-        }.also {while(icons.size>256)icons.remove(icons.keys.first())}
-    }
     private fun drawRoute(legs:JSONArray) {
         val key=legs.toString()
         if(routeKey==key)return
@@ -325,7 +389,7 @@ private class GoogleMapSurface(
             map.addPolyline(PolylineOptions().addAll(line).color(color).width(5*density).apply {
                 if(leg.optBoolean("walking"))pattern(listOf(Dash(5*density),Gap(9*density)))
             })?.let(routes::add)
-            listOf("from","to").forEach {end->map.addCircle(CircleOptions().center(leg.getJSONObject(end).point()).radius(15.0).strokeColor(color).fillColor(Color.WHITE).strokeWidth(3*density))?.let(routeStops::add)}
+            listOf("from","to").forEach {end->map.addMarker(MarkerOptions().position(leg.getJSONObject(end).point()).icon(artwork.dot(6f,Color.WHITE,color,3f)).anchor(.5f,.5f).zIndex(1f))?.let(routeStops::add)}
         }
         if(points.isNotEmpty()) {
             if(routeMode)for(i in 0 until vehicles.length())points.add(vehicles.getJSONObject(i).point())
