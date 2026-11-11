@@ -241,7 +241,7 @@ val LocalBottomOverlayInset = staticCompositionLocalOf { 0.dp }
 }
 
 @Composable fun MenetrendApp(vm: AppState, initialTab: String?, trackingRequest: Int = 0, trackingSession: String? = null) {
-    var tab by rememberSaveable { mutableIntStateOf(if(initialTab == "passes") 2 else 0) }
+    var tab by rememberSaveable { mutableIntStateOf(if(initialTab == "passes" && vm.passesEnabled) 2 else 0) }
     var page by rememberSaveable { mutableStateOf("search") }
     var selected by vm::selectedJourney
     var journeyReturnPage by rememberSaveable { mutableStateOf("results") }
@@ -289,7 +289,12 @@ val LocalBottomOverlayInset = staticCompositionLocalOf { 0.dp }
         }
     }
     val mapScreen=page=="routeMap" || page=="vehicleMap"
-    val destinations = listOf("Tervezés","Térkép","Bérletek","Beállítások")
+    LaunchedEffect(vm.passesEnabled) {
+        if (!vm.passesEnabled && tab == 2) { tab = 0; page = "search"; selected = null }
+    }
+    // Keep stable destination IDs when the optional pass tab is hidden.
+    val destinations = listOf(0 to "Tervezés", 1 to "Térkép") +
+        (if (vm.passesEnabled) listOf(2 to "Bérletek") else emptyList()) + (3 to "Beállítások")
     val icons = listOf(Icons.Outlined.Search,Icons.Outlined.Map,Icons.Outlined.CreditCard,Icons.Outlined.Settings)
     BoxWithConstraints(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         val wide = maxWidth >= 700.dp
@@ -299,14 +304,14 @@ val LocalBottomOverlayInset = staticCompositionLocalOf { 0.dp }
                 Spacer(Modifier.height(30.dp))
                 @OptIn(ExperimentalMaterial3Api::class)
                 CompositionLocalProvider(LocalRippleConfiguration provides null) {
-                    destinations.forEachIndexed { index,label -> NavigationRailItem(selected=tab==index,onClick={returning=false;tab=index;page="search";selected=null},icon={Icon(icons[index],null)},label={Text(label)}) }
+                    destinations.forEach { (index,label) -> NavigationRailItem(selected=tab==index,onClick={returning=false;tab=index;page="search";selected=null},icon={Icon(icons[index],null)},label={Text(label)}) }
                 }
             }
             Scaffold(containerColor=Color.Transparent,contentWindowInsets=WindowInsets(0),
                 bottomBar={ if(!wide && !mapScreen) {
                     Surface(Modifier.navigationBarsPadding().padding(horizontal=AppLayout.PageGutter,vertical=6.dp),shape=MaterialTheme.shapes.large,color=MaterialTheme.colorScheme.surface) {
                         Row(Modifier.fillMaxWidth().padding(6.dp),horizontalArrangement=Arrangement.spacedBy(4.dp)) {
-                            destinations.forEachIndexed { index,label ->
+                            destinations.forEach { (index,label) ->
                                 val active=tab==index
                                 val tint by animateColorAsState(
                                     if(active) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
@@ -357,7 +362,7 @@ val LocalBottomOverlayInset = staticCompositionLocalOf { 0.dp }
                                 onMap={ returning=false;vm.mapVehicle=null;page="routeMap" })
                             tab==0 -> SearchScreen(vm,onTracking={selected=it;tab=0;journeyReturnPage="search";page="journey"}) { returning=false;vm.search();page="results" }
                             tab==1 -> NearbyScreen(vm)
-                            tab==2 -> PassesScreen(vm)
+                            tab==2 && vm.passesEnabled -> PassesScreen(vm)
                             else -> SettingsScreen(vm)
                         }
                         }
@@ -366,6 +371,30 @@ val LocalBottomOverlayInset = staticCompositionLocalOf { 0.dp }
                     }
                     }
                 }
+            }
+        }
+    }
+    if (vm.showPassesFeatureIntro && !vm.passesEnabled) {
+        PassesFeatureIntroSheet(vm::dismissPassesFeatureIntro) { vm.choosePassesEnabled(true) }
+    }
+
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable private fun PassesFeatureIntroSheet(onDismiss: () -> Unit, onEnable: () -> Unit) {
+    AppBottomSheet(onDismissRequest = onDismiss, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
+        Column(Modifier.fillMaxWidth().heightIn(max = androidx.compose.ui.platform.LocalConfiguration.current.screenHeightDp.dp * .85f)) {
+            Column(Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState())
+                .padding(horizontal = AppLayout.SheetPadding), verticalArrangement = Arrangement.spacedBy(AppLayout.ItemGap)) {
+                PageTitle("A Bérletek kiegészítő funkció lett")
+                Text("A mentett bérleteid megmaradtak. A Bérletek mostantól a Beállítások → Kiegészítő funkciók alatt kapcsolható be.",
+                    style = MaterialTheme.typography.bodyLarge)
+                Text("Jelenleg ki van kapcsolva, ezért a menüpont nem látható, és a lejárati emlékeztetők szünetelnek. Bekapcsolás után újra eléred a bérleteidet, és az emlékeztetők a korábbi beállításaid szerint működnek.",
+                    style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            Column(Modifier.fillMaxWidth().padding(AppLayout.SheetPadding), verticalArrangement = Arrangement.spacedBy(AppLayout.CompactGap)) {
+                MainButton("Bérletek bekapcsolása", Icons.Outlined.CreditCard, onClick = onEnable)
+                TextButton(onClick = onDismiss, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Most nem") }
             }
         }
     }

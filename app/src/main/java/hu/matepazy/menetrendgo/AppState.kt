@@ -29,6 +29,33 @@ class AppState(app: Application) : AndroidViewModel(app) {
         PassNotifications.setEnabled(getApplication(), reminder, enabled)
         passReminders = PassNotifications.enabledReminders(getApplication())
     }
+    var passesEnabled by mutableStateOf(PassNotifications.featureEnabled(app)); private set
+    // Decide eligibility once, before this installation can add any new passes.
+    // Persist a pending notice so recreation cannot consume it before a user responds.
+    var showPassesFeatureIntro by mutableStateOf(
+        prefs.getBoolean("passes_feature_intro_pending", !passesEnabled && PassNotifications.saved(app).isNotEmpty())
+            .also { pending ->
+                if (!prefs.contains("passes_feature_intro_pending")) {
+                    prefs.edit().putBoolean("passes_feature_intro_pending", pending).apply()
+                }
+            }
+    ); private set
+    fun dismissPassesFeatureIntro() {
+        showPassesFeatureIntro = false
+        prefs.edit().putBoolean("passes_feature_intro_pending", false).apply()
+    }
+    fun choosePassesEnabled(enabled: Boolean) {
+        passesEnabled = enabled
+        if (enabled) dismissPassesFeatureIntro()
+        prefs.edit().putBoolean("passes_enabled", enabled).apply()
+        PassNotifications.saved(getApplication()).forEach { pass ->
+            if (enabled) PassNotifications.schedule(getApplication(), pass)
+            else PassNotifications.cancel(getApplication(), pass)
+        }
+    }
+    val activeExtraFeatureCount get() = listOf(journeyTrackingBetaEnabled, passesEnabled).count { it }
+    val extraFeaturesSummary get() = if (activeExtraFeatureCount == 0) "Nincs aktív kiegészítő funkció"
+        else "$activeExtraFeatureCount funkció bekapcsolva"
     var developerSettingsUnlocked by mutableStateOf(prefs.getBoolean("developer_settings_unlocked", false)); private set
     var journeyTrackingBetaEnabled by mutableStateOf(JourneyTracking.enabled(app)); private set
     init { if (!journeyTrackingBetaEnabled) JourneyTracking.stop(app) }

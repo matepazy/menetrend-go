@@ -87,9 +87,9 @@ private enum class SettingsPage(val title: String) {
                     item {
                         SettingsGroup {
                             SettingsRow("Megjelenés", themeLabel(vm.theme), onClick = { navigate(SettingsPage.Appearance) })
-                            SettingsRow("Értesítések", if (!notificationsEnabled) "Kikapcsolva az Androidban" else "${vm.passReminders.size} / ${PassReminder.entries.size} emlékeztető bekapcsolva", onClick = { navigate(SettingsPage.Notifications) })
+                            SettingsRow("Értesítések", if (!notificationsEnabled) "Kikapcsolva az Androidban" else if (vm.passesEnabled) "${vm.passReminders.size} / ${PassReminder.entries.size} emlékeztető bekapcsolva" else "Android értesítésbeállítások", onClick = { navigate(SettingsPage.Notifications) })
                             SettingsRow("Frissítések", if (vm.updates.enabled) "Automatikus ellenőrzés bekapcsolva" else "Kézi ellenőrzés", onClick = { navigate(SettingsPage.Updates) })
-                            SettingsRow("Kiegészítő funkciók", if (vm.journeyTrackingBetaEnabled) "1 funkció bekapcsolva" else "Nincs aktív kiegészítő funkció", onClick = { navigate(SettingsPage.Extras) })
+                            SettingsRow("Kiegészítő funkciók", vm.extraFeaturesSummary, onClick = { navigate(SettingsPage.Extras) })
                         }
                     }
                     item {
@@ -111,6 +111,21 @@ private enum class SettingsPage(val title: String) {
                                         style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 }
                                 Switch(checked = vm.journeyTrackingBetaEnabled, onCheckedChange = null)
+                            }
+                        }
+                    }
+                    item {
+                        SettingsGroup {
+                            Row(
+                                Modifier.fillMaxWidth().toggleable(vm.passesEnabled, role = Role.Switch, onValueChange = vm::choosePassesEnabled).padding(AppLayout.PanelPadding),
+                                verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(AppLayout.ItemGap)
+                            ) {
+                                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(AppLayout.CompactGap)) {
+                                    Text("Bérletek", style = MaterialTheme.typography.titleMedium)
+                                    Text("Bérleteid érvényességének nyilvántartása és lejárati emlékeztetők. Bekapcsolva a Bérletek menüpont megjelenik a navigációban. Kikapcsolva a mentett bérleteid megmaradnak, az emlékeztetők szünetelnek.",
+                                        style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                }
+                                Switch(checked = vm.passesEnabled, onCheckedChange = null)
                             }
                         }
                     }
@@ -138,7 +153,7 @@ private enum class SettingsPage(val title: String) {
                     item { SettingsNote("A Rendszer szerint beállítás az Android világos vagy sötét megjelenését követi. Az OLED sötét mód tiszta fekete hátteret használ.") }
                 }
                 SettingsPage.Notifications -> {
-                    item {
+                    if (vm.passesEnabled) item {
                         SettingsGroup {
                             Column(Modifier.padding(AppLayout.PanelPadding), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                                 Text("Bérlet-emlékeztetők", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)

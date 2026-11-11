@@ -20,6 +20,9 @@ enum class PassReminder(val days: Int, val preferenceKey: String, val title: Str
 
 object PassNotifications {
     private const val CHANNEL = "pass_expiry"
+    fun featureEnabled(context: Context): Boolean = context.getSharedPreferences("menetrendgo", 0)
+        .getBoolean("passes_enabled", false)
+
     fun channel(context: Context) {
         context.getSystemService(NotificationManager::class.java).createNotificationChannel(
             NotificationChannel(CHANNEL, "Bérlet lejárata", NotificationManager.IMPORTANCE_DEFAULT))
@@ -55,7 +58,7 @@ object PassNotifications {
             val whenMillis = reminder.date(pass).atTime(9, 0).atZone(Budapest).toInstant().toEpochMilli()
             val operation = pending(context, pass, reminder.days)
             manager.cancel(operation)
-            if (enabled(context, reminder) && whenMillis > System.currentTimeMillis()) manager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, whenMillis, operation)
+            if (featureEnabled(context) && enabled(context, reminder) && whenMillis > System.currentTimeMillis()) manager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, whenMillis, operation)
         }
     }
     fun cancel(context: Context, pass: Pass) {
@@ -70,7 +73,7 @@ object PassNotifications {
     }.getOrDefault(emptyList())
     fun notify(context: Context, id: String, days: Int) {
         val reminder = PassReminder.entries.find { it.days == days } ?: return
-        if (!enabled(context, reminder) || !systemEnabled(context)) return
+        if (!featureEnabled(context) || !enabled(context, reminder) || !systemEnabled(context)) return
         val pass = saved(context).find { it.id == id } ?: return
         if (Build.VERSION.SDK_INT >= 33 && ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) return
         channel(context)

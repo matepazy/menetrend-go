@@ -1210,7 +1210,7 @@ internal fun sameJourneyStop(first: Station, second: Station): Boolean =
                 }
             }
         }
-        item {val advice=passAdvice(vm.passes,journey,vm.passGeography);InfoPanel(advice.title,advice.detail)}
+        if (vm.passesEnabled) item {val advice=passAdvice(vm.passes,journey,vm.passGeography);InfoPanel(advice.title,advice.detail)}
     }
     }
     if (vm.journeyTrackingBetaEnabled) trackingLeg?.let { index -> JourneyTrackingSheet(journey, index) { trackingLeg = null } }

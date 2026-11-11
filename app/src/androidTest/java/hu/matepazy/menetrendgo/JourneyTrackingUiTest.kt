@@ -30,6 +30,8 @@ class JourneyTrackingUiTest {
     private val store = ViewModelStore()
     private var originalBeta: Boolean? = null
     private var originalDeveloper: Boolean? = null
+    private var originalPassesEnabled: Boolean? = null
+    private var originalPassesIntro: Boolean? = null
     private val now = System.currentTimeMillis()
     private val from = Station("from", "Budapest, Keleti pályaudvar", 47.50, 19.08)
     private val transfer = Station("transfer", "Hatvan, vasútállomás", 47.67, 19.67)
@@ -43,6 +45,9 @@ class JourneyTrackingUiTest {
         val prefs = app.getSharedPreferences("menetrendgo", 0)
         originalBeta = prefs.all["journey_tracking_beta_enabled"] as? Boolean
         originalDeveloper = prefs.all["developer_settings_unlocked"] as? Boolean
+        originalPassesEnabled = prefs.all["passes_enabled"] as? Boolean
+        originalPassesIntro = prefs.all["passes_feature_intro_pending"] as? Boolean
+        prefs.edit().putBoolean("passes_enabled", false).commit()
         prefs.edit().putBoolean("journey_tracking_beta_enabled", true).commit()
         shell("pm grant ${app.packageName} android.permission.ACCESS_COARSE_LOCATION")
         shell("pm grant ${app.packageName} android.permission.ACCESS_FINE_LOCATION")
@@ -51,7 +56,7 @@ class JourneyTrackingUiTest {
     @After fun cleanup() {
         JourneyTracking.stop(app); store.clear()
         app.getSharedPreferences("menetrendgo", 0).edit().also { editor ->
-            listOf("journey_tracking_beta_enabled" to originalBeta, "developer_settings_unlocked" to originalDeveloper).forEach { (key, value) ->
+            listOf("journey_tracking_beta_enabled" to originalBeta, "developer_settings_unlocked" to originalDeveloper, "passes_enabled" to originalPassesEnabled, "passes_feature_intro_pending" to originalPassesIntro).forEach { (key, value) ->
                 if (value == null) editor.remove(key) else editor.putBoolean(key, value)
             }
         }.commit()

@@ -42,10 +42,11 @@ class NotificationSettingsTest {
     private val pass = Pass("notification-settings-test", null, LocalDate.now(Budapest), LocalDate.now(Budapest).plusDays(12))
 
     @Before fun prepare() {
-        val keys = PassReminder.entries.map { it.preferenceKey } + "passes"
+        val keys = PassReminder.entries.map { it.preferenceKey } + listOf("passes", "passes_enabled", "passes_feature_intro_pending")
         original = keys.associateWith { prefs.all[it] }
         prefs.edit().also { editor ->
             keys.forEach(editor::remove)
+            editor.putBoolean("passes_enabled", true)
             editor.putString("passes", JSONArray(listOf(pass.json())).toString())
         }.commit()
     }
