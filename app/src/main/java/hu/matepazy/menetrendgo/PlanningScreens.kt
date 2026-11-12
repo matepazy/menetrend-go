@@ -54,6 +54,8 @@ import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.semantics.dismiss
 import androidx.compose.ui.semantics.paneTitle
 import androidx.compose.ui.platform.LocalFocusManager
+import kotlin.math.roundToInt
+import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -101,12 +103,12 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
 
-@Composable private fun StopField(label: String, value: Station?, icon: ImageVector, modifier: Modifier = Modifier,
+@Composable private fun StopField(label: String, value: Station?, mark: @Composable () -> Unit, modifier: Modifier = Modifier,
     onClear: () -> Unit, onClick: () -> Unit) {
     Surface(onClick=onClick,shape=RoundedCornerShape(28.dp),color=MaterialTheme.colorScheme.surface,modifier=modifier.fillMaxWidth()) {
         // Reserve room for the overlaid swap button inside the full-width tap target.
         Row(Modifier.padding(start=4.dp,end=4.dp+48.dp+AppLayout.CompactGap,top=AppLayout.RelatedGap,bottom=AppLayout.RelatedGap).heightIn(min=48.dp),verticalAlignment=Alignment.CenterVertically) {
-            Icon(icon,null,tint=MaterialTheme.colorScheme.primary,modifier=Modifier.size(26.dp))
+            mark()
             Spacer(Modifier.width(16.dp))
             Column(Modifier.weight(1f)) {
                 Text(label,style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)
@@ -117,6 +119,20 @@ import androidx.lifecycle.repeatOnLifecycle
     }
 }
 
+/** Journey endpoint mark: a ringed letter (A = departure, B = arrival), sized like the 26dp icon it replaces. */
+@Composable private fun RouteEndpointMark(letter: String, modifier: Modifier = Modifier) {
+    val primary=MaterialTheme.colorScheme.primary
+    // Decorative: the field label already names the endpoint. Glyph size tracks the ring, not font scale, so it never clips.
+    Box(modifier.size(26.dp).border(2.dp,primary,CircleShape),contentAlignment=Alignment.Center) {
+        Text(letter,color=primary,fontWeight=FontWeight.Bold,fontSize=with(LocalDensity.current) {13.dp.toSp()},
+            lineHeight=with(LocalDensity.current) {13.dp.toSp()},
+            style=MaterialTheme.typography.labelLarge.copy(platformStyle=PlatformTextStyle(includeFontPadding=false)))
+    }
+}
+
+/** Window bounds of the A/B marks, so the dotted connector can join them as the fields resize. */
+private class RouteMarkBounds { var box by mutableStateOf<Rect?>(null); var a by mutableStateOf<Rect?>(null); var b by mutableStateOf<Rect?>(null) }
+
 @Composable private fun StationClearButton(label: String, onClick: () -> Unit) {
     IconButton(onClick=onClick,modifier=Modifier.padding(start=AppLayout.CompactGap).size(48.dp)) {
         Icon(Icons.Outlined.Close,"$label mező törlése",modifier=Modifier.size(20.dp),
@@ -124,7 +140,7 @@ import androidx.lifecycle.repeatOnLifecycle
     }
 }
 
-@Composable private fun JourneyStopField(vm: AppState, label: String, value: Station?, icon: ImageVector,
+@Composable private fun JourneyStopField(vm: AppState, label: String, value: Station?, mark: @Composable () -> Unit,
     active: Boolean, onOpen: () -> Unit, onDismiss: () -> Unit, onClear: () -> Unit,
     allowCurrentLocation: Boolean = false, onSelected: (Station) -> Unit) {
     val spotlight=LocalStationFocus.current
@@ -133,8 +149,8 @@ import androidx.lifecycle.repeatOnLifecycle
         // Track the visible, animated bounds so the scrim follows the editor's reveal.
         .onGloballyPositioned {if(active) spotlight.bounds=it.boundsInWindow().inflate(focusGutter)}
         .animateContentSize(tween(AppMotion.StationFocus,easing=AppMotion.Arrival),alignment=Alignment.TopStart)) {
-        if(active) StationAutocomplete(vm,label,value,icon,onDismiss,onSelected,onClear,allowCurrentLocation)
-        else StopField(label,value,icon,onClear=onClear,onClick=onOpen)
+        if(active) StationAutocomplete(vm,label,value,mark,onDismiss,onSelected,onClear,allowCurrentLocation)
+        else StopField(label,value,mark,onClear=onClear,onClick=onOpen)
     }
 }
 
@@ -175,14 +191,28 @@ import androidx.lifecycle.repeatOnLifecycle
         } }
         item {
             Glass(Modifier.fillMaxWidth()) {
-                Box(Modifier.fillMaxWidth()) {
+                val marks=remember {RouteMarkBounds()}
+                val connector=MaterialTheme.colorScheme.outline
+                Box(Modifier.fillMaxWidth().onGloballyPositioned {marks.box=it.boundsInWindow()}.drawWithContent {
+                    drawContent()
+                    // Drawn over the fields: their opaque surfaces would hide a connector painted behind them.
+                    val box=marks.box; val a=marks.a; val b=marks.b
+                    if(picker==null && box!=null && a!=null && b!=null) {
+                        val gap=4.dp.toPx(); val x=a.center.x-box.left
+                        val top=a.bottom-box.top+gap; val bottom=b.top-box.top-gap
+                        // Whole dots spread evenly between the rings, so neither end shows a clipped dash.
+                        val r=1.5.dp.toPx(); val span=bottom-top-2*r
+                        if(span>0) { val n=maxOf(1,(span/6.dp.toPx()).roundToInt())
+                            for(i in 0..n) drawCircle(connector,r,Offset(x,top+r+span*i/n)) }
+                    }
+                }) {
                     Column(Modifier.fillMaxWidth()) {
-                        JourneyStopField(vm,"Honnan?",vm.from,Icons.Outlined.TripOrigin,picker=="from",{picker="from"},::closePicker,{vm.from=null},allowCurrentLocation=true) {
+                        JourneyStopField(vm,"Honnan?",vm.from,{RouteEndpointMark("A",Modifier.onGloballyPositioned {marks.a=it.boundsInWindow()})},picker=="from",{picker="from"},::closePicker,{vm.from=null},allowCurrentLocation=true) {
                             vm.from=it;vm.selectStation(it);closePicker()
                         }
                         HorizontalDivider(Modifier.padding(start=46.dp,end=48.dp+AppLayout.ItemGap,top=AppLayout.LabelGap,bottom=AppLayout.LabelGap),
                             color=if(picker==null) MaterialTheme.colorScheme.outlineVariant else Color.Transparent)
-                        JourneyStopField(vm,"Hová?",vm.to,Icons.Outlined.LocationOn,picker=="to",{picker="to"},::closePicker,{vm.to=null}) {
+                        JourneyStopField(vm,"Hová?",vm.to,{RouteEndpointMark("B",Modifier.onGloballyPositioned {marks.b=it.boundsInWindow()})},picker=="to",{picker="to"},::closePicker,{vm.to=null}) {
                             vm.to=it;vm.selectStation(it);closePicker()
                         }
                     }
@@ -491,7 +521,7 @@ private class SwipeAction(val icon: ImageVector, val description: String, val co
 }
 
 @OptIn(ExperimentalLayoutApi::class)
-@Composable private fun StationAutocomplete(vm: AppState, label: String, value: Station?, icon: ImageVector,
+@Composable private fun StationAutocomplete(vm: AppState, label: String, value: Station?, mark: @Composable () -> Unit,
     onDismiss: () -> Unit, onSelected: (Station) -> Unit, onClear: () -> Unit, allowCurrentLocation: Boolean = false) {
     var input by rememberSaveable(label,stateSaver=TextFieldValue.Saver) {
         mutableStateOf(TextFieldValue(value?.name.orEmpty(),TextRange(0,value?.name?.length ?: 0)))
@@ -537,7 +567,7 @@ private class SwipeAction(val icon: ImageVector, val description: String, val co
         .semantics {paneTitle="Megállókeresés";dismiss {dismiss();true}}) {
         // Match StopField's geometry exactly: focus changes editing, never the text anchor.
         Row(Modifier.padding(horizontal=4.dp,vertical=AppLayout.RelatedGap).heightIn(min=48.dp),verticalAlignment=Alignment.CenterVertically) {
-            Icon(icon,null,tint=MaterialTheme.colorScheme.primary,modifier=Modifier.size(26.dp))
+            mark()
             Spacer(Modifier.width(16.dp))
             Column(Modifier.weight(1f)) {
                 Text(label,style=MaterialTheme.typography.bodyMedium,color=labelColor)
