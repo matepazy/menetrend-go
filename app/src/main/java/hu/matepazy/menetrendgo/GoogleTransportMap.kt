@@ -365,11 +365,12 @@ private class GoogleMapSurface(
             val id=if(cluster) "cluster:${items.map {it.getString("id")}.sorted().joinToString("|")}" else v.getString("id")
             keep.add(id)
             val point=if(cluster)LatLng(items.map {it.getDouble("lat")}.average(),items.map {it.getDouble("lon")}.average()) else v.point()
-            val marker=vehicleMarkers[id] ?: map.addMarker(MarkerOptions().position(point).anchor(.5f,.5f).zIndex(2f))?.also {vehicleMarkers[id]=it} ?: return@forEach
+            val heading=v.optDouble("heading").takeIf {it.isFinite() && it in 0.0..360.0}
+            val icon=if(cluster) artwork.cluster(items.size) else artwork.vehicle(v.optString("mode"),heading)
+            // Supply artwork at creation so the renderer never sees the default red pin.
+            val marker=vehicleMarkers[id]?.also {it.setIcon(icon)} ?: map.addMarker(MarkerOptions().position(point).icon(icon).anchor(.5f,.5f).zIndex(2f))?.also {vehicleMarkers[id]=it} ?: return@forEach
             marker.title=if(cluster) "${items.size} jármű · nagyítás" else "${v.optString("type")} ${v.optString("name")} ${v.optString("headsign")}"
             marker.tag=if(cluster) "cluster" to items.map {it.point()} else "vehicle" to id
-            val heading=v.optDouble("heading").takeIf {it.isFinite() && it in 0.0..360.0}
-            marker.setIcon(if(cluster) artwork.cluster(items.size) else artwork.vehicle(v.optString("mode"),heading))
             if(!cluster && !pathCache.containsKey(id) && id !in requestedPaths && paths.size<24)paths.add(id)
             if(animate) {
                 animations.remove(id)?.cancel()
