@@ -454,7 +454,7 @@ private class SwipeAction(val icon: ImageVector, val description: String, val co
 
 @Composable private fun StationSearchIcon(station: Station) {
     val town = station.type == "MetaStation" || station.name.endsWith('*')
-    // Reuse the original, full-color MÁVPlusz artwork bundled for the mode filters.
+    // Reuse the full-color mode pictograms bundled for the mode filters.
     // A town groups several stops; absent mode data must not imply a vehicle type.
     val drawable = when {
         town -> null

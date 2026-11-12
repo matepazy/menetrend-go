@@ -30,8 +30,8 @@ tools/
 scripts/*
 !scripts/map-interactions.test.mjs
 !scripts/verify-map-emulator.mjs
-!scripts/generate_map_vehicle_icons.py
-!scripts/verify_map_vehicle_icons.cjs
+!scripts/generate_pictograms.py
+!scripts/pictograms/
 !scripts/generate_pass_county_icons.py
 !scripts/refresh-fleet-photo-urls.mjs
 start_emu.bat

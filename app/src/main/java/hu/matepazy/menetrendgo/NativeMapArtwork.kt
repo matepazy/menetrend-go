@@ -9,7 +9,7 @@ import androidx.core.graphics.PathParser
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 
-/** The same 48dp artwork and official MÁVPlusz vectors as the original Leaflet live map. */
+/** The same 48dp artwork and bundled mode pictograms as the Leaflet live map. */
 internal class NativeMapArtwork(private val context:Context) {
     private val density=context.resources.displayMetrics.density
     private val fontScale=context.resources.configuration.fontScale

@@ -55,7 +55,7 @@ data class MavService(val name: String, val fontCode: Int?, val fontCharSet: Str
     }
 }
 
-private val mavServiceFont = FontFamily(Font(R.font.mav_services))
+private val pictogramFont = FontFamily(Font(R.font.transit_pictograms))
 
 /** Declaration order is the departure-card priority. Unclassified notes stay in details. */
 enum class AmenityPriority(val pattern: Regex) {
@@ -93,7 +93,7 @@ internal fun departureAmenities(services: List<MavService>): List<MavService> = 
 
 @Composable private fun MavServiceIcon(service: MavService, modifier: Modifier = Modifier) {
     service.glyph?.let {glyph ->
-        Text(glyph,modifier=modifier.widthIn(min=28.dp).clearAndSetSemantics {},fontFamily=mavServiceFont,
+        Text(glyph,modifier=modifier.widthIn(min=28.dp).clearAndSetSemantics {},fontFamily=pictogramFont,
             fontSize=24.sp,lineHeight=30.sp,textAlign=TextAlign.Center,color=MaterialTheme.colorScheme.onSurface)
     }
 }
@@ -125,7 +125,7 @@ internal fun departureAmenities(services: List<MavService>): List<MavService> = 
             Row(verticalAlignment=Alignment.CenterVertically) {
                 amenities.forEach {service ->
                     Box(Modifier.width(slotWidth).height(48.dp),contentAlignment=Alignment.Center) {
-                        Text(service.glyph.orEmpty(),fontFamily=mavServiceFont,
+                        Text(service.glyph.orEmpty(),fontFamily=pictogramFont,
                             fontSize=(iconSize/fontScale).sp,lineHeight=(iconSize*1.25f/fontScale).sp,
                             maxLines=1,softWrap=false,modifier=Modifier.clearAndSetSemantics {},
                             color=MaterialTheme.colorScheme.onSurface)

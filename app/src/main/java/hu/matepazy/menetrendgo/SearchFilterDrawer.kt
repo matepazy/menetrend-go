@@ -30,7 +30,7 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
-// Original MNR2007 pictograms: direct carriage, climate control, first class,
+// Bundled pictograms at MNR2007 code points: direct carriage, climate control, first class,
 // country pass, bicycle transport and wheelchair access. These are artwork,
 // so their size stays fixed while the adjacent accessible labels scale.
 @Composable private fun SearchFilterIcon(filter: SearchFilter) {
@@ -50,7 +50,7 @@ import androidx.compose.ui.unit.dp
     val outline = remember(context, code) {
         val glyph = String(Character.toChars(code))
         val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            typeface = ResourcesCompat.getFont(context, R.font.mav_services)
+            typeface = ResourcesCompat.getFont(context, R.font.transit_pictograms)
             textSize = 1000f
         }
         val path = Path().apply { paint.getTextPath(glyph, 0, glyph.length, 0f, 0f, this) }

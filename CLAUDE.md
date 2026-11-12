@@ -22,7 +22,7 @@ Windows uses `.\gradlew.bat`; on Linux/macOS use `sh ./gradlew`.
 - Needs `sdk.dir` in `local.properties` or `ANDROID_HOME`. `start_emu.bat` starts an emulator.
 - Release signing reads `signing/signing.properties` (see `signing.properties.example`); without it the release APK is unsigned. Release builds use R8, so reflection-read models (update manager) and WebView JS-bridge methods must stay in `app/proguard-rules.pro`.
 - Releases: bump `versionCode`/`versionName` in `app/build.gradle.kts` and add release notes (`ReleaseNotes.kt`, `CHANGELOG.md`).
-- Node scripts (no install step): `node scripts/refresh-fleet-photo-urls.mjs` re-verifies Wikimedia Commons photo URLs and licenses for the vehicle catalog; `tools/verify-vehicle-catalog.mjs` and `tools/research-local-buses.mjs` support the catalog at `app/src/main/assets/vehicle_models/catalog.json`. `python scripts/generate_branding.py` regenerates logos/icons from one source (stdlib only).
+- Node scripts (no install step): `node scripts/refresh-fleet-photo-urls.mjs` re-verifies Wikimedia Commons photo URLs and licenses for the vehicle catalog; `tools/verify-vehicle-catalog.mjs` and `tools/research-local-buses.mjs` support the catalog at `app/src/main/assets/vehicle_models/catalog.json`. `python scripts/generate_branding.py` regenerates logos/icons from one source (stdlib only). `python scripts/generate_pictograms.py` (needs `fonttools` and `skia-pathops`) regenerates the app's own transit pictograms: `res/font/transit_pictograms.ttf` (route marks and service icons at the provider's MNR2007 code points), the `ic_mode_*` drawables and `assets/vehicle-icons.js`. Never bundle provider or operator artwork; edit the generator and regenerate.
 
 ## Architecture
 

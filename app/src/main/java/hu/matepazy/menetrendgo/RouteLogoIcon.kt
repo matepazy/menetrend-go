@@ -18,7 +18,7 @@ import androidx.core.content.res.ResourcesCompat
 
 internal fun routeLogoOutline(context: android.content.Context, code: Int): Triple<Path, Path, RectF> {
     val paint=Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        typeface=ResourcesCompat.getFont(context,R.font.mav_services)
+        typeface=ResourcesCompat.getFont(context,R.font.transit_pictograms)
         textSize=1000f
     }
     val text = String(Character.toChars(code))
@@ -63,7 +63,7 @@ internal fun routeLogoOutline(context: android.content.Context, code: Int): Trip
     }
 }
 
-/** RemoteViews uses the same bundled glyph outline and official color pair as Compose. */
+/** RemoteViews uses the same bundled glyph outline and provider color pair as Compose. */
 internal fun routeLogoBitmap(context: android.content.Context, logo: RouteLogo): android.graphics.Bitmap? {
     val (glyph, exterior, bounds) = routeLogoOutline(context, logo.code)
     if (bounds.isEmpty) return null
