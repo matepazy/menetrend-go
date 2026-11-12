@@ -167,7 +167,7 @@ private class GoogleMapSurface(
     private val pathCache=linkedMapOf<String,List<GeoPoint>>()
     private val requestedPaths=linkedSetOf<String>()
     private val stopEnclosures=mutableListOf<Polygon>()
-    private val stopLabels=mutableListOf<GroundOverlay>()
+    private val stopLabels=mutableListOf<Marker>()
     private var displayedStops=emptyList<Station>()
     private var destroyed=false
 
@@ -318,10 +318,10 @@ private class GoogleMapSurface(
                 val x=points.map {it.x}.average()
                 var y=points.map {it.y}.average()
                 if(points.any {abs(it.x-x)<70*density && abs(it.y-y)<22*density})y=points.maxOf {it.y}+30*density
-                val sw=map.projection.fromScreenLocation(android.graphics.Point((x-70*density).toInt(),(y+56*density).toInt()))
-                val ne=map.projection.fromScreenLocation(android.graphics.Point((x+70*density).toInt(),y.toInt()))
-                map.addGroundOverlay(GroundOverlayOptions().image(artwork.label(group.first().name,ink,surfaceColor))
-                    .positionFromBounds(LatLngBounds(sw,ne)).zIndex(1.5f).clickable(false))?.let(stopLabels::add)
+                val position=map.projection.fromScreenLocation(android.graphics.Point(x.toInt(),y.toInt()))
+                // Markers render above basemap street names. Ground overlays remain below them.
+                map.addMarker(MarkerOptions().position(position).icon(artwork.label(group.first().name,ink,surfaceColor))
+                    .anchor(.5f,0f).zIndex(.75f))?.let(stopLabels::add)
             }
         }
         displayedStops.forEach {stop->
