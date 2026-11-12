@@ -700,7 +700,7 @@ private class SwipeAction(val icon: ImageVector, val description: String, val co
 }
 
 /** Rail uses MÁV category colors; other services retain provider route colors. */
-@Composable private fun serviceColor(leg: Leg): Color =
+@Composable internal fun serviceColor(leg: Leg): Color =
     serviceColorHex(leg).removePrefix("#").takeIf { it.matches(Regex("[0-9a-fA-F]{6}")) }
         ?.toLongOrNull(16)?.let { Color((0xFF000000L or it).toInt()) }
         ?: MaterialTheme.colorScheme.onSurfaceVariant
@@ -716,7 +716,7 @@ private fun serviceIcon(leg: Leg): ImageVector = when(leg.mode) {
 private fun serviceType(leg: Leg): String = hungarianServiceName(leg.category, leg.mode)
 
 @Composable fun RouteBadge(leg: Leg, contentPadding: PaddingValues = PaddingValues(start=6.dp,end=12.dp,top=5.dp,bottom=5.dp),
-    shape: androidx.compose.ui.graphics.Shape = CircleShape) {
+    shape: androidx.compose.ui.graphics.Shape = CircleShape, showModeIcon: Boolean = true) {
     val logo=leg.routeLogo
     val color=if(logo!=null) Color.Transparent else serviceColor(leg)
     val foreground=if(logo!=null) MaterialTheme.colorScheme.onSurface else if(color.luminance()>.179f) Color.Black else Color.White
@@ -725,8 +725,11 @@ private fun serviceType(leg: Leg): String = hungarianServiceName(leg.category, l
         Row(Modifier.padding(contentPadding),verticalAlignment=Alignment.CenterVertically) {
             if(logo!=null) {
                 RouteLogoIcon(logo)
-            } else Icon(serviceIcon(leg),null,Modifier.padding(5.dp).size(18.dp),tint=foreground)
-            Spacer(Modifier.width(7.dp))
+                Spacer(Modifier.width(7.dp))
+            } else if(showModeIcon) {
+                Icon(serviceIcon(leg),null,Modifier.padding(5.dp).size(18.dp),tint=foreground)
+                Spacer(Modifier.width(7.dp))
+            }
             Text(if(leg.walking) "Gyalog" else leg.route,modifier=Modifier.weight(1f,fill=false),
                 style=MaterialTheme.typography.labelLarge,fontWeight=FontWeight.Bold)
         }
@@ -932,7 +935,7 @@ internal const val DeparturePaginationKey = "later-departures"
     }
 }
 
-private data class TimelineTrack(val color: Color, val walking: Boolean=false)
+internal data class TimelineTrack(val color: Color, val walking: Boolean=false)
 
 /** Walking endpoints may repeat a vehicle stop with different planner timestamps. */
 internal fun sameJourneyStop(first: Station, second: Station): Boolean =
@@ -953,7 +956,7 @@ internal fun sameJourneyStop(first: Station, second: Station): Boolean =
 }
 
 /** Each stop joins its incoming and outgoing tracks at the marker, never at a row boundary. */
-@Composable private fun TimelineRow(time: ServiceTime?, track: TimelineTrack, stop: Boolean=false,
+@Composable internal fun TimelineRow(time: ServiceTime?, track: TimelineTrack, stop: Boolean=false,
     incoming: TimelineTrack?=track, outgoing: TimelineTrack?=track,
     intermediate: Boolean=false, bottomPadding: androidx.compose.ui.unit.Dp=AppLayout.ItemGap,
     durationMinutes: Long?=null,
@@ -990,7 +993,8 @@ internal fun sameJourneyStop(first: Station, second: Station): Boolean =
                 drawCircle(surface,(if(intermediate) 2.dp else 3.dp).toPx(),Offset(x,nodeY))
             }
         }
-        Row(Modifier.fillMaxWidth()) {
+        // The row gap applies below the taller column, so two-line delayed times keep their separation.
+        Row(Modifier.fillMaxWidth().padding(bottom=bottomPadding)) {
             // Large sp values use Android's nonlinear scaling, so scale this gutter explicitly.
             Box(Modifier.width(timeGutter).padding(top=2.dp,end=8.dp)) {
                 time?.let {ScheduledTime(it,style=MaterialTheme.typography.labelLarge)}
@@ -998,7 +1002,7 @@ internal fun sameJourneyStop(first: Station, second: Station): Boolean =
                     style=MaterialTheme.typography.labelMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)
             }
             Spacer(Modifier.width(24.dp))
-            Column(Modifier.weight(1f).padding(start=AppLayout.CompactGap,bottom=bottomPadding),content=content)
+            Column(Modifier.weight(1f).padding(start=AppLayout.CompactGap),content=content)
         }
     }
 }

@@ -81,4 +81,16 @@ class VehicleStopsTest {
             {"realtimeArrival":0},{"realtimeArrival":60},{"realtimeArrival":120}]"""))
         assertEquals(stops.takeLast(1),upcomingVehicleStops(stops,300_000,detail,vehicle))
     }
+    @Test fun delaySummaryUsesMinuteResolutionAndDataStatus() {
+        assertEquals("23 perc késés",vehicleDelaySummary(stop("Késik",18*3_600_000L,18*3_600_000L+23*60_000+30_000)))
+        assertEquals("Időben közlekedik",vehicleDelaySummary(stop("Pontos",60_000,90_000)))
+        assertEquals("2 perccel korábban",vehicleDelaySummary(stop("Korai",300_000,180_000)))
+        assertEquals("Menetrend szerinti adat",vehicleDelaySummary(stop("Menetrend",60_000,live=false)))
+        assertEquals(DepartureStatus.Live,departureStatus(vehicleDelayTime(stop("Pontos",60_000,90_000))))
+        assertEquals(DepartureStatus.MajorDelay,departureStatus(vehicleDelayTime(stop("Késik",0,600_000))))
+    }
+    @Test fun platformLabelFollowsMode() {
+        assertEquals("3. kocsiállás",vehicleStopPlatform("3","BUS"))
+        assertEquals("2. vágány",vehicleStopPlatform("2","RAIL"))
+    }
 }

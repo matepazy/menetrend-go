@@ -3,7 +3,6 @@ package hu.matepazy.menetrendgo
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Commute
@@ -14,10 +13,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
@@ -76,6 +77,36 @@ internal fun upcomingVehicleStops(stops: List<VehicleStop>, now: Long, detail: J
     return upcomingVehicleStops(stops,now)
 }
 
+/** Delay at the next stop, compared at minute resolution like the struck-through stop times. */
+internal fun vehicleDelayMinutes(stop: VehicleStop): Long? =
+    if(stop.realtime) stop.arrival/60_000-stop.scheduled/60_000 else null
+
+internal fun vehicleDelayTime(stop: VehicleStop): ServiceTime =
+    ServiceTime(stop.scheduled/60_000*60_000,stop.arrival/60_000*60_000,stop.realtime)
+
+internal fun vehicleDelaySummary(stop: VehicleStop): String {
+    val minutes=vehicleDelayMinutes(stop) ?: return "Menetrend szerinti adat"
+    return when {
+        minutes>0 -> "$minutes perc késés"
+        minutes<0 -> "${-minutes} perccel korábban"
+        else -> "Időben közlekedik"
+    }
+}
+
+internal fun vehicleStopPlatform(platform: String, mode: String): String = when(mode) {
+    "RAIL","SUBURBAN_RAILWAY" -> "$platform. vágány"
+    "BUS","COACH" -> "$platform. kocsiállás"
+    else -> "Megállóhely: $platform"
+}
+
+@Composable private fun RefreshFailure(retry: () -> Unit) {
+    Row(Modifier.fillMaxWidth().padding(bottom=AppLayout.CompactGap),verticalAlignment=Alignment.CenterVertically) {
+        Text("A frissítés nem sikerült, korábbi adatok láthatók.",Modifier.weight(1f),
+            style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.error)
+        TextButton(onClick=retry) {Text("Újra")}
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable fun VehicleDrawer(vm: AppState, vehicle: Vehicle, dismiss: () -> Unit) {
     var day by remember(vehicle.id) {mutableStateOf(LocalDate.now(Budapest).toString())}
@@ -95,14 +126,27 @@ internal fun upcomingVehicleStops(stops: List<VehicleStop>, now: Long, detail: J
     val stops=remember(detail,day) {detail?.let {vehicleStops(it,day)}.orEmpty()}
     val upcoming=upcomingVehicleStops(stops,now,detail,vehicle)
     val showUicCode=vehicle.mode!="RAIL" && vehicle.uicCode.isNotBlank()
+    val track=TimelineTrack(serviceColor(vehicle.badgeLeg()))
+    val context=LocalContext.current
+    val dark=LocalAppDarkTheme.current
+    val colorContext=remember(context,dark) {departureThemeContext(context,dark)}
     AppExpandableBottomSheet(onDismissRequest=dismiss,initialHeightFraction=.78f) {
         Column(Modifier.fillMaxWidth().fillMaxHeight().padding(horizontal=AppLayout.SheetPadding)) {
             Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically) {
-                Box(Modifier.weight(1f)) {RouteBadge(vehicle.badgeLeg())}
+                Box(Modifier.weight(1f)) {RouteBadge(vehicle.badgeLeg(),contentPadding=if(vehicle.routeLogo!=null) PaddingValues(0.dp) else PaddingValues(horizontal=14.dp,vertical=6.dp),
+                    showModeIcon=false)}
                 IconButton(onClick=dismiss) {Icon(Icons.Outlined.Close,"Jármű részleteinek bezárása")}
             }
-            if(vehicle.routeLogo==null) Text(hungarianServiceName(vehicle.category,vehicle.mode),style=MaterialTheme.typography.bodyMedium,
-                color=MaterialTheme.colorScheme.onSurfaceVariant,modifier=Modifier.padding(top=AppLayout.CompactGap))
+            Text(if(stops.isNotEmpty()) "${stops.first().name} → ${stops.last().name}"
+                else vehicle.headsign,style=MaterialTheme.typography.titleLarge,fontWeight=FontWeight.Bold,
+                modifier=Modifier.padding(top=AppLayout.RelatedGap))
+            upcoming.firstOrNull()?.let {next ->
+                val time=vehicleDelayTime(next)
+                Text(vehicleDelaySummary(next),style=MaterialTheme.typography.titleSmall,fontWeight=FontWeight.Bold,
+                    color=Color(colorContext.getColor(departureColorResource(time))),
+                    modifier=Modifier.padding(top=AppLayout.CompactGap).semantics {
+                        stateDescription=if(next.realtime) "Élő adat" else "Menetrend szerinti adat"})
+            }
             VehicleTelemetry(vehicle,Modifier.padding(top=AppLayout.CompactGap))
             if(vehicle.modelAndRegistration.isNotBlank() || showUicCode) {
                 Column(Modifier.padding(top=AppLayout.RelatedGap),verticalArrangement=Arrangement.spacedBy(AppLayout.CompactGap)) {
@@ -114,27 +158,26 @@ internal fun upcomingVehicleStops(stops: List<VehicleStop>, now: Long, detail: J
                     if(showUicCode) VehicleMetadataRow(Icons.Outlined.Badge,"Pályaszám",vehicle.uicCode)
                 }
             }
-            Text(if(stops.isNotEmpty()) "${stops.first().name} → ${stops.last().name}"
-                else vehicle.headsign,style=MaterialTheme.typography.titleLarge,fontWeight=FontWeight.Bold,
-                modifier=Modifier.padding(top=AppLayout.RelatedGap,bottom=AppLayout.ItemGap))
+            Spacer(Modifier.height(AppLayout.SheetPadding))
+            // A failed refresh keeps the stops already shown; only a first load without data shows the full error.
             when {
-                vm.detailLoading && detail==null -> LinearProgressIndicator(Modifier.fillMaxWidth())
-                vm.detailError!=null -> InfoPanel("A megállók nem tölthetők be",vm.detailError!!) {vm.loadTrip(vehicle.id,day)}
-                detail!=null && upcoming.isEmpty() -> Text(if(stops.isEmpty()) "Nincs elérhető megállóadat." else "Nincs további várható megálló a menetrendben.",
-                    modifier=Modifier.padding(bottom=24.dp))
-                else -> LazyColumn(Modifier.weight(1f),contentPadding=PaddingValues(bottom=24.dp),verticalArrangement=Arrangement.spacedBy(8.dp)) {
-                    itemsIndexed(upcoming) {index,stop ->
-                        Surface(shape=RoundedCornerShape(24.dp),color=if(index==0) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface) {
-                            Row(Modifier.fillMaxWidth().padding(AppLayout.ItemGap),verticalAlignment=Alignment.Top,horizontalArrangement=Arrangement.spacedBy(AppLayout.RelatedGap)) {
-                                Column(Modifier.width(with(LocalDensity.current) {72.sp.toDp()})) {
-                                    ScheduledTime(ServiceTime(stop.scheduled,stop.arrival,stop.realtime),style=MaterialTheme.typography.titleMedium)
-                                }
-                                Column(Modifier.weight(1f),verticalArrangement=Arrangement.spacedBy(4.dp)) {
-                                    if(index==0) Text("Következő megálló",style=MaterialTheme.typography.labelMedium)
-                                    Text(stop.name,style=MaterialTheme.typography.titleMedium,fontWeight=if(index==0) FontWeight.Bold else FontWeight.Medium)
-                                    if(stop.platform.isNotBlank() && stop.platform!="null") Text("Vágány / kocsiállás: ${stop.platform}",style=MaterialTheme.typography.bodySmall)
-                                    if(!stop.realtime) Text("Menetrendi érkezés",style=MaterialTheme.typography.bodySmall)
-                                }
+                detail==null && vm.detailError!=null -> InfoPanel("A megállók nem tölthetők be",vm.detailError!!) {vm.loadTrip(vehicle.id,day)}
+                detail==null -> LinearProgressIndicator(Modifier.fillMaxWidth())
+                else -> {
+                    vm.detailError?.let {RefreshFailure {vm.loadTrip(vehicle.id,day)}}
+                    if(upcoming.isEmpty()) Text(if(stops.isEmpty()) "Nincs elérhető megállóadat." else "Nincs további várható megálló a menetrendben.",
+                        modifier=Modifier.padding(bottom=24.dp))
+                    else LazyColumn(Modifier.weight(1f),contentPadding=PaddingValues(bottom=24.dp)) {
+                        itemsIndexed(upcoming) {index,stop ->
+                            val next=index==0
+                            TimelineRow(ServiceTime(stop.scheduled,stop.arrival,stop.realtime),track,stop=true,intermediate=!next,
+                                outgoing=if(index==upcoming.lastIndex) null else track,
+                                bottomPadding=if(index==upcoming.lastIndex) 0.dp else if(next) AppLayout.ItemGap else AppLayout.RelatedGap) {
+                                if(next) Text("Következő megálló",style=MaterialTheme.typography.labelMedium,color=MaterialTheme.colorScheme.primary)
+                                Text(stop.name,style=MaterialTheme.typography.titleMedium,fontWeight=if(next) FontWeight.Bold else FontWeight.Normal)
+                                if(stop.platform.isNotBlank() && stop.platform!="null") Text(vehicleStopPlatform(stop.platform,vehicle.mode),
+                                    style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
+                                if(!stop.realtime) Text("Menetrendi érkezés",style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                         }
                     }
