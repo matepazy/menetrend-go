@@ -259,7 +259,14 @@ private class GoogleMapSurface(
             }
         }
     }
-    private fun padding() {map.setPadding((12*density).toInt(),top+(12*density).toInt(),(12*density).toInt(),bottom+(12*density).toInt())}
+    private fun padding() {
+        // The SDK adds a 5dp left logo margin. Align its visible edge with the floating bar.
+        val left=((AppLayout.PageGutter.value-5)*density).roundToInt()
+        // The overlay includes a 6dp top margin, and the SDK adds its own 6dp below the logo.
+        // Subtract 4dp to leave an 8dp visible gap above the bar, following its measured height.
+        val logoBottom=if(bottom>0) (bottom-4*density).roundToInt().coerceAtLeast(0) else (12*density).roundToInt()
+        map.setPadding(left,top+(12*density).toInt(),(12*density).toInt(),logoBottom)
+    }
     private fun JSONObject.point()=LatLng(getDouble("lat"),getDouble("lon"))
     private fun color(item:JSONObject)=runCatching {Color.parseColor(item.optString("color"))}.getOrDefault(Color.rgb(40,100,217))
     private fun applyBasemapStyle() {
