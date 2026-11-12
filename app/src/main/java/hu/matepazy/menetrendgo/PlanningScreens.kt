@@ -66,6 +66,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.*
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.CornerRadius
@@ -960,18 +961,25 @@ internal fun sameJourneyStop(first: Station, second: Station): Boolean =
     incoming: TimelineTrack?=track, outgoing: TimelineTrack?=track,
     intermediate: Boolean=false, bottomPadding: androidx.compose.ui.unit.Dp=AppLayout.ItemGap,
     durationMinutes: Long?=null,
+    marker: (@Composable () -> Unit)?=null,
+    wideTrack: Boolean=false,
+    betweenMarker: (@Composable () -> Unit)?=null,
+    afterVehicleTrack: TimelineTrack=track,
     content: @Composable ColumnScope.() -> Unit) {
     val surface=MaterialTheme.colorScheme.surface
     val nodeOffset=with(LocalDensity.current) { MaterialTheme.typography.titleMedium.lineHeight.toDp()/2 }
     var rowTop by remember { mutableFloatStateOf(0f) }
+    var rowHeight by remember { mutableIntStateOf(0) }
     val timeGutter=56.dp * LocalDensity.current.fontScale
+    val trackWidth=if(wideTrack) 48.dp else 24.dp
     // Intrinsic height sees AnimatedVisibility's full content before its reveal finishes.
     // Measure the content normally and draw the track at that same animated height.
-    Box(Modifier.fillMaxWidth().onGloballyPositioned {
+    Box(Modifier.fillMaxWidth().heightIn(min=if(betweenMarker!=null) nodeOffset*2+48.dp else 0.dp).onGloballyPositioned {
         rowTop=it.positionInParent().y
+        rowHeight=it.size.height
     }) {
         Canvas(Modifier.matchParentSize()) {
-            val x=timeGutter.toPx()+12.dp.toPx()
+            val x=timeGutter.toPx()+trackWidth.toPx()/2
             val nodeY=nodeOffset.toPx()
             fun segment(style: TimelineTrack?, top: Float, bottom: Float) {
                 if(style==null || bottom<=top) return
@@ -986,13 +994,27 @@ internal fun sameJourneyStop(first: Station, second: Station): Boolean =
             }
             if(stop) {
                 segment(incoming,0f,nodeY)
+                if(betweenMarker!=null) {
+                    val midpoint=nodeY+size.height/2
+                    segment(outgoing,nodeY,midpoint)
+                    segment(afterVehicleTrack,midpoint,size.height)
+                } else segment(outgoing,nodeY,size.height)
+            } else if(marker!=null) {
+                segment(incoming,0f,nodeY)
                 segment(outgoing,nodeY,size.height)
             } else segment(track,0f,size.height)
-            if(stop) {
-                drawCircle(track.color,(if(intermediate) 4.dp else 6.dp).toPx(),Offset(x,nodeY))
-                drawCircle(surface,(if(intermediate) 2.dp else 3.dp).toPx(),Offset(x,nodeY))
+            if(stop && marker==null) {
+                drawCircle(track.color,(if(wideTrack) 8.dp else if(intermediate) 4.dp else 6.dp).toPx(),Offset(x,nodeY))
+                drawCircle(surface,(if(wideTrack) 4.dp else if(intermediate) 2.dp else 3.dp).toPx(),Offset(x,nodeY))
             }
         }
+        if(marker!=null) Box(Modifier.offset(x=timeGutter+trackWidth/2-24.dp,y=nodeOffset-24.dp).size(48.dp),
+            contentAlignment=Alignment.Center) {marker()}
+        if(betweenMarker!=null) Box(Modifier.offset {
+            androidx.compose.ui.unit.IntOffset(
+                (timeGutter+trackWidth/2-24.dp).roundToPx(),
+                (nodeOffset-24.dp).roundToPx()+rowHeight/2)
+        }.size(48.dp),contentAlignment=Alignment.Center) {betweenMarker()}
         // The row gap applies below the taller column, so two-line delayed times keep their separation.
         Row(Modifier.fillMaxWidth().padding(bottom=bottomPadding)) {
             // Large sp values use Android's nonlinear scaling, so scale this gutter explicitly.
@@ -1001,7 +1023,7 @@ internal fun sameJourneyStop(first: Station, second: Station): Boolean =
                 if(time==null && durationMinutes!=null) Text("$durationMinutes perc",
                     style=MaterialTheme.typography.labelMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)
             }
-            Spacer(Modifier.width(24.dp))
+            Spacer(Modifier.width(trackWidth))
             Column(Modifier.weight(1f).padding(start=AppLayout.CompactGap),content=content)
         }
     }
@@ -1282,6 +1304,23 @@ internal fun sameJourneyStop(first: Station, second: Station): Boolean =
         routeLongName=route?.optString("longName").orEmpty()).badgeLeg()
     val track=TimelineTrack(serviceColor(badge))
     val stops=remember(detail) {detail?.array("stoptimes").orEmpty()}
+    val timedIndices=remember(stops,day) {stops.indices.filter {tripStopTime(stops[it],day)!=null}}
+    val progress=remember(detail,vehicle,day) {
+        vehicle?.let {vehicleStopProgress(detail?.let {trip -> vehicleStops(trip,day)}.orEmpty(),detail,it)}
+    }
+    val vehicleIndex=progress?.index?.let {timedIndices.getOrNull(it)}
+    val betweenStops=progress?.atStop==false && vehicleIndex!=null && vehicleIndex>0
+    val futureTrack=track.copy(color=track.color.copy(alpha=.24f))
+    val vehicleMarker: @Composable () -> Unit = {
+        val ring=track.color.copy(alpha=.18f).compositeOver(MaterialTheme.colorScheme.background)
+        IconButton(onClick=onMap,modifier=Modifier.size(48.dp)) {
+            Box(Modifier.size(24.dp).background(ring,CircleShape).padding(2.dp)
+                .background(track.color,CircleShape),contentAlignment=Alignment.Center) {
+                Icon(serviceIcon(badge),"Jármű a térképen",Modifier.size(12.dp),
+                    tint=if(track.color.luminance()>.5f) Color.Black else Color.White)
+            }
+        }
+    }
     LazyColumn(Modifier.fillMaxSize(),contentPadding=screenContentPadding()) {
         item {
             Column(Modifier.padding(bottom=AppLayout.ItemGap),verticalArrangement=Arrangement.spacedBy(AppLayout.ItemGap)) {
@@ -1290,8 +1329,6 @@ internal fun sameJourneyStop(first: Station, second: Station): Boolean =
                 if(vm.detailLoading && detail==null) LoadingRows()
                 if(vm.detailError!=null) InfoPanel("A menetrend nem tölthető be",vm.detailError!!){vm.loadTrip(id,day)}
                 if(detail!=null) {
-                    Text(if(vehicle==null) "Ehhez a járathoz most nincs élő járműpozíció." else "Élő járműpozíció elérhető · ${vm.mapRefreshSeconds} mp-es frissítés",color=MaterialTheme.colorScheme.onSurfaceVariant)
-                    if(vehicle!=null) OutlinedButton(onClick=onMap,shape=CircleShape,modifier=Modifier.fillMaxWidth()){Text("Jármű a térképen")}
                     if(stops.isEmpty()) Text("Nincs elérhető megállóadat.",color=MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
@@ -1300,7 +1337,12 @@ internal fun sameJourneyStop(first: Station, second: Station): Boolean =
             val station=stop.optJSONObject("stop")
             TimetableStopRow(station?.optString("name").orEmpty(),tripStopTime(stop,day),
                 station?.optString("platformCode").orEmpty(),mode,track,
-                first=index==0,last=index==stops.lastIndex,
+                first=index==0,last=index==stops.lastIndex,wideTrack=true,
+                incomingTrack=if(vehicleIndex!=null && (index>vehicleIndex || index==vehicleIndex && betweenStops)) futureTrack else track,
+                outgoingTrack=if(vehicleIndex!=null && index>=vehicleIndex) futureTrack else track,
+                vehicleMarker=vehicleMarker.takeIf {index==vehicleIndex && progress?.atStop==true},
+                betweenMarker=vehicleMarker.takeIf {betweenStops && index==vehicleIndex!!-1},
+                afterVehicleTrack=futureTrack,
                 scheduledLabel=if(!stop.isNull("scheduledDeparture")) "Menetrendi indulás" else "Menetrendi érkezés")
         }
     }

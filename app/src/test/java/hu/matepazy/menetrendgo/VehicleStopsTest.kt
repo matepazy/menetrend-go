@@ -89,6 +89,16 @@ class VehicleStopsTest {
         assertEquals(DepartureStatus.Live,departureStatus(vehicleDelayTime(stop("Pontos",60_000,90_000))))
         assertEquals(DepartureStatus.MajorDelay,departureStatus(vehicleDelayTime(stop("Késik",0,600_000))))
     }
+    @Test fun timelinePositionRequiresAReportedMatchingVehicleAndStop() {
+        val stops=listOf(stop("Origin",0).copy(id="origin"),stop("Next",60_000).copy(id="next"))
+        assertEquals(VehicleStopProgress(1,false),vehicleStopProgress(stops,progress("next"),vehicle))
+        assertEquals(VehicleStopProgress(1,true),vehicleStopProgress(stops,progress("next","STOPPED_AT"),vehicle))
+        assertNull(vehicleStopProgress(stops,null,vehicle))
+        assertNull(vehicleStopProgress(stops,progress("next",vehicleId="other"),vehicle))
+        assertNull(vehicleStopProgress(stops,progress("missing"),vehicle))
+        assertNull(vehicleStopProgress(stops,progress("next",status="UNKNOWN"),vehicle))
+    }
+
     @Test fun platformLabelFollowsMode() {
         assertEquals("3. kocsiállás",vehicleStopPlatform("3","BUS"))
         assertEquals("2. vágány",vehicleStopPlatform("2","RAIL"))

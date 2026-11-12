@@ -59,22 +59,27 @@ fun upcomingVehicleStops(stops: List<VehicleStop>, now: Long): List<VehicleStop>
 /** Prefer the selected physical vehicle's live stop relationship over clock estimates.
  * Exact stop IDs distinguish platforms and repeated station names. If a stop occurs
  * more than once, the provider's arrival time identifies the visit. */
-internal fun upcomingVehicleStops(stops: List<VehicleStop>, now: Long, detail: JSONObject?, vehicle: Vehicle): List<VehicleStop> {
+internal fun upcomingVehicleStops(stops: List<VehicleStop>, now: Long, detail: JSONObject?, vehicle: Vehicle): List<VehicleStop> =
+    vehicleStopProgress(stops, detail, vehicle)?.let { stops.drop(it.index) } ?: upcomingVehicleStops(stops,now)
+
+internal data class VehicleStopProgress(val index: Int, val atStop: Boolean)
+
+/** A timetable estimate alone is not evidence of a physical vehicle position. */
+internal fun vehicleStopProgress(stops: List<VehicleStop>, detail: JSONObject?, vehicle: Vehicle): VehicleStopProgress? {
     val positions=detail?.array("vehiclePositions").orEmpty()
     val position=positions.firstOrNull {vehicle.vehicleId.isNotBlank() && it.optString("vehicleId")==vehicle.vehicleId}
         ?: positions.singleOrNull()?.takeIf {vehicle.vehicleId.isBlank()}
-    val relationship=position?.optJSONObject("stopRelationship")
-    if(relationship?.optString("status") in listOf("IN_TRANSIT_TO","INCOMING_AT","STOPPED_AT")) {
-        val id=relationship?.optJSONObject("stop")?.optString("gtfsId").orEmpty()
-        val candidates=stops.indices.filter {id.isNotBlank() && stops[it].id==id}
-        val rawTimes=detail?.array("stoptimes").orEmpty()
-        val arrival=relationship?.optLong("arrivalTime",-1) ?: -1
-        val index=if(candidates.size>1 && arrival>=0 && rawTimes.size==stops.size)
-            candidates.minByOrNull {kotlin.math.abs(rawTimes[it].optLong("realtimeArrival",rawTimes[it].optLong("scheduledArrival"))-arrival)}
-            else candidates.singleOrNull()
-        if(index!=null) return stops.drop(index)
-    }
-    return upcomingVehicleStops(stops,now)
+    val relationship=position?.optJSONObject("stopRelationship") ?: return null
+    val status=relationship.optString("status")
+    if(status !in listOf("IN_TRANSIT_TO","INCOMING_AT","STOPPED_AT")) return null
+    val id=relationship.optJSONObject("stop")?.optString("gtfsId").orEmpty()
+    val candidates=stops.indices.filter {id.isNotBlank() && stops[it].id==id}
+    val rawTimes=detail?.array("stoptimes").orEmpty()
+    val arrival=relationship.optLong("arrivalTime",-1)
+    val index=if(candidates.size>1 && arrival>=0 && rawTimes.size==stops.size)
+        candidates.minByOrNull {kotlin.math.abs(rawTimes[it].optLong("realtimeArrival",rawTimes[it].optLong("scheduledArrival"))-arrival)}
+        else candidates.singleOrNull()
+    return index?.let {VehicleStopProgress(it,status=="STOPPED_AT")}
 }
 
 /** Delay at the next stop, compared at minute resolution like the struck-through stop times. */

@@ -18,10 +18,17 @@ import androidx.compose.ui.unit.dp
     prominent: Boolean = first || last,
     next: Boolean = false,
     scheduledLabel: String = "Menetrendi érkezés",
+    vehicleMarker: (@Composable () -> Unit)? = null,
+    wideTrack: Boolean = false,
+    betweenMarker: (@Composable () -> Unit)? = null,
+    afterVehicleTrack: TimelineTrack = track,
+    incomingTrack: TimelineTrack = track,
+    outgoingTrack: TimelineTrack = track,
 ) {
-    TimelineRow(time, track, stop=true, intermediate=!prominent,
-        incoming=if(first) null else track,
-        outgoing=if(last) null else track,
+    TimelineRow(time, track, stop=true, intermediate=!prominent, marker=vehicleMarker, wideTrack=wideTrack,
+        betweenMarker=betweenMarker, afterVehicleTrack=afterVehicleTrack,
+        incoming=if(first) null else incomingTrack,
+        outgoing=if(last) null else outgoingTrack,
         bottomPadding=if(last) 0.dp else if(prominent) AppLayout.ItemGap else AppLayout.RelatedGap) {
         if(next) Text("Következő megálló", style=MaterialTheme.typography.labelMedium,
             color=MaterialTheme.colorScheme.primary)
