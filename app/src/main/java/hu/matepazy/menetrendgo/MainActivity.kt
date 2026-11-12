@@ -146,6 +146,18 @@ internal val LocalAppDarkTheme = staticCompositionLocalOf { false }
 // The rounded bar floats above content; list padding keeps final actions reachable.
 val LocalBottomOverlayInset = staticCompositionLocalOf { 0.dp }
 
+// Smootherstep has zero slope and curvature at both ends, so the fade has no visible knee.
+private fun smootherstep(u: Float)=u*u*u*(u*(u*6f-15f)+10f)
+private const val FeatherSteps=16
+/** Strength runs 1→0 away from the screen edge; [hold] keeps the system-bar side fully covered. */
+private fun featherStops(top: Boolean, hold: Float, color: (Float) -> Color): Array<Pair<Float,Color>> {
+    val ramp=(0..FeatherSteps).map { i -> val u=i/FeatherSteps.toFloat(); val d=hold+(1f-hold)*u
+        (if(top) d else 1f-d) to color(1f-smootherstep(u)) }
+    return (if(hold>0f) ramp+((if(top) 0f else 1f) to color(1f)) else ramp).sortedBy { it.first }.toTypedArray()
+}
+private fun featherMask(top: Boolean, endY: Float=Float.POSITIVE_INFINITY)=
+    Brush.verticalGradient(*featherStops(top,.25f) { Color.Black.copy(alpha=it) },endY=endY)
+
 /** Reuses the page's display list, so the backdrop never composes a second interactive UI. */
 @Composable private fun FeatheredContent(enabled: Boolean, bottomHeight: Dp, content: @Composable () -> Unit) {
     val backdrop=rememberGraphicsLayer()
@@ -169,13 +181,13 @@ val LocalBottomOverlayInset = staticCompositionLocalOf { 0.dp }
                     // Otherwise dark badges show twice and leave a shadow-like band.
                     if(topHeight>0.dp) {
                         val height=topHeight.toPx().coerceAtMost(size.height)
-                        drawRect(Brush.verticalGradient(0f to Color.Black,.45f to Color.Black,1f to Color.Transparent,endY=height),
+                        drawRect(featherMask(true,height),
                             size=androidx.compose.ui.geometry.Size(size.width,height),blendMode=BlendMode.DstOut)
                     }
                     if(bottomHeight>0.dp) {
                         val height=bottomHeight.toPx().coerceAtMost(size.height)
                         translate(top=size.height-height) {
-                            drawRect(Brush.verticalGradient(0f to Color.Transparent,.55f to Color.Black,1f to Color.Black,endY=height),
+                            drawRect(featherMask(false,height),
                                 size=androidx.compose.ui.geometry.Size(size.width,height),blendMode=BlendMode.DstOut)
                         }
                     }
@@ -189,14 +201,11 @@ val LocalBottomOverlayInset = staticCompositionLocalOf { 0.dp }
                 .graphicsLayer { compositingStrategy=CompositingStrategy.Offscreen;clip=true }
                 .drawWithContent {
                     drawContent()
-                    val mask=if(top) Brush.verticalGradient(0f to Color.Black,.45f to Color.Black,1f to Color.Transparent)
-                        else Brush.verticalGradient(0f to Color.Transparent,.55f to Color.Black,1f to Color.Black)
-                    drawRect(mask,blendMode=BlendMode.DstIn)
+                    drawRect(featherMask(top),blendMode=BlendMode.DstIn)
                 }
                 .drawWithContent {
                     if(android.os.Build.VERSION.SDK_INT>=31) translate(top=if(top) 0f else -(backdrop.size.height-size.height)) { drawLayer(blurredBackdrop) }
-                    val colors=listOf(ground.copy(alpha=0f),ground.copy(alpha=.82f))
-                    drawRect(Brush.verticalGradient(if(top) colors.reversed() else colors))
+                    drawRect(Brush.verticalGradient(*featherStops(top,0f) { ground.copy(alpha=.82f*it) }))
                 })
             }
         }
