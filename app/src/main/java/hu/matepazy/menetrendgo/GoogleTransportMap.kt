@@ -340,9 +340,9 @@ private class GoogleMapSurface(
         }
         val keep=mutableSetOf<String>()
         val paths=mutableListOf<String>()
-        cells.forEach {(_,items)->
+        cells.values.flatMap {items->if(items.size<3)items.map {listOf(it)} else listOf(items)}.forEach {items->
             val v=items.first()
-            val cluster=items.size>1
+            val cluster=items.size>=3
             val id=if(cluster) "cluster:${items.map {it.getString("id")}.sorted().joinToString("|")}" else v.getString("id")
             keep.add(id)
             val point=if(cluster)LatLng(items.map {it.getDouble("lat")}.average(),items.map {it.getDouble("lon")}.average()) else v.point()

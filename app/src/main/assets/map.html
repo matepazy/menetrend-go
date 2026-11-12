@@ -333,10 +333,11 @@ function draw(){
  const visible=vehicles.filter(v=>map.getBounds().pad(.2).contains([v.lat,v.lon]));
  const groups=new Map(),zoom=map.getZoom();
  visible.forEach(v=>{const point=map.latLngToContainerPoint([v.lat,v.lon]);const key=routeMode?v.id:Math.floor(point.x/64)+','+Math.floor(point.y/64);if(!groups.has(key))groups.set(key,[]);groups.get(key).push(v)});
- groups.forEach(group=>{
+ const displayGroups=Array.from(groups.values()).flatMap(group=>group.length<3?group.map(v=>[v]):[group]);
+ displayGroups.forEach(group=>{
   const lat=group.reduce((s,v)=>s+v.lat,0)/group.length,lon=group.reduce((s,v)=>s+v.lon,0)/group.length;
   const hit=document.createElement('div');hit.className='hit';
-  if(group.length>1 && !routeMode){
+  if(group.length>=3 && !routeMode){
    const label=document.createElement('div');label.className='cluster';label.textContent=group.length;hit.append(label);
    const marker=L.marker([lat,lon],{icon:L.divIcon({html:hit,iconSize:[48,48],iconAnchor:[24,24],className:''}),title:group.length+' jármű · nagyítás',keyboard:true}).addTo(markers);
    vehicleGroups.push({marker,group});
