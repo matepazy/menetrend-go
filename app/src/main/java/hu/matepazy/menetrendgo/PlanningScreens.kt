@@ -1171,6 +1171,17 @@ internal fun sameJourneyStop(first: Station, second: Station): Boolean =
                                     JourneyIntermediateStops(leg,legTimes[index]?.intermediate.orEmpty())
                                 }
                             }
+                            // The timetable belongs to its own leg, so transfer journeys need no repeated badges below.
+                            if(leg.tripId.isNotBlank()) TimelineRow(null,track,bottomPadding=0.dp) {
+                                TextButton(onClick={onTrip(leg)},shape=MaterialTheme.shapes.extraSmall,
+                                    contentPadding=PaddingValues(vertical=AppLayout.CompactGap),
+                                    modifier=Modifier.fillMaxWidth().heightIn(min=48.dp)) {
+                                    Icon(Icons.Outlined.Schedule,null,Modifier.size(20.dp))
+                                    Spacer(Modifier.width(AppLayout.CompactGap))
+                                    Text("Teljes járatmenetrend",Modifier.weight(1f))
+                                    Icon(Icons.Outlined.ChevronRight,null,Modifier.size(20.dp))
+                                }
+                            }
                             TimelineRow(null,track,bottomPadding=AppLayout.ItemGap) {}
                         }
                         // A shared stop at the same time is one interchange node, not two repeated rows.
@@ -1196,30 +1207,14 @@ internal fun sameJourneyStop(first: Station, second: Station): Boolean =
                             }
                         }
                     }
-                    val timetableLegs=journey.legs.filter { !it.walking && it.tripId.isNotBlank() }
                     HorizontalDivider(Modifier.padding(vertical=AppLayout.ItemGap),color=MaterialTheme.colorScheme.outlineVariant)
-                    Column(Modifier.fillMaxWidth(),verticalArrangement=Arrangement.spacedBy(AppLayout.CompactGap)) {
-                            timetableLegs.forEach {leg ->
-                                Column(verticalArrangement=Arrangement.spacedBy(AppLayout.LabelGap)) {
-                                    if(timetableLegs.size>1) RouteBadge(leg)
-                                    TextButton(onClick={onTrip(leg)},shape=MaterialTheme.shapes.extraSmall,
-                                        contentPadding=PaddingValues(vertical=AppLayout.CompactGap),
-                                        modifier=Modifier.fillMaxWidth().heightIn(min=48.dp)) {
-                                        Icon(Icons.Outlined.Schedule,null,Modifier.size(20.dp))
-                                        Spacer(Modifier.width(AppLayout.CompactGap))
-                                        Text("Teljes járatmenetrend",Modifier.weight(1f))
-                                        Icon(Icons.Outlined.ChevronRight,null,Modifier.size(20.dp))
-                                    }
-                                }
-                            }
-                        TextButton(onClick=onMap,modifier=Modifier.fillMaxWidth().heightIn(min=48.dp),
-                            shape=MaterialTheme.shapes.extraSmall,
-                            contentPadding=PaddingValues(vertical=AppLayout.CompactGap)) {
-                            Icon(Icons.Outlined.Map,null,Modifier.size(20.dp))
-                            Spacer(Modifier.width(AppLayout.CompactGap))
-                            Text("Útvonal a térképen",Modifier.weight(1f))
-                            Icon(Icons.Outlined.ChevronRight,null,Modifier.size(20.dp))
-                        }
+                    TextButton(onClick=onMap,modifier=Modifier.fillMaxWidth().heightIn(min=48.dp),
+                        shape=MaterialTheme.shapes.extraSmall,
+                        contentPadding=PaddingValues(vertical=AppLayout.CompactGap)) {
+                        Icon(Icons.Outlined.Map,null,Modifier.size(20.dp))
+                        Spacer(Modifier.width(AppLayout.CompactGap))
+                        Text("Útvonal a térképen",Modifier.weight(1f))
+                        Icon(Icons.Outlined.ChevronRight,null,Modifier.size(20.dp))
                     }
                 }
             }

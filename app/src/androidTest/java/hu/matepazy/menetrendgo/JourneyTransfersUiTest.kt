@@ -92,11 +92,11 @@ class JourneyTransfersUiTest {
         compose.onAllNodesWithText("45 perc").assertCountEquals(1)
         val arrivalBounds=compose.onNodeWithText("Székesfehérvár").fetchSemanticsNode().boundsInRoot
         val timetableBounds=compose.onNodeWithText("Teljes járatmenetrend").fetchSemanticsNode().boundsInRoot
-        assertTrue("Full timetable must follow the arrival",timetableBounds.top>arrivalBounds.bottom)
+        assertTrue("Full timetable must sit inside its leg, before the arrival",timetableBounds.bottom<=arrivalBounds.top)
+        val disclosureBounds=compose.onNodeWithText("1 köztes megálló").fetchSemanticsNode().boundsInRoot
+        assertTrue("Full timetable must follow the stop disclosure",timetableBounds.top>=disclosureBounds.bottom)
         val mapBounds=compose.onNodeWithText("Útvonal a térképen").fetchSemanticsNode().boundsInRoot
-        assertTrue("Map must follow the timetable in the same action stack",
-            mapBounds.top>timetableBounds.bottom)
-        assertEquals("Action labels must share their leading edge",timetableBounds.left,mapBounds.left,1f)
+        assertTrue("Map must follow the arrival",mapBounds.top>arrivalBounds.bottom)
         if(longRoute) {
             val layouts = mutableListOf<androidx.compose.ui.text.TextLayoutResult>()
             compose.onNodeWithText(route, useUnmergedTree=true).performSemanticsAction(
@@ -135,18 +135,18 @@ class JourneyTransfersUiTest {
         } }
         val toggle = compose.onNodeWithText("2 köztes megálló")
         val arrival = compose.onNodeWithText("Végállomás")
-        val timetable = compose.onNodeWithText("Teljes járatmenetrend")
+        val mapAction = compose.onNodeWithText("Útvonal a térképen")
         compose.onNodeWithText("Köztes hely 0").assertDoesNotExist()
         toggle.performScrollTo()
         val collapsedTop = arrival.fetchSemanticsNode().boundsInRoot.top
-        val restingGap = timetable.fetchSemanticsNode().boundsInRoot.top-
+        val restingGap = mapAction.fetchSemanticsNode().boundsInRoot.top-
             arrival.fetchSemanticsNode().boundsInRoot.bottom
         compose.mainClock.autoAdvance = false
 
         fun checkGap() {
-            val gap = timetable.fetchSemanticsNode().boundsInRoot.top-
+            val gap = mapAction.fetchSemanticsNode().boundsInRoot.top-
                 arrival.fetchSemanticsNode().boundsInRoot.bottom
-            assertEquals("Timetable must stay below arrival throughout the reveal", restingGap, gap, 2f)
+            assertEquals("Map action must stay below arrival throughout the reveal", restingGap, gap, 2f)
         }
 
         toggle.performClick()
