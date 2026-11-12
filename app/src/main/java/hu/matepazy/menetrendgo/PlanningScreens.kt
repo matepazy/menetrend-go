@@ -1274,29 +1274,34 @@ internal fun sameJourneyStop(first: Station, second: Station): Boolean =
 @Composable fun TripScreen(vm: AppState, id: String, day: String, back: () -> Unit, onMap: () -> Unit) {
     val detail=vm.detail
     val vehicle=vm.vehicles.find {it.id==id}
-    LazyColumn(Modifier.fillMaxSize(),contentPadding=screenContentPadding(),verticalArrangement=Arrangement.spacedBy(AppLayout.ItemGap)) {
-        item {PageTitle(detail?.optJSONObject("route")?.optString("shortName")?.ifBlank {"Járat"} ?: "Járat", "$day · ${detail?.optString("tripHeadsign").orEmpty()}",back)}
-        if(vm.detailLoading && detail==null) item {LoadingRows()}
-        if(vm.detailError!=null) item {InfoPanel("A menetrend nem tölthető be",vm.detailError!!){vm.loadTrip(id,day)}}
-        if(detail!=null) {
-            item {Text(if(vehicle==null) "Ehhez a járathoz most nincs élő járműpozíció." else "Élő járműpozíció elérhető · ${vm.mapRefreshSeconds} mp-es frissítés",color=MaterialTheme.colorScheme.onSurfaceVariant)}
-            if(vehicle!=null) item {OutlinedButton(onClick=onMap,shape=CircleShape,modifier=Modifier.fillMaxWidth()){Text("Jármű a térképen")}}
-            itemsIndexed(detail.array("stoptimes")) {index,stop ->
-                val s=stop.optJSONObject("stop")
-                val time=tripStopTime(stop,day)
-                Surface(shape=MaterialTheme.shapes.medium,color=MaterialTheme.colorScheme.surface) {
-                    Row(Modifier.fillMaxWidth().padding(AppLayout.PanelPadding),verticalAlignment=Alignment.Top,horizontalArrangement=Arrangement.spacedBy(AppLayout.RelatedGap)) {
-                        Column(Modifier.width(with(LocalDensity.current) { 64.sp.toDp() })) {
-                            if(time!=null) ScheduledTime(time,style=MaterialTheme.typography.titleMedium)
-                        }
-                        Column(Modifier.weight(1f)) {
-                            Text(s?.optString("name").orEmpty(),style=MaterialTheme.typography.titleMedium)
-                            val platform=s?.optString("platformCode").orEmpty()
-                            if(platform.isNotBlank() && platform!="null") Text("Vágány / kocsiállás: $platform",style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
-                        }
-                    }
+    val route=detail?.optJSONObject("route")
+    val mode=vehicle?.mode ?: route?.optString("mode").orEmpty()
+    val badge=vehicle?.badgeLeg() ?: Vehicle(id,route?.optString("shortName").orEmpty(),
+        detail?.optString("tripHeadsign").orEmpty(),mode,0.0,0.0,
+        routeColor=route?.optString("color").orEmpty(),category=detail?.optString("trainCategoryName").orEmpty(),
+        routeLongName=route?.optString("longName").orEmpty()).badgeLeg()
+    val track=TimelineTrack(serviceColor(badge))
+    val stops=remember(detail) {detail?.array("stoptimes").orEmpty()}
+    LazyColumn(Modifier.fillMaxSize(),contentPadding=screenContentPadding()) {
+        item {
+            Column(Modifier.padding(bottom=AppLayout.ItemGap),verticalArrangement=Arrangement.spacedBy(AppLayout.ItemGap)) {
+                PageTitle(route?.optString("shortName")?.ifBlank {"Járat"} ?: "Járat",
+                    "$day · ${detail?.optString("tripHeadsign").orEmpty()}",back)
+                if(vm.detailLoading && detail==null) LoadingRows()
+                if(vm.detailError!=null) InfoPanel("A menetrend nem tölthető be",vm.detailError!!){vm.loadTrip(id,day)}
+                if(detail!=null) {
+                    Text(if(vehicle==null) "Ehhez a járathoz most nincs élő járműpozíció." else "Élő járműpozíció elérhető · ${vm.mapRefreshSeconds} mp-es frissítés",color=MaterialTheme.colorScheme.onSurfaceVariant)
+                    if(vehicle!=null) OutlinedButton(onClick=onMap,shape=CircleShape,modifier=Modifier.fillMaxWidth()){Text("Jármű a térképen")}
+                    if(stops.isEmpty()) Text("Nincs elérhető megállóadat.",color=MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
+        }
+        itemsIndexed(stops) {index,stop ->
+            val station=stop.optJSONObject("stop")
+            TimetableStopRow(station?.optString("name").orEmpty(),tripStopTime(stop,day),
+                station?.optString("platformCode").orEmpty(),mode,track,
+                first=index==0,last=index==stops.lastIndex,
+                scheduledLabel=if(!stop.isNull("scheduledDeparture")) "Menetrendi indulás" else "Menetrendi érkezés")
         }
     }
 }

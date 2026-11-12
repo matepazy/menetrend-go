@@ -170,15 +170,9 @@ internal fun vehicleStopPlatform(platform: String, mode: String): String = when(
                     else LazyColumn(Modifier.weight(1f),contentPadding=PaddingValues(bottom=24.dp)) {
                         itemsIndexed(upcoming) {index,stop ->
                             val next=index==0
-                            TimelineRow(ServiceTime(stop.scheduled,stop.arrival,stop.realtime),track,stop=true,intermediate=!next,
-                                outgoing=if(index==upcoming.lastIndex) null else track,
-                                bottomPadding=if(index==upcoming.lastIndex) 0.dp else if(next) AppLayout.ItemGap else AppLayout.RelatedGap) {
-                                if(next) Text("Következő megálló",style=MaterialTheme.typography.labelMedium,color=MaterialTheme.colorScheme.primary)
-                                Text(stop.name,style=MaterialTheme.typography.titleMedium,fontWeight=if(next) FontWeight.Bold else FontWeight.Normal)
-                                if(stop.platform.isNotBlank() && stop.platform!="null") Text(vehicleStopPlatform(stop.platform,vehicle.mode),
-                                    style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
-                                if(!stop.realtime) Text("Menetrendi érkezés",style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
-                            }
+                            TimetableStopRow(stop.name,ServiceTime(stop.scheduled,stop.arrival,stop.realtime),
+                                stop.platform,vehicle.mode,track,first=next,last=index==upcoming.lastIndex,
+                                prominent=next,next=next)
                         }
                     }
                 }
