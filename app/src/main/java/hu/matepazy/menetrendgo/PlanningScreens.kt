@@ -22,6 +22,11 @@ import androidx.compose.animation.core.spring
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.SubcomposeLayout
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
@@ -737,6 +742,80 @@ private fun serviceType(leg: Leg): String = hungarianServiceName(leg.category, l
     }
 }
 
+private val ServicePillHeight=30.dp
+private val ServicePillSlant=8.dp
+private val ServicePillGap=2.dp
+
+/** All services of a journey in one pill: colour segments split by a slanted gap, never wrapping; overflow ends in a white "…" cap. */
+@Composable fun ServicePill(legs: List<Leg>, modifier: Modifier = Modifier) {
+    val overflowColor=Color.White
+    val border=MaterialTheme.colorScheme.outlineVariant
+    SubcomposeLayout(modifier.clearAndSetSemantics {
+        contentDescription=legs.joinToString(", ") {"${serviceType(it)} ${if(it.walking) "" else it.route}".trim()}
+    }) { constraints ->
+        val probe=subcompose("probe") {
+            legs.forEach {ServiceSegmentContent(it)}
+            ServiceSegmentContent(null)
+        }.map {it.measure(Constraints(maxHeight=ServicePillHeight.roundToPx()))}
+        val widths=probe.dropLast(1).map {it.width}
+        var count=legs.size
+        if(widths.sum()>constraints.maxWidth) {
+            var used=probe.last().width
+            count=0
+            while(count<widths.size && used+widths[count]<=constraints.maxWidth) {used+=widths[count];count++}
+            count=count.coerceAtLeast(1)
+        }
+        val overflow=count<legs.size
+        val strip=subcompose("strip") {
+            Row {
+                legs.take(count).forEachIndexed {i,leg ->
+                    ServiceSegment(leg,serviceSegmentColor(leg),first=i==0,last=!overflow && i==count-1,
+                        modifier=if(overflow && count==1) Modifier.weight(1f,fill=false) else Modifier)
+                }
+                if(overflow) ServiceSegment(null,overflowColor,first=false,last=true,border=border)
+            }
+        }.first().measure(constraints.copy(minWidth=0))
+        layout(maxOf(strip.width,constraints.minWidth),strip.height) {strip.place(0,0)}
+    }
+}
+
+/** A route mark's box is whichever of its colour pair is not the light ground, so the segment blends with the mark. */
+@Composable private fun serviceSegmentColor(leg: Leg): Color {
+    val logo=leg.routeLogo ?: return serviceColor(leg)
+    fun hex(value: String)=Color((0xFF000000L or value.toLong(16)).toInt())
+    val background=hex(logo.background); val foreground=hex(logo.foreground)
+    return if(background.luminance()>.8f && foreground.luminance()<background.luminance()) foreground else background
+}
+
+@Composable private fun ServiceSegment(leg: Leg?, color: Color, first: Boolean, last: Boolean,
+    modifier: Modifier = Modifier, border: Color? = null) {
+    Box(modifier.drawBehind {
+        val s=ServicePillSlant.toPx(); val g=ServicePillGap.toPx(); val w=size.width; val h=size.height
+        val path=Path().apply {
+            moveTo(if(first) h/2 else s/2+g/2,0f)
+            if(last) { lineTo(w-h/2,0f); arcTo(Rect(w-h,0f,w,h),270f,180f,false) }
+            else { lineTo(w+s/2-g/2,0f); lineTo(w-s/2-g/2,h) }
+            if(first) { lineTo(h/2,h); arcTo(Rect(0f,0f,h,h),90f,180f,false) } else lineTo(-s/2+g/2,h)
+            close()
+        }
+        drawPath(path,color)
+        if(border!=null) drawPath(path,border,style=Stroke(width=1.dp.toPx()))
+    }) {
+        CompositionLocalProvider(LocalContentColor provides if(color.luminance()>.179f) Color.Black else Color.White) {
+            ServiceSegmentContent(leg)
+        }
+    }
+}
+
+@Composable private fun ServiceSegmentContent(leg: Leg?) {
+    Box(Modifier.height(ServicePillHeight).padding(horizontal=12.dp),contentAlignment=Alignment.Center) {
+        val logo=leg?.routeLogo
+        if(logo!=null) RouteLogoIcon(logo)
+        else Text(when {leg==null -> "…"; leg.walking -> "Gyalog"; else -> leg.route},maxLines=1,softWrap=false,
+            overflow=TextOverflow.Ellipsis,style=MaterialTheme.typography.labelLarge,fontWeight=FontWeight.Bold)
+    }
+}
+
 @Composable internal fun StationLabel(station: Station, rightAligned: Boolean = false, inlineName: Boolean = false,
     wrapStopName: Boolean = false) {
     Column(horizontalAlignment=if(rightAligned) Alignment.End else Alignment.Start) {
@@ -900,9 +979,7 @@ internal const val DeparturePaginationKey = "later-departures"
                 Column(Modifier.fillMaxWidth().padding(AppLayout.PanelPadding),verticalArrangement=Arrangement.spacedBy(AppLayout.ItemGap)) {
                     Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically) {
                         val services=journey.legs.filterNot {it.walking}.distinctBy {it.mode to it.route}
-                        FlowRow(Modifier.weight(1f),horizontalArrangement=Arrangement.spacedBy(6.dp),verticalArrangement=Arrangement.spacedBy(6.dp)) {
-                            (services.ifEmpty {journey.legs.take(1)}).forEach {RouteBadge(it)}
-                        }
+                        ServicePill(services.ifEmpty {journey.legs.take(1)},Modifier.weight(1f))
                         Icon(Icons.Outlined.ChevronRight,null,Modifier.padding(start=8.dp))
                     }
                     JourneyEndpoints(journey,departingNow=departingNow && !walkingOnly,leftEarly=leftEarly)
