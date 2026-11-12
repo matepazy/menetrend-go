@@ -101,16 +101,18 @@ internal fun CurrentLocationOption(onSelected: (Station) -> Unit, onBusyChanged:
         if (permissions.any { ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED }) locate()
         else permission.launch(permissions)
     }, enabled = !busy, color = MaterialTheme.colorScheme.surface) {
-        Row(Modifier.fillMaxWidth().heightIn(min = 56.dp).padding(horizontal = 4.dp, vertical = AppLayout.RelatedGap),
-            verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-            if (busy) CircularProgressIndicator(Modifier.size(26.dp), strokeWidth = 2.dp)
-            else Icon(Icons.Outlined.MyLocation, null, Modifier.size(26.dp), tint = MaterialTheme.colorScheme.primary)
+        Row(Modifier.fillMaxWidth().heightIn(min = 56.dp).padding(horizontal = 16.dp, vertical = AppLayout.RelatedGap),
+            verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Box(Modifier.size(28.dp), contentAlignment = Alignment.Center) {
+                if (busy) CircularProgressIndicator(Modifier.size(26.dp), strokeWidth = 2.dp)
+                else Icon(Icons.Outlined.MyLocation, null, Modifier.size(26.dp), tint = MaterialTheme.colorScheme.primary)
+            }
             Text(if (busy) "Helymeghatározás…" else "Jelenlegi helyzet",
                 style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f).semantics { liveRegion = LiveRegionMode.Polite })
         }
     }
     error?.let {
-        Text(it, Modifier.padding(start = 46.dp, end = 4.dp, top = 8.dp, bottom = 8.dp).semantics { liveRegion = LiveRegionMode.Polite },
+        Text(it, Modifier.padding(start = 56.dp, end = 16.dp, top = 8.dp, bottom = 8.dp).semantics { liveRegion = LiveRegionMode.Polite },
             style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
     }
 }
