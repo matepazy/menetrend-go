@@ -161,13 +161,15 @@ private class GoogleMapSurface(
     private val routeStops=mutableListOf<Marker>()
     private val alerts=mutableListOf<Circle>()
     private val vehicleMarkers=mutableMapOf<String,Marker>()
-    private val stopMarkers=mutableListOf<Marker>()
+    private val stopMarkers=mutableMapOf<String,Marker>()
+    private var renderedStops=emptyMap<String,Station>()
     private val animations=mutableMapOf<String,ValueAnimator>()
     private val targets=mutableMapOf<String,LatLng>()
     private val pathCache=linkedMapOf<String,List<GeoPoint>>()
     private val requestedPaths=linkedSetOf<String>()
-    private val stopEnclosures=mutableListOf<Polygon>()
-    private val stopLabels=mutableListOf<Marker>()
+    private val stopEnclosures=mutableMapOf<List<String>,Polygon>()
+    private val stopLabels=mutableMapOf<List<String>,Marker>()
+    private val stopLabelStyles=mutableMapOf<List<String>,Triple<String,Int,Int>>()
     private var displayedStops=emptyList<Station>()
     private var destroyed=false
 
@@ -295,39 +297,56 @@ private class GoogleMapSurface(
         viewport(center.latitude,center.longitude,(ceil(result[0]*1.1).toInt()+300).coerceIn(100,15000))
     }
     private fun drawStops() {
-        stopMarkers.forEach {it.remove()};stopMarkers.clear()
-        stopEnclosures.forEach {it.remove()};stopEnclosures.clear()
-        stopLabels.forEach {it.remove()};stopLabels.clear()
-        displayedStops=emptyList()
-        if(!stopsEnabled || map.cameraPosition.zoom<16f)return
         val all=stops.objects().mapNotNull {runCatching {Station.parse(it)}.getOrNull()}
         val selected=selectNativeMapStops(all,map.cameraPosition.zoom.toDouble())
-        val groups=groupNativeMapStops(all).filter {group->
+        val groups=if(!stopsEnabled || map.cameraPosition.zoom<16f) emptyList() else groupNativeMapStops(all).filter {group->
             group.any {it.id in selected} && group.any {
                 val p=map.projection.toScreenLocation(LatLng(it.lat,it.lon))
                 p.x in (-view.width/10)..(view.width*11/10) && p.y in (-view.height/10)..(view.height*11/10)
             }
         }
         displayedStops=groups.flatten()
+        val groupKeys=mutableSetOf<List<String>>()
         groups.forEach {group->
             if(group.size>1) {
+                val key=group.map {it.id}.sorted()
+                groupKeys.add(key)
                 val points=group.map {val p=map.projection.toScreenLocation(LatLng(it.lat,it.lon));MapPixel(p.x.toDouble(),p.y.toDouble())}
                 val outline=nativeMapStopOutline(points,18.0*density).map {map.projection.fromScreenLocation(android.graphics.Point(it.x.toInt(),it.y.toInt()))}
-                map.addPolygon(PolygonOptions().addAll(outline).strokeColor(0x8c737b80.toInt()).strokeWidth(1.5f*density)
-                    .fillColor(0x1f737b80).zIndex(.5f).clickable(false))?.let(stopEnclosures::add)
+                val enclosure=stopEnclosures[key]
+                if(enclosure!=null) {if(enclosure.points!=outline)enclosure.points=outline}
+                else map.addPolygon(PolygonOptions().addAll(outline).strokeColor(0x8c737b80.toInt()).strokeWidth(1.5f*density)
+                    .fillColor(0x1f737b80).zIndex(.5f).clickable(false))?.let {stopEnclosures[key]=it}
                 val x=points.map {it.x}.average()
                 var y=points.map {it.y}.average()
                 if(points.any {abs(it.x-x)<70*density && abs(it.y-y)<22*density})y=points.maxOf {it.y}+30*density
                 val position=map.projection.fromScreenLocation(android.graphics.Point(x.toInt(),y.toInt()))
                 // Markers render above basemap street names. Ground overlays remain below them.
-                map.addMarker(MarkerOptions().position(position).icon(artwork.label(group.first().name,ink,surfaceColor))
-                    .anchor(.5f,0f).zIndex(.75f))?.let(stopLabels::add)
+                val style=Triple(group.first().name,ink,surfaceColor)
+                val label=stopLabels[key]
+                if(label!=null) {
+                    if(label.position!=position)label.position=position
+                    if(stopLabelStyles[key]!=style)label.setIcon(artwork.label(style.first,ink,surfaceColor))
+                } else map.addMarker(MarkerOptions().position(position).icon(artwork.label(style.first,ink,surfaceColor))
+                    .anchor(.5f,0f).zIndex(.75f))?.let {stopLabels[key]=it}
+                stopLabelStyles[key]=style
             }
         }
         displayedStops.forEach {stop->
-            map.addMarker(MarkerOptions().position(LatLng(stop.lat,stop.lon)).title(stop.name+" · indulási tábla")
-                .icon(artwork.stop(stop.modes)).anchor(.5f,.5f).zIndex(1f))?.let {it.tag="stop" to stop.id;stopMarkers.add(it)}
+            val previous=renderedStops[stop.id]
+            val marker=stopMarkers[stop.id]
+            if(marker!=null) {
+                if(previous?.lat!=stop.lat || previous.lon!=stop.lon)marker.position=LatLng(stop.lat,stop.lon)
+                if(previous?.name!=stop.name)marker.title=stop.name+" · indulási tábla"
+                if(previous?.modes!=stop.modes)marker.setIcon(artwork.stop(stop.modes))
+            } else map.addMarker(MarkerOptions().position(LatLng(stop.lat,stop.lon)).title(stop.name+" · indulási tábla")
+                .icon(artwork.stop(stop.modes)).anchor(.5f,.5f).zIndex(1f))?.let {it.tag="stop" to stop.id;stopMarkers[stop.id]=it}
         }
+        // Keep SDK objects alive across camera-idle and viewport responses to avoid blank frames.
+        renderedStops=displayedStops.associateBy {it.id}
+        (stopMarkers.keys-renderedStops.keys).forEach {stopMarkers.remove(it)?.remove()}
+        (stopEnclosures.keys-groupKeys).forEach {stopEnclosures.remove(it)?.remove()}
+        (stopLabels.keys-groupKeys).forEach {stopLabels.remove(it)?.remove();stopLabelStyles.remove(it)}
     }
     private fun drawVehicles(animate:Boolean) {
         val visible=vehicles.objects().filter {

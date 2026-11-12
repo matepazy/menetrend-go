@@ -44,6 +44,53 @@ test('duplicate vertices and crossings choose a short forward passage rather tha
 const stop = (id, name, x, y = 0) => ({id, name, x, y});
 const distance = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
 
+test('stop layers survive panning and refreshes, then remove only departed identities', () => {
+  const layers = new Set();
+  let creates = 0;
+  const makeLayer = (position, options = {}) => {
+    creates++;
+    return {position, options, addTo() { layers.add(this); return this; },
+      setLatLng(p) { this.position=p; }, setLatLngs(p) { this.position=p; },
+      getElement() { return this; }};
+  };
+  const sandbox = vm.createContext({
+    stopsEnabled:true, stopMinZoom:16, stops:[],
+    stopMarkers:{removeLayer(layer) {layers.delete(layer);}},
+    map:{getZoom:()=>17, project:([lat,lon])=>({x:lon,y:lat}),
+      unproject:([x,y])=>({lat:y,lng:x}), getBounds:()=>({pad:()=>({contains:()=>true})})},
+    L:{marker:makeLayer,polygon:makeLayer,divIcon:options=>options},
+    document:{createElement:()=>({style:{},append(){}})},
+    visibleMapStopGroups:items=>items.length?[items]:[],
+    mapStopOutline:points=>points, mapStopBackground:()=> 'blue',
+    bindMapActivation:(marker,handler)=>{marker.activate=handler;},
+    window:{NativeMap:true}, NativeMap:{selectStop:id=>{sandbox.selected=id;}}
+  });
+  vm.runInContext(html.slice(html.indexOf('const stopEntries='),html.indexOf('function reportStopViewport')),sandbox);
+  sandbox.stops=[{id:'a',name:'Station',lat:47,lon:19},{id:'b',name:'Station',lat:47.001,lon:19}];
+  sandbox.drawStops();
+  const initial=[...layers];
+  assert.equal(creates,4); // Two circles, one outline, one name.
+  for(let i=0;i<4;i++) {
+    sandbox.stops=sandbox.stops.map(s=>({...s})).reverse();
+    sandbox.drawStops();
+    assert.equal(creates,4);
+    assert.deepEqual([...layers],initial);
+  }
+  sandbox.stops=[{...sandbox.stops.find(s=>s.id==='a'),name:'Updated',lat:48}];
+  sandbox.drawStops();
+  assert.equal(layers.size,1);
+  const retained=[...layers][0];
+  assert.ok(initial.includes(retained));
+  assert.deepEqual(Array.from(retained.position),[48,19]);
+  assert.equal(retained.options.title,'Updated · indulási tábla');
+  retained.activate();
+  assert.equal(sandbox.selected,'a');
+  sandbox.stopsEnabled=false;sandbox.drawStops();
+  assert.equal(layers.size,0);
+  sandbox.stopsEnabled=true;sandbox.drawStops();
+  assert.equal(layers.size,1);
+});
+
 test('grouping preserves identities, normalizes whitespace, and is independent of feed order', () => {
   const items = [stop('b', ' Olof  Palme sétány ', 100), stop('a', 'Olof Palme sétány', 0)];
   const groups = context.groupMapStops(items, distance);

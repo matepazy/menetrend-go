@@ -205,36 +205,58 @@ function mapStopBackground(stop){
  return 'radial-gradient(circle,#f8fbff 0 4px,transparent 4.2px),conic-gradient('+segments.join(',')+')';
 }
 /* STOP_COLORS_END */
+const stopEntries=new Map(),stopGroupEntries=new Map();let displayedMapStops=[];
 function drawStops(){
- stopMarkers.clearLayers();if(!stopsEnabled||map.getZoom()<stopMinZoom)return;
  const zoom=map.getZoom(),project=s=>map.project([s.lat,s.lon],zoom);
  const bounds=map.getBounds().pad(.1);
- const groups=visibleMapStopGroups(stops,project,(a,b)=>L.latLng(a.lat,a.lon).distanceTo([b.lat,b.lon]),s=>bounds.contains([s.lat,s.lon]));
+ const groups=stopsEnabled&&zoom>=stopMinZoom?visibleMapStopGroups(stops,project,(a,b)=>L.latLng(a.lat,a.lon).distanceTo([b.lat,b.lon]),s=>bounds.contains([s.lat,s.lon])):[];
  const selected=groups.flat();
+ displayedMapStops=selected;
+ const groupKeys=new Set();
  groups.forEach(group=>{
   if(group.length<2)return;
+  const key=JSON.stringify(group.map(s=>s.id).sort());groupKeys.add(key);
+  let entry=stopGroupEntries.get(key);
   const points=group.map(project);
-  L.polygon(mapStopOutline(points).map(p=>map.unproject([p.x,p.y],zoom)),{pane:'stopGroups',color:'#737b80',weight:1.5,opacity:.55,fillColor:'#737b80',fillOpacity:.12,interactive:false,smoothFactor:0}).addTo(stopMarkers);
+  const outline=mapStopOutline(points).map(p=>map.unproject([p.x,p.y],zoom));
   const center={x:points.reduce((n,p)=>n+p.x,0)/points.length,y:points.reduce((n,p)=>n+p.y,0)/points.length};
   if(points.some(p=>Math.abs(p.x-center.x)<70&&Math.abs(p.y-center.y)<22))center.y=Math.max(...points.map(p=>p.y))+30;
-  const label=document.createElement('div');label.textContent=group[0].name;
-  L.marker(map.unproject([center.x,center.y],zoom),{pane:'stopNames',interactive:false,keyboard:false,icon:L.divIcon({html:label,className:'stop-group-label',iconSize:[140,42],iconAnchor:[70,7]})}).addTo(stopMarkers);
+  const position=map.unproject([center.x,center.y],zoom);
+  if(entry){
+   entry.outline.setLatLngs(outline);entry.marker.setLatLng(position);entry.label.textContent=group[0].name;
+  }else{
+   const label=document.createElement('div');label.textContent=group[0].name;
+   const polygon=L.polygon(outline,{pane:'stopGroups',color:'#737b80',weight:1.5,opacity:.55,fillColor:'#737b80',fillOpacity:.12,interactive:false,smoothFactor:0}).addTo(stopMarkers);
+   const marker=L.marker(position,{pane:'stopNames',interactive:false,keyboard:false,icon:L.divIcon({html:label,className:'stop-group-label',iconSize:[140,42],iconAnchor:[70,7]})}).addTo(stopMarkers);
+   stopGroupEntries.set(key,{outline:polygon,marker,label});
+  }
  });
  selected.forEach(s=>{
+  const existing=stopEntries.get(s.id);
+  if(existing){
+   if(existing.stop.lat!==s.lat||existing.stop.lon!==s.lon)existing.marker.setLatLng([s.lat,s.lon]);
+   if(existing.stop.name!==s.name){existing.marker.options.title=s.name+' · indulási tábla';existing.marker.getElement().title=existing.marker.options.title}
+   const background=mapStopBackground(s);if(existing.dot.style.background!==background)existing.dot.style.background=background;
+   existing.stop=s;return;
+  }
   const hit=document.createElement('div');hit.className='hit';
   const dot=document.createElement('div');dot.className='stop-dot';dot.style.background=mapStopBackground(s);hit.append(dot);
   const marker=L.marker([s.lat,s.lon],{icon:L.divIcon({html:hit,iconSize:[48,48],iconAnchor:[24,24],className:''}),title:s.name+' · indulási tábla',keyboard:true,zIndexOffset:-500}).addTo(stopMarkers);
+  const entry={marker,dot,stop:s};stopEntries.set(s.id,entry);
   bindMapActivation(marker,event=>{
    // Closely spaced platforms share target space. Pointer taps choose the
    // nearest circle, while keyboard activation always opens the focused stop.
-   let chosen=s;
+   let chosen=entry.stop;
    if(event?.originalEvent&&event.originalEvent.type!=='keypress'&&event.originalEvent.detail!==0){
     const point=map.mouseEventToContainerPoint(event.originalEvent);
-    chosen=selected.reduce((best,stop)=>map.latLngToContainerPoint([stop.lat,stop.lon]).distanceTo(point)<map.latLngToContainerPoint([best.lat,best.lon]).distanceTo(point)?stop:best,s);
+    chosen=displayedMapStops.reduce((best,stop)=>map.latLngToContainerPoint([stop.lat,stop.lon]).distanceTo(point)<map.latLngToContainerPoint([best.lat,best.lon]).distanceTo(point)?stop:best,entry.stop);
    }
    if(window.NativeMap)NativeMap.selectStop(chosen.id);
   });
  });
+ const keep=new Set(selected.map(s=>s.id));
+ for(const [id,entry] of stopEntries)if(!keep.has(id)){stopMarkers.removeLayer(entry.marker);stopEntries.delete(id)}
+ for(const [key,entry] of stopGroupEntries)if(!groupKeys.has(key)){stopMarkers.removeLayer(entry.outline);stopMarkers.removeLayer(entry.marker);stopGroupEntries.delete(key)}
 }
 function reportStopViewport(){
  if(!stopsEnabled)return;

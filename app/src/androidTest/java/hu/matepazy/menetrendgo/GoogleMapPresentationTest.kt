@@ -94,6 +94,35 @@ class GoogleMapPresentationTest {
         compose.waitUntil(20000) {loaded.get()}
         compose.waitForIdle()
         capture("fixture-light")
+        // A camera idle and an overlapping viewport response must retain the actual SDK
+        // objects. Recreating them leaves a visible gap while their textures upload.
+        fun layer(name:String):Map<*,*> = api!!.javaClass.getDeclaredField(name).let {
+            it.isAccessible=true
+            (it.get(api) as Map<*,*>).toMap()
+        }
+        lateinit var layers:Map<String,Map<*,*>>
+        compose.runOnIdle {
+            layers=listOf("stopMarkers","stopEnclosures","stopLabels").associateWith(::layer)
+            assertEquals(3,layers.getValue("stopMarkers").size)
+            assertEquals(1,layers.getValue("stopLabels").size)
+        }
+        repeat(3) {index->
+            compose.onRoot().performTouchInput {
+                swipe(Offset(center.x,center.y),Offset(center.x+if(index%2==0)60f else -60f,center.y),300)
+            }
+            compose.waitForIdle()
+            compose.runOnIdle {
+                // Refreshing the same provider data also used to rebuild the whole layer.
+                val field=api!!.javaClass.getDeclaredField("stops").apply {isAccessible=true}
+                api!!.call("updateStops",JSONArray(field.get(api).toString()))
+                for((name,previous) in layers) {
+                    val current=layer(name)
+                    assertEquals(previous.keys,current.keys)
+                    previous.forEach {(id,item)->assertSame("$name $id was recreated",item,current[id])}
+                }
+            }
+        }
+        capture("fixture-after-pan")
         lateinit var point:android.graphics.Point
         compose.runOnIdle {point=google!!.projection.toScreenLocation(LatLng(47.507,19.02512))}
         compose.onRoot().performTouchInput {click(Offset(point.x.toFloat(),point.y.toFloat()))}
