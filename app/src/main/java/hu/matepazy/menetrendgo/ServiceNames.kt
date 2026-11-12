@@ -14,7 +14,7 @@ fun hungarianServiceLabel(label: String): String {
 
 /** Provider categories can be English even when the rest of the response is Hungarian. */
 fun hungarianServiceName(category: String, mode: String): String {
-    val name = category.trim()
+    val name = category.trim().takeUnless { it.equals("null", ignoreCase = true) }.orEmpty()
     return when (name.lowercase(Locale.ROOT).replace('_', ' ').replace('-', ' ')) {
         "passenger", "passenger train", "passanger train", "local train", "regional train" -> "Személyvonat"
         "fast train" -> "Gyorsvonat"

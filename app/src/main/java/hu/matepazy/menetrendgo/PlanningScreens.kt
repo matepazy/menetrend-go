@@ -1125,11 +1125,10 @@ internal fun sameJourneyStop(first: Station, second: Station): Boolean =
                                     Text("${(leg.end-leg.start+59_999)/60_000} perc gyaloglás",style=MaterialTheme.typography.bodyMedium)
                                 }
                             } else {
+                                val showModeIcon = leg.mode !in listOf("BUS", "COACH", "RAIL_REPLACEMENT_BUS")
                                 RouteBadge(leg,contentPadding=if(leg.routeLogo!=null) PaddingValues(vertical=AppLayout.LabelGap)
-                                    else PaddingValues(start=6.dp,end=12.dp,top=5.dp,bottom=5.dp),shape=MaterialTheme.shapes.extraSmall)
-                                serviceType(leg).takeUnless {leg.route.contains(it,ignoreCase=true)}?.let {
-                                    Text(it,Modifier.padding(top=AppLayout.LabelGap),style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)
-                                }
+                                    else PaddingValues(start=if(showModeIcon) 6.dp else 12.dp,end=12.dp,top=5.dp,bottom=5.dp),
+                                    shape=MaterialTheme.shapes.extraSmall,showModeIcon=showModeIcon)
                                 if(leg.headsign.isNotBlank()) Row(
                                     Modifier.fillMaxWidth().padding(top=AppLayout.LabelGap,bottom=AppLayout.RelatedGap).semantics(mergeDescendants=true) {},
                                     horizontalArrangement=Arrangement.spacedBy(AppLayout.CompactGap),verticalAlignment=Alignment.Top) {

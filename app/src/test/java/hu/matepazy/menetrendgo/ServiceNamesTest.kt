@@ -4,6 +4,14 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class ServiceNamesTest {
+    @Test fun nullProviderCategoryUsesTransportMode() {
+        listOf("null", " NULL ", "").forEach { category ->
+            assertEquals("Autóbusz", hungarianServiceName(category, "BUS"))
+            assertEquals("Autóbusz", hungarianServiceName(category, "COACH"))
+            assertEquals("Vonat", hungarianServiceName(category, "RAIL"))
+        }
+    }
+
     @Test fun translatesProviderCategories() {
         assertEquals("Személyvonat", hungarianServiceName("Passenger train", "RAIL"))
         assertEquals("Személyvonat", hungarianServiceName("passanger train", "RAIL"))
