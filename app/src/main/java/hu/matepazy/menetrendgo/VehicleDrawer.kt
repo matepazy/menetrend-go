@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.ArrowForward
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Commute
 import androidx.compose.material.icons.outlined.Badge
@@ -18,6 +19,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -155,9 +157,21 @@ internal fun vehicleStopPlatform(platform: String, mode: String): String = when(
                     showModeIcon=false)}
                 IconButton(onClick=dismiss) {Icon(Icons.Outlined.Close,"Jármű részleteinek bezárása")}
             }
-            Text(if(stops.isNotEmpty()) "${stops.first().name} → ${stops.last().name}"
-                else vehicle.headsign,style=MaterialTheme.typography.titleLarge,fontWeight=FontWeight.Bold,
-                modifier=Modifier.padding(top=AppLayout.RelatedGap))
+            Column(Modifier.fillMaxWidth().padding(top=AppLayout.RelatedGap),
+                verticalArrangement=Arrangement.spacedBy(AppLayout.LabelGap)) {
+                if(stops.isNotEmpty()) Row(Modifier.fillMaxWidth(),
+                    horizontalArrangement=Arrangement.spacedBy(AppLayout.CompactGap),
+                    verticalAlignment=Alignment.CenterVertically) {
+                    Text(stops.first().name,Modifier.weight(1f,fill=false),
+                        style=MaterialTheme.typography.bodyMedium,fontWeight=FontWeight.Normal,
+                        color=MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines=1,softWrap=false,overflow=TextOverflow.Ellipsis)
+                    Icon(Icons.AutoMirrored.Outlined.ArrowForward,"Irány",Modifier.size(20.dp),
+                        tint=MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+                Text(if(stops.isNotEmpty()) stops.last().name else vehicle.headsign,
+                    style=MaterialTheme.typography.titleLarge,fontWeight=FontWeight.Bold)
+            }
             upcoming.firstOrNull()?.let {next ->
                 val time=vehicleDelayTime(next)
                 Text(vehicleDelaySummary(next),style=MaterialTheme.typography.titleSmall,fontWeight=FontWeight.Bold,
