@@ -89,6 +89,21 @@ class MapSearchFlowTest {
         }
     }
 
+    @Test fun longResultsStayCompactAndLastResultRemainsSelectable() {
+        val stops = (1..25).map { station.copy(id = "stop:$it", name = "Keleti megálló $it") }
+        show(search = { stops })
+        type("Keleti")
+        waitFor("Megállók és állomások · 25")
+        val panel = compose.onNode(SemanticsMatcher.expectValue(SemanticsProperties.PaneTitle, "Térkép keresése"))
+        val rootHeight = compose.onRoot().fetchSemanticsNode().boundsInRoot.height
+        assertTrue(panel.fetchSemanticsNode().boundsInRoot.height < rootHeight * .7f)
+        compose.onNodeWithText(stops.last().name).assertDoesNotExist()
+        capture("compact-results")
+        compose.onNode(hasScrollAction()).performScrollToNode(hasText(stops.last().name))
+        compose.onNodeWithText(stops.last().name).performClick()
+        compose.runOnIdle { assertEquals(stops.last(), pickedStop) }
+    }
+
     @Test fun stopSelectionRetainsIdentityAndClearKeepsEditorOpen() {
         show()
         type("Keleti")

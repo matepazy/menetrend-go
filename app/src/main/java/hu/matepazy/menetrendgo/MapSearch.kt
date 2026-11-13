@@ -82,7 +82,6 @@ import kotlinx.coroutines.withContext
     var stops by remember(term, retry) { mutableStateOf<List<Station>>(emptyList()) }
     var loading by remember(term, retry) { mutableStateOf(term.length >= 2) }
     var failed by remember(term, retry) { mutableStateOf(false) }
-    var allMatches by remember(term) { mutableStateOf(false) }
     val listState = key(term) { rememberLazyListState() }
     val currentCached by rememberUpdatedState(cachedStops)
     val currentSearch by rememberUpdatedState(searchStops)
@@ -97,7 +96,8 @@ import kotlinx.coroutines.withContext
         finally { loading = false }
     }
     BoxWithConstraints(modifier.padding(10.dp)) {
-        val availableHeight = maxHeight
+        // Keep map context visible, including while the keyboard reduces the viewport.
+        val panelHeight = minOf(320.dp, maxHeight * 0.65f)
         Column(Modifier.align(Alignment.TopEnd).widthIn(max = 560.dp)
             .fillMaxWidth(),
             horizontalAlignment = Alignment.End) {
@@ -135,7 +135,7 @@ import kotlinx.coroutines.withContext
                 }
                 }
             } else Surface(shape = MaterialTheme.shapes.medium, color = MaterialTheme.colorScheme.surface,
-                modifier = Modifier.heightIn(max = availableHeight)
+                modifier = Modifier.heightIn(max = panelHeight)
                     .onGloballyPositioned { spotlight.bounds = it.boundsInWindow() }
                     .semantics { paneTitle = "Térkép keresése"; dismiss { close(); true } }) {
                 Column {
@@ -192,18 +192,13 @@ import kotlinx.coroutines.withContext
                                 TextButton(onClick = onRefresh, enabled = !refreshing,
                                     modifier = Modifier.padding(horizontal = 12.dp)) { Text("Újrapróbálás") }
                             }
-                            items(if (allMatches) matches else matches.take(3), key = { "vehicle:${it.id}" }) { vehicle ->
+                            items(matches, key = { "vehicle:${it.id}" }) { vehicle ->
                                 SearchResult(vehicle.name,
                                     listOf(vehicle.headsign, vehicle.modelAndRegistration).filter { it.isNotBlank() }.joinToString(" · "),
                                     modifier = Modifier.animateItem(fadeInSpec = tween(AppMotion.Feedback),
                                         placementSpec = tween(AppMotion.Reveal, easing = AppMotion.Arrival), fadeOutSpec = tween(AppMotion.Dismiss)),
                                     icon = { StationSearchIcon(Station(vehicle.id, vehicle.name, vehicle.lat, vehicle.lon, modes = listOf(vehicle.mode)), decorative = true) },
                                     select = { close(); onVehicle(vehicle) })
-                            }
-                            if (matches.size > 3) item {
-                                TextButton(onClick = { allMatches = !allMatches }, modifier = Modifier.padding(horizontal = 12.dp)) {
-                                    Text(if (allMatches) "Kevesebb jármű" else "Mind a ${matches.size} jármű")
-                                }
                             }
                             if (stops.isNotEmpty() || loading || failed) item(key = "stops-heading") {
                                 SearchHeading("Megállók és állomások", if (loading || failed) null else stops.size)
