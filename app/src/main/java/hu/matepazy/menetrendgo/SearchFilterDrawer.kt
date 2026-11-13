@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.ExpandMore
 import androidx.compose.material.icons.outlined.ExpandLess
@@ -21,6 +23,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
@@ -88,6 +92,7 @@ import androidx.compose.ui.unit.dp
     vehicles: Set<SearchVehicle> = emptySet(), toggleVehicle: (SearchVehicle) -> Unit = {},
     allVehicles: () -> Unit = {}) {
     var showDetails by rememberSaveable { mutableStateOf(false) }
+    var vehiclesOpen by rememberSaveable { mutableStateOf(false) }
     AppBottomSheet(onDismissRequest = dismiss,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
         shape = MaterialTheme.shapes.extraLarge) {
@@ -101,35 +106,25 @@ import androidx.compose.ui.unit.dp
                 val count = selected.size + if (vehicles.isEmpty()) 0 else 1
                 Text(if (count == 0) "Több feltételt is választhatsz." else "$count feltétel kiválasztva",
                     style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Column(Modifier.padding(top = 12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                        Text("Járművek", Modifier.weight(1f), style = MaterialTheme.typography.titleSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        TextButton(onClick = allVehicles, enabled = vehicles.isNotEmpty()) {
-                            Text("Mindegyik")
-                        }
-                    }
-                    Text("Legalább egy járműtípust hagyj bekapcsolva. A gyalogos szakaszok megmaradnak.",
-                        style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    SearchVehicle.entries.forEach { vehicle ->
-                        val checked = vehicles.isEmpty() || vehicle in vehicles
-                        val enabled = !checked || vehicles.size != 1
-                        Surface(shape = RoundedCornerShape(24.dp), color = MaterialTheme.colorScheme.surface) {
-                            Row(Modifier.fillMaxWidth().toggleable(checked, enabled = enabled, role = Role.Switch,
-                                onValueChange = { toggleVehicle(vehicle) })
-                                .heightIn(min = 72.dp).padding(16.dp), verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                                Image(painterResource(when (vehicle) {
-                                    SearchVehicle.Train -> R.drawable.ic_mode_rail
-                                    SearchVehicle.Coach -> R.drawable.ic_mode_coach
-                                    SearchVehicle.LocalBus -> R.drawable.ic_mode_local_bus
-                                    SearchVehicle.Hev -> R.drawable.ic_mode_hev
-                                    SearchVehicle.TramTrain -> R.drawable.ic_mode_tramtrain
-                                }), contentDescription = null, modifier = Modifier.requiredSize(40.dp))
-                                Text(vehicle.title, Modifier.weight(1f), style = MaterialTheme.typography.titleMedium)
-                                Switch(checked = checked, onCheckedChange = null, enabled = enabled)
+                val enabledVehicles = SearchVehicle.entries.filter { vehicles.isEmpty() || it in vehicles }
+                Surface(onClick = { vehiclesOpen = true }, shape = RoundedCornerShape(24.dp),
+                    color = MaterialTheme.colorScheme.surface,
+                    modifier = Modifier.fillMaxWidth().padding(top = 12.dp).semantics {
+                        stateDescription = "Kiválasztott járműtípusok: ${enabledVehicles.joinToString { it.title }}"
+                    }) {
+                    Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Text("Járművek", style = MaterialTheme.typography.titleMedium)
+                            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                enabledVehicles.forEach { vehicle ->
+                                    Image(painterResource(vehicle.searchPictogram()), contentDescription = null,
+                                        modifier = Modifier.size(28.dp))
+                                }
                             }
                         }
+                        Icon(Icons.Outlined.ChevronRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
                 listOf(
@@ -177,4 +172,60 @@ import androidx.compose.ui.unit.dp
             }
         }
     }
+    if (vehiclesOpen) {
+        SearchVehicleDrawer(vehicles, toggleVehicle, allVehicles) { vehiclesOpen = false }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable private fun SearchVehicleDrawer(vehicles: Set<SearchVehicle>, toggleVehicle: (SearchVehicle) -> Unit,
+    allVehicles: () -> Unit, dismiss: () -> Unit) {
+    AppBottomSheet(onDismissRequest = dismiss,
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+        shape = MaterialTheme.shapes.extraLarge) {
+        Column(Modifier.fillMaxWidth().navigationBarsPadding()) {
+            Row(Modifier.fillMaxWidth().padding(horizontal = AppLayout.SheetPadding),
+                verticalAlignment = Alignment.CenterVertically) {
+                IconButton(onClick = dismiss) {
+                    Icon(Icons.AutoMirrored.Outlined.ArrowBack, "Vissza a keresési feltételekhez")
+                }
+                Text("Járművek", Modifier.weight(1f), style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold)
+            }
+            Column(Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState())
+                .padding(horizontal = AppLayout.SheetPadding), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("Legalább egy járműtípust hagyj bekapcsolva. A gyalogos szakaszok megmaradnak.",
+                    style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                SearchVehicle.entries.forEach { vehicle ->
+                    val checked = vehicles.isEmpty() || vehicle in vehicles
+                    val enabled = !checked || vehicles.size != 1
+                    Surface(shape = RoundedCornerShape(24.dp), color = MaterialTheme.colorScheme.surface) {
+                        Row(Modifier.fillMaxWidth().toggleable(checked, enabled = enabled, role = Role.Switch,
+                            onValueChange = { toggleVehicle(vehicle) }).heightIn(min = 56.dp)
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                            Image(painterResource(vehicle.searchPictogram()), contentDescription = null,
+                                modifier = Modifier.size(28.dp))
+                            Text(vehicle.title, Modifier.weight(1f), style = MaterialTheme.typography.titleMedium)
+                            Switch(checked = checked, onCheckedChange = null, enabled = enabled)
+                        }
+                    }
+                }
+            }
+            Row(Modifier.fillMaxWidth().padding(AppLayout.SheetPadding),
+                horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                TextButton(onClick = allVehicles, enabled = vehicles.isNotEmpty()) { Text("Mindegyik") }
+                Button(onClick = dismiss, modifier = Modifier.weight(1f).heightIn(min = 52.dp)) { Text("Kész") }
+            }
+        }
+    }
+}
+
+private fun SearchVehicle.searchPictogram(): Int = when (this) {
+    SearchVehicle.Train -> R.drawable.ic_mode_rail
+    SearchVehicle.Coach -> R.drawable.ic_mode_coach
+    SearchVehicle.LocalBus -> R.drawable.ic_mode_local_bus
+    SearchVehicle.Hev -> R.drawable.ic_mode_hev
+    SearchVehicle.TramTrain -> R.drawable.ic_mode_tramtrain
 }
