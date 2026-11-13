@@ -305,6 +305,8 @@ private fun featherMask(top: Boolean, endY: Float=Float.POSITIVE_INFINITY)=
     val destinations = listOf(0 to "Tervezés", 1 to "Térkép") +
         (if (vm.passesEnabled) listOf(2 to "Bérletek") else emptyList()) + (3 to "Beállítások")
     val icons = listOf(Icons.Outlined.Search,Icons.Outlined.Map,Icons.Outlined.CreditCard,Icons.Outlined.Settings)
+    // Map Back previews need the destination's navigation and measured insets too.
+    @Composable fun NavigationFrame(mapScreen: Boolean, content: @Composable () -> Unit) {
     BoxWithConstraints(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         val wide = maxWidth >= 700.dp
         val largeFont=LocalDensity.current.fontScale>1.15f
@@ -350,7 +352,16 @@ private fun featherMask(top: Boolean, endY: Float=Float.POSITIVE_INFINITY)=
                     // The bar has a 6dp outer top margin; keep the feather below its surface edge.
                     FeatheredContent(enabled=tab!=1 && !mapScreen,bottomHeight=if(wide) 0.dp else (inset.calculateBottomPadding()-6.dp).coerceAtLeast(0.dp)) {
                     Box(Modifier.widthIn(max=if(mapScreen) Dp.Infinity else if(tab==1) 1600.dp else 760.dp).fillMaxSize()) {
-                        PredictiveBackPane(enabled=(page!="search" || tab!=0) && vm.mapVehicle==null,onBack=::back,preview={
+                        content()
+                    }
+                    }
+                    }
+                }
+            }
+        }
+    }
+    }
+    @Composable fun BackPreview() {
                             when {
                                 page=="vehicleMap" -> TripScreen(vm,tripId,tripDay,{},{})
                                 page=="routeMap" && selected!=null -> JourneyScreen(vm,selected!!,{},onTrip={},onMap={},refreshTransfers=false)
@@ -359,6 +370,12 @@ private fun featherMask(top: Boolean, endY: Float=Float.POSITIVE_INFINITY)=
                                 page=="journey" && journeyReturnPage=="results" -> ResultsScreen(vm,resultsNavigation,{},refreshDepartures=false) {}
                                 else -> SearchScreen(vm) {}
                             }
+    }
+    PredictiveBackPane(enabled=mapScreen && vm.mapVehicle==null,onBack=::back,
+        preview={ NavigationFrame(mapScreen=false) { BackPreview() } }) {
+        NavigationFrame(mapScreen) {
+                        PredictiveBackPane(enabled=!mapScreen && (page!="search" || tab!=0) && vm.mapVehicle==null,onBack=::back,preview={
+                            BackPreview()
                         }) {
                         ScreenArrival("$tab:$page",animate=!returning) {
                         when {
@@ -376,11 +393,6 @@ private fun featherMask(top: Boolean, endY: Float=Float.POSITIVE_INFINITY)=
                         }
                         }
                         }
-                    }
-                    }
-                    }
-                }
-            }
         }
     }
     if (vm.showPassesFeatureIntro && !vm.passesEnabled) {
