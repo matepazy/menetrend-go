@@ -45,7 +45,10 @@ class DepartureServiceDrawerTest {
                 val serviceDate = LocalDate.now(Budapest)
                 val midnight = serviceDate.atStartOfDay(Budapest).toEpochSecond()
                 val seconds = (now / 1000 - midnight + 600).toInt()
-                JSONObject().put("gtfsId", id).put("stoptimes", JSONArray().put(JSONObject()
+                JSONObject().put("gtfsId", id).put("vehiclePositions", JSONArray().put(JSONObject()
+                    .put("vehicleId", "test:vehicle").put("vehicleModel", "FLIRT").put("licensePlate", "415-001")
+                    .put("lastUpdated", now / 1000)))
+                    .put("stoptimes", JSONArray().put(JSONObject()
                     .put("serviceDay", midnight).put("scheduledArrival", seconds).put("scheduledDeparture", seconds)
                     .put("realtimeArrival", seconds + 60).put("realtimeDeparture", seconds + 60).put("realtime", live)
                     .put("stop", JSONObject().put("gtfsId", "end").put("name", "Menetrendi megálló"))))
@@ -54,7 +57,10 @@ class DepartureServiceDrawerTest {
         fun open() {
             compose.waitUntil(5000) { compose.onAllNodesWithText("Célállomás").fetchSemanticsNodes().isNotEmpty() }
             compose.onNodeWithText("Célállomás").performClick()
-            compose.waitUntil(5000) { compose.onAllNodesWithContentDescription("Járat részleteinek bezárása").fetchSemanticsNodes().isNotEmpty() }
+            compose.waitUntil(5000) {
+                compose.onAllNodes(hasContentDescription("Járat részleteinek bezárása") or
+                    hasContentDescription("Jármű részleteinek bezárása")).fetchSemanticsNodes().isNotEmpty()
+            }
         }
         fun assertBoard() {
             compose.onNodeWithContentDescription("Indulási tábla bezárása").assertIsDisplayed()
@@ -68,7 +74,12 @@ class DepartureServiceDrawerTest {
         assertBoard()
         compose.runOnIdle { live = true; dark = true }
         open()
-        compose.onNodeWithText("Élő követés · következő megállók").assertIsDisplayed()
+        compose.waitUntil(5000) { compose.onAllNodesWithContentDescription("Jármű részleteinek bezárása").fetchSemanticsNodes().isNotEmpty() }
+        compose.onNodeWithText("Élő követés · következő megállók").assertDoesNotExist()
+        compose.onNodeWithText("Menetrendi megálló → Menetrendi megálló").assertIsDisplayed()
+        compose.onNodeWithText("1 perc késés").assertIsDisplayed()
+        compose.onNodeWithText("FLIRT").assertHasClickAction()
+        compose.onNodeWithText("415-001").assertIsDisplayed()
         compose.onNodeWithText("Következő megálló").assertIsDisplayed()
         capture("departure-service-live-dark-large-phone")
         pressBack()
@@ -79,14 +90,15 @@ class DepartureServiceDrawerTest {
         compose.onNodeWithText("Teszt kapcsolati hiba").assertIsDisplayed()
         compose.runOnIdle { fail = false }
         compose.onNodeWithText("Újrapróbálás").performClick()
+        compose.waitUntil(5000) { compose.onAllNodesWithContentDescription("Jármű részleteinek bezárása").fetchSemanticsNodes().isNotEmpty() }
         compose.onNodeWithText("Menetrendi megálló").assertIsDisplayed()
-        compose.onNodeWithText("Élő követés · következő megállók").performTouchInput { swipeDown(startY = centerY, endY = centerY + 1100f) }
+        compose.onNodeWithText("Menetrendi megálló → Menetrendi megálló").performTouchInput { swipeDown(startY = centerY, endY = centerY + 1100f) }
         compose.waitForIdle()
         // Dismiss using the handle area if the first drag was consumed by content.
-        if (compose.onAllNodesWithContentDescription("Járat részleteinek bezárása").fetchSemanticsNodes().isNotEmpty()) {
-            compose.onNodeWithContentDescription("Járat részleteinek bezárása").performTouchInput { swipeDown(endY = 1800f) }
+        if (compose.onAllNodesWithContentDescription("Jármű részleteinek bezárása").fetchSemanticsNodes().isNotEmpty()) {
+            compose.onNodeWithContentDescription("Jármű részleteinek bezárása").performTouchInput { swipeDown(endY = 1800f) }
         }
-        compose.waitUntil(5000) { compose.onAllNodesWithContentDescription("Járat részleteinek bezárása").fetchSemanticsNodes().isEmpty() }
+        compose.waitUntil(5000) { compose.onAllNodesWithContentDescription("Jármű részleteinek bezárása").fetchSemanticsNodes().isEmpty() }
         assertBoard()
         compose.runOnIdle { assertTrue(requests.all { it == "test:trip|2026-10-31" }) }
     }

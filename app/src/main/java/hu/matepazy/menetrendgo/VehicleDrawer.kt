@@ -128,6 +128,19 @@ internal fun vehicleStopPlatform(platform: String, mode: String): String = when(
     }
     LaunchedEffect(Unit) {while(true) {now=System.currentTimeMillis();delay(15_000)}}
     val detail=vm.detail?.takeIf {it.optString("gtfsId")==vehicle.id}
+    VehicleDrawer(vehicle, detail, day, now, vm.detailError, {vm.loadTrip(vehicle.id,day)}, dismiss)
+}
+
+/** Shared presentation for map selections and independently loaded stop-board departures. */
+@Composable internal fun VehicleDrawer(
+    vehicle: Vehicle,
+    detail: JSONObject?,
+    day: String,
+    now: Long,
+    error: String?,
+    retry: () -> Unit,
+    dismiss: () -> Unit,
+) {
     val stops=remember(detail,day) {detail?.let {vehicleStops(it,day)}.orEmpty()}
     val upcoming=upcomingVehicleStops(stops,now,detail,vehicle)
     val showUicCode=vehicle.mode!="RAIL" && vehicle.uicCode.isNotBlank()
@@ -166,10 +179,10 @@ internal fun vehicleStopPlatform(platform: String, mode: String): String = when(
             Spacer(Modifier.height(AppLayout.SheetPadding))
             // A failed refresh keeps the stops already shown; only a first load without data shows the full error.
             when {
-                detail==null && vm.detailError!=null -> InfoPanel("A megállók nem tölthetők be",vm.detailError!!) {vm.loadTrip(vehicle.id,day)}
+                detail==null && error!=null -> InfoPanel("A megállók nem tölthetők be",error,retry)
                 detail==null -> LinearProgressIndicator(Modifier.fillMaxWidth())
                 else -> {
-                    vm.detailError?.let {RefreshFailure {vm.loadTrip(vehicle.id,day)}}
+                    error?.let {RefreshFailure(retry)}
                     if(upcoming.isEmpty()) Text(if(stops.isEmpty()) "Nincs elérhető megállóadat." else "Nincs további várható megálló a menetrendben.",
                         modifier=Modifier.padding(bottom=24.dp))
                     else LazyColumn(Modifier.weight(1f),contentPadding=PaddingValues(bottom=24.dp)) {

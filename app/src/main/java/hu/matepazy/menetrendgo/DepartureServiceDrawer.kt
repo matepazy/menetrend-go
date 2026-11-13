@@ -58,10 +58,21 @@ import org.json.JSONObject
         detail?.let { vehicleStops(it, departure.serviceDay) }.orEmpty()
     }
     val live = !departure.cancelled && stops.any { it.realtime }
-    val vehicle = remember(departure.key) {
-        Vehicle(departure.tripId, departure.leg.route, departure.headsign, departure.leg.mode, 0.0, 0.0)
+    val vehicle = remember(departure, detail) {
+        val position = detail?.array("vehiclePositions")?.singleOrNull()
+        Vehicle(departure.tripId, departure.leg.route, departure.headsign, departure.leg.mode, 0.0, 0.0,
+            routeColor = departure.leg.routeColor, category = departure.leg.category,
+            routeLongName = departure.leg.routeLongName, routeLogo = departure.leg.routeLogo,
+            agencyName = departure.leg.agencyName,
+            model = position?.optString("vehicleModel")?.takeUnless { it == "null" }.orEmpty(),
+            registration = position?.optString("licensePlate")?.takeUnless { it == "null" }.orEmpty(),
+            vehicleId = position?.optString("vehicleId")?.takeUnless { it == "null" }.orEmpty(),
+            positionUpdatedSeconds = position?.optLong("lastUpdated")?.takeIf { it > 0 })
     }
-    val visibleStops = if (live) upcomingVehicleStops(stops, now, detail, vehicle) else stops
+    if (live) {
+        VehicleDrawer(vehicle, detail, departure.serviceDay, now, error, { refresh++ }, dismiss)
+        return
+    }
     AppBottomSheet(onDismissRequest = dismiss) {
         Column(Modifier.fillMaxWidth().fillMaxHeight(.85f).padding(horizontal = AppLayout.SheetPadding)) {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
@@ -73,7 +84,6 @@ import org.json.JSONObject
             Text(when {
                 departure.cancelled -> "Kimaradó járat · tervezett menetrend"
                 detail == null -> "Járatadatok betöltése"
-                live -> "Élő követés · következő megállók"
                 else -> "Tervezett menetrend · ${departure.serviceDay}"
             }, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(top = AppLayout.CompactGap, bottom = AppLayout.ItemGap))
@@ -83,28 +93,26 @@ import org.json.JSONObject
                 error?.let { message -> item {
                     InfoPanel("A járat adatai nem tölthetők be", message) { refresh++ }
                 } }
-                if (detail != null && !live && !departure.cancelled) item {
+                if (detail != null && !departure.cancelled) item {
                     Text("Ehhez a járathoz most nincs élő megállóadat.",
                         style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
-                if (detail != null && visibleStops.isEmpty()) item {
-                    Text(if (stops.isEmpty()) "Nincs elérhető megállóadat." else "Nincs további várható megálló a menetrendben.")
+                if (detail != null && stops.isEmpty()) item {
+                    Text("Nincs elérhető megállóadat.")
                 }
-                itemsIndexed(visibleStops) { index, stop ->
+                itemsIndexed(stops) { _, stop ->
                     Surface(shape = MaterialTheme.shapes.medium,
-                        color = if (live && index == 0) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface) {
+                        color = MaterialTheme.colorScheme.surface) {
                         Row(Modifier.fillMaxWidth().padding(AppLayout.ItemGap),
                             horizontalArrangement = Arrangement.spacedBy(AppLayout.RelatedGap)) {
                             Column(Modifier.width(with(LocalDensity.current) { 72.sp.toDp() })) {
-                                ScheduledTime(ServiceTime(stop.scheduled, stop.arrival, live && stop.realtime),
+                                ScheduledTime(ServiceTime(stop.scheduled, stop.arrival, false),
                                     style = MaterialTheme.typography.titleMedium)
                             }
                             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(AppLayout.LabelGap)) {
-                                if (live && index == 0) Text("Következő megálló", style = MaterialTheme.typography.labelMedium)
                                 Text(stop.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
                                 if (stop.platform.isNotBlank() && stop.platform != "null")
                                     Text("Vágány / kocsiállás: ${stop.platform}", style = MaterialTheme.typography.bodySmall)
-                                if (live && !stop.realtime) Text("Menetrendi érkezés", style = MaterialTheme.typography.bodySmall)
                             }
                         }
                     }
