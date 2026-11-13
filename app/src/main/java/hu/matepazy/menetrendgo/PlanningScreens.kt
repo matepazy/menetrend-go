@@ -240,7 +240,7 @@ private class RouteMarkBounds { var box by mutableStateOf<Rect?>(null); var a by
                             stateDescription=if(vm.searchConditionCount == 0) "Nincs aktív feltétel" else "${vm.searchConditionCount} aktív feltétel"
                         }) {
                         BadgedBox(badge={if(vm.searchConditionCount > 0) Badge {Text(vm.searchConditionCount.toString())}}) {
-                            Icon(Icons.Outlined.Settings,"Keresési feltételek")
+                            Icon(Icons.Outlined.FilterList,"Keresési feltételek")
                         }
                     }
                     Box(Modifier.weight(1f)) {MainButton("Járatok keresése",Icons.Outlined.Search,vm.from!=null && vm.to!=null && vm.from!=vm.to,onSearch)}
