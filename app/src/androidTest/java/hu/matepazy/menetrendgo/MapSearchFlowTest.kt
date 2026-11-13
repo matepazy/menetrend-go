@@ -22,6 +22,7 @@ class MapSearchFlowTest {
     private var vehiclePicks = 0
     private var stopPicks = 0
     private var pickedStop: Station? = null
+    private var selectedVehicle by mutableStateOf<Vehicle?>(null)
 
     private fun show(search: suspend (String) -> List<Station> = { listOf(station) },
                      cached: suspend (String) -> List<Station> = { emptyList() }, theme: String = "light") {
@@ -34,7 +35,9 @@ class MapSearchFlowTest {
                         MapSearch(query, { query = it }, false, {}, focused = focused,
                             onFocusChange = { focused = it }, vehicles = listOf(vehicle),
                             searchStops = search, cachedStops = cached,
-                            onVehicle = { vehiclePicks++ }, onStop = { stopPicks++; pickedStop = it })
+                            selectedVehicleName = selectedVehicle?.name,
+                            onClearSelection = { selectedVehicle = null },
+                            onVehicle = { vehiclePicks++; selectedVehicle = it }, onStop = { stopPicks++; pickedStop = it })
                     }
                 }
             }
@@ -62,6 +65,15 @@ class MapSearchFlowTest {
         assertEquals(0, stopPicks)
         compose.onNodeWithText("IC 70").performClick()
         assertEquals(1, vehiclePicks)
+        compose.onNodeWithText("IC 70").assertIsDisplayed()
+        compose.onNodeWithContentDescription("Keresés törlése").assertIsDisplayed()
+        assertEquals(vehicle, selectedVehicle)
+        capture("selected-vehicle")
+        compose.onNodeWithText("IC 70").performClick()
+        compose.onNodeWithContentDescription("Keresés bezárása").performClick()
+        assertEquals(vehicle, selectedVehicle)
+        compose.onNodeWithContentDescription("Keresés törlése").performClick()
+        compose.runOnIdle { assertNull(selectedVehicle) }
         compose.onNodeWithContentDescription("Keresés a térképen").assertIsDisplayed()
     }
 

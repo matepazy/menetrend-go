@@ -4,6 +4,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -42,6 +43,7 @@ import kotlinx.coroutines.withContext
     vehicles: List<Vehicle> = emptyList(), vehicleError: String? = null,
     cachedStops: suspend (String) -> List<Station> = { emptyList() },
     searchStops: suspend (String) -> List<Station> = { emptyList() },
+    selectedVehicleName: String? = null, onClearSelection: () -> Unit = {},
     onVehicle: (Vehicle) -> Unit = {}, onStop: (Station) -> Unit = {}
 ) {
     var expanded by rememberSaveable { mutableStateOf(false) }
@@ -107,10 +109,30 @@ import kotlinx.coroutines.withContext
                         })
                 }, label = "Map search expansion") { open ->
             if (!open) {
+                if (selectedVehicleName != null) {
+                    Surface(shape = MaterialTheme.shapes.medium, color = MaterialTheme.colorScheme.surface,
+                        modifier = Modifier.padding(start = 56.dp)) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Row(Modifier.weight(1f).heightIn(min = 48.dp)
+                                .clickable(onClickLabel = "Keresés a térképen") { expanded = true; onFocusChange(true) }
+                                .padding(horizontal = AppLayout.RelatedGap, vertical = AppLayout.CompactGap),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(AppLayout.RelatedGap)) {
+                                Icon(Icons.Outlined.Search, null, Modifier.size(24.dp))
+                                Text(selectedVehicleName, style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.SemiBold)
+                            }
+                            IconButton(onClick = { onQuery(""); onClearSelection() }, modifier = Modifier.size(48.dp)) {
+                                Icon(Icons.Outlined.Close, "Keresés törlése", Modifier.size(20.dp))
+                            }
+                        }
+                    }
+                } else {
                 Surface(shape = CircleShape, color = MaterialTheme.colorScheme.surface) {
                     IconButton(onClick = { expanded = true; onFocusChange(true) }, modifier = Modifier.size(48.dp)) {
                         Icon(Icons.Outlined.Search, "Keresés a térképen")
                     }
+                }
                 }
             } else Surface(shape = MaterialTheme.shapes.medium, color = MaterialTheme.colorScheme.surface,
                 modifier = Modifier.heightIn(max = availableHeight)
@@ -141,7 +163,9 @@ import kotlinx.coroutines.withContext
                                 editor()
                             } })
                         }
-                        if (query.isNotEmpty()) IconButton(onClick = { onQuery(""); onFocusChange(true) },
+                        if (query.isNotEmpty() || selectedVehicleName != null) IconButton(onClick = {
+                            onQuery(""); onClearSelection(); onFocusChange(true)
+                        },
                             modifier = Modifier.padding(start = AppLayout.CompactGap).size(48.dp)) {
                             Icon(Icons.Outlined.Close, "Keresés törlése", Modifier.size(20.dp),
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -220,6 +244,10 @@ import kotlinx.coroutines.withContext
         }
     }
 }
+
+/** A missing selected position must not reveal unrelated vehicles during a feed refresh. */
+internal fun mapSearchVehicles(vehicles: List<Vehicle>, selectedId: String?): List<Vehicle> =
+    if (selectedId == null) vehicles else vehicles.filter { it.id == selectedId }
 
 /** Town aggregates have no departure board. Keep exact provider identities for real stops. */
 internal fun mapSearchStops(stations: List<Station>): List<Station> = stations.filter {

@@ -88,6 +88,8 @@ import kotlinx.coroutines.withContext
     val onSelect by rememberUpdatedState<(Vehicle) -> Unit>({vehicle -> vm.loadTrip(vehicle.id,java.time.LocalDate.now(Budapest).toString());selectedVehicle=vehicle})
     var mapTypesOpen by rememberSaveable {mutableStateOf(false)}
     var searchQuery by rememberSaveable {mutableStateOf("")}
+    var searchVehicleId by rememberSaveable {mutableStateOf<String?>(null)}
+    var searchVehicleName by rememberSaveable {mutableStateOf<String?>(null)}
     var searchFocused by rememberSaveable {mutableStateOf(false)}
     var stopViewport by remember {mutableStateOf<Triple<Double,Double,Int>?>(null)}
     var mapStops by remember {mutableStateOf<List<Station>>(emptyList())}
@@ -114,12 +116,12 @@ import kotlinx.coroutines.withContext
         if(routeOnly) vm.vehicles else mapLayerVehicles(vm.vehicles,vm.vehicleFilters)
     }
     val stationSearch=remember(context,stopClient) {StationSearch(context,stopClient::stations)}
-    val visibleVehicles=remember(routeOnly,journey,focusedId,allVehicles,vm.vehicleUpdated) {
+    val visibleVehicles=remember(routeOnly,journey,focusedId,allVehicles,vm.vehicleUpdated,searchVehicleId) {
         when {
             routeOnly && focusedId!=null -> vehicleForTrip(vm.vehicles,focusedId)
             routeOnly && journey!=null -> routeVehicles(journey,vm.vehicles,System.currentTimeMillis())
             routeOnly -> emptyList()
-            else -> allVehicles
+            else -> mapSearchVehicles(allVehicles,searchVehicleId)
         }
     }
     val currentVehicles by rememberUpdatedState(visibleVehicles)
@@ -306,7 +308,11 @@ import kotlinx.coroutines.withContext
                 focused=searchFocused,onFocusChange={searchFocused=it},
                 vehicles=allVehicles,vehicleError=vm.vehicleError,
                 cachedStops=stationSearch::cached,searchStops=stationSearch::search,
+                selectedVehicleName=searchVehicleName,
+                onClearSelection={searchVehicleId=null;searchVehicleName=null},
                 onVehicle={vehicle ->
+                    searchVehicleId=vehicle.id
+                    searchVehicleName=vehicle.name
                     mapSurface?.call("centerOn",vehicle.lat,vehicle.lon)
                     onSelect(vehicle)
                 },
