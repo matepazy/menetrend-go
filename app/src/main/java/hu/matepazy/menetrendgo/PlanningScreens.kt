@@ -488,7 +488,7 @@ private class SwipeAction(val icon: ImageVector, val description: String, val co
     }
 }
 
-@Composable private fun StationSearchIcon(station: Station) {
+@Composable internal fun StationSearchIcon(station: Station, decorative: Boolean = false) {
     val town = station.type == "MetaStation" || station.name.endsWith('*')
     // Reuse the full-color mode pictograms bundled for the mode filters.
     // A town groups several stops; absent mode data must not imply a vehicle type.
@@ -503,7 +503,7 @@ private class SwipeAction(val icon: ImageVector, val description: String, val co
         else -> null
     }
     if (drawable != null) {
-        Image(painterResource(drawable), contentDescription = when (drawable) {
+        Image(painterResource(drawable), contentDescription = if (decorative) null else when (drawable) {
             R.drawable.ic_mode_tramtrain -> "TramTrain-megálló"
             R.drawable.ic_mode_hev -> "HÉV-megálló"
             R.drawable.ic_mode_rail -> "Vasútállomás"
@@ -514,7 +514,7 @@ private class SwipeAction(val icon: ImageVector, val description: String, val co
     } else {
         Box(Modifier.size(28.dp), contentAlignment = Alignment.Center) {
             Icon(if (town) Icons.Outlined.LocationCity else Icons.Outlined.LocationOn,
-                if (town) "Település összes megállója" else null,
+                if (town && !decorative) "Település összes megállója" else null,
                 Modifier.size(22.dp), tint = MaterialTheme.colorScheme.primary)
         }
     }

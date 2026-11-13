@@ -50,6 +50,7 @@ import kotlinx.coroutines.withContext
     TransportMap(vm,null,tripId,routeOnly=true,back=back)
 
 /** Shared map renderer. A route screen never requests the user's location or loads unrelated markers. */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable private fun TransportMap(vm: AppState, journey: Journey?, focusedId: String?, routeOnly: Boolean, back: () -> Unit={}) {
     val context=LocalContext.current
     val tracking by JourneyTracking.state.collectAsStateWithLifecycle()
@@ -112,20 +113,13 @@ import kotlinx.coroutines.withContext
     val allVehicles=remember(vm.vehicles,routeOnly,vm.vehicleFilters) {
         if(routeOnly) vm.vehicles else mapLayerVehicles(vm.vehicles,vm.vehicleFilters)
     }
-    val search=remember(allVehicles) {VehicleSearch(allVehicles)}
-    val filteredVehicles by produceState(
-        initialValue=if(searchQuery.isBlank()) allVehicles else emptyList(),
-        allVehicles,searchQuery,routeOnly
-    ) {
-        value=if(routeOnly || searchQuery.isBlank()) allVehicles
-            else withContext(Dispatchers.Default) {search.filter(searchQuery)}
-    }
-    val visibleVehicles=remember(routeOnly,journey,focusedId,allVehicles,vm.vehicleUpdated,searchQuery,filteredVehicles) {
+    val stationSearch=remember(context,stopClient) {StationSearch(context,stopClient::stations)}
+    val visibleVehicles=remember(routeOnly,journey,focusedId,allVehicles,vm.vehicleUpdated) {
         when {
             routeOnly && focusedId!=null -> vehicleForTrip(vm.vehicles,focusedId)
             routeOnly && journey!=null -> routeVehicles(journey,vm.vehicles,System.currentTimeMillis())
             routeOnly -> emptyList()
-            else -> if(searchQuery.isBlank()) allVehicles else filteredVehicles
+            else -> allVehicles
         }
     }
     val currentVehicles by rememberUpdatedState(visibleVehicles)
@@ -306,8 +300,21 @@ import kotlinx.coroutines.withContext
             }
             MapSearch(searchQuery,{searchQuery=it},refreshing=vm.vehiclesLoading,
                 onRefresh={scope.launch {vm.refreshVehicles(forceRefresh=true)}},
-                modifier=Modifier.align(Alignment.TopEnd).padding(top=topInset).fillMaxWidth(),
-                focused=searchFocused,onFocusChange={searchFocused=it})
+                modifier=Modifier.align(Alignment.TopEnd).padding(top=topInset)
+                    .padding(bottom=if(WindowInsets.isImeVisible) 0.dp else LocalBottomOverlayInset.current)
+                    .imePadding().fillMaxWidth(),
+                focused=searchFocused,onFocusChange={searchFocused=it},
+                vehicles=allVehicles,vehicleError=vm.vehicleError,
+                cachedStops=stationSearch::cached,searchStops=stationSearch::search,
+                onVehicle={vehicle ->
+                    mapSurface?.call("centerOn",vehicle.lat,vehicle.lon)
+                    onSelect(vehicle)
+                },
+                onStop={station ->
+                    mapSurface?.call("centerOn",station.lat,station.lon)
+                    selectedStop=station
+                    scope.launch {stationSearch.selected(station)}
+                })
         }
             if(!routeOnly && (center==null || !locationVisible)) FilledTonalIconButton(onClick={
                 if(allowed) {recenter=true;if(center==null) locationMessage="Várakozás a helymeghatározásra. Ellenőrizd, hogy be van-e kapcsolva."}

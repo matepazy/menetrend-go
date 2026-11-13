@@ -13,6 +13,7 @@ internal class VehicleSearch(private val vehicles: List<Vehicle>) {
     fun filter(query: String): List<Vehicle> {
         if (query.isBlank()) return vehicles
         val terms = stationSearchKey(query).split(' ').map(::vehicleSearchKey).filter { it.isNotEmpty() }
+        if (terms.isEmpty()) return emptyList()
         return entries.filter { (_, fields) -> terms.all { term -> fields.any { term in it } } }.map { it.first }
     }
 }

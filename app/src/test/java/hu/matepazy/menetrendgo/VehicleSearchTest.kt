@@ -29,5 +29,6 @@ class VehicleSearchTest {
     @Test fun emptyQueryRestoresAllVehiclesAndUnknownQueryMatchesNothing() {
         assertEquals(listOf(train, bus), search.filter("  "))
         assertTrue(search.filter("nincsilyen").isEmpty())
+        assertTrue(search.filter("---").isEmpty())
     }
 }
