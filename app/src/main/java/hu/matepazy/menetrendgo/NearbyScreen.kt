@@ -86,7 +86,6 @@ import kotlinx.coroutines.withContext
     var selectedVehicle by vm::mapVehicle
     val onSelect by rememberUpdatedState<(Vehicle) -> Unit>({vehicle -> vm.loadTrip(vehicle.id,java.time.LocalDate.now(Budapest).toString());selectedVehicle=vehicle})
     var mapTypesOpen by rememberSaveable {mutableStateOf(false)}
-    var filtersOpen by rememberSaveable {mutableStateOf(false)}
     var searchQuery by rememberSaveable {mutableStateOf("")}
     var searchFocused by rememberSaveable {mutableStateOf(false)}
     var stopViewport by remember {mutableStateOf<Triple<Double,Double,Int>?>(null)}
@@ -300,12 +299,7 @@ import kotlinx.coroutines.withContext
                 verticalArrangement=Arrangement.spacedBy(AppLayout.CompactGap)) {
                 Surface(shape=androidx.compose.foundation.shape.CircleShape,color=MaterialTheme.colorScheme.surface) {
                     IconButton(onClick={mapTypesOpen=true},enabled=!searchFocused,modifier=Modifier.size(48.dp)) {
-                        Icon(Icons.Outlined.Layers,"Térképtípus")
-                    }
-                }
-                Surface(shape=androidx.compose.foundation.shape.CircleShape,color=MaterialTheme.colorScheme.surface) {
-                    IconButton(onClick={filtersOpen=true},enabled=!searchFocused,modifier=Modifier.size(48.dp)) {
-                        Icon(Icons.Outlined.Tune,"Járműszűrők")
+                        Icon(Icons.Outlined.Layers,"Térképrétegek")
                     }
                 }
             }
@@ -333,7 +327,6 @@ import kotlinx.coroutines.withContext
             }
         }
         if(mapTypesOpen) MapTypeDrawer(vm) {mapTypesOpen=false}
-        if(filtersOpen) MapFilterDrawer(vm) {filtersOpen=false}
         selectedStop?.let {StopBoardDrawer(it, dismiss={selectedStop=null})}
         selectedVehicle?.let {selected -> VehicleDrawer(vm,currentVehicles.firstOrNull {it.id==selected.id} ?: selected) {selectedVehicle=null}}
         SnackbarHost(snackbars,Modifier.align(Alignment.BottomCenter).padding(bottom=LocalBottomOverlayInset.current+12.dp))

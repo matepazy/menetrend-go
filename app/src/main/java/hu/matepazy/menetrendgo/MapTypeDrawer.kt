@@ -11,6 +11,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -19,15 +20,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable fun MapTypeDrawer(vm: AppState, dismiss: () -> Unit) {
     var draft by rememberSaveable { mutableStateOf(vm.customMapUrl) }
     var attempted by rememberSaveable { mutableStateOf(false) }
+    var filtersOpen by rememberSaveable { mutableStateOf(false) }
+    val scrollState = rememberScrollState()
     val valid = validMapTileUrl(draft.trim())
     fun apply() {
         attempted = true
@@ -36,13 +41,14 @@ import androidx.compose.ui.unit.dp
     AppBottomSheet(onDismissRequest = dismiss,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
         shape = MaterialTheme.shapes.extraLarge) {
-        Column(Modifier.fillMaxWidth().navigationBarsPadding().verticalScroll(rememberScrollState())
+        Column(Modifier.fillMaxWidth().navigationBarsPadding().verticalScroll(scrollState)
             .padding(horizontal = AppLayout.SheetPadding).padding(bottom = 24.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)) {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                Text("Térképtípus", Modifier.weight(1f), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
-                IconButton(onClick = dismiss) { Icon(Icons.Outlined.Close, "Térképtípus bezárása") }
+                Text("Térképrétegek", Modifier.weight(1f), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+                IconButton(onClick = dismiss) { Icon(Icons.Outlined.Close, "Térképrétegek bezárása") }
             }
+            Text("Térképtípus", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
             Column(Modifier.selectableGroup(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 MapType.entries.filter { it != MapType.Custom || (vm.customMapEnabled && validMapTileUrl(vm.customMapUrl)) }.forEach { type ->
                     val selected = vm.effectiveMapType == type
@@ -81,7 +87,38 @@ import androidx.compose.ui.unit.dp
                     style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Button(onClick = { apply() }, modifier = Modifier.fillMaxWidth()) { Text("Saját térkép használata") }
             }
+            MapStopsToggle(vm)
+            val enabledFilters = MapVehicleFilter.entries.filter { it in vm.vehicleFilters }
+            Surface(onClick = { filtersOpen = true }, shape = RoundedCornerShape(24.dp),
+                color = MaterialTheme.colorScheme.surface,
+                modifier = Modifier.fillMaxWidth().semantics {
+                    stateDescription = if (enabledFilters.isEmpty()) "Nincs megjelenített járműtípus"
+                        else "Megjelenített járműtípusok: ${enabledFilters.joinToString { it.title }}"
+                }) {
+                Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(AppLayout.ItemGap)) {
+                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(AppLayout.RelatedGap)) {
+                        Text("Járműszűrők", style = MaterialTheme.typography.titleMedium)
+                        if (enabledFilters.isEmpty()) {
+                            Text("Nincs megjelenített járműtípus", style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        } else FlowRow(horizontalArrangement = Arrangement.spacedBy(AppLayout.CompactGap),
+                            verticalArrangement = Arrangement.spacedBy(AppLayout.CompactGap)) {
+                            enabledFilters.forEach { filter ->
+                                Image(painterResource(filter.pictogram()), contentDescription = null,
+                                    modifier = Modifier.size(40.dp))
+                            }
+                        }
+                    }
+                    Icon(Icons.Outlined.ChevronRight, null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            }
         }
+    }
+    // Keep the layer sheet mounted beneath the modal vehicle-filter sheet.
+    if (filtersOpen) {
+        MapFilterDrawer(vm) { filtersOpen = false }
     }
 }
 
@@ -94,21 +131,8 @@ import androidx.compose.ui.unit.dp
             .padding(horizontal = AppLayout.SheetPadding).padding(bottom = 24.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)) {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                IconButton(onClick = dismiss) { Icon(Icons.AutoMirrored.Outlined.ArrowBack, "Vissza a térképrétegekhez") }
                 Text("Járműszűrők", Modifier.weight(1f), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
-                IconButton(onClick = dismiss) { Icon(Icons.Outlined.Close, "Járműszűrők bezárása") }
-            }
-            Surface(shape = RoundedCornerShape(24.dp), color = MaterialTheme.colorScheme.surface) {
-                Row(Modifier.fillMaxWidth().toggleable(vm.showMapStops, role = Role.Switch,
-                    onValueChange = vm::chooseMapStops).heightIn(min = 72.dp).padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                    Icon(Icons.Outlined.LocationOn, null, tint = MaterialTheme.colorScheme.primary)
-                    Column(Modifier.weight(1f)) {
-                        Text("Megállók és állomások", style = MaterialTheme.typography.titleMedium)
-                        Text("Indulási tábla a jelölőre koppintva. Nagyíts a megállókhoz.", style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                    Switch(vm.showMapStops, onCheckedChange = null)
-                }
             }
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 MapVehicleFilter.entries.forEach { filter ->
@@ -119,14 +143,7 @@ import androidx.compose.ui.unit.dp
                             verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                             // Keep the mode identity visible in both switch states. The native
                             // switch, rather than a change of category color, communicates selection.
-                            Image(painterResource(when (filter) {
-                                MapVehicleFilter.Rail -> R.drawable.ic_mode_rail
-                                MapVehicleFilter.Coach -> R.drawable.ic_mode_coach
-                                MapVehicleFilter.LocalBus -> R.drawable.ic_mode_local_bus
-                                MapVehicleFilter.SuburbanRailway -> R.drawable.ic_mode_hev
-                                MapVehicleFilter.TramTrain -> R.drawable.ic_mode_tramtrain
-                                MapVehicleFilter.ReplacementBus -> R.drawable.ic_mode_replacement_bus
-                            }), contentDescription = null, modifier = Modifier.size(40.dp))
+                            Image(painterResource(filter.pictogram()), contentDescription = null, modifier = Modifier.size(40.dp))
                             Text(filter.title, Modifier.weight(1f), style = MaterialTheme.typography.titleMedium)
                             Switch(checked = checked, onCheckedChange = null)
                         }
@@ -135,4 +152,29 @@ import androidx.compose.ui.unit.dp
             }
         }
     }
+}
+
+@Composable private fun MapStopsToggle(vm: AppState) {
+    Surface(shape = RoundedCornerShape(24.dp), color = MaterialTheme.colorScheme.surface) {
+        Row(Modifier.fillMaxWidth().toggleable(vm.showMapStops, role = Role.Switch,
+            onValueChange = vm::chooseMapStops).heightIn(min = 72.dp).padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+            Icon(Icons.Outlined.LocationOn, null, tint = MaterialTheme.colorScheme.primary)
+            Column(Modifier.weight(1f)) {
+                Text("Megállók és állomások", style = MaterialTheme.typography.titleMedium)
+                Text("Indulási tábla a jelölőre koppintva. Nagyíts a megállókhoz.", style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            Switch(vm.showMapStops, onCheckedChange = null)
+        }
+    }
+}
+
+private fun MapVehicleFilter.pictogram(): Int = when (this) {
+    MapVehicleFilter.Rail -> R.drawable.ic_mode_rail
+    MapVehicleFilter.Coach -> R.drawable.ic_mode_coach
+    MapVehicleFilter.LocalBus -> R.drawable.ic_mode_local_bus
+    MapVehicleFilter.SuburbanRailway -> R.drawable.ic_mode_hev
+    MapVehicleFilter.TramTrain -> R.drawable.ic_mode_tramtrain
+    MapVehicleFilter.ReplacementBus -> R.drawable.ic_mode_replacement_bus
 }
