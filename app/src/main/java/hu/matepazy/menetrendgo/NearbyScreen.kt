@@ -56,8 +56,8 @@ import kotlinx.coroutines.withContext
     val bottomInset=LocalBottomOverlayInset.current.value
     val topInset=WindowInsets.safeDrawing.asPaddingValues().calculateTopPadding()
     val mapColors=MaterialTheme.colorScheme
-    val featherColor=mapColors.background.toArgb()
-    val mapTheme = listOf(featherColor,mapColors.surface.toArgb(),mapColors.onSurface.toArgb(),mapColors.primary.toArgb())
+    val groundColor=mapColors.background.toArgb()
+    val mapTheme = listOf(groundColor,mapColors.surface.toArgb(),mapColors.onSurface.toArgb(),mapColors.primary.toArgb())
     val googleMap = vm.effectiveMapType.usesGoogleMaps
     var mapSurface by remember {mutableStateOf<TransportMapSurface?>(null)}
     var ready by remember {mutableStateOf(false)}
@@ -204,8 +204,8 @@ import kotlinx.coroutines.withContext
         if(ready) mapSurface?.call("setMapType",vm.effectiveMapType.id,vm.customMapUrl)
     }
     LaunchedEffect(ready,bottomInset) {if(ready) mapSurface?.call("setBottomInset",bottomInset)}
-    LaunchedEffect(ready,topInset,featherColor) {
-        if(ready) mapSurface?.call("setTopInset",topInset.value,featherColor,android.os.Build.VERSION.SDK_INT>=31)
+    LaunchedEffect(ready,topInset) {
+        if(ready) mapSurface?.call("setTopInset",topInset.value)
     }
     LaunchedEffect(ready,center,recenter) {
         val position=center
@@ -277,7 +277,7 @@ import kotlinx.coroutines.withContext
                             if(mapSurface !== surface)return
                             view.evaluateJavascript("window.setVehicleMotionEnabled(${android.animation.ValueAnimator.areAnimatorsEnabled()});",null)
                             view.evaluateJavascript("window.setAppTheme(${mapTheme.joinToString()});",null)
-                            view.evaluateJavascript("window.resizeMap && window.resizeMap();window.setBottomInset($bottomInset);window.setTopInset(${topInset.value},$featherColor,${android.os.Build.VERSION.SDK_INT>=31});",null)
+                            view.evaluateJavascript("window.resizeMap && window.resizeMap();window.setBottomInset($bottomInset);window.setTopInset(${topInset.value});",null)
                             ready=true
                         }
                         override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
