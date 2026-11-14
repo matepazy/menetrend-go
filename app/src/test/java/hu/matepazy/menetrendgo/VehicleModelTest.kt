@@ -6,6 +6,54 @@ import org.junit.Test
 import java.io.File
 
 class VehicleModelTest {
+    @Test fun standingCapacityRequiresAnExplicitSourceAndKeepsUnknownsOutOfTheSheet() {
+        val json = Moshi.Builder().build()
+        @Suppress("UNCHECKED_CAST")
+        val catalog = json.adapter(List::class.java)
+            .fromJson(File("src/main/assets/vehicle_models/catalog.json").readText()) as List<Map<String, Any>>
+        @Suppress("UNCHECKED_CAST")
+        val research = json.adapter(Map::class.java)
+            .fromJson(File("../research/fleet/bus-standing.json").readText()) as Map<String, Any>
+        @Suppress("UNCHECKED_CAST")
+        val records = research["records"] as List<Map<String, Any>>
+        val buses = catalog.filter { row -> (row["specifications"] as List<*>)
+            .any { (it as Map<*, *>)["label"] == "Utasülőhelyek" } }
+        assertEquals(buses.map { it["id"] }.toSet(), records.map { it["id"] }.toSet())
+        assertEquals(buses.size, records.size)
+        for (bus in catalog) {
+            val fields = (bus["specifications"] as List<*>).map { it as Map<*, *> }
+            val standing = fields.filter { it["label"] == "Állóhelyek" }
+            val record = records.singleOrNull { it["id"] == bus["id"] }
+            if (record?.get("status") == "verified") {
+                assertEquals(1, standing.size)
+                assertEquals(record["value"], standing.single()["value"])
+                assertEquals("explicit-standing-count", record["basis"])
+                val counts = record["standingPassengers"] as List<*>
+                assertTrue(counts.isNotEmpty())
+                assertTrue(counts.all { (it as Number).toInt() in 0..200 })
+                assertTrue(record["value"].toString().contains("("))
+                assertTrue(record["scope"].toString().isNotBlank())
+                val urls = listOf(record["url"]) + (record["additionalSources"] as List<*>)
+                assertTrue(urls.all { url -> (bus["sources"] as List<*>)
+                    .any { (it as Map<*, *>)["url"] == url } })
+                assertEquals(fields.indexOfFirst { it["label"] == "Utasülőhelyek" } + 1,
+                    fields.indexOf(standing.single()))
+            } else {
+                assertTrue("${bus["id"]}: unknown standing capacity must be omitted", standing.isEmpty())
+                if (record != null) {
+                    assertEquals("unverified", record["status"])
+                    assertTrue((record["standingPassengers"] as List<*>).isEmpty())
+                }
+            }
+        }
+        fun value(id: String) = records.single { it["id"] == id }["value"].toString()
+        assertTrue("A manufacturer minimum must not become a maximum", value("econell12").startsWith("Legalább 47"))
+        assertTrue("Retain the manufacturer's standing density", value("econell12next").contains("5 fő/m²"))
+        assertTrue(value("volvohybrid").contains("46 fő (7700H)"))
+        assertTrue(value("volvohybrid").contains("48 fő (7900H)"))
+        assertTrue("Folding seat cannot increase the stated total", value("en95").contains("78 utas"))
+    }
+
     @Test fun busSeatingKeepsItsSourceAndConfigurationScope() {
         val json = Moshi.Builder().build()
         @Suppress("UNCHECKED_CAST")

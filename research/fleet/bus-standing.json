@@ -1,0 +1,980 @@
+{
+  "reviewedOn": "2026-11-14",
+  "definition": "Only explicit standing-passenger counts are published, with their operator/configuration, minimum or density qualification. Driver, wheelchair spaces and folding seats are not standing places. Different layout maxima are not automatically additive. Unknown counts are omitted, never replaced by zero or inferred as total minus seats.",
+  "records": [
+    {
+      "id": "econell12",
+      "title": "Credo Econell 12",
+      "status": "verified",
+      "standingPassengers": [
+        47
+      ],
+      "value": "Legalább 47 fő (2018-as gyári adatlap)",
+      "url": "https://credobus.hu/archive/wp-content/uploads/2018/02/2018-02-27-Credobus-Econell-12-m%C5%B1szaki-adatlap-hun.pdf",
+      "additionalSources": [],
+      "scope": "Manufacturer2018 Econell12 sheet explicitly minimum47standing with maximum43+1seated. Preserve minimum qualifier, not a universal maximum.",
+      "basis": "explicit-standing-count",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "econell12next",
+      "title": "Credobus Econell 12 Next",
+      "status": "verified",
+      "standingPassengers": [
+        40
+      ],
+      "value": "40 fő (gyári kivitel, 5 fő/m²-rel számolva)",
+      "url": "https://credobus.hu/modellvalasztek/econell-12-next/",
+      "additionalSources": [],
+      "scope": "Manufacturer explicitly40standing at5persons/m²,43passenger seats plus1driver. Wheelchair place not added to standing.",
+      "basis": "explicit-standing-count",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "econell18next",
+      "title": "Credobus Econell 18 Next",
+      "status": "verified",
+      "standingPassengers": [
+        70
+      ],
+      "value": "70 fő (gyári kivitel, 5 fő/m²-rel számolva)",
+      "url": "https://credobus.hu/modellvalasztek/econell-18-next/",
+      "additionalSources": [],
+      "scope": "Manufacturer explicitly70standing at5persons/m²,56passenger seats plus1driver. Wheelchair place not added to standing.",
+      "basis": "explicit-standing-count",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "inovell",
+      "title": "Credo Inovell 12",
+      "status": "unverified",
+      "standingPassengers": [],
+      "reviewedOn": "2026-11-14",
+      "scope": "No explicit standing count verified for a configuration represented by this seating entry. Omitted from the app. Total minus seated capacity and a coach body style do not establish a standing count or zero."
+    },
+    {
+      "id": "ec12",
+      "title": "Credo EC 12",
+      "status": "unverified",
+      "standingPassengers": [],
+      "reviewedOn": "2026-11-14",
+      "scope": "No explicit standing count verified for a configuration represented by this seating entry. Omitted from the app. Total minus seated capacity and a coach body style do not establish a standing count or zero."
+    },
+    {
+      "id": "ec11",
+      "title": "Credo EC 11",
+      "status": "unverified",
+      "standingPassengers": [],
+      "reviewedOn": "2026-11-14",
+      "scope": "No explicit standing count verified for a configuration represented by this seating entry. Omitted from the app. Total minus seated capacity and a coach body style do not establish a standing count or zero."
+    },
+    {
+      "id": "ic12",
+      "title": "Credo IC 12",
+      "status": "unverified",
+      "standingPassengers": [],
+      "reviewedOn": "2026-11-14",
+      "scope": "No explicit standing count verified for a configuration represented by this seating entry. Omitted from the app. Total minus seated capacity and a coach body style do not establish a standing count or zero."
+    },
+    {
+      "id": "lh12",
+      "title": "Credo LH 12",
+      "status": "unverified",
+      "standingPassengers": [],
+      "reviewedOn": "2026-11-14",
+      "scope": "No explicit standing count verified for a configuration represented by this seating entry. Omitted from the app. Total minus seated capacity and a coach body style do not establish a standing count or zero."
+    },
+    {
+      "id": "bn12",
+      "title": "Credo BN 12",
+      "status": "unverified",
+      "standingPassengers": [],
+      "reviewedOn": "2026-11-14",
+      "scope": "No explicit standing count verified for a configuration represented by this seating entry. Omitted from the app. Total minus seated capacity and a coach body style do not establish a standing count or zero."
+    },
+    {
+      "id": "bn18",
+      "title": "Credo BN 18",
+      "status": "unverified",
+      "standingPassengers": [],
+      "reviewedOn": "2026-11-14",
+      "scope": "No explicit standing count verified for a configuration represented by this seating entry. Omitted from the app. Total minus seated capacity and a coach body style do not establish a standing count or zero."
+    },
+    {
+      "id": "en12",
+      "title": "Credo EN 12",
+      "status": "unverified",
+      "standingPassengers": [],
+      "reviewedOn": "2026-11-14",
+      "scope": "No explicit standing count verified for a configuration represented by this seating entry. Omitted from the app. Total minus seated capacity and a coach body style do not establish a standing count or zero."
+    },
+    {
+      "id": "intouro",
+      "title": "Mercedes-Benz Intouro",
+      "status": "unverified",
+      "standingPassengers": [],
+      "reviewedOn": "2026-11-14",
+      "scope": "No explicit standing count verified for a configuration represented by this seating entry. Omitted from the app. Total minus seated capacity and a coach body style do not establish a standing count or zero."
+    },
+    {
+      "id": "intourom",
+      "title": "Mercedes-Benz Intouro M",
+      "status": "unverified",
+      "standingPassengers": [],
+      "reviewedOn": "2026-11-14",
+      "scope": "No explicit standing count verified for a configuration represented by this seating entry. Omitted from the app. Total minus seated capacity and a coach body style do not establish a standing count or zero."
+    },
+    {
+      "id": "tourismo",
+      "title": "Mercedes-Benz Tourismo",
+      "status": "unverified",
+      "standingPassengers": [],
+      "reviewedOn": "2026-11-14",
+      "scope": "No explicit standing count verified for a configuration represented by this seating entry. Omitted from the app. Total minus seated capacity and a coach body style do not establish a standing count or zero."
+    },
+    {
+      "id": "tourismorh",
+      "title": "Mercedes-Benz Tourismo RH",
+      "status": "unverified",
+      "standingPassengers": [],
+      "reviewedOn": "2026-11-14",
+      "scope": "No explicit standing count verified for a configuration represented by this seating entry. Omitted from the app. Total minus seated capacity and a coach body style do not establish a standing count or zero."
+    },
+    {
+      "id": "tourismol",
+      "title": "Mercedes-Benz Tourismo L",
+      "status": "unverified",
+      "standingPassengers": [],
+      "reviewedOn": "2026-11-14",
+      "scope": "No explicit standing count verified for a configuration represented by this seating entry. Omitted from the app. Total minus seated capacity and a coach body style do not establish a standing count or zero."
+    },
+    {
+      "id": "conecto",
+      "title": "Mercedes-Benz Conecto",
+      "status": "unverified",
+      "standingPassengers": [],
+      "reviewedOn": "2026-11-14",
+      "scope": "No explicit standing count verified for a configuration represented by this seating entry. Omitted from the app. Total minus seated capacity and a coach body style do not establish a standing count or zero."
+    },
+    {
+      "id": "conectog",
+      "title": "Mercedes-Benz O345G Conecto",
+      "status": "unverified",
+      "standingPassengers": [],
+      "reviewedOn": "2026-11-14",
+      "scope": "No explicit standing count verified for a configuration represented by this seating entry. Omitted from the app. Total minus seated capacity and a coach body style do not establish a standing count or zero."
+    },
+    {
+      "id": "sprinter",
+      "title": "Mercedes-Benz Sprinter",
+      "status": "unverified",
+      "standingPassengers": [],
+      "reviewedOn": "2026-11-14",
+      "scope": "No explicit standing count verified for a configuration represented by this seating entry. Omitted from the app. Total minus seated capacity and a coach body style do not establish a standing count or zero."
+    },
+    {
+      "id": "mana23",
+      "title": "MAN Lion’s City G A23",
+      "status": "verified",
+      "standingPassengers": [
+        55
+      ],
+      "value": "55 fő (2021-es VOLÁN-kivitel, példa)",
+      "url": "https://megallo.mavcsoport.hu/hirvonal/folyamatosan-erkeznek-volanbuszhoz-tavaly-ev-vegen-megrendelt-man-csuklos-autobuszok",
+      "additionalSources": [],
+      "scope": "Operator2021 A23 release explicitly51seated55standing.",
+      "basis": "explicit-standing-count",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "man12g",
+      "title": "MAN Lion’s City 12 G",
+      "status": "unverified",
+      "standingPassengers": [],
+      "reviewedOn": "2026-11-14",
+      "scope": "No explicit standing count verified for a configuration represented by this seating entry. Omitted from the app. Total minus seated capacity and a coach body style do not establish a standing count or zero."
+    },
+    {
+      "id": "mana21",
+      "title": "MAN Lion’s City A21",
+      "status": "verified",
+      "standingPassengers": [
+        71
+      ],
+      "value": "71 fő (miskolci NL223-kivitel, példa)",
+      "url": "https://mvkzrt.hu/az-mvk-rol/rolunk/jarmuallomany",
+      "additionalSources": [],
+      "scope": "MVK dieselA21 NL223 entry explicitly29seated71standing.",
+      "basis": "explicit-standing-count",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "mana78",
+      "title": "MAN Lion’s City A78",
+      "status": "unverified",
+      "standingPassengers": [],
+      "reviewedOn": "2026-11-14",
+      "scope": "No explicit standing count verified for a configuration represented by this seating entry. Omitted from the app. Total minus seated capacity and a coach body style do not establish a standing count or zero."
+    },
+    {
+      "id": "manclassic",
+      "title": "MAN Lion’s Classic",
+      "status": "unverified",
+      "standingPassengers": [],
+      "reviewedOn": "2026-11-14",
+      "scope": "No explicit standing count verified for a configuration represented by this seating entry. Omitted from the app. Total minus seated capacity and a coach body style do not establish a standing count or zero."
+    },
+    {
+      "id": "manregio",
+      "title": "MAN Lion’s Regio",
+      "status": "unverified",
+      "standingPassengers": [],
+      "reviewedOn": "2026-11-14",
+      "scope": "No explicit standing count verified for a configuration represented by this seating entry. Omitted from the app. Total minus seated capacity and a coach body style do not establish a standing count or zero."
+    },
+    {
+      "id": "manul",
+      "title": "MAN ÜL 313/353",
+      "status": "verified",
+      "standingPassengers": [
+        20
+      ],
+      "value": "20 fő (torinói ÜL 313, példa)",
+      "url": "https://www.tplitalia.it/GTT/Documenti/SchedeTecnicheGTT-2017.pdf",
+      "additionalSources": [],
+      "scope": "GTT original2017 sheetIL03 p53:54posti a sedere,20posti in piedi,1service place.",
+      "basis": "explicit-standing-count",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "mancoach",
+      "title": "MAN Lion’s Coach",
+      "status": "unverified",
+      "standingPassengers": [],
+      "reviewedOn": "2026-11-14",
+      "scope": "No explicit standing count verified for a configuration represented by this seating entry. Omitted from the app. Total minus seated capacity and a coach body style do not establish a standing count or zero."
+    },
+    {
+      "id": "mancoachl",
+      "title": "MAN Lion’s Coach L",
+      "status": "unverified",
+      "standingPassengers": [],
+      "reviewedOn": "2026-11-14",
+      "scope": "No explicit standing count verified for a configuration represented by this seating entry. Omitted from the app. Total minus seated capacity and a coach body style do not establish a standing count or zero."
+    },
+    {
+      "id": "volvo8900",
+      "title": "Volvo 8900",
+      "status": "unverified",
+      "standingPassengers": [],
+      "reviewedOn": "2026-11-14",
+      "scope": "No explicit standing count verified for a configuration represented by this seating entry. Omitted from the app. Total minus seated capacity and a coach body style do not establish a standing count or zero."
+    },
+    {
+      "id": "volvo8700",
+      "title": "Volvo 8700",
+      "status": "unverified",
+      "standingPassengers": [],
+      "reviewedOn": "2026-11-14",
+      "scope": "No explicit standing count verified for a configuration represented by this seating entry. Omitted from the app. Total minus seated capacity and a coach body style do not establish a standing count or zero."
+    },
+    {
+      "id": "volvo9700",
+      "title": "Volvo 9700",
+      "status": "unverified",
+      "standingPassengers": [],
+      "reviewedOn": "2026-11-14",
+      "scope": "No explicit standing count verified for a configuration represented by this seating entry. Omitted from the app. Total minus seated capacity and a coach body style do not establish a standing count or zero."
+    },
+    {
+      "id": "volvo7900a",
+      "title": "Volvo 7900A",
+      "status": "unverified",
+      "standingPassengers": [],
+      "reviewedOn": "2026-11-14",
+      "scope": "No explicit standing count verified for a configuration represented by this seating entry. Omitted from the app. Total minus seated capacity and a coach body style do not establish a standing count or zero."
+    },
+    {
+      "id": "volvo7700a",
+      "title": "Volvo 7700A",
+      "status": "unverified",
+      "standingPassengers": [],
+      "reviewedOn": "2026-11-14",
+      "scope": "No explicit standing count verified for a configuration represented by this seating entry. Omitted from the app. Total minus seated capacity and a coach body style do not establish a standing count or zero."
+    },
+    {
+      "id": "volvo7700",
+      "title": "Volvo 7700",
+      "status": "verified",
+      "standingPassengers": [
+        57
+      ],
+      "value": "57 fő (BKV-kivitel, példa)",
+      "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/volvo-7700",
+      "additionalSources": [],
+      "scope": "BKV vehicle sheet explicitly labels Állóhely separately from seats, total and wheelchair places. Same named configuration as the seating entry.",
+      "basis": "explicit-standing-count",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "volvo8500",
+      "title": "Volvo–Säffle 8500",
+      "status": "unverified",
+      "standingPassengers": [],
+      "reviewedOn": "2026-11-14",
+      "scope": "No explicit standing count verified for a configuration represented by this seating entry. Omitted from the app. Total minus seated capacity and a coach body style do not establish a standing count or zero."
+    },
+    {
+      "id": "alfaregio",
+      "title": "Volvo–Alfa Regio",
+      "status": "unverified",
+      "standingPassengers": [],
+      "reviewedOn": "2026-11-14",
+      "scope": "No explicit standing count verified for a configuration represented by this seating entry. Omitted from the app. Total minus seated capacity and a coach body style do not establish a standing count or zero."
+    },
+    {
+      "id": "reform",
+      "title": "ITE Reform 501 LE",
+      "status": "verified",
+      "standingPassengers": [
+        30
+      ],
+      "value": "30 fő (2022-es VOLÁN-kivitel)",
+      "url": "https://megallo.mavcsoport.hu/hirvonal/hajdu-bihar-megyebe-megerkeztek-volanbusz-uj-buszai",
+      "additionalSources": [],
+      "scope": "Operator2022 Reform501LE delivery explicitly45seated30standing.",
+      "basis": "explicit-standing-count",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "tourliner",
+      "title": "Neoplan Tourliner",
+      "status": "unverified",
+      "standingPassengers": [],
+      "reviewedOn": "2026-11-14",
+      "scope": "No explicit standing count verified for a configuration represented by this seating entry. Omitted from the app. Total minus seated capacity and a coach body style do not establish a standing count or zero."
+    },
+    {
+      "id": "tourlinerl",
+      "title": "Neoplan Tourliner L",
+      "status": "unverified",
+      "standingPassengers": [],
+      "reviewedOn": "2026-11-14",
+      "scope": "No explicit standing count verified for a configuration represented by this seating entry. Omitted from the app. Total minus seated capacity and a coach body style do not establish a standing count or zero."
+    },
+    {
+      "id": "setra415le",
+      "title": "Setra S 415 LE",
+      "status": "verified",
+      "standingPassengers": [
+        42
+      ],
+      "value": "42 fő (2024-es dél-tiroli kivitel, példa)",
+      "url": "https://www.daimlertruck.com/en/newsroom/pressrelease/daimler-buses-delivers-265-setra-and-mercedes-benz-buses-to-private-south-tyrolean-bus-companies-52626856",
+      "additionalSources": [],
+      "scope": "Manufacturer SouthTyrol2024 S415LE delivery explicitly45seated42standing. Other Intouro counts in the same article are not transferred.",
+      "basis": "explicit-standing-count",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "setra315ul",
+      "title": "Setra S 315 UL",
+      "status": "verified",
+      "standingPassengers": [
+        27
+      ],
+      "value": "27 fő (torinói kivitel, példa)",
+      "url": "https://www.tplitalia.it/GTT/Documenti/SchedeTecnicheGTT-2017.pdf",
+      "additionalSources": [],
+      "scope": "GTT original2017 sheetIL02 p52:53passenger seats27standing1service place. Body and chassis identifiedS315UL, headingS315ULH.",
+      "basis": "explicit-standing-count",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "setra313ul",
+      "title": "Setra S 313 UL",
+      "status": "verified",
+      "standingPassengers": [
+        27
+      ],
+      "value": "27 fő (Marsico Nuovo FS974NM, példa)",
+      "url": "https://www.regione.basilicata.it/wp-content/uploads/giunta/docs/DOCUMENT_FILE_3071445.pdf",
+      "additionalSources": [],
+      "scope": "Basilicata original fleet census page9 row916 explicitly46posti a sedere27posti in piedi0wheelchair. Same FS974NM example as seating.",
+      "basis": "explicit-standing-count",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "setra516hd",
+      "title": "Setra S 516 HD",
+      "status": "unverified",
+      "standingPassengers": [],
+      "reviewedOn": "2026-11-14",
+      "scope": "No explicit standing count verified for a configuration represented by this seating entry. Omitted from the app. Total minus seated capacity and a coach body style do not establish a standing count or zero."
+    },
+    {
+      "id": "setra416",
+      "title": "Setra S 416 GT-HD",
+      "status": "unverified",
+      "standingPassengers": [],
+      "reviewedOn": "2026-11-14",
+      "scope": "No explicit standing count verified for a configuration represented by this seating entry. Omitted from the app. Total minus seated capacity and a coach body style do not establish a standing count or zero."
+    },
+    {
+      "id": "setra415hd",
+      "title": "Setra S 415 HD",
+      "status": "unverified",
+      "standingPassengers": [],
+      "reviewedOn": "2026-11-14",
+      "scope": "No explicit standing count verified for a configuration represented by this seating entry. Omitted from the app. Total minus seated capacity and a coach body style do not establish a standing count or zero."
+    },
+    {
+      "id": "crossway",
+      "title": "Irisbus Crossway",
+      "status": "verified",
+      "standingPassengers": [
+        26
+      ],
+      "value": "26 fő (torinói 12 m-es kivitel, példa)",
+      "url": "https://www.tplitalia.it/GTT/Documenti/SchedeTecnicheGTT-2017.pdf",
+      "additionalSources": [],
+      "scope": "GTT original2017 sheetIL08 p58 explicitly26standing in both wheelchair/no-wheelchair columns. Seating49 plus2folding or49. Published total row is inconsistent with component counts, so no summed capacity is displayed.",
+      "basis": "explicit-standing-count",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "evadys",
+      "title": "Irisbus Evadys HD",
+      "status": "unverified",
+      "standingPassengers": [],
+      "reviewedOn": "2026-11-14",
+      "scope": "No explicit standing count verified for a configuration represented by this seating entry. Omitted from the app. Total minus seated capacity and a coach body style do not establish a standing count or zero."
+    },
+    {
+      "id": "scaniatouring",
+      "title": "Scania Touring",
+      "status": "unverified",
+      "standingPassengers": [],
+      "reviewedOn": "2026-11-14",
+      "scope": "No explicit standing count verified for a configuration represented by this seating entry. Omitted from the app. Total minus seated capacity and a coach body style do not establish a standing count or zero."
+    },
+    {
+      "id": "omnia",
+      "title": "Scania OmniExpress",
+      "status": "unverified",
+      "standingPassengers": [],
+      "reviewedOn": "2026-11-14",
+      "scope": "No explicit standing count verified for a configuration represented by this seating entry. Omitted from the app. Total minus seated capacity and a coach body style do not establish a standing count or zero."
+    },
+    {
+      "id": "ikarus134",
+      "title": "Ikarus E134",
+      "status": "unverified",
+      "standingPassengers": [],
+      "reviewedOn": "2026-11-14",
+      "scope": "No explicit standing count verified for a configuration represented by this seating entry. Omitted from the app. Total minus seated capacity and a coach body style do not establish a standing count or zero."
+    },
+    {
+      "id": "ikarus127",
+      "title": "ARC 127 · Ikarus E127",
+      "status": "unverified",
+      "standingPassengers": [],
+      "reviewedOn": "2026-11-14",
+      "scope": "No explicit standing count verified for a configuration represented by this seating entry. Omitted from the app. Total minus seated capacity and a coach body style do not establish a standing count or zero."
+    },
+    {
+      "id": "ikarus395",
+      "title": "Ikarus EAG 395/E95",
+      "status": "unverified",
+      "standingPassengers": [],
+      "reviewedOn": "2026-11-14",
+      "scope": "No explicit standing count verified for a configuration represented by this seating entry. Omitted from the app. Total minus seated capacity and a coach body style do not establish a standing count or zero."
+    },
+    {
+      "id": "ikarus94",
+      "title": "Ikarus EAG E94",
+      "status": "unverified",
+      "standingPassengers": [],
+      "reviewedOn": "2026-11-14",
+      "scope": "No explicit standing count verified for a configuration represented by this seating entry. Omitted from the app. Total minus seated capacity and a coach body style do not establish a standing count or zero."
+    },
+    {
+      "id": "autosan",
+      "title": "Autosan A1012T Lider",
+      "status": "unverified",
+      "standingPassengers": [],
+      "reviewedOn": "2026-11-14",
+      "scope": "No explicit standing count verified for a configuration represented by this seating entry. Omitted from the app. Total minus seated capacity and a coach body style do not establish a standing count or zero."
+    },
+    {
+      "id": "irizar",
+      "title": "Irizar Century",
+      "status": "unverified",
+      "standingPassengers": [],
+      "reviewedOn": "2026-11-14",
+      "scope": "No explicit standing count verified for a configuration represented by this seating entry. Omitted from the app. Total minus seated capacity and a coach body style do not establish a standing count or zero."
+    },
+    {
+      "id": "nabi",
+      "title": "NABI 700SE",
+      "status": "unverified",
+      "standingPassengers": [],
+      "reviewedOn": "2026-11-14",
+      "scope": "No explicit standing count verified for a configuration represented by this seating entry. Omitted from the app. Total minus seated capacity and a coach body style do not establish a standing count or zero."
+    },
+    {
+      "id": "bydk9ud",
+      "title": "BYD K9UD",
+      "status": "verified",
+      "standingPassengers": [
+        47
+      ],
+      "value": "47 fő (miskolci, 35 üléses kivitel)",
+      "url": "https://mvkzrt.hu/az-mvk-rol/rolunk/jarmuallomany",
+      "additionalSources": [],
+      "scope": "MVK K9UD explicitly35seated47standing plus1wheelchair. This does not describe the separately cited34-seat Győr variant.",
+      "basis": "explicit-standing-count",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "bydb12",
+      "title": "BYD eBus B12",
+      "status": "unverified",
+      "standingPassengers": [],
+      "reviewedOn": "2026-11-14",
+      "scope": "No explicit standing count verified for a configuration represented by this seating entry. Omitted from the app. Total minus seated capacity and a coach body style do not establish a standing count or zero."
+    },
+    {
+      "id": "bydb19",
+      "title": "BYD eBus B19",
+      "status": "verified",
+      "standingPassengers": [
+        73
+      ],
+      "value": "73 fő (MVK B19-kivitel, példa)",
+      "url": "https://mvkzrt.hu/az-mvk-rol/rolunk/jarmuallomany",
+      "additionalSources": [],
+      "scope": "MVK B11U/eBusB19 explicitly48seated73standing plus1wheelchair. Not an Arriva Budapest count.",
+      "basis": "explicit-standing-count",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "en95",
+      "title": "Credo EN 9,5",
+      "status": "verified",
+      "standingPassengers": [
+        52
+      ],
+      "value": "52 fő (BKV-tesztkivitel, összesen legfeljebb 78 utas)",
+      "url": "https://www.bkv.hu/hu/korabbi_jarmutesztek/credo_en_95",
+      "additionalSources": [],
+      "scope": "BKV2010 explicitly52standing,26fixed plus1folding seat and78+1total including driver. The fold-down seat must not be added on top of the78-passenger limit. The source does not give another standing layout.",
+      "basis": "explicit-standing-count",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "ikarus120e",
+      "title": "Ikarus 120e",
+      "status": "unverified",
+      "standingPassengers": [],
+      "reviewedOn": "2026-11-14",
+      "scope": "No explicit standing count verified for a configuration represented by this seating entry. Omitted from the app. Total minus seated capacity and a coach body style do not establish a standing count or zero."
+    },
+    {
+      "id": "ikarusv127",
+      "title": "Ikarus V127",
+      "status": "unverified",
+      "standingPassengers": [],
+      "reviewedOn": "2026-11-14",
+      "scope": "No explicit standing count verified for a configuration represented by this seating entry. Omitted from the app. Total minus seated capacity and a coach body style do not establish a standing count or zero."
+    },
+    {
+      "id": "karsanatak",
+      "title": "Karsan ATAK",
+      "status": "verified",
+      "standingPassengers": [
+        18
+      ],
+      "value": "18 fő (BKV-kivitel, példa)",
+      "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/karsan-atak",
+      "additionalSources": [],
+      "scope": "BKV vehicle sheet explicitly labels Állóhely separately from seats, total and wheelchair places. Same named configuration as the seating entry.",
+      "basis": "explicit-standing-count",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "man10e",
+      "title": "MAN Lion’s City 10 E",
+      "status": "unverified",
+      "standingPassengers": [],
+      "reviewedOn": "2026-11-14",
+      "scope": "No explicit standing count verified for a configuration represented by this seating entry. Omitted from the app. Total minus seated capacity and a coach body style do not establish a standing count or zero."
+    },
+    {
+      "id": "man12c",
+      "title": "MAN Lion’s City 12 C",
+      "status": "unverified",
+      "standingPassengers": [],
+      "reviewedOn": "2026-11-14",
+      "scope": "No explicit standing count verified for a configuration represented by this seating entry. Omitted from the app. Total minus seated capacity and a coach body style do not establish a standing count or zero."
+    },
+    {
+      "id": "man12e",
+      "title": "MAN Lion’s City 12 E",
+      "status": "unverified",
+      "standingPassengers": [],
+      "reviewedOn": "2026-11-14",
+      "scope": "No explicit standing count verified for a configuration represented by this seating entry. Omitted from the app. Total minus seated capacity and a coach body style do not establish a standing count or zero."
+    },
+    {
+      "id": "man18e",
+      "title": "MAN Lion’s City 18 E",
+      "status": "unverified",
+      "standingPassengers": [],
+      "reviewedOn": "2026-11-14",
+      "scope": "No explicit standing count verified for a configuration represented by this seating entry. Omitted from the app. Total minus seated capacity and a coach body style do not establish a standing count or zero."
+    },
+    {
+      "id": "man18c",
+      "title": "MAN Lion’s City 18 C",
+      "status": "unverified",
+      "standingPassengers": [],
+      "reviewedOn": "2026-11-14",
+      "scope": "No explicit standing count verified for a configuration represented by this seating entry. Omitted from the app. Total minus seated capacity and a coach body style do not establish a standing count or zero."
+    },
+    {
+      "id": "mana21cng",
+      "title": "MAN Lion’s City A21 CNG",
+      "status": "verified",
+      "standingPassengers": [
+        54
+      ],
+      "value": "54 fő (miskolci kivitel, példa)",
+      "url": "https://mvkzrt.hu/az-mvk-rol/rolunk/jarmuallomany",
+      "additionalSources": [],
+      "scope": "MVK A21CNG explicitly31seated54standing plus1wheelchair place, not counted as standing.",
+      "basis": "explicit-standing-count",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "mana40cng",
+      "title": "MAN Lion’s City GL A40 CNG",
+      "status": "verified",
+      "standingPassengers": [
+        113
+      ],
+      "value": "113 fő (miskolci kivitel, példa)",
+      "url": "https://mvkzrt.hu/az-mvk-rol/rolunk/jarmuallomany",
+      "additionalSources": [],
+      "scope": "MVK A40CNG explicitly42seated113standing plus1wheelchair place, not counted as standing.",
+      "basis": "explicit-standing-count",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "citaro",
+      "title": "Mercedes-Benz O530 Citaro",
+      "status": "verified",
+      "standingPassengers": [
+        62,
+        77
+      ],
+      "value": "62 vagy 77 fő (BKV-kivitelek)",
+      "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/mercedes-benz-o530-citaro",
+      "additionalSources": [],
+      "scope": "BKV explicitly lists standing62or77 and seating26+1or32+1. Preserve published alternatives without inventing pairings.",
+      "basis": "explicit-standing-count",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "citarog",
+      "title": "Mercedes-Benz O530 Citaro G",
+      "status": "verified",
+      "standingPassengers": [
+        119
+      ],
+      "value": "119 fő (BKV-kivitel, példa)",
+      "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/mercedes-benz-o530-citaro-g",
+      "additionalSources": [],
+      "scope": "BKV vehicle sheet explicitly labels Állóhely separately from seats, total and wheelchair places. Same named configuration as the seating entry.",
+      "basis": "explicit-standing-count",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "citarok",
+      "title": "Mercedes-Benz O530 Citaro K",
+      "status": "verified",
+      "standingPassengers": [
+        57
+      ],
+      "value": "57 fő (BKV-kivitel, példa)",
+      "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/mercedes-benz-o530-citaro-k",
+      "additionalSources": [],
+      "scope": "BKV vehicle sheet explicitly labels Állóhely separately from seats, total and wheelchair places. Same named configuration as the seating entry.",
+      "basis": "explicit-standing-count",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "citaroc2",
+      "title": "Mercedes-Benz Citaro C2",
+      "status": "verified",
+      "standingPassengers": [
+        75
+      ],
+      "value": "75 fő (BKV-kivitel, példa)",
+      "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/mercedes-benz-citaro-c2",
+      "additionalSources": [],
+      "scope": "BKV vehicle sheet explicitly labels Állóhely separately from seats, total and wheelchair places. Same named configuration as the seating entry.",
+      "basis": "explicit-standing-count",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "citaroc2g",
+      "title": "Mercedes-Benz Citaro C2 G",
+      "status": "verified",
+      "standingPassengers": [
+        101
+      ],
+      "value": "101 fő (BKV-kivitel, példa)",
+      "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/mercedes-benz-citaro-g-c2",
+      "additionalSources": [],
+      "scope": "BKV vehicle sheet explicitly labels Állóhely separately from seats, total and wheelchair places. Same named configuration as the seating entry.",
+      "basis": "explicit-standing-count",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "citaroc2k",
+      "title": "Mercedes-Benz Citaro C2 K",
+      "status": "verified",
+      "standingPassengers": [
+        60
+      ],
+      "value": "60 fő (BKV-kivitel, példa)",
+      "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/mercedes-benz-citaro-c2-k",
+      "additionalSources": [],
+      "scope": "BKV vehicle sheet explicitly labels Állóhely separately from seats, total and wheelchair places. Same named configuration as the seating entry.",
+      "basis": "explicit-standing-count",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "conectolf",
+      "title": "Mercedes-Benz Conecto · alacsonypadlós",
+      "status": "verified",
+      "standingPassengers": [
+        62
+      ],
+      "value": "62 fő (BKV-kivitel, példa)",
+      "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/mercedes-benz-conecto",
+      "additionalSources": [],
+      "scope": "BKV vehicle sheet explicitly labels Állóhely separately from seats, total and wheelchair places. Same named configuration as the seating entry.",
+      "basis": "explicit-standing-count",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "conectoglf",
+      "title": "Mercedes-Benz Conecto G · alacsonypadlós",
+      "status": "verified",
+      "standingPassengers": [
+        100
+      ],
+      "value": "100 fő (BKV-kivitel, példa)",
+      "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/mercedes-benz-conecto-g",
+      "additionalSources": [],
+      "scope": "BKV vehicle sheet explicitly labels Állóhely separately from seats, total and wheelchair places. Same named configuration as the seating entry.",
+      "basis": "explicit-standing-count",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "conecto2",
+      "title": "Mercedes-Benz Conecto 2",
+      "status": "verified",
+      "standingPassengers": [
+        80
+      ],
+      "value": "80 fő (BKV-kivitel, példa)",
+      "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/mercedes-benz-conecto-2",
+      "additionalSources": [],
+      "scope": "BKV vehicle sheet explicitly labels Állóhely separately from seats, total and wheelchair places. Same named configuration as the seating entry.",
+      "basis": "explicit-standing-count",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "conecto2g",
+      "title": "Mercedes-Benz Conecto G 2",
+      "status": "verified",
+      "standingPassengers": [
+        113
+      ],
+      "value": "113 fő (BKV-kivitel, példa)",
+      "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/mercedes-benz-conecto-g-2",
+      "additionalSources": [],
+      "scope": "BKV vehicle sheet explicitly labels Állóhely separately from seats, total and wheelchair places. Same named configuration as the seating entry.",
+      "basis": "explicit-standing-count",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "moduloc68",
+      "title": "Modulo C68E",
+      "status": "verified",
+      "standingPassengers": [
+        33
+      ],
+      "value": "33 fő (BKV-kivitel, példa)",
+      "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/modulo-ep-080-es-c68e",
+      "additionalSources": [],
+      "scope": "BKV vehicle sheet explicitly labels Állóhely separately from seats, total and wheelchair places. Same named configuration as the seating entry.",
+      "basis": "explicit-standing-count",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "modulo108",
+      "title": "Modulo M108D",
+      "status": "verified",
+      "standingPassengers": [
+        78
+      ],
+      "value": "78 fő (BKV-kivitel, példa)",
+      "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/modulo-m108d",
+      "additionalSources": [],
+      "scope": "BKV vehicle sheet explicitly labels Állóhely separately from seats, total and wheelchair places. Same named configuration as the seating entry.",
+      "basis": "explicit-standing-count",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "modulo168",
+      "title": "Modulo M168D",
+      "status": "verified",
+      "standingPassengers": [
+        114
+      ],
+      "value": "114 fő (BKV-kivitel, példa)",
+      "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/modulo-m168d",
+      "additionalSources": [],
+      "scope": "BKV vehicle sheet explicitly labels Állóhely separately from seats, total and wheelchair places. Same named configuration as the seating entry.",
+      "basis": "explicit-standing-count",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "ecitaro",
+      "title": "Mercedes-Benz eCitaro",
+      "status": "verified",
+      "standingPassengers": [
+        50
+      ],
+      "value": "50 fő (2021-es VOLÁN-kivitel)",
+      "url": "https://megallo.mavcsoport.hu/hirvonal/indul-elektromos-autobuszok-probauzeme",
+      "additionalSources": [],
+      "scope": "Operator2021 eCitaro release explicitly28seated50standing.",
+      "basis": "explicit-standing-count",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "urbino12",
+      "title": "Solaris Urbino 12",
+      "status": "unverified",
+      "standingPassengers": [],
+      "reviewedOn": "2026-11-14",
+      "scope": "No explicit standing count verified for a configuration represented by this seating entry. Omitted from the app. Total minus seated capacity and a coach body style do not establish a standing count or zero."
+    },
+    {
+      "id": "urbino8",
+      "title": "Solaris Urbino 8,9 LE electric",
+      "status": "unverified",
+      "standingPassengers": [],
+      "reviewedOn": "2026-11-14",
+      "scope": "No explicit standing count verified for a configuration represented by this seating entry. Omitted from the app. Total minus seated capacity and a coach body style do not establish a standing count or zero."
+    },
+    {
+      "id": "vanhoolcng",
+      "title": "Van Hool New A330 CNG",
+      "status": "verified",
+      "standingPassengers": [
+        73
+      ],
+      "value": "73 fő (BKV-kivitel, példa)",
+      "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/van-hool-new-a330-cng",
+      "additionalSources": [],
+      "scope": "BKV vehicle sheet explicitly labels Állóhely separately from seats, total and wheelchair places. Same named configuration as the seating entry.",
+      "basis": "explicit-standing-count",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "vanhool",
+      "title": "Van Hool New A330",
+      "status": "verified",
+      "standingPassengers": [
+        79
+      ],
+      "value": "79 fő (BKV-kivitel, példa)",
+      "url": "https://www.bkv.hu/en/jarmuveink/autobusz/van-hool-new-a330",
+      "additionalSources": [],
+      "scope": "BKV vehicle sheet explicitly labels Állóhely separately from seats, total and wheelchair places. Same named configuration as the seating entry.",
+      "basis": "explicit-standing-count",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "volvohybrid",
+      "title": "Volvo 7700 / 7900 Hybrid",
+      "status": "verified",
+      "standingPassengers": [
+        46,
+        48
+      ],
+      "value": "46 fő (7700H), 48 fő (7900H), BKV-kivitelek",
+      "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/volvo-7700h",
+      "additionalSources": [
+        "https://www.bkv.hu/hu/jarmuveink/autobusz/volvo-7900h"
+      ],
+      "scope": "BKV separately gives7700H46standing and7900H48standing, both36passenger seats. Preserve the model association.",
+      "basis": "explicit-standing-count",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "localo",
+      "title": "Volvo-Alfa Localo",
+      "status": "unverified",
+      "standingPassengers": [],
+      "reviewedOn": "2026-11-14",
+      "scope": "No explicit standing count verified for a configuration represented by this seating entry. Omitted from the app. Total minus seated capacity and a coach body style do not establish a standing count or zero."
+    },
+    {
+      "id": "urbino12electric",
+      "title": "Solaris Urbino 12 electric",
+      "status": "unverified",
+      "standingPassengers": [],
+      "reviewedOn": "2026-11-14",
+      "scope": "No explicit standing count verified for a configuration represented by this seating entry. Omitted from the app. Total minus seated capacity and a coach body style do not establish a standing count or zero."
+    },
+    {
+      "id": "setra417ul",
+      "title": "Setra S 417 UL",
+      "status": "unverified",
+      "standingPassengers": [],
+      "reviewedOn": "2026-11-14",
+      "scope": "No explicit standing count verified for a configuration represented by this seating entry. Omitted from the app. Total minus seated capacity and a coach body style do not establish a standing count or zero."
+    },
+    {
+      "id": "setra419ul",
+      "title": "Setra S 419 UL",
+      "status": "unverified",
+      "standingPassengers": [],
+      "reviewedOn": "2026-11-14",
+      "scope": "No explicit standing count verified for a configuration represented by this seating entry. Omitted from the app. Total minus seated capacity and a coach body style do not establish a standing count or zero."
+    },
+    {
+      "id": "ikarusc56",
+      "title": "Ikarus C56",
+      "status": "unverified",
+      "standingPassengers": [],
+      "reviewedOn": "2026-11-14",
+      "scope": "No explicit standing count verified for a configuration represented by this seating entry. Omitted from the app. Total minus seated capacity and a coach body style do not establish a standing count or zero."
+    },
+    {
+      "id": "ikarusc80",
+      "title": "Ikarus C80",
+      "status": "unverified",
+      "standingPassengers": [],
+      "reviewedOn": "2026-11-14",
+      "scope": "No explicit standing count verified for a configuration represented by this seating entry. Omitted from the app. Total minus seated capacity and a coach body style do not establish a standing count or zero."
+    }
+  ]
+}

@@ -89,6 +89,7 @@ tasks.withType<Test>().configureEach {
     inputs.file("src/main/assets/vehicle_models/catalog.json")
     inputs.file(rootProject.file("research/fleet/backlog.json"))
     inputs.file(rootProject.file("research/fleet/bus-seating.json"))
+    inputs.file(rootProject.file("research/fleet/bus-standing.json"))
 }
 
 tasks.register<Copy>("exportReleaseApk") {

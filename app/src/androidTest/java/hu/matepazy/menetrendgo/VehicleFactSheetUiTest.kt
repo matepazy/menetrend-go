@@ -19,15 +19,17 @@ class VehicleFactSheetUiTest {
 
     @Test fun hevPhotoFactsSourcesAndBackWorkWithLargeDarkText() = inspect("HÉV MXA", "HEV", true)
     @Test fun busPhotoFactsAndSourcesRemainReadable() = inspect("Ikarus C56", "COACH", false)
-    @Test fun foldingSeatsAndScopeRemainReadableWithLargeDarkText() = inspect("Credo EN 9,5", "COACH", true)
+    @Test fun foldingSeatsAndScopeRemainReadableWithLargeDarkText() = inspect("Credo EN 9,5", "COACH", true, true)
+    @Test fun standingDensityAndSourcesRemainReadable() = inspect("Credobus Econell 12 Next", "COACH", false, true)
 
-    private fun inspect(model: String, mode: String, dark: Boolean) {
+    private fun inspect(model: String, mode: String, dark: Boolean, standingRequired: Boolean = false) {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         val context = instrumentation.targetContext
         val catalog = VehicleModelCatalog.load(context.assets)
         val profile = requireNotNull(findVehicleModel(catalog, model))
         assertEquals(1, profile.photos.size)
         assertTrue(profile.specifications.size >= 3)
+        if (standingRequired) assertTrue(profile.specifications.any { it.first == "Állóhelyek" })
         compose.setContent {
             MenetrendTheme(if (dark) "dark" else "light") {
                 CompositionLocalProvider(LocalDensity provides Density(LocalDensity.current.density, if (dark) 1.3f else 1f)) {
@@ -49,11 +51,13 @@ class VehicleFactSheetUiTest {
         scroll.performScrollToNode(hasText(profile.specifications.first().second))
         compose.onNodeWithText(profile.specifications.first().second).assertIsDisplayed()
         capture(profile.id, "facts")
-        profile.specifications.firstOrNull { it.first == "Utasülőhelyek" }?.let { seats ->
-            scroll.performScrollToNode(hasText(seats.second))
-            compose.onNodeWithText(seats.first).assertIsDisplayed()
-            compose.onNodeWithText(seats.second).assertIsDisplayed()
-            capture(profile.id, "seating")
+        listOf("Utasülőhelyek" to "seating", "Állóhelyek" to "standing").forEach { (label, state) ->
+            profile.specifications.firstOrNull { it.first == label }?.let { capacity ->
+                scroll.performScrollToNode(hasText(capacity.second))
+                compose.onNodeWithText(capacity.first).assertIsDisplayed()
+                compose.onNodeWithText(capacity.second).assertIsDisplayed()
+                capture(profile.id, state)
+            }
         }
         scroll.performScrollToNode(hasText("Érdekességek"))
         compose.onNodeWithText("Érdekességek").assertIsDisplayed()

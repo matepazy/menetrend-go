@@ -943,6 +943,10 @@
         "value": "Legfeljebb 43 fő (gyártói kivitel)"
       },
       {
+        "label": "Állóhelyek",
+        "value": "Legalább 47 fő (2018-as gyári adatlap)"
+      },
+      {
         "label": "Hajtás",
         "value": "Dízel"
       },
@@ -1012,6 +1016,10 @@
         "value": "43 fő (gyártói kivitel)"
       },
       {
+        "label": "Állóhelyek",
+        "value": "40 fő (gyári kivitel, 5 fő/m²-rel számolva)"
+      },
+      {
         "label": "Hajtás",
         "value": "Dízel"
       },
@@ -1066,6 +1074,10 @@
       {
         "label": "Utasülőhelyek",
         "value": "56 fő (gyártói kivitel)"
+      },
+      {
+        "label": "Állóhelyek",
+        "value": "70 fő (gyári kivitel, 5 fő/m²-rel számolva)"
       },
       {
         "label": "Hajtás",
@@ -2097,6 +2109,10 @@
         "value": "51 fő (2021-es VOLÁN-kivitel, példa)"
       },
       {
+        "label": "Állóhelyek",
+        "value": "55 fő (2021-es VOLÁN-kivitel, példa)"
+      },
+      {
         "label": "Hajtás",
         "value": "Dízel"
       },
@@ -2204,6 +2220,10 @@
       {
         "label": "Utasülőhelyek",
         "value": "29 fő (miskolci NL223-kivitel, példa)"
+      },
+      {
+        "label": "Állóhelyek",
+        "value": "71 fő (miskolci NL223-kivitel, példa)"
       },
       {
         "label": "Hajtás",
@@ -2436,6 +2456,10 @@
       {
         "label": "Utasülőhelyek",
         "value": "54 fő (torinói ÜL 313, példa)"
+      },
+      {
+        "label": "Állóhelyek",
+        "value": "20 fő (torinói ÜL 313, példa)"
       },
       {
         "label": "Hajtás",
@@ -2870,6 +2894,10 @@
       {
         "label": "Ülőhelyadat · bkv.hu",
         "url": "https://www.bkv.hu/de/volvo_7700_2013"
+      },
+      {
+        "label": "Állóhelyadat · bkv.hu",
+        "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/volvo-7700"
       }
     ],
     "photos": [
@@ -2896,6 +2924,10 @@
       {
         "label": "Utasülőhelyek",
         "value": "32 fő (BKV-kivitel, példa)"
+      },
+      {
+        "label": "Állóhelyek",
+        "value": "57 fő (BKV-kivitel, példa)"
       },
       {
         "label": "Hajtás",
@@ -3061,6 +3093,10 @@
       {
         "label": "Utasülőhelyek",
         "value": "45 fő (2022-es VOLÁN-kivitel)"
+      },
+      {
+        "label": "Állóhelyek",
+        "value": "30 fő (2022-es VOLÁN-kivitel)"
       },
       {
         "label": "Hajtás",
@@ -3240,6 +3276,10 @@
         "value": "45 fő (2024-es dél-tiroli kivitel, példa)"
       },
       {
+        "label": "Állóhelyek",
+        "value": "42 fő (2024-es dél-tiroli kivitel, példa)"
+      },
+      {
         "label": "Hajtás",
         "value": "Dízel"
       },
@@ -3303,6 +3343,10 @@
         "value": "53 fő (torinói kivitel, példa)"
       },
       {
+        "label": "Állóhelyek",
+        "value": "27 fő (torinói kivitel, példa)"
+      },
+      {
         "label": "Hajtás",
         "value": "Dízel"
       }
@@ -3356,6 +3400,10 @@
       {
         "label": "Utasülőhelyek",
         "value": "46 fő (Marsico Nuovo FS974NM, példa)"
+      },
+      {
+        "label": "Állóhelyek",
+        "value": "27 fő (Marsico Nuovo FS974NM, példa)"
       },
       {
         "label": "Hajtás",
@@ -3596,6 +3644,10 @@
       {
         "label": "Utasülőhelyek",
         "value": "49 fix + 2 lehajtható ülés (torinói 12 m-es, példa)"
+      },
+      {
+        "label": "Állóhelyek",
+        "value": "26 fő (torinói 12 m-es kivitel, példa)"
       },
       {
         "label": "Hajtás",
@@ -4213,6 +4265,10 @@
         "value": "34 fő (győri), 35 fő (miskolci kivitel)"
       },
       {
+        "label": "Állóhelyek",
+        "value": "47 fő (miskolci, 35 üléses kivitel)"
+      },
+      {
         "label": "Hajtás",
         "value": "Akkumulátoros villamos"
       },
@@ -4333,6 +4389,10 @@
         "value": "48 fő (MVK B19-kivitel, példa)"
       },
       {
+        "label": "Állóhelyek",
+        "value": "73 fő (MVK B19-kivitel, példa)"
+      },
+      {
         "label": "Hajtás",
         "value": "Akkumulátoros villamos"
       },
@@ -4383,6 +4443,10 @@
       {
         "label": "Utasülőhelyek",
         "value": "26 fix + 1 lehajtható ülés (BKV-tesztkivitel)"
+      },
+      {
+        "label": "Állóhelyek",
+        "value": "52 fő (BKV-tesztkivitel, összesen legfeljebb 78 utas)"
       },
       {
         "label": "Hajtás",
@@ -4559,6 +4623,10 @@
       {
         "label": "Utasülőhelyek",
         "value": "23 fő (BKV-kivitel, példa)"
+      },
+      {
+        "label": "Állóhelyek",
+        "value": "18 fő (BKV-kivitel, példa)"
       },
       {
         "label": "Hajtás",
@@ -4904,6 +4972,10 @@
         "value": "31 fő (miskolci kivitel, példa)"
       },
       {
+        "label": "Állóhelyek",
+        "value": "54 fő (miskolci kivitel, példa)"
+      },
+      {
         "label": "Hajtás",
         "value": "Sűrített földgáz (CNG)"
       },
@@ -4964,6 +5036,10 @@
         "value": "42 fő (miskolci kivitel, példa)"
       },
       {
+        "label": "Állóhelyek",
+        "value": "113 fő (miskolci kivitel, példa)"
+      },
+      {
         "label": "Hajtás",
         "value": "Sűrített földgáz (CNG)"
       },
@@ -5019,6 +5095,10 @@
       {
         "label": "Utasülőhelyek",
         "value": "26 vagy 32 fő (BKV-kivitelek)"
+      },
+      {
+        "label": "Állóhelyek",
+        "value": "62 vagy 77 fő (BKV-kivitelek)"
       },
       {
         "label": "Hajtás",
@@ -5082,6 +5162,10 @@
         "value": "41 fő (BKV-kivitel, példa)"
       },
       {
+        "label": "Állóhelyek",
+        "value": "119 fő (BKV-kivitel, példa)"
+      },
+      {
         "label": "Hajtás",
         "value": "Dízel"
       },
@@ -5142,6 +5226,10 @@
         "value": "26 fő (BKV O530 K-kivitel, példa)"
       },
       {
+        "label": "Állóhelyek",
+        "value": "57 fő (BKV-kivitel, példa)"
+      },
+      {
         "label": "Hajtás",
         "value": "Dízel"
       },
@@ -5196,6 +5284,10 @@
       {
         "label": "Utasülőhelyek",
         "value": "27 fő (BKV-kivitel, példa)"
+      },
+      {
+        "label": "Állóhelyek",
+        "value": "75 fő (BKV-kivitel, példa)"
       },
       {
         "label": "Hajtás",
@@ -5253,6 +5345,10 @@
       {
         "label": "Utasülőhelyek",
         "value": "35 fő (BKV-kivitel, példa)"
+      },
+      {
+        "label": "Állóhelyek",
+        "value": "101 fő (BKV-kivitel, példa)"
       },
       {
         "label": "Hajtás",
@@ -5319,6 +5415,10 @@
         "value": "27 fő (BKV C2 K-kivitel, példa)"
       },
       {
+        "label": "Állóhelyek",
+        "value": "60 fő (BKV-kivitel, példa)"
+      },
+      {
         "label": "Hajtás",
         "value": "Dízel"
       },
@@ -5369,6 +5469,10 @@
       {
         "label": "Utasülőhelyek",
         "value": "27 fő (BKV-kivitel, példa)"
+      },
+      {
+        "label": "Állóhelyek",
+        "value": "62 fő (BKV-kivitel, példa)"
       },
       {
         "label": "Hajtás",
@@ -5429,6 +5533,10 @@
         "value": "35 fő (BKV-kivitel, példa)"
       },
       {
+        "label": "Állóhelyek",
+        "value": "100 fő (BKV-kivitel, példa)"
+      },
+      {
         "label": "Hajtás",
         "value": "Dízel"
       },
@@ -5484,6 +5592,10 @@
       {
         "label": "Utasülőhelyek",
         "value": "27 fő (BKV-kivitel, példa)"
+      },
+      {
+        "label": "Állóhelyek",
+        "value": "80 fő (BKV-kivitel, példa)"
       },
       {
         "label": "Hajtás",
@@ -5549,6 +5661,10 @@
         "value": "38 fő (BKV-kivitel, példa)"
       },
       {
+        "label": "Állóhelyek",
+        "value": "113 fő (BKV-kivitel, példa)"
+      },
+      {
         "label": "Hajtás",
         "value": "Dízel"
       },
@@ -5603,6 +5719,10 @@
       {
         "label": "Utasülőhelyek",
         "value": "20 fő (BKV-kivitel, példa)"
+      },
+      {
+        "label": "Állóhelyek",
+        "value": "33 fő (BKV-kivitel, példa)"
       },
       {
         "label": "Hajtás",
@@ -5666,6 +5786,10 @@
         "value": "29 fő (BKV-kivitel, példa)"
       },
       {
+        "label": "Állóhelyek",
+        "value": "78 fő (BKV-kivitel, példa)"
+      },
+      {
         "label": "Hajtás",
         "value": "Dízel"
       },
@@ -5726,6 +5850,10 @@
         "value": "37 fő (BKV-kivitel, példa)"
       },
       {
+        "label": "Állóhelyek",
+        "value": "114 fő (BKV-kivitel, példa)"
+      },
+      {
         "label": "Hajtás",
         "value": "Dízel"
       },
@@ -5784,6 +5912,10 @@
       {
         "label": "Utasülőhelyek",
         "value": "28 fő (2021-es VOLÁN-kivitel)"
+      },
+      {
+        "label": "Állóhelyek",
+        "value": "50 fő (2021-es VOLÁN-kivitel)"
       },
       {
         "label": "Hajtás",
@@ -5961,6 +6093,10 @@
         "value": "23 fő (BKV-kivitel, példa)"
       },
       {
+        "label": "Állóhelyek",
+        "value": "73 fő (BKV-kivitel, példa)"
+      },
+      {
         "label": "Hajtás",
         "value": "Sűrített földgáz (CNG)"
       },
@@ -6019,6 +6155,10 @@
       {
         "label": "Utasülőhelyek",
         "value": "28 fő (BKV-kivitel, példa)"
+      },
+      {
+        "label": "Állóhelyek",
+        "value": "79 fő (BKV-kivitel, példa)"
       },
       {
         "label": "Hajtás",
@@ -6084,6 +6224,10 @@
       {
         "label": "Utasülőhelyek",
         "value": "36 fő (BKV 7700H és 7900H)"
+      },
+      {
+        "label": "Állóhelyek",
+        "value": "46 fő (7700H), 48 fő (7900H), BKV-kivitelek"
       },
       {
         "label": "Hajtás",

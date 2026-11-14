@@ -51,9 +51,18 @@ The following seating counts remain unverified: **Credo LH 12, generic Mercedes-
 
 Seating citations are bundled under **Fotó és források**. The data tests enforce one seating field and research record per bus, visible configuration qualifiers, source inclusion and a number-free unknown state. Regression examples distinguish the driver/folding seat in EN 9,5, first-generation and C2 Citaro K, and the Budapest B12 fixed seats.
 
+## Bus standing-capacity review · 2026-11-14
+
+**Állóhelyek** follows the seating row in 35 bus fact sheets. `bus-standing.json` records explicit standing figures and sources, with an unverified status for the other 60 profiles. Those profiles omit the standing row. An unknown count is never replaced by zero, inferred from a coach's appearance or calculated as total capacity minus seats. This is a review of available configuration-specific evidence, not a claim that no other standing figures exist.
+
+The standing figure refers to the named configuration represented in the seating entry. BYD K9UD's 47 standing places are explicitly limited to MVK's 35-seat layout. Volvo hybrids retain separate 7700H / 7900H counts. Manufacturer minima and density assumptions remain visible: Econell 12 has **at least 47** standing places in the 2018 sheet, while the Next models' figures use **5 persons/m²**. The EN 9,5 row retains the source's 78-passenger limit, so its folding seat is not added on top of the published standing figure. GTT Crossway's standing figure is explicit, but its inconsistent total row is not reproduced or used for calculations.
+
+Sources include original BKV and MVK vehicle sheets, Credobus specifications, MÁV delivery notices, GTT operator sheets and the Basilicata fleet census. Direct requests to several BKV pages timed out, but the browser's indexed copies exposed the operator's explicit standing fields. No third-party fleet estimate supplies a published standing count. Existing photos, seating counts and curiosities are preserved.
+
 ## Validation
 
 - Catalog tests enforce a single photo, free-license credit, explicit unique aliases, a nonempty fact sheet and coverage of known provider names through a published profile or the research backlog.
 - Android tests exercise real catalog parsing, one-photo rendering, fact labels, curiosities, attribution, source disclosure, full-screen viewing and Back in light and enlarged-text dark modes.
 - Content files are explicit Gradle unit-test inputs so changing the catalog or backlog reruns validation.
 - Seating follow-up: 225 unit tests passed, debug app/test builds and lint passed. Two seating UI tests passed at each of 427 dp and 1024 dp, covering light C56 and dark EN 9,5 at 1.3 font scale, photo viewing/Back and expanded sources. Final captures were inspected for wrapping and clipping. An initial phone test launch raced a density change and crashed before running tests, then passed after the configuration settled. The emulator's original density override was restored.
+- Standing follow-up: 226 unit tests passed, debug app/test builds and lint passed. Two UI tests passed at each of 427 dp and 1024 dp for light Econell 12 Next and dark EN 9,5 at 1.3 font scale, including standing rows, photo viewing/Back and sources. Final phone and tablet captures confirm readable wrapping of density and total-limit qualifiers. Verification used a separate read-only emulator instance.
