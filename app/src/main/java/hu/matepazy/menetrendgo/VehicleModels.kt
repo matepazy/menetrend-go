@@ -60,3 +60,38 @@ object VehicleModelCatalog {
         }
     }
 }
+
+/** A catalog value with its single trailing parenthetical moved to a quieter note line. */
+data class SpecValue(val main: String, val note: String? = null)
+
+fun splitSpecValue(value: String): SpecValue {
+    val text = value.trim()
+    val open = text.indexOf(" (")
+    if (open <= 0 || !text.endsWith(")") || text.count { it == '(' } != 1) return SpecValue(text)
+    return SpecValue(text.substring(0, open).trim(), text.substring(open + 2, text.length - 1).trim().ifEmpty { null })
+}
+
+enum class KeyFigureKind(val label: String) { Seats("Ülőhely"), Standing("Állóhely"), Floor("Belépés") }
+
+/** [figure] is set only when the value parses to a plain count; anything else keeps its full wording. */
+data class KeyFigure(val kind: KeyFigureKind, val figure: String?, val text: String, val note: String?)
+
+data class VehicleFactSheet(val figures: List<KeyFigure>, val specifications: List<Pair<String, SpecValue>>)
+
+private val countValue = Regex("""^(?:(Legfeljebb|Legalább)\s+)?(\d+(?:\s*(?:–|vagy)\s*\d+)?)\s+(?:fő|utasülés)$""")
+
+/** Pull the rider-facing capacity and boarding facts forward; every other row keeps catalog order. */
+fun vehicleFactSheet(specifications: List<Pair<String, String>>): VehicleFactSheet {
+    val kinds = mapOf("Utasülőhelyek" to KeyFigureKind.Seats, "Állóhelyek" to KeyFigureKind.Standing,
+        "Padlókialakítás" to KeyFigureKind.Floor)
+    val figures = specifications.mapNotNull { (label, value) ->
+        val kind = kinds[label] ?: return@mapNotNull null
+        val split = splitSpecValue(value)
+        val count = countValue.find(split.main)?.takeIf { kind != KeyFigureKind.Floor }
+        if (count == null) KeyFigure(kind, null, split.main, split.note)
+        else KeyFigure(kind, count.groupValues[2].replace(Regex("""\s*vagy\s*"""), "/"), split.main,
+            listOfNotNull(count.groupValues[1].lowercase(Locale.ROOT).ifEmpty { null }, split.note)
+                .joinToString(" · ").ifEmpty { null })
+    }.sortedBy { it.kind.ordinal }
+    return VehicleFactSheet(figures, specifications.filter { it.first !in kinds }.map { it.first to splitSpecValue(it.second) })
+}

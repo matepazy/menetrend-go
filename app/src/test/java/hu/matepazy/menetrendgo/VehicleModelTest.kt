@@ -195,4 +195,26 @@ class VehicleModelTest {
             assertTrue("Local model needs a freely licensed photo: $name", (row["photos"] as List<*>).isNotEmpty())
         }
     }
+
+    @Test fun factSheetSplitsOnlyASingleTrailingQualifier() {
+        assertEquals(SpecValue("426", "korábban 6342"), splitSpecValue("426 (korábban 6342)"))
+        assertEquals(SpecValue("Legfeljebb 49 fő (EC), 51 fő (IC)"), splitSpecValue("Legfeljebb 49 fő (EC), 51 fő (IC)"))
+        assertEquals(SpecValue("Dízel"), splitSpecValue("Dízel"))
+    }
+
+    @Test fun factSheetLeadsWithParsedCapacityAndKeepsUnparsedWording() {
+        val sheet = vehicleFactSheet(listOf("Márka / gyártó" to "Ikarus", "Padlókialakítás" to "Alacsony belépésű",
+            "Állóhelyek" to "Legalább 47 fő (2018-as gyári adatlap)", "Utasülőhelyek" to "44 vagy 45 fő (példák)",
+            "Hossz" to "11,99 m"))
+        assertEquals(listOf(KeyFigureKind.Seats, KeyFigureKind.Standing, KeyFigureKind.Floor), sheet.figures.map { it.kind })
+        assertEquals("44/45", sheet.figures[0].figure)
+        assertEquals("példák", sheet.figures[0].note)
+        assertEquals("47", sheet.figures[1].figure)
+        assertEquals("legalább · 2018-as gyári adatlap", sheet.figures[1].note)
+        assertNull(sheet.figures[2].figure)
+        assertEquals(listOf("Márka / gyártó", "Hossz"), sheet.specifications.map { it.first })
+        val unknown = vehicleFactSheet(listOf("Utasülőhelyek" to "Kivitelfüggő, ellenőrzött adat még nincs")).figures.single()
+        assertNull(unknown.figure)
+        assertEquals("Kivitelfüggő, ellenőrzött adat még nincs", unknown.text)
+    }
 }

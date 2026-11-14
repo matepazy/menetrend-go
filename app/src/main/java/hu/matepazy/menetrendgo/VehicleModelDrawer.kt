@@ -13,10 +13,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Close
-import androidx.compose.material.icons.outlined.ExpandMore
-import androidx.compose.material.icons.outlined.Link
-import androidx.compose.material.icons.outlined.OpenInFull
+import androidx.compose.material.icons.outlined.*
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -147,22 +145,13 @@ import kotlinx.coroutines.withContext
                         Text("Ehhez a típushoz még nincs szabadon felhasználható, ellenőrzött hazai fotónk.",
                             style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
-                    item { Text("Adatlap", Modifier.padding(top = AppLayout.SectionGap, bottom = AppLayout.RelatedGap).semantics { heading() },
-                        style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold) }
-                    item { Text(profile.description,
-                        style = MaterialTheme.typography.bodyLarge) }
-                    profile.specifications.forEach { (label, value) -> item {
-                        Column(Modifier.fillMaxWidth().padding(top = AppLayout.ItemGap).semantics(mergeDescendants = true) {},
-                            verticalArrangement = Arrangement.spacedBy(AppLayout.LabelGap)) {
-                            Text(label, style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            Text(value, style = MaterialTheme.typography.bodyLarge,
-                                fontWeight = FontWeight.Medium)
-                            HorizontalDivider(Modifier.padding(top = AppLayout.RelatedGap),
-                                color = MaterialTheme.colorScheme.outlineVariant)
-                        }
-                    } }
-                    item { Text(if (profile.facts.size == 1) "Érdekesség" else "Érdekességek",
+                    val sheet = vehicleFactSheet(profile.specifications)
+                    item { SheetHeading("Adatlap") }
+                    if (sheet.figures.isNotEmpty()) item { KeyFigures(sheet.figures) }
+                    sheet.specifications.forEach { (label, value) -> item { SpecRow(label, value, mode) } }
+                    item { SheetHeading("A járműről") }
+                    item { Text(profile.description, style = MaterialTheme.typography.bodyLarge) }
+                    if (profile.facts.isNotEmpty()) item { Text(if (profile.facts.size == 1) "Érdekesség" else "Érdekességek",
                         Modifier.padding(top = AppLayout.SectionGap, bottom = AppLayout.RelatedGap).semantics { heading() },
                         style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold) }
                     profile.facts.forEach { fact -> item {
@@ -178,6 +167,78 @@ import kotlinx.coroutines.withContext
     }
     enlarged?.let { bitmap ->
         photo?.let { FleetPhotoViewer(listOf(it), 0, bitmap, onDismiss = { enlarged = null }) }
+    }
+}
+
+@Composable private fun SheetHeading(text: String) {
+    Text(text, Modifier.padding(top = AppLayout.SectionGap, bottom = AppLayout.RelatedGap).semantics { heading() },
+        style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+}
+
+/** Capacity and boarding lead as equal tiles; unparsed values keep their full wording instead of a guessed number. */
+@Composable private fun KeyFigures(figures: List<KeyFigure>) {
+    Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min).padding(bottom = AppLayout.CompactGap),
+        horizontalArrangement = Arrangement.spacedBy(AppLayout.CompactGap)) {
+        figures.forEach { figure ->
+            Surface(Modifier.weight(1f).fillMaxHeight(), shape = MaterialTheme.shapes.extraSmall,
+                color = MaterialTheme.colorScheme.surfaceContainerHigh) {
+                Column(Modifier.padding(AppLayout.RelatedGap).semantics(mergeDescendants = true) {},
+                    verticalArrangement = Arrangement.spacedBy(AppLayout.LabelGap)) {
+                    Row(verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Icon(keyFigureIcon(figure), null, Modifier.size(18.dp), tint = MaterialTheme.colorScheme.onSurface)
+                        Text(figure.kind.label, style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                    if (figure.figure != null) Text(figure.figure, style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold)
+                    else Text(figure.text, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                    figure.note?.let { Text(it, style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                }
+            }
+        }
+    }
+}
+
+private fun keyFigureIcon(figure: KeyFigure): ImageVector = when (figure.kind) {
+    KeyFigureKind.Seats -> Icons.Outlined.EventSeat
+    KeyFigureKind.Standing -> Icons.Outlined.Man
+    KeyFigureKind.Floor -> if ("lépcső" in figure.text.lowercase()) Icons.Outlined.Stairs else Icons.Outlined.DoorSliding
+}
+
+@Composable private fun SpecRow(label: String, value: SpecValue, mode: String) {
+    Row(Modifier.fillMaxWidth().padding(vertical = AppLayout.CompactGap).semantics(mergeDescendants = true) {},
+        horizontalArrangement = Arrangement.spacedBy(AppLayout.ItemGap)) {
+        Icon(specIcon(label, value.main, mode), null, Modifier.padding(top = 2.dp).size(24.dp),
+            tint = MaterialTheme.colorScheme.onSurface)
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            Text(label, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(value.main, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
+            value.note?.let { Text(it, style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant) }
+        }
+    }
+}
+
+private fun specIcon(label: String, value: String, mode: String): ImageVector {
+    val text = value.lowercase()
+    return when {
+        "gyártó" in label.lowercase() -> Icons.Outlined.Factory
+        label == "Járműfajta" -> if (mode == "BUS" || mode == "COACH" || "busz" in text) Icons.Outlined.DirectionsBus
+            else if (mode == "TRAM") Icons.Outlined.Tram else Icons.Outlined.Train
+        label == "Hajtás" -> when {
+            listOf("villamos", "elektrom", "akkumul").any { it in text } -> Icons.Outlined.ElectricBolt
+            "dízel" in text || "földgáz" in text -> Icons.Outlined.LocalGasStation
+            else -> Icons.Outlined.Settings
+        }
+        "jel" in label -> Icons.Outlined.Tag
+        label.startsWith("Gyártási") -> Icons.Outlined.CalendarMonth
+        label.startsWith("Hossz") -> Icons.Outlined.Straighten
+        "sebesség" in label -> Icons.Outlined.Speed
+        label == "Felhasználás" -> Icons.Outlined.Route
+        label == "Összeállítás" -> Icons.Outlined.ViewWeek
+        else -> Icons.Outlined.Info
     }
 }
 

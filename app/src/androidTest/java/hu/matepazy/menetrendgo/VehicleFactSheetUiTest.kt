@@ -48,17 +48,19 @@ class VehicleFactSheetUiTest {
         val scroll = compose.onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.VerticalScrollAxisRange))
         scroll.performScrollToNode(hasText("Adatlap"))
         compose.onNodeWithText("Adatlap").assertIsDisplayed()
-        scroll.performScrollToNode(hasText(profile.specifications.first().second))
-        compose.onNodeWithText(profile.specifications.first().second).assertIsDisplayed()
-        capture(profile.id, "facts")
-        listOf("Utasülőhelyek" to "seating", "Állóhelyek" to "standing").forEach { (label, state) ->
-            profile.specifications.firstOrNull { it.first == label }?.let { capacity ->
-                scroll.performScrollToNode(hasText(capacity.second))
-                compose.onNodeWithText(capacity.first).assertIsDisplayed()
-                compose.onNodeWithText(capacity.second).assertIsDisplayed()
-                capture(profile.id, state)
-            }
+        val sheet = vehicleFactSheet(profile.specifications)
+        sheet.figures.forEach { figure ->
+            val tile = hasText(figure.kind.label) and hasText(figure.figure ?: figure.text)
+            scroll.performScrollToNode(tile)
+            compose.onNode(tile).assertIsDisplayed()
         }
+        if (sheet.figures.isNotEmpty()) capture(profile.id, "figures")
+        sheet.specifications.forEach { (label, value) ->
+            val row = hasText(label) and hasText(value.main)
+            scroll.performScrollToNode(row)
+            compose.onNode(row).assertIsDisplayed()
+        }
+        capture(profile.id, "facts")
         scroll.performScrollToNode(hasText("Érdekességek"))
         compose.onNodeWithText("Érdekességek").assertIsDisplayed()
         capture(profile.id, "curiosities")
