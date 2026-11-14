@@ -1,0 +1,3475 @@
+{
+  "reviewedOn": "2026-11-13",
+  "profileCount": 121,
+  "photoPolicy": "Exactly one manually selected Wikimedia Commons photo per published profile. Source dimensions are original-file dimensions. App URLs use thumbnails up to 1280 pixels. Photos illustrate the type, not an arriving service.",
+  "profiles": [
+    {
+      "id": "flirt",
+      "title": "Stadler FLIRT",
+      "photo": {
+        "caption": "MÁV-START Flirt motorvonat - 415 105",
+        "author": "Tolnai Gábor",
+        "source": "https://commons.wikimedia.org/wiki/File:M%C3%81V-START_Flirt_motorvonat_-_415_105.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/af/M%C3%81V-START_Flirt_motorvonat_-_415_105.jpg/1280px-M%C3%81V-START_Flirt_motorvonat_-_415_105.jpg",
+        "width": 6000,
+        "height": 4000
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · hu.wikipedia.org",
+          "url": "https://hu.wikipedia.org/wiki/Stadler_FLIRT"
+        },
+        {
+          "label": "MÁV · Egységes FLIRT-flotta",
+          "url": "https://www.mavcsoport.hu/mav-szemelyszallitas/belfoldi-utazas/egyseges-mav-start-elovarosi-flirt-motorvonatflottaja"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "kiss",
+      "title": "Stadler KISS",
+      "photo": {
+        "caption": "Stadler KISS · típusillusztráció",
+        "author": "Padorjan",
+        "source": "https://commons.wikimedia.org/wiki/File:Stadler_KISS_Version_M%C3%81V.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/24/Stadler_KISS_Version_M%C3%81V.jpg/1280px-Stadler_KISS_Version_M%C3%81V.jpg",
+        "width": 3000,
+        "height": 1688
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · hu.wikipedia.org",
+          "url": "https://hu.wikipedia.org/wiki/Stadler_KISS"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "bz",
+      "title": "Bzmot · Bézé",
+      "photo": {
+        "caption": "Bzmot · Bézé · típusillusztráció",
+        "author": "VargaA",
+        "source": "https://commons.wikimedia.org/wiki/File:Bzmot_Zalaegerszeg_2023.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/ab/Bzmot_Zalaegerszeg_2023.jpg/1280px-Bzmot_Zalaegerszeg_2023.jpg",
+        "width": 5924,
+        "height": 3602
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · hu.wikipedia.org",
+          "url": "https://hu.wikipedia.org/wiki/Bzmot"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "desiro",
+      "title": "Siemens Desiro · Dezső",
+      "photo": {
+        "caption": "Esztergom, Siemens Desiro vonatok",
+        "author": "Christo",
+        "source": "https://commons.wikimedia.org/wiki/File:Esztergom,_Siemens_Desiro_vonatok.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7e/Esztergom%2C_Siemens_Desiro_vonatok.jpg/1280px-Esztergom%2C_Siemens_Desiro_vonatok.jpg",
+        "width": 4288,
+        "height": 2848
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · hu.wikipedia.org",
+          "url": "https://hu.wikipedia.org/wiki/M%C3%81V_426_sorozat"
+        }
+      ],
+      "technicalDataRechecked": true
+    },
+    {
+      "id": "uzsgyi",
+      "title": "Metrovagonmas · Uzsgyi",
+      "photo": {
+        "caption": "MÁV 6341 at Szekszárd",
+        "author": "Drhlajos",
+        "source": "https://commons.wikimedia.org/wiki/File:M%C3%81V_6341_at_Szeksz%C3%A1rd.jpg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/5/52/M%C3%81V_6341_at_Szeksz%C3%A1rd.jpg",
+        "width": 1280,
+        "height": 960
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · hu.wikipedia.org",
+          "url": "https://hu.wikipedia.org/wiki/M%C3%81V_416_sorozat"
+        }
+      ],
+      "technicalDataRechecked": true
+    },
+    {
+      "id": "traxx",
+      "title": "Bombardier TRAXX",
+      "photo": {
+        "caption": "MÁV-START 480 002 TRAXX",
+        "author": "Gabesz183",
+        "source": "https://commons.wikimedia.org/wiki/File:M%C3%81V-START_480_002_TRAXX.jpg",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c8/M%C3%81V-START_480_002_TRAXX.jpg/1280px-M%C3%81V-START_480_002_TRAXX.jpg",
+        "width": 3672,
+        "height": 2066
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · hu.wikipedia.org",
+          "url": "https://hu.wikipedia.org/wiki/M%C3%81V_480_sorozat"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "horgo",
+      "title": "Remot Csörgő · Hörgő",
+      "photo": {
+        "caption": "07.11.14 Valea lui Mihai 418.333 (15156896973)",
+        "author": "Phil Richards from London, UK",
+        "source": "https://commons.wikimedia.org/wiki/File:07.11.14_Valea_lui_Mihai_418.333_(15156896973).jpg",
+        "license": "CC BY-SA 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f8/07.11.14_Valea_lui_Mihai_418.333_%2815156896973%29.jpg/1280px-07.11.14_Valea_lui_Mihai_418.333_%2815156896973%29.jpg",
+        "width": 6016,
+        "height": 4000
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · megallo.mavcsoport.hu",
+          "url": "https://megallo.mavcsoport.hu/rolunk/szinkron-remot-csorgok-zarandokvonatok-elen"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "szili",
+      "title": "Ganz–MÁVAG · Szili",
+      "photo": {
+        "caption": "MÁV Class V43 - Balatonföldvár",
+        "author": "Pudelek",
+        "source": "https://commons.wikimedia.org/wiki/File:M%C3%81V_Class_V43_-_Balatonf%C3%B6ldv%C3%A1r.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/04/M%C3%81V_Class_V43_-_Balatonf%C3%B6ldv%C3%A1r.jpg/1280px-M%C3%81V_Class_V43_-_Balatonf%C3%B6ldv%C3%A1r.jpg",
+        "width": 3456,
+        "height": 2304
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · hu.wikipedia.org",
+          "url": "https://hu.wikipedia.org/wiki/M%C3%81V_V43_sorozat"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "csorgo",
+      "title": "Ganz–MÁVAG · Csörgő",
+      "photo": {
+        "caption": "MÁV-TRAKCIO M41 2177",
+        "author": "Gabesz183",
+        "source": "https://commons.wikimedia.org/wiki/File:M%C3%81V-TRAKCIO_M41_2177.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/72/M%C3%81V-TRAKCIO_M41_2177.jpg/1280px-M%C3%81V-TRAKCIO_M41_2177.jpg",
+        "width": 2576,
+        "height": 1688
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · hu.wikipedia.org",
+          "url": "https://hu.wikipedia.org/wiki/M%C3%81V_M41_sorozat"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "interpici",
+      "title": "InterPici",
+      "photo": {
+        "caption": "Bzmot IP",
+        "author": "User:Hunyadym",
+        "source": "https://commons.wikimedia.org/wiki/File:Bzmot_IP.jpg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3b/Bzmot_IP.jpg/1280px-Bzmot_IP.jpg",
+        "width": 2113,
+        "height": 1865
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · vasutgepeszet.hu",
+          "url": "https://vasutgepeszet.hu/wp-content/uploads/vasutgepeszet_2022_2-11-sziklai-varga-kovacs.pdf"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "tramtrain",
+      "title": "Stadler Citylink · TramTrain",
+      "photo": {
+        "caption": "20250405 MÁV 406 006 Szeged Vörösmarty utca",
+        "author": "ET4010",
+        "source": "https://commons.wikimedia.org/wiki/File:20250405_M%C3%81V_406_006_Szeged_V%C3%B6r%C3%B6smarty_utca.jpg",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a5/20250405_M%C3%81V_406_006_Szeged_V%C3%B6r%C3%B6smarty_utca.jpg/1280px-20250405_M%C3%81V_406_006_Szeged_V%C3%B6r%C3%B6smarty_utca.jpg",
+        "width": 8147,
+        "height": 5431
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · en.wikipedia.org",
+          "url": "https://en.wikipedia.org/wiki/Stadler_Citylink"
+        },
+        {
+          "label": "MÁV · a TramTrain működése",
+          "url": "https://www.mavcsoport.hu/mav-szemelyszallitas/szolgaltatasok/tramtrain/technikai-adatok"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "taurus",
+      "title": "Siemens Taurus",
+      "photo": {
+        "caption": "MAV 470",
+        "author": "Armin Ademovic",
+        "source": "https://commons.wikimedia.org/wiki/File:MAV_470.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f2/MAV_470.jpg/1280px-MAV_470.jpg",
+        "width": 4735,
+        "height": 3551
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · hu.wikipedia.org",
+          "url": "https://hu.wikipedia.org/wiki/M%C3%81V_470_sorozat"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "dacia",
+      "title": "Dacia",
+      "photo": {
+        "caption": "M47 Dacia Kiskunmajsán",
+        "author": "BBX52",
+        "source": "https://commons.wikimedia.org/wiki/File:M47_Dacia_Kiskunmajs%C3%A1n.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/04/M47_Dacia_Kiskunmajs%C3%A1n.jpg/1280px-M47_Dacia_Kiskunmajs%C3%A1n.jpg",
+        "width": 3752,
+        "height": 2812
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · hu.wikipedia.org",
+          "url": "https://hu.wikipedia.org/wiki/M%C3%81V_M47_sorozat"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "fecske",
+      "title": "Fecske vezérlőkocsi",
+      "photo": {
+        "caption": "Szob train MAV START",
+        "author": "Jan Pešula",
+        "source": "https://commons.wikimedia.org/wiki/File:Szob_train_MAV_START.JPG",
+        "license": "CC0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9f/Szob_train_MAV_START.JPG/1280px-Szob_train_MAV_START.JPG",
+        "width": 4320,
+        "height": 3240
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · www.mavcsoport.hu",
+          "url": "https://www.mavcsoport.hu/mav-szemelyszallitas/belfoldi-utazas/utazas-csaladdal-jarmutipusok"
+        },
+        {
+          "label": "MÁV · a Fecske arculat története",
+          "url": "https://www.mavcsoport.hu/mav-szemelyszallitas/belfoldi-utazas/forgalomban-az-elso-fecske-mozdony"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "talent",
+      "title": "Bombardier Talent",
+      "photo": {
+        "caption": "MAV Talent",
+        "author": "Fazekas Attila",
+        "source": "https://commons.wikimedia.org/wiki/File:MAV_Talent.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/5/50/MAV_Talent.jpg",
+        "width": 1280,
+        "height": 960
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · www.mavcsoport.hu",
+          "url": "https://www.mavcsoport.hu/mav-szemelyszallitas/szolgaltatasok/kerekparszallitas/belfold/jarmutipusok"
+        },
+        {
+          "label": "Keolis · a TALENT név eredete",
+          "url": "https://keolis.de/fahrzeuge/"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "cirmos",
+      "title": "Ganz–MÁVAG · Cirmos",
+      "photo": {
+        "caption": "Hauptbahnhof, MÁV V43 3305 und MÁV V43 3185, 2022 Pécs",
+        "author": "Globetrotter19",
+        "source": "https://commons.wikimedia.org/wiki/File:Hauptbahnhof,_M%C3%81V_V43_3305_und_M%C3%81V_V43_3185,_2022_P%C3%A9cs.jpg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/be/Hauptbahnhof%2C_M%C3%81V_V43_3305_und_M%C3%81V_V43_3185%2C_2022_P%C3%A9cs.jpg/1280px-Hauptbahnhof%2C_M%C3%81V_V43_3305_und_M%C3%81V_V43_3185%2C_2022_P%C3%A9cs.jpg",
+        "width": 2272,
+        "height": 1704
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · hu.wikipedia.org",
+          "url": "https://hu.wikipedia.org/wiki/M%C3%81V_V43_sorozat"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "gigant",
+      "title": "Ganz–MÁVAG · Gigant",
+      "photo": {
+        "caption": "V63",
+        "author": "Balogh Zsolt",
+        "source": "https://commons.wikimedia.org/wiki/File:V63.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/19/V63.jpg/1280px-V63.jpg",
+        "width": 1632,
+        "height": 1224
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · hu.wikipedia.org",
+          "url": "https://hu.wikipedia.org/wiki/M%C3%81V_V63_sorozat"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "hernyo",
+      "title": "Ganz–MÁVAG · Hernyó",
+      "photo": {
+        "caption": "414006 Mezőkövesd",
+        "author": "Gajdos Márk",
+        "source": "https://commons.wikimedia.org/wiki/File:414006_Mez%C5%91k%C3%B6vesd.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/89/414006_Mez%C5%91k%C3%B6vesd.jpg/1280px-414006_Mez%C5%91k%C3%B6vesd.jpg",
+        "width": 4896,
+        "height": 3672
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · www.mavcsoport.hu",
+          "url": "https://www.mavcsoport.hu/mav-szemelyszallitas/szolgaltatasok/kerekparszallitas/belfold/jarmutipusok"
+        },
+        {
+          "label": "BDVmot · típus- és névtörténet",
+          "url": "https://hu.wikipedia.org/wiki/BDVmot"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "econell12",
+      "title": "Credo Econell 12",
+      "photo": {
+        "caption": "Credo Econell 12 · NZM-443",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:Credo_Econell_12_(NZM-443).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c3/Credo_Econell_12_%28NZM-443%29.jpg/1280px-Credo_Econell_12_%28NZM-443%29.jpg",
+        "width": 6235,
+        "height": 3507
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · hu.wikipedia.org",
+          "url": "https://hu.wikipedia.org/wiki/Credo_Econell_12"
+        }
+      ],
+      "technicalDataRechecked": true
+    },
+    {
+      "id": "econell12next",
+      "title": "Credobus Econell 12 Next",
+      "photo": {
+        "caption": "Credobus Econell 12 Next · típusillusztráció",
+        "author": "AO-FV-747",
+        "source": "https://commons.wikimedia.org/wiki/File:Credo_Econell_12_Next_(AO-MA-166)_pihen.jpg",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/49/Credo_Econell_12_Next_%28AO-MA-166%29_pihen.jpg/1280px-Credo_Econell_12_Next_%28AO-MA-166%29_pihen.jpg",
+        "width": 1898,
+        "height": 1162
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · credobus.hu",
+          "url": "https://credobus.hu/modellvalasztek/"
+        },
+        {
+          "label": "Econell 12 Next · gyártói ismertető",
+          "url": "https://credobus.hu/modellvalasztek/econell-12-next/"
+        },
+        {
+          "label": "MÁV · A VOLÁN-flotta megújítása",
+          "url": "https://www.mavcsoport.hu/mav-csoport/ujabb-120-busz-erkezik-ezzel-mar-felezer-vadonatuj-jarmu-erositi-volan-buszflottat"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "econell18next",
+      "title": "Credobus Econell 18 Next",
+      "photo": {
+        "caption": "Credo Econell 18 Next Taksonyban (AA-JB-339)",
+        "author": "MSandor23",
+        "source": "https://commons.wikimedia.org/wiki/File:Credo_Econell_18_Next_Taksonyban_(AA-JB-339).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4a/Credo_Econell_18_Next_Taksonyban_%28AA-JB-339%29.jpg/1280px-Credo_Econell_18_Next_Taksonyban_%28AA-JB-339%29.jpg",
+        "width": 6000,
+        "height": 4000
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · credobus.hu",
+          "url": "https://credobus.hu/modellvalasztek/"
+        },
+        {
+          "label": "Econell 18 Next · gyártói ismertető",
+          "url": "https://credobus.hu/modellvalasztek/econell-18-next/"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "inovell",
+      "title": "Credo Inovell 12",
+      "photo": {
+        "caption": "Credo Inovell 12 (AA DS-203)",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:Credo_Inovell_12_(AA_DS-203).jpg",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9b/Credo_Inovell_12_%28AA_DS-203%29.jpg/1280px-Credo_Inovell_12_%28AA_DS-203%29.jpg",
+        "width": 5296,
+        "height": 2979
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · hu.wikipedia.org",
+          "url": "https://hu.wikipedia.org/wiki/Credo_Inovell_12"
+        }
+      ],
+      "technicalDataRechecked": true
+    },
+    {
+      "id": "ec12",
+      "title": "Credo EC 12",
+      "photo": {
+        "caption": "KVT-852 Credo EC 12 in Sárospatak",
+        "author": "Tothh417",
+        "source": "https://commons.wikimedia.org/wiki/File:KVT-852_Credo_EC_12_in_S%C3%A1rospatak.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/69/KVT-852_Credo_EC_12_in_S%C3%A1rospatak.jpg/1280px-KVT-852_Credo_EC_12_in_S%C3%A1rospatak.jpg",
+        "width": 2892,
+        "height": 1697
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · hu.wikipedia.org",
+          "url": "https://hu.wikipedia.org/wiki/Credo_EC_12"
+        }
+      ],
+      "technicalDataRechecked": true
+    },
+    {
+      "id": "ec11",
+      "title": "Credo EC 11",
+      "photo": {
+        "caption": "Busbahnhof, Buslinie 13, Credo EC 11, 2021 Hódmezővásárhely",
+        "author": "Globetrotter19",
+        "source": "https://commons.wikimedia.org/wiki/File:Busbahnhof,_Buslinie_13,_Credo_EC_11,_2021_H%C3%B3dmez%C5%91v%C3%A1s%C3%A1rhely.jpg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d8/Busbahnhof%2C_Buslinie_13%2C_Credo_EC_11%2C_2021_H%C3%B3dmez%C5%91v%C3%A1s%C3%A1rhely.jpg/1280px-Busbahnhof%2C_Buslinie_13%2C_Credo_EC_11%2C_2021_H%C3%B3dmez%C5%91v%C3%A1s%C3%A1rhely.jpg",
+        "width": 2140,
+        "height": 1416
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · hu.wikipedia.org",
+          "url": "https://hu.wikipedia.org/wiki/Credo_EC_11"
+        }
+      ],
+      "technicalDataRechecked": true
+    },
+    {
+      "id": "ic12",
+      "title": "Credo IC 12",
+      "photo": {
+        "caption": "NOC-294 Credo IC 12 on line 3484",
+        "author": "Tothh417",
+        "source": "https://commons.wikimedia.org/wiki/File:NOC-294_Credo_IC_12_on_line_3484.jpg",
+        "license": "CC0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/ad/NOC-294_Credo_IC_12_on_line_3484.jpg/1280px-NOC-294_Credo_IC_12_on_line_3484.jpg",
+        "width": 2765,
+        "height": 1699
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · hu.wikipedia.org",
+          "url": "https://hu.wikipedia.org/wiki/Credo_IC_12"
+        }
+      ],
+      "technicalDataRechecked": true
+    },
+    {
+      "id": "lh12",
+      "title": "Credo LH 12",
+      "photo": {
+        "caption": "Credo LH 12 (LSH-339), Madáchstrasse, 2026 Bátonyterenye",
+        "author": "Globetrotter19",
+        "source": "https://commons.wikimedia.org/wiki/File:Credo_LH_12_(LSH-339),_Mad%C3%A1chstrasse,_2026_B%C3%A1tonyterenye.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7d/Credo_LH_12_%28LSH-339%29%2C_Mad%C3%A1chstrasse%2C_2026_B%C3%A1tonyterenye.jpg/1280px-Credo_LH_12_%28LSH-339%29%2C_Mad%C3%A1chstrasse%2C_2026_B%C3%A1tonyterenye.jpg",
+        "width": 1824,
+        "height": 1368
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · credobus.hu",
+          "url": "https://credobus.hu/cegcsoportunk/"
+        },
+        {
+          "label": "Credo LH 12 · formatörténet",
+          "url": "https://hu.wikipedia.org/wiki/Credo_LH_12"
+        }
+      ],
+      "technicalDataRechecked": true
+    },
+    {
+      "id": "bn12",
+      "title": "Credo BN 12",
+      "photo": {
+        "caption": "Credo BN 12 (LSU-105)",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:Credo_BN_12_(LSU-105).jpg",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/83/Credo_BN_12_%28LSU-105%29.jpg/1280px-Credo_BN_12_%28LSU-105%29.jpg",
+        "width": 2991,
+        "height": 1683
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · hu.wikipedia.org",
+          "url": "https://hu.wikipedia.org/wiki/Credo_BN_12"
+        }
+      ],
+      "technicalDataRechecked": true
+    },
+    {
+      "id": "bn18",
+      "title": "Credo BN 18",
+      "photo": {
+        "caption": "Credo BN 18 · típusillusztráció",
+        "author": "Vasas S. Zsombor",
+        "source": "https://commons.wikimedia.org/wiki/File:Kravtex_Credo_BN_18_Csepelen.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b0/Kravtex_Credo_BN_18_Csepelen.jpg/1280px-Kravtex_Credo_BN_18_Csepelen.jpg",
+        "width": 1620,
+        "height": 1080
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · hu.wikipedia.org",
+          "url": "https://hu.wikipedia.org/wiki/Credo_BN_18"
+        }
+      ],
+      "technicalDataRechecked": true
+    },
+    {
+      "id": "en12",
+      "title": "Credo EN 12",
+      "photo": {
+        "caption": "Credo EN 12 (LSU-457)",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:Credo_EN_12_(LSU-457).jpg",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e7/Credo_EN_12_%28LSU-457%29.jpg/1280px-Credo_EN_12_%28LSU-457%29.jpg",
+        "width": 4000,
+        "height": 2250
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · hu.wikipedia.org",
+          "url": "https://hu.wikipedia.org/wiki/Credo_EN_12"
+        }
+      ],
+      "technicalDataRechecked": true
+    },
+    {
+      "id": "intouro",
+      "title": "Mercedes-Benz Intouro",
+      "photo": {
+        "caption": "Mercedes-Benz Intouro (NTL-985)",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:Mercedes-Benz_Intouro_(NTL-985).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f9/Mercedes-Benz_Intouro_%28NTL-985%29.jpg/1280px-Mercedes-Benz_Intouro_%28NTL-985%29.jpg",
+        "width": 6502,
+        "height": 4876
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · www.mercedes-benz-bus.com",
+          "url": "https://www.mercedes-benz-bus.com/hu/hu/models/intouro/facts-intouro.pdf"
+        },
+        {
+          "label": "Intouro · a 2020-as nemzedék bemutatója",
+          "url": "https://www.daimlertruck.com/en/newsroom/pressrelease/all-rounder-with-the-three-pointed-star-the-new-mercedes-benz-intouro-sets-the-standard-for-flexibility-efficiency-and-safety-47518321"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "intourom",
+      "title": "Mercedes-Benz Intouro M",
+      "photo": {
+        "caption": "Buslinie 1070 (AA IL-180), 2025 Rákosfalva",
+        "author": "Globetrotter19",
+        "source": "https://commons.wikimedia.org/wiki/File:Buslinie_1070_(AA_IL-180),_2025_R%C3%A1kosfalva.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/75/Buslinie_1070_%28AA_IL-180%29%2C_2025_R%C3%A1kosfalva.jpg/1280px-Buslinie_1070_%28AA_IL-180%29%2C_2025_R%C3%A1kosfalva.jpg",
+        "width": 1468,
+        "height": 1191
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · www.mercedes-benz-bus.com",
+          "url": "https://www.mercedes-benz-bus.com/hu/hu/models/intouro/facts-intouro.pdf"
+        },
+        {
+          "label": "Intouro · a 2020-as nemzedék bemutatója",
+          "url": "https://www.daimlertruck.com/en/newsroom/pressrelease/all-rounder-with-the-three-pointed-star-the-new-mercedes-benz-intouro-sets-the-standard-for-flexibility-efficiency-and-safety-47518321"
+        },
+        {
+          "label": "Intouro M · hazai állományadatok",
+          "url": "https://hbweb.hu/jarmu/vb_tde301a.htm"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "tourismo",
+      "title": "Mercedes-Benz Tourismo",
+      "photo": {
+        "caption": "Mercedes-Benz Tourismo (NIJ-341)",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:Mercedes-Benz_Tourismo_(NIJ-341).jpg",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/82/Mercedes-Benz_Tourismo_%28NIJ-341%29.jpg/1280px-Mercedes-Benz_Tourismo_%28NIJ-341%29.jpg",
+        "width": 4000,
+        "height": 2250
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · en.wikipedia.org",
+          "url": "https://en.wikipedia.org/wiki/Mercedes-Benz_Tourismo"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "tourismorh",
+      "title": "Mercedes-Benz Tourismo RH",
+      "photo": {
+        "caption": "Busbahnhof, Bus Linie 5105 (NIJ-364), 2023 Makó",
+        "author": "Globetrotter19",
+        "source": "https://commons.wikimedia.org/wiki/File:Busbahnhof,_Bus_Linie_5105_(NIJ-364),_2023_Mak%C3%B3.jpg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bc/Busbahnhof%2C_Bus_Linie_5105_%28NIJ-364%29%2C_2023_Mak%C3%B3.jpg/1280px-Busbahnhof%2C_Bus_Linie_5105_%28NIJ-364%29%2C_2023_Mak%C3%B3.jpg",
+        "width": 1363,
+        "height": 1817
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · bobalt.hu",
+          "url": "https://bobalt.hu/photodb_hun/volanbusz/vb_mercedesbenz_tourismo2.htm"
+        },
+        {
+          "label": "Tourismo RH · gyártói prospektus (2010)",
+          "url": "https://wikibus.blob.core.windows.net/sources5668/Der%20Tourismo%20RH.pdf"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "tourismol",
+      "title": "Mercedes-Benz Tourismo L",
+      "photo": {
+        "caption": "Mercedes-Benz Tourismo L · típusillusztráció",
+        "author": "Kev22",
+        "source": "https://commons.wikimedia.org/wiki/File:Mercedes-Benz_Tourismo_L_(20th_Anniversary)_-_Transdev1.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/21/Mercedes-Benz_Tourismo_L_%2820th_Anniversary%29_-_Transdev1.jpg/1280px-Mercedes-Benz_Tourismo_L_%2820th_Anniversary%29_-_Transdev1.jpg",
+        "width": 3920,
+        "height": 2204
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · bobalt.hu",
+          "url": "https://bobalt.hu/photodb_hun/volanbusz/vb_mercedesbenz_tourismo2.htm"
+        },
+        {
+          "label": "Tourismo · modelltörténet",
+          "url": "https://en.wikipedia.org/wiki/Mercedes-Benz_Tourismo"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "conecto",
+      "title": "Mercedes-Benz Conecto",
+      "photo": {
+        "caption": "Mercedes-Benz Conecto (HPE-339)",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:Mercedes-Benz_Conecto_(HPE-339).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9f/Mercedes-Benz_Conecto_%28HPE-339%29.jpg/1280px-Mercedes-Benz_Conecto_%28HPE-339%29.jpg",
+        "width": 5594,
+        "height": 3146
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · hu.wikipedia.org",
+          "url": "https://hu.wikipedia.org/wiki/Mercedes-Benz_Conecto"
+        },
+        {
+          "label": "Daimler Buses · a Conecto gyártása",
+          "url": "https://www.daimlertruck.com/en/newsroom/pressrelease/daimler-buses-expands-production-capacity-cooperation-agreement-signed-with-bus-manufacturer-otokar-53189617"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "conectog",
+      "title": "Mercedes-Benz O345G Conecto",
+      "photo": {
+        "caption": "Mercedes-Benz Conecto G (JIW-415)",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:Mercedes-Benz_Conecto_G_(JIW-415).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/43/Mercedes-Benz_Conecto_G_%28JIW-415%29.jpg/1280px-Mercedes-Benz_Conecto_G_%28JIW-415%29.jpg",
+        "width": 5737,
+        "height": 3227
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · hu.wikipedia.org",
+          "url": "https://hu.wikipedia.org/wiki/Mercedes-Benz_Conecto"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "sprinter",
+      "title": "Mercedes-Benz Sprinter",
+      "photo": {
+        "caption": "Bahnhof, Volánbusz Mercedes-Benz Sprinter (LUM-090), 2025 Hajdúszoboszló",
+        "author": "Globetrotter19",
+        "source": "https://commons.wikimedia.org/wiki/File:Bahnhof,_Vol%C3%A1nbusz_Mercedes-Benz_Sprinter_(LUM-090),_2025_Hajd%C3%BAszoboszl%C3%B3.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0e/Bahnhof%2C_Vol%C3%A1nbusz_Mercedes-Benz_Sprinter_%28LUM-090%29%2C_2025_Hajd%C3%BAszoboszl%C3%B3.jpg/1280px-Bahnhof%2C_Vol%C3%A1nbusz_Mercedes-Benz_Sprinter_%28LUM-090%29%2C_2025_Hajd%C3%BAszoboszl%C3%B3.jpg",
+        "width": 1415,
+        "height": 1887
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · en.wikipedia.org",
+          "url": "https://en.wikipedia.org/wiki/Mercedes-Benz_Sprinter"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "mana23",
+      "title": "MAN Lion’s City G A23",
+      "photo": {
+        "caption": "Busbahnhof, MAN NG363 Lion's City G (SRD-229), 2025 Vác",
+        "author": "Globetrotter19",
+        "source": "https://commons.wikimedia.org/wiki/File:Busbahnhof,_MAN_NG363_Lion%27s_City_G_(SRD-229),_2025_V%C3%A1c.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/97/Busbahnhof%2C_MAN_NG363_Lion%27s_City_G_%28SRD-229%29%2C_2025_V%C3%A1c.jpg/1280px-Busbahnhof%2C_MAN_NG363_Lion%27s_City_G_%28SRD-229%29%2C_2025_V%C3%A1c.jpg",
+        "width": 2272,
+        "height": 1704
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · www.man.eu",
+          "url": "https://www.man.eu/hu/hu/rolunk/vallalat/hirek-es-media/news/joval-hatarido-elott_-zokkenomentesen-befejezodott-a-204-uj-man-lion_s-city-g-a23-csuklos-autobusz-atadasa-a-volanbusznak-77696.html"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "man12g",
+      "title": "MAN Lion’s City 12 G",
+      "photo": {
+        "caption": "MAN Lion’s City 12 G · típusillusztráció",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:MAN_Lion%27s_City_12_(AA_GL-317).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/81/MAN_Lion%27s_City_12_%28AA_GL-317%29.jpg/1280px-MAN_Lion%27s_City_12_%28AA_GL-317%29.jpg",
+        "width": 6447,
+        "height": 3627
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · www.man.eu",
+          "url": "https://www.man.eu/hu/hu/rolunk/vallalat/hirek-es-media/news/gazuzemu-man-autobuszokkal-korszerusitette-flottajat-a-volanbusz-117184.html"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "mana21",
+      "title": "MAN Lion’s City A21",
+      "photo": {
+        "caption": "MAN Lion's City A21 (MRP-076) Esztergomban",
+        "author": "AO-FV-747",
+        "source": "https://commons.wikimedia.org/wiki/File:MAN_Lion%27s_City_A21_(MRP-076)_Esztergomban.jpg",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/91/MAN_Lion%27s_City_A21_%28MRP-076%29_Esztergomban.jpg/1280px-MAN_Lion%27s_City_A21_%28MRP-076%29_Esztergomban.jpg",
+        "width": 2260,
+        "height": 1429
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · hu.wikipedia.org",
+          "url": "https://hu.wikipedia.org/wiki/MAN_Lion%E2%80%99s_City"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "mana78",
+      "title": "MAN Lion’s City A78",
+      "photo": {
+        "caption": "Bus line 795, MAN, Széna Square's bus station, 2018 Budapest",
+        "author": "Globetrotter19",
+        "source": "https://commons.wikimedia.org/wiki/File:Bus_line_795,_MAN,_Sz%C3%A9na_Square%27s_bus_station,_2018_Budapest.jpg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/34/Bus_line_795%2C_MAN%2C_Sz%C3%A9na_Square%27s_bus_station%2C_2018_Budapest.jpg/1280px-Bus_line_795%2C_MAN%2C_Sz%C3%A9na_Square%27s_bus_station%2C_2018_Budapest.jpg",
+        "width": 1550,
+        "height": 1163
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · hu.wikipedia.org",
+          "url": "https://hu.wikipedia.org/wiki/MAN_Lion%E2%80%99s_City"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "manclassic",
+      "title": "MAN Lion’s Classic",
+      "photo": {
+        "caption": "MAN Lion's Classic (JNF-315)",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:MAN_Lion%27s_Classic_(JNF-315).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/68/MAN_Lion%27s_Classic_%28JNF-315%29.jpg/1280px-MAN_Lion%27s_Classic_%28JNF-315%29.jpg",
+        "width": 7243,
+        "height": 5432
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · hu.wikipedia.org",
+          "url": "https://hu.wikipedia.org/wiki/MAN_Lion%E2%80%99s_Classic"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "manregio",
+      "title": "MAN Lion’s Regio",
+      "photo": {
+        "caption": "MAN Lion's Regio (MVE-191)",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:MAN_Lion%27s_Regio_(MVE-191).jpg",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3a/MAN_Lion%27s_Regio_%28MVE-191%29.jpg/1280px-MAN_Lion%27s_Regio_%28MVE-191%29.jpg",
+        "width": 4000,
+        "height": 1846
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · hu.wikipedia.org",
+          "url": "https://hu.wikipedia.org/wiki/MAN_Lion%E2%80%99s_Regio"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "manul",
+      "title": "MAN ÜL 313/353",
+      "photo": {
+        "caption": "MAN ÜL313 (LHZ-027), Straße 82302, 2023 Bodajk",
+        "author": "Globetrotter19",
+        "source": "https://commons.wikimedia.org/wiki/File:MAN_%C3%9CL313_(LHZ-027),_Stra%C3%9Fe_82302,_2023_Bodajk.jpg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/18/MAN_%C3%9CL313_%28LHZ-027%29%2C_Stra%C3%9Fe_82302%2C_2023_Bodajk.jpg/1280px-MAN_%C3%9CL313_%28LHZ-027%29%2C_Stra%C3%9Fe_82302%2C_2023_Bodajk.jpg",
+        "width": 2272,
+        "height": 1704
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · bobalt.hu",
+          "url": "https://bobalt.hu/photodb_hun/volanbusz/vb_menu.htm"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "mancoach",
+      "title": "MAN Lion’s Coach",
+      "photo": {
+        "caption": "MAN Lion's Coach (FKU-450)",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:MAN_Lion%27s_Coach_(FKU-450).jpg",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c7/MAN_Lion%27s_Coach_%28FKU-450%29.jpg/1280px-MAN_Lion%27s_Coach_%28FKU-450%29.jpg",
+        "width": 4000,
+        "height": 2400
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · en.wikipedia.org",
+          "url": "https://en.wikipedia.org/wiki/MAN_Lion%27s_Coach"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "mancoachl",
+      "title": "MAN Lion’s Coach L",
+      "photo": {
+        "caption": "MAN Lion's Coach (FLN-600), 2021 Kőszeg",
+        "author": "Globetrotter19",
+        "source": "https://commons.wikimedia.org/wiki/File:MAN_Lion%27s_Coach_(FLN-600),_2021_K%C5%91szeg.jpg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/95/MAN_Lion%27s_Coach_%28FLN-600%29%2C_2021_K%C5%91szeg.jpg/1280px-MAN_Lion%27s_Coach_%28FLN-600%29%2C_2021_K%C5%91szeg.jpg",
+        "width": 2193,
+        "height": 1645
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · en.wikipedia.org",
+          "url": "https://en.wikipedia.org/wiki/MAN_Lion%27s_Coach"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "volvo8900",
+      "title": "Volvo 8900",
+      "photo": {
+        "caption": "Volvo 8900 (SWR-579) 4",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:Volvo_8900_(SWR-579)_4.jpg",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6a/Volvo_8900_%28SWR-579%29_4.jpg/1280px-Volvo_8900_%28SWR-579%29_4.jpg",
+        "width": 5791,
+        "height": 3257
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · en.wikipedia.org",
+          "url": "https://en.wikipedia.org/wiki/Volvo_8900"
+        },
+        {
+          "label": "Volvo · az 8900 bemutatója (2010)",
+          "url": "https://www.volvobuses.com/content/dam/volvo-buses/markets/global/classic/news/2010/OnTheMove_2-2010_ENG.pdf"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "volvo8700",
+      "title": "Volvo 8700",
+      "photo": {
+        "caption": "Volvo 8700 (NWX-325) 2",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:Volvo_8700_(NWX-325)_2.jpg",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c6/Volvo_8700_%28NWX-325%29_2.jpg/1280px-Volvo_8700_%28NWX-325%29_2.jpg",
+        "width": 4236,
+        "height": 2383
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · en.wikipedia.org",
+          "url": "https://en.wikipedia.org/wiki/Volvo_8700"
+        },
+        {
+          "label": "Volvo · az 8900 elődei (2010)",
+          "url": "https://www.volvobuses.com/content/dam/volvo-buses/markets/global/classic/news/2010/OnTheMove_2-2010_ENG.pdf"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "volvo9700",
+      "title": "Volvo 9700",
+      "photo": {
+        "caption": "Volvo 9700 (PRF-925)",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:Volvo_9700_(PRF-925).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/30/Volvo_9700_%28PRF-925%29.jpg/1280px-Volvo_9700_%28PRF-925%29.jpg",
+        "width": 5665,
+        "height": 3187
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · en.wikipedia.org",
+          "url": "https://en.wikipedia.org/wiki/Volvo_9700"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "volvo7900a",
+      "title": "Volvo 7900A",
+      "photo": {
+        "caption": "Volvo 7900A · típusillusztráció",
+        "author": "Aisano",
+        "source": "https://commons.wikimedia.org/wiki/File:Budapest,_Volvo_7900A_MOS_262,_1.jpeg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/44/Budapest%2C_Volvo_7900A_MOS_262%2C_1.jpeg/1280px-Budapest%2C_Volvo_7900A_MOS_262%2C_1.jpeg",
+        "width": 2562,
+        "height": 918
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · en.wikipedia.org",
+          "url": "https://en.wikipedia.org/wiki/Volvo_7900"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "volvo7700a",
+      "title": "Volvo 7700A",
+      "photo": {
+        "caption": "884-es busz",
+        "author": "Vauia Rex",
+        "source": "https://commons.wikimedia.org/wiki/File:884-es_busz.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a7/884-es_busz.jpg/1280px-884-es_busz.jpg",
+        "width": 4160,
+        "height": 3120
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · hu.wikipedia.org",
+          "url": "https://hu.wikipedia.org/wiki/Volvo_7700"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "volvo7700",
+      "title": "Volvo 7700",
+      "photo": {
+        "caption": "Volvo 7700 (KPN-485) · Ózd",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:Volvo_7700_(KPN-485).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/ae/Volvo_7700_%28KPN-485%29.jpg/1280px-Volvo_7700_%28KPN-485%29.jpg",
+        "width": 6417,
+        "height": 4813
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · hu.wikipedia.org",
+          "url": "https://hu.wikipedia.org/wiki/Volvo_7700"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "volvo8500",
+      "title": "Volvo–Säffle 8500",
+      "photo": {
+        "caption": "VolvoSaffle8500",
+        "author": "VolvoDani",
+        "source": "https://commons.wikimedia.org/wiki/File:VolvoSaffle8500.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c8/VolvoSaffle8500.jpg/1280px-VolvoSaffle8500.jpg",
+        "width": 2560,
+        "height": 1440
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · hu.wikipedia.org",
+          "url": "https://hu.wikipedia.org/wiki/Volvo_8500"
+        },
+        {
+          "label": "Volvo · az 8900 elődei (2010)",
+          "url": "https://www.volvobuses.com/content/dam/volvo-buses/markets/global/classic/news/2010/OnTheMove_2-2010_ENG.pdf"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "alfaregio",
+      "title": "Volvo–Alfa Regio",
+      "photo": {
+        "caption": "Volvo–Alfa Regio · típusillusztráció",
+        "author": "Kocsis Pál",
+        "source": "https://commons.wikimedia.org/wiki/File:Volvo_Alfa_Regio_(FKE-799).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/a/ae/Volvo_Alfa_Regio_%28FKE-799%29.jpg",
+        "width": 1080,
+        "height": 608
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · hu.wikipedia.org",
+          "url": "https://hu.wikipedia.org/wiki/Alfa_Regio"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "reform",
+      "title": "ITE Reform 501 LE",
+      "photo": {
+        "caption": "ITK Reform 501LE (TAS-322)",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:ITK_Reform_501LE_(TAS-322).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c2/ITK_Reform_501LE_%28TAS-322%29.jpg/1280px-ITK_Reform_501LE_%28TAS-322%29.jpg",
+        "width": 7087,
+        "height": 3986
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · megallo.mavcsoport.hu",
+          "url": "https://megallo.mavcsoport.hu/hirvonal/hajdu-bihar-megyebe-megerkeztek-volanbusz-uj-buszai"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "tourliner",
+      "title": "Neoplan Tourliner",
+      "photo": {
+        "caption": "Neoplan Tourliner (PNG-042)",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:Neoplan_Tourliner_(PNG-042).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9a/Neoplan_Tourliner_%28PNG-042%29.jpg/1280px-Neoplan_Tourliner_%28PNG-042%29.jpg",
+        "width": 4772,
+        "height": 3579
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · en.wikipedia.org",
+          "url": "https://en.wikipedia.org/wiki/MAN_Truck_%26_Bus"
+        },
+        {
+          "label": "MAN · a Tourliner húsz éve",
+          "url": "https://press.mantruckandbus.com/corporate/the-neoplan-tourliner-a-fixture-on-european-roads-for-20-years/"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "tourlinerl",
+      "title": "Neoplan Tourliner L",
+      "photo": {
+        "caption": "Budapest-Salgótarján járat (PZW-151), 2019 Zugló",
+        "author": "Globetrotter19",
+        "source": "https://commons.wikimedia.org/wiki/File:Budapest-Salg%C3%B3tarj%C3%A1n_j%C3%A1rat_(PZW-151),_2019_Zugl%C3%B3.jpg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fe/Budapest-Salg%C3%B3tarj%C3%A1n_j%C3%A1rat_%28PZW-151%29%2C_2019_Zugl%C3%B3.jpg/1280px-Budapest-Salg%C3%B3tarj%C3%A1n_j%C3%A1rat_%28PZW-151%29%2C_2019_Zugl%C3%B3.jpg",
+        "width": 2272,
+        "height": 1704
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · en.wikipedia.org",
+          "url": "https://en.wikipedia.org/wiki/MAN_Truck_%26_Bus"
+        },
+        {
+          "label": "MAN · a Tourliner húsz éve",
+          "url": "https://press.mantruckandbus.com/corporate/the-neoplan-tourliner-a-fixture-on-european-roads-for-20-years/"
+        },
+        {
+          "label": "Tourliner L · hazai változatok",
+          "url": "https://hbweb.hu/jarmu/vb_kmkk_ddkk_enykk_pzw151a.htm"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "setra415le",
+      "title": "Setra S 415 LE",
+      "photo": {
+        "caption": "Setra S415 LE Business volanbusz RFW 426",
+        "author": "Lőcsibőcsi",
+        "source": "https://commons.wikimedia.org/wiki/File:Setra_S415_LE_Business_volanbusz_RFW_426.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c4/Setra_S415_LE_Business_volanbusz_RFW_426.jpg/1280px-Setra_S415_LE_Business_volanbusz_RFW_426.jpg",
+        "width": 5472,
+        "height": 3648
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · en.wikipedia.org",
+          "url": "https://en.wikipedia.org/wiki/Setra"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "setra315ul",
+      "title": "Setra S 315 UL",
+      "photo": {
+        "caption": "Setra S315 UL (LLD-159)",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:Setra_S315_UL_(LLD-159).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0e/Setra_S315_UL_%28LLD-159%29.jpg/1280px-Setra_S315_UL_%28LLD-159%29.jpg",
+        "width": 5804,
+        "height": 3265
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · en.wikipedia.org",
+          "url": "https://en.wikipedia.org/wiki/Setra"
+        },
+        {
+          "label": "Setra · 70 év típustörténete",
+          "url": "https://www.daimlertruck.com/en/newsroom/pressrelease/70-years-of-setra-a-self-supporting-success-50243092"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "setra313ul",
+      "title": "Setra S 313 UL",
+      "photo": {
+        "caption": "Bus station, Setra S313 and Credo EC12, 2019 Kisbér",
+        "author": "Globetrotter19",
+        "source": "https://commons.wikimedia.org/wiki/File:Bus_station,_Setra_S313_and_Credo_EC12,_2019_Kisb%C3%A9r.jpg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/ad/Bus_station%2C_Setra_S313_and_Credo_EC12%2C_2019_Kisb%C3%A9r.jpg/1280px-Bus_station%2C_Setra_S313_and_Credo_EC12%2C_2019_Kisb%C3%A9r.jpg",
+        "width": 1953,
+        "height": 1464
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · en.wikipedia.org",
+          "url": "https://en.wikipedia.org/wiki/Setra"
+        },
+        {
+          "label": "Setra · 70 év típustörténete",
+          "url": "https://www.daimlertruck.com/en/newsroom/pressrelease/70-years-of-setra-a-self-supporting-success-50243092"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "setra516hd",
+      "title": "Setra S 516 HD",
+      "photo": {
+        "caption": "Setra S 516 HD · típusillusztráció",
+        "author": "Florian Fèvre",
+        "source": "https://commons.wikimedia.org/wiki/File:FlixBus_Setra_S_516_HD_-_Valence.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bc/FlixBus_Setra_S_516_HD_-_Valence.jpg/1280px-FlixBus_Setra_S_516_HD_-_Valence.jpg",
+        "width": 4928,
+        "height": 3264
+      },
+      "specificationSources": [
+        {
+          "label": "Setra · 70 év típustörténete",
+          "url": "https://www.daimlertruck.com/en/newsroom/pressrelease/70-years-of-setra-a-self-supporting-success-50243092"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "setra416",
+      "title": "Setra S 416 GT-HD",
+      "photo": {
+        "caption": "Setra S 416 GT-HD · típusillusztráció",
+        "author": "Øyvind Berg",
+        "source": "https://commons.wikimedia.org/wiki/File:Setra_S_416_GT-HD_-_Tr%C3%B8nderbilene.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/2/22/Setra_S_416_GT-HD_-_Tr%C3%B8nderbilene.jpg",
+        "width": 1200,
+        "height": 800
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · bobalt.hu",
+          "url": "https://bobalt.hu/photodb_hun/volanbusz/vb_setra_s400.htm"
+        },
+        {
+          "label": "Setra · a 300-as és 400-as sorozat története",
+          "url": "https://www.setra-bus.com/en_DE/brand/setraclassic/setra-history.html"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "setra415hd",
+      "title": "Setra S 415 HD",
+      "photo": {
+        "caption": "Setra S 415 HD · típusillusztráció",
+        "author": "Anthony Levrot",
+        "source": "https://commons.wikimedia.org/wiki/File:Rumilly_-_74150_-_2019.03.05_-_Francony_-_Setra_S_415_HD_(vue_avant_gauche)_%C2%A9_Anthony_Levrot.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fe/Rumilly_-_74150_-_2019.03.05_-_Francony_-_Setra_S_415_HD_%28vue_avant_gauche%29_%C2%A9_Anthony_Levrot.jpg/1280px-Rumilly_-_74150_-_2019.03.05_-_Francony_-_Setra_S_415_HD_%28vue_avant_gauche%29_%C2%A9_Anthony_Levrot.jpg",
+        "width": 5184,
+        "height": 3888
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · en.wikipedia.org",
+          "url": "https://en.wikipedia.org/wiki/Setra"
+        },
+        {
+          "label": "Setra · 70 év típustörténete",
+          "url": "https://www.daimlertruck.com/en/newsroom/pressrelease/70-years-of-setra-a-self-supporting-success-50243092"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "crossway",
+      "title": "Irisbus Crossway",
+      "photo": {
+        "caption": "Irisbus Crossway (NML-988)",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:Irisbus_Crossway_(NML-988).jpg",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/70/Irisbus_Crossway_%28NML-988%29.jpg/1280px-Irisbus_Crossway_%28NML-988%29.jpg",
+        "width": 3182,
+        "height": 1790
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · en.wikipedia.org",
+          "url": "https://en.wikipedia.org/wiki/Irisbus_Crossway"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "evadys",
+      "title": "Irisbus Evadys HD",
+      "photo": {
+        "caption": "Irisbus Evadys HD · típusillusztráció",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:Irisbus_Evadys_(LJK-182).jpg",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5b/Irisbus_Evadys_%28LJK-182%29.jpg/1280px-Irisbus_Evadys_%28LJK-182%29.jpg",
+        "width": 4000,
+        "height": 2250
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · commons.wikimedia.org",
+          "url": "https://commons.wikimedia.org/wiki/Category:Irisbus_Evadys"
+        },
+        {
+          "label": "Irisbus · a 2006-os párizsi bemutató",
+          "url": "https://www.iveco.com/global/Press/PressReleases/2006/Irisbus-Iveco-presents-the-new-Recreo-and-Evadys-H"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "scaniatouring",
+      "title": "Scania Touring",
+      "photo": {
+        "caption": "Scania Touring · típusillusztráció",
+        "author": "Tothh417",
+        "source": "https://commons.wikimedia.org/wiki/File:MHX-252_Scania_Higer_A80T_in_Szarvas.jpg",
+        "license": "CC0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/dd/MHX-252_Scania_Higer_A80T_in_Szarvas.jpg/1280px-MHX-252_Scania_Higer_A80T_in_Szarvas.jpg",
+        "width": 4456,
+        "height": 3001
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · news.cision.com",
+          "url": "https://news.cision.com/scania/r/new-scania-strategic-partnership-leads-to-world-premiere-for-global-coach-model,c452689"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "omnia",
+      "title": "Scania OmniExpress",
+      "photo": {
+        "caption": "Scania OmniExpress · típusillusztráció",
+        "author": "PR180.2",
+        "source": "https://commons.wikimedia.org/wiki/File:Scania_OmniExpress_158001_Le_Bus_Direct,_ligne_2,_Paris.jpg",
+        "license": "CC BY-SA 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c9/Scania_OmniExpress_158001_Le_Bus_Direct%2C_ligne_2%2C_Paris.jpg/1280px-Scania_OmniExpress_158001_Le_Bus_Direct%2C_ligne_2%2C_Paris.jpg",
+        "width": 6016,
+        "height": 4016
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · en.wikipedia.org",
+          "url": "https://en.wikipedia.org/wiki/Scania_OmniExpress"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "ikarus134",
+      "title": "Ikarus E134",
+      "photo": {
+        "caption": "Ikarus E134 (LTG-508)",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:Ikarus_E134_(LTG-508).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d2/Ikarus_E134_%28LTG-508%29.jpg/1280px-Ikarus_E134_%28LTG-508%29.jpg",
+        "width": 4385,
+        "height": 3289
+      },
+      "specificationSources": [
+        {
+          "label": "Ikarus · a 2010-es buszcsalád bemutatója",
+          "url": "https://old-ikarus.hu/v134_187/ik134_187.htm"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "ikarus127",
+      "title": "ARC 127 · Ikarus E127",
+      "photo": {
+        "caption": "Ikarus E127 (LMP-208) 2",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:Ikarus_E127_(LMP-208)_2.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d2/Ikarus_E127_%28LMP-208%29_2.jpg/1280px-Ikarus_E127_%28LMP-208%29_2.jpg",
+        "width": 5317,
+        "height": 2991
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · www.magyarbusz.info",
+          "url": "https://www.magyarbusz.info/2011/03/06/az-eselyegyenloseg-jegyeben-a-hazai-alacsonypadlos-buszok-fejlodese/"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "ikarus395",
+      "title": "Ikarus EAG 395/E95",
+      "photo": {
+        "caption": "Busbahnhof, Ikarus (HPD-085), 2021 Hódmezővásárhely",
+        "author": "Globetrotter19",
+        "source": "https://commons.wikimedia.org/wiki/File:Busbahnhof,_Ikarus_(HPD-085),_2021_H%C3%B3dmez%C5%91v%C3%A1s%C3%A1rhely.jpg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/40/Busbahnhof%2C_Ikarus_%28HPD-085%29%2C_2021_H%C3%B3dmez%C5%91v%C3%A1s%C3%A1rhely.jpg/1280px-Busbahnhof%2C_Ikarus_%28HPD-085%29%2C_2021_H%C3%B3dmez%C5%91v%C3%A1s%C3%A1rhely.jpg",
+        "width": 2272,
+        "height": 1704
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · international-ikarus-fan-club.webnode.hu",
+          "url": "https://international-ikarus-fan-club.webnode.hu/ikarus-egyedi-es-arc-tipusok/"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "ikarus94",
+      "title": "Ikarus EAG E94",
+      "photo": {
+        "caption": "Tisza Volán bus2",
+        "author": "User:Bartók Dániel",
+        "source": "https://commons.wikimedia.org/wiki/File:Tisza_Vol%C3%A1n_bus2.JPG",
+        "license": "CC BY 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/3.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f3/Tisza_Vol%C3%A1n_bus2.JPG/1280px-Tisza_Vol%C3%A1n_bus2.JPG",
+        "width": 3264,
+        "height": 2448
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · international-ikarus-fan-club.webnode.hu",
+          "url": "https://international-ikarus-fan-club.webnode.hu/ikarus-egyedi-es-arc-tipusok/"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "autosan",
+      "title": "Autosan A1012T Lider",
+      "photo": {
+        "caption": "Autosan A1012T, 2017 Fehérgyarmat",
+        "author": "Globetrotter19",
+        "source": "https://commons.wikimedia.org/wiki/File:Autosan_A1012T,_2017_Feh%C3%A9rgyarmat.jpg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/8/8b/Autosan_A1012T%2C_2017_Feh%C3%A9rgyarmat.jpg",
+        "width": 1200,
+        "height": 1600
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · bobalt.hu",
+          "url": "https://bobalt.hu/photodb_hun/volanbusz/fotolist_volanbusz_autosan_lider.pdf"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "irizar",
+      "title": "Irizar Century",
+      "photo": {
+        "caption": "Volvo Irizar Century (FLR-814) 3",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:Volvo_Irizar_Century_(FLR-814)_3.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1e/Volvo_Irizar_Century_%28FLR-814%29_3.jpg/1280px-Volvo_Irizar_Century_%28FLR-814%29_3.jpg",
+        "width": 5988,
+        "height": 3369
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · en.wikipedia.org",
+          "url": "https://en.wikipedia.org/wiki/Irizar_Century"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "nabi",
+      "title": "NABI 700SE",
+      "photo": {
+        "caption": "Nabi 700 SE",
+        "author": "Balazs.kertesz",
+        "source": "https://commons.wikimedia.org/wiki/File:Nabi_700_SE.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2e/Nabi_700_SE.jpg/1280px-Nabi_700_SE.jpg",
+        "width": 3264,
+        "height": 1836
+      },
+      "specificationSources": [
+        {
+          "label": "Típusismertető · en.wikipedia.org",
+          "url": "https://en.wikipedia.org/wiki/North_American_Bus_Industries"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "bydk9ud",
+      "title": "BYD K9UD",
+      "photo": {
+        "caption": "BYD K9UD · Eger",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:BYD_K9UD_(AA_KZ-163).jpg",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/10/BYD_K9UD_%28AA_KZ-163%29.jpg/1280px-BYD_K9UD_%28AA_KZ-163%29.jpg",
+        "width": 4000,
+        "height": 2250
+      },
+      "specificationSources": [
+        {
+          "label": "Üzemeltetői típusismertető",
+          "url": "https://mvkzrt.hu/az-mvk-rol/rolunk/jarmuallomany"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "bydb12",
+      "title": "BYD eBus B12",
+      "photo": {
+        "caption": "BYD B12 · ArrivaBus, Budapest",
+        "author": "PMilán",
+        "source": "https://commons.wikimedia.org/wiki/File:154-es_busz_(AO-IB-811).jpg",
+        "license": "CC0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/66/154-es_busz_%28AO-IB-811%29.jpg/1280px-154-es_busz_%28AO-IB-811%29.jpg",
+        "width": 4654,
+        "height": 3491
+      },
+      "specificationSources": [
+        {
+          "label": "Üzemeltetői típusismertető",
+          "url": "https://arrivahungary.hu/hirek/elindultak-az-arriva-csuklos-elektromos-buszai"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "bydb19",
+      "title": "BYD eBus B19",
+      "photo": {
+        "caption": "BYD B19 · ArrivaBus, Budapest",
+        "author": "PMilán",
+        "source": "https://commons.wikimedia.org/wiki/File:139-es_busz_(AO-NW-958).jpg",
+        "license": "CC0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/69/139-es_busz_%28AO-NW-958%29.jpg/1280px-139-es_busz_%28AO-NW-958%29.jpg",
+        "width": 4889,
+        "height": 3667
+      },
+      "specificationSources": [
+        {
+          "label": "Üzemeltetői típusismertető",
+          "url": "https://arrivahungary.hu/hirek/elindultak-az-arriva-csuklos-elektromos-buszai"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "en95",
+      "title": "Credo EN 9,5",
+      "photo": {
+        "caption": "Credo EN 9,5 · típusillusztráció",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:Credo_EN_9,5_(LVN-611)_2.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0f/Credo_EN_9%2C5_%28LVN-611%29_2.jpg/1280px-Credo_EN_9%2C5_%28LVN-611%29_2.jpg",
+        "width": 4833,
+        "height": 2719
+      },
+      "specificationSources": [
+        {
+          "label": "Üzemeltetői típusismertető",
+          "url": "https://www.bkv.hu/hu/korabbi_jarmutesztek/credo_en_95"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "ikarus120e",
+      "title": "Ikarus 120e",
+      "photo": {
+        "caption": "Ikarus 120e · Hajdúszoboszló",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:Ikarus_120e_(AI_JJ-654).jpg",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a1/Ikarus_120e_%28AI_JJ-654%29.jpg/1280px-Ikarus_120e_%28AI_JJ-654%29.jpg",
+        "width": 4000,
+        "height": 2250
+      },
+      "specificationSources": [
+        {
+          "label": "Üzemeltetői típusismertető",
+          "url": "https://www.mavcsoport.hu/mav-csoport/hat-telepulesen-osszesen-husz-elektromos-meghajtasu-buszt-allit-forgalomba-mav-csoport"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "ikarusv127",
+      "title": "Ikarus V127",
+      "photo": {
+        "caption": "Ikarus V127 · Budapest",
+        "author": "Kemenymate",
+        "source": "https://commons.wikimedia.org/wiki/File:102-es_busz_(MXJ-015).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f6/102-es_busz_%28MXJ-015%29.jpg/1280px-102-es_busz_%28MXJ-015%29.jpg",
+        "width": 3491,
+        "height": 2116
+      },
+      "specificationSources": [
+        {
+          "label": "Üzemeltetői típusismertető",
+          "url": "https://www.bkv.hu/ftp/mozgasban/2018.01.sz.pdf"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "karsanatak",
+      "title": "Karsan ATAK",
+      "photo": {
+        "caption": "Karsan ATAK · BKV, Budapest",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:Karsan_ATAK_(NCV-285).jpg",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c0/Karsan_ATAK_%28NCV-285%29.jpg/1280px-Karsan_ATAK_%28NCV-285%29.jpg",
+        "width": 4000,
+        "height": 2250
+      },
+      "specificationSources": [
+        {
+          "label": "Üzemeltetői típusismertető",
+          "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/karsan-atak"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "man10e",
+      "title": "MAN Lion’s City 10 E",
+      "photo": {
+        "caption": "MAN Lion’s City 10 E · bemutatóbusz, Brüsszel",
+        "author": "MB-one",
+        "source": "https://commons.wikimedia.org/wiki/File:MAN,_Busworld_Europe_2023,_Brussels_(P1140054).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/deed.en",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f0/MAN%2C_Busworld_Europe_2023%2C_Brussels_%28P1140054%29.jpg/1280px-MAN%2C_Busworld_Europe_2023%2C_Brussels_%28P1140054%29.jpg",
+        "width": 4608,
+        "height": 3456
+      },
+      "specificationSources": [
+        {
+          "label": "Üzemeltetői típusismertető",
+          "url": "https://vbusz.hu/megerkezett-a-otvenedik-autobusz-a-v-busz-kotelekebe/"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "man12c",
+      "title": "MAN Lion’s City 12 C",
+      "photo": {
+        "caption": "MAN Lion’s City 12 C · V-Busz, Veszprém",
+        "author": "Globetrotter19",
+        "source": "https://commons.wikimedia.org/wiki/File:Linie_11A,_MAN_Lion%27s_City_(TAF-805),_2024_Veszpr%C3%A9m.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5c/Linie_11A%2C_MAN_Lion%27s_City_%28TAF-805%29%2C_2024_Veszpr%C3%A9m.jpg/1280px-Linie_11A%2C_MAN_Lion%27s_City_%28TAF-805%29%2C_2024_Veszpr%C3%A9m.jpg",
+        "width": 2230,
+        "height": 1409
+      },
+      "specificationSources": [
+        {
+          "label": "MAN · Lion’s City",
+          "url": "https://www.man.eu/hu/hu/autobusz/az-man-lion_s-city/dizelhajtas/man-lion_s-city.html"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "man12e",
+      "title": "MAN Lion’s City 12 E",
+      "photo": {
+        "caption": "MAN Lion’s City 12 E · általános típusfotó, külföldi példány",
+        "author": "Stiopa",
+        "source": "https://commons.wikimedia.org/wiki/File:Stiopa-MAN_Lion%60s_City_E.jpg",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/77/Stiopa-MAN_Lion%60s_City_E.jpg/1280px-Stiopa-MAN_Lion%60s_City_E.jpg",
+        "width": 3550,
+        "height": 2368
+      },
+      "specificationSources": [
+        {
+          "label": "MAN · elektromos autóbuszok",
+          "url": "https://www.man.eu/hu/hu/autobusz/elektromos-autobusz/attekintes.html"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "man18e",
+      "title": "MAN Lion’s City 18 E",
+      "photo": {
+        "caption": "MAN Lion’s City 18 E · V-Busz, Veszprém",
+        "author": "Per656",
+        "source": "https://commons.wikimedia.org/wiki/File:AIDU_-_168_csukl%C3%B3s_%C3%A9s_elektromos_busz_Veszpr%C3%A9m_vas%C3%BAt%C3%A1llom%C3%A1sn%C3%A1l.jpg",
+        "license": "CC0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/44/AIDU_-_168_csukl%C3%B3s_%C3%A9s_elektromos_busz_Veszpr%C3%A9m_vas%C3%BAt%C3%A1llom%C3%A1sn%C3%A1l.jpg/1280px-AIDU_-_168_csukl%C3%B3s_%C3%A9s_elektromos_busz_Veszpr%C3%A9m_vas%C3%BAt%C3%A1llom%C3%A1sn%C3%A1l.jpg",
+        "width": 1600,
+        "height": 900
+      },
+      "specificationSources": [
+        {
+          "label": "MAN · elektromos autóbuszok",
+          "url": "https://www.man.eu/hu/hu/autobusz/elektromos-autobusz/attekintes.html"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "man18c",
+      "title": "MAN Lion’s City 18 C",
+      "photo": {
+        "caption": "MAN Lion’s City 18 C · ArrivaBus, Budapest",
+        "author": "Kemenymate",
+        "source": "https://commons.wikimedia.org/wiki/File:20E_busz_(AA_MH-621).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/26/20E_busz_%28AA_MH-621%29.jpg/1280px-20E_busz_%28AA_MH-621%29.jpg",
+        "width": 2257,
+        "height": 1425
+      },
+      "specificationSources": [
+        {
+          "label": "MAN · Lion’s City",
+          "url": "https://www.man.eu/hu/hu/autobusz/az-man-lion_s-city/dizelhajtas/man-lion_s-city.html"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "mana21cng",
+      "title": "MAN Lion’s City A21 CNG",
+      "photo": {
+        "caption": "MAN Lion’s City A21 CNG · MVK, Miskolc",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:MAN_Lion%27s_City_A21_(NID-020).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5e/MAN_Lion%27s_City_A21_%28NID-020%29.jpg/1280px-MAN_Lion%27s_City_A21_%28NID-020%29.jpg",
+        "width": 4319,
+        "height": 2429
+      },
+      "specificationSources": [
+        {
+          "label": "Üzemeltetői típusismertető",
+          "url": "https://mvkzrt.hu/az-mvk-rol/rolunk/jarmuallomany"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "mana40cng",
+      "title": "MAN Lion’s City GL A40 CNG",
+      "photo": {
+        "caption": "MAN Lion’s City GL A40 CNG · MVK, Miskolc",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:MAN_Lion%27s_City_A40_(NID-069).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b5/MAN_Lion%27s_City_A40_%28NID-069%29.jpg/1280px-MAN_Lion%27s_City_A40_%28NID-069%29.jpg",
+        "width": 5614,
+        "height": 3158
+      },
+      "specificationSources": [
+        {
+          "label": "Üzemeltetői típusismertető",
+          "url": "https://mvkzrt.hu/az-mvk-rol/rolunk/jarmuallomany"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "citaro",
+      "title": "Mercedes-Benz O530 Citaro",
+      "photo": {
+        "caption": "Mercedes-Benz Citaro · Székesfehérvár",
+        "author": "Globetrotter19",
+        "source": "https://commons.wikimedia.org/wiki/File:Busterminal_%27Bahnhof%27,_Mercedes-Benz_Citaro_(NLF-433),_2022_Sz%C3%A9kesfeh%C3%A9rv%C3%A1r.jpg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/86/Busterminal_%27Bahnhof%27%2C_Mercedes-Benz_Citaro_%28NLF-433%29%2C_2022_Sz%C3%A9kesfeh%C3%A9rv%C3%A1r.jpg/1280px-Busterminal_%27Bahnhof%27%2C_Mercedes-Benz_Citaro_%28NLF-433%29%2C_2022_Sz%C3%A9kesfeh%C3%A9rv%C3%A1r.jpg",
+        "width": 1704,
+        "height": 2272
+      },
+      "specificationSources": [
+        {
+          "label": "Üzemeltetői típusismertető",
+          "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/mercedes-benz-o530-citaro"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "citarog",
+      "title": "Mercedes-Benz O530 Citaro G",
+      "photo": {
+        "caption": "Mercedes-Benz Citaro G · BKV, Budapest",
+        "author": "Király213",
+        "source": "https://commons.wikimedia.org/wiki/File:BKV_Mercedes-Benz_0530_Citaro_G.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f6/BKV_Mercedes-Benz_0530_Citaro_G.jpg/1280px-BKV_Mercedes-Benz_0530_Citaro_G.jpg",
+        "width": 1836,
+        "height": 3264
+      },
+      "specificationSources": [
+        {
+          "label": "Üzemeltetői típusismertető",
+          "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/mercedes-benz-o530-citaro-g"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "citarok",
+      "title": "Mercedes-Benz O530 Citaro K",
+      "photo": {
+        "caption": "Mercedes-Benz Citaro K · Distribus, Franciaország (általános típusfotó)",
+        "author": "Pehaha",
+        "source": "https://commons.wikimedia.org/wiki/File:Citaro_K_Distribus_ligne_7.JPG",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d3/Citaro_K_Distribus_ligne_7.JPG/1280px-Citaro_K_Distribus_ligne_7.JPG",
+        "width": 1600,
+        "height": 1200
+      },
+      "specificationSources": [
+        {
+          "label": "Üzemeltetői típusismertető",
+          "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/mercedes-benz-citaro-k"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "citaroc2",
+      "title": "Mercedes-Benz Citaro C2",
+      "photo": {
+        "caption": "Mercedes-Benz Citaro C2 · Budapest",
+        "author": "Globetrotter19",
+        "source": "https://commons.wikimedia.org/wiki/File:MB_Citaro_C2-S1_a_Pest%C3%BAjhelyi_t%C3%A9r_buszmeg%C3%A1ll%C3%B3ban,_2018_Pest%C3%BAjhely.jpg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/15/MB_Citaro_C2-S1_a_Pest%C3%BAjhelyi_t%C3%A9r_buszmeg%C3%A1ll%C3%B3ban%2C_2018_Pest%C3%BAjhely.jpg/1280px-MB_Citaro_C2-S1_a_Pest%C3%BAjhelyi_t%C3%A9r_buszmeg%C3%A1ll%C3%B3ban%2C_2018_Pest%C3%BAjhely.jpg",
+        "width": 2272,
+        "height": 1704
+      },
+      "specificationSources": [
+        {
+          "label": "Üzemeltetői típusismertető",
+          "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/mercedes-benz-citaro-c2"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "citaroc2g",
+      "title": "Mercedes-Benz Citaro C2 G",
+      "photo": {
+        "caption": "Mercedes-Benz Citaro C2 G · Budapest",
+        "author": "Zsombor Vasas",
+        "source": "https://commons.wikimedia.org/wiki/File:V%C3%A1rosi_Vag%C3%A1ny_a_BAH_csom%C3%B3pontn%C3%A1l.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ed/V%C3%A1rosi_Vag%C3%A1ny_a_BAH_csom%C3%B3pontn%C3%A1l.jpg/1280px-V%C3%A1rosi_Vag%C3%A1ny_a_BAH_csom%C3%B3pontn%C3%A1l.jpg",
+        "width": 4000,
+        "height": 3000
+      },
+      "specificationSources": [
+        {
+          "label": "Üzemeltetői típusismertető",
+          "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/mercedes-benz-citaro-g-c2"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "citaroc2k",
+      "title": "Mercedes-Benz Citaro C2 K",
+      "photo": {
+        "caption": "Mercedes-Benz Citaro C2 K · ArrivaBus, Budapest",
+        "author": "PMilán",
+        "source": "https://commons.wikimedia.org/wiki/File:102-es_busz_(AO-FL-223).jpg",
+        "license": "CC0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/ce/102-es_busz_%28AO-FL-223%29.jpg/1280px-102-es_busz_%28AO-FL-223%29.jpg",
+        "width": 5184,
+        "height": 3888
+      },
+      "specificationSources": [
+        {
+          "label": "Üzemeltetői típusismertető",
+          "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/mercedes-benz-citaro-k"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "conectolf",
+      "title": "Mercedes-Benz Conecto · alacsonypadlós",
+      "photo": {
+        "caption": "Mercedes-Benz Conecto · BKV, Budapest",
+        "author": "Nagy Bene",
+        "source": "https://commons.wikimedia.org/wiki/File:BKV_NWB_Mercedes_Conecto.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://upload.wikimedia.org/wikipedia/commons/5/51/BKV_NWB_Mercedes_Conecto.jpg",
+        "width": 1024,
+        "height": 576
+      },
+      "specificationSources": [
+        {
+          "label": "Üzemeltetői típusismertető",
+          "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/mercedes-benz-conecto"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "conectoglf",
+      "title": "Mercedes-Benz Conecto G · alacsonypadlós",
+      "photo": {
+        "caption": "Mercedes-Benz Conecto G · Székesfehérvár",
+        "author": "Globetrotter19",
+        "source": "https://commons.wikimedia.org/wiki/File:Busterminal_%27Bahnhof%27,_Mercedes-Benz_Conecto_(RVY-637),_2022_Sz%C3%A9kesfeh%C3%A9rv%C3%A1r.jpg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/73/Busterminal_%27Bahnhof%27%2C_Mercedes-Benz_Conecto_%28RVY-637%29%2C_2022_Sz%C3%A9kesfeh%C3%A9rv%C3%A1r.jpg/1280px-Busterminal_%27Bahnhof%27%2C_Mercedes-Benz_Conecto_%28RVY-637%29%2C_2022_Sz%C3%A9kesfeh%C3%A9rv%C3%A1r.jpg",
+        "width": 1704,
+        "height": 2272
+      },
+      "specificationSources": [
+        {
+          "label": "Üzemeltetői típusismertető",
+          "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/mercedes-benz-conecto-g"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "conecto2",
+      "title": "Mercedes-Benz Conecto 2",
+      "photo": {
+        "caption": "Mercedes-Benz Conecto 2 · BKV, Budapest",
+        "author": "Krepper",
+        "source": "https://commons.wikimedia.org/wiki/File:185-%C3%B6s_busz_(SKR-832).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4e/185-%C3%B6s_busz_%28SKR-832%29.jpg/1280px-185-%C3%B6s_busz_%28SKR-832%29.jpg",
+        "width": 4032,
+        "height": 2268
+      },
+      "specificationSources": [
+        {
+          "label": "Üzemeltetői típusismertető",
+          "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/mercedes-benz-conecto-2"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "conecto2g",
+      "title": "Mercedes-Benz Conecto G 2",
+      "photo": {
+        "caption": "Mercedes-Benz Conecto G 2 · BKV, Budapest",
+        "author": "LaSza",
+        "source": "https://commons.wikimedia.org/wiki/File:23E_busz,_Budapest_(SKR-731,_20230317).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6f/23E_busz%2C_Budapest_%28SKR-731%2C_20230317%29.jpg/1280px-23E_busz%2C_Budapest_%28SKR-731%2C_20230317%29.jpg",
+        "width": 2937,
+        "height": 1650
+      },
+      "specificationSources": [
+        {
+          "label": "Üzemeltetői típusismertető",
+          "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/mercedes-benz-conecto-g-2"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "moduloc68",
+      "title": "Modulo C68E",
+      "photo": {
+        "caption": "Modulo C68E · BKV, Budapest",
+        "author": "Kemenymate",
+        "source": "https://commons.wikimedia.org/wiki/File:115-%C3%B6s_busz_(NLE-854).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f1/115-%C3%B6s_busz_%28NLE-854%29.jpg/1280px-115-%C3%B6s_busz_%28NLE-854%29.jpg",
+        "width": 3981,
+        "height": 2968
+      },
+      "specificationSources": [
+        {
+          "label": "Üzemeltetői típusismertető",
+          "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/modulo-ep-080-es-c68e"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "modulo108",
+      "title": "Modulo M108D",
+      "photo": {
+        "caption": "Modulo M108D · BKV, Budapest",
+        "author": "Péter Tóth",
+        "source": "https://commons.wikimedia.org/wiki/File:195-%C3%B6s_busz_(NTM-420).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/ad/195-%C3%B6s_busz_%28NTM-420%29.jpg/1280px-195-%C3%B6s_busz_%28NTM-420%29.jpg",
+        "width": 1600,
+        "height": 1147
+      },
+      "specificationSources": [
+        {
+          "label": "Üzemeltetői típusismertető",
+          "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/modulo-m108d"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "modulo168",
+      "title": "Modulo M168D",
+      "photo": {
+        "caption": "Modulo M168D · BKV, Budapest",
+        "author": "PMilán",
+        "source": "https://commons.wikimedia.org/wiki/File:107-es_busz_(SGY-982).jpg",
+        "license": "CC0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/64/107-es_busz_%28SGY-982%29.jpg/1280px-107-es_busz_%28SGY-982%29.jpg",
+        "width": 5184,
+        "height": 3888
+      },
+      "specificationSources": [
+        {
+          "label": "Üzemeltetői típusismertető",
+          "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/modulo-m168d"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "ecitaro",
+      "title": "Mercedes-Benz eCitaro",
+      "photo": {
+        "caption": "Mercedes-Benz eCitaro · Budapest",
+        "author": "Globetrotter19",
+        "source": "https://commons.wikimedia.org/wiki/File:Autofreier_Tag,_Mercedes-Benz_eCitaro_(STZ-865),_2023_Belv%C3%A1ros-Lip%C3%B3tv%C3%A1ros.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/79/Autofreier_Tag%2C_Mercedes-Benz_eCitaro_%28STZ-865%29%2C_2023_Belv%C3%A1ros-Lip%C3%B3tv%C3%A1ros.jpg/1280px-Autofreier_Tag%2C_Mercedes-Benz_eCitaro_%28STZ-865%29%2C_2023_Belv%C3%A1ros-Lip%C3%B3tv%C3%A1ros.jpg",
+        "width": 2272,
+        "height": 1704
+      },
+      "specificationSources": [
+        {
+          "label": "Mercedes-Benz · eCitaro",
+          "url": "https://www.mercedes-benz-bus.com/hu_HU/models/ecitaro.html"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "urbino12",
+      "title": "Solaris Urbino 12",
+      "photo": {
+        "caption": "Solaris Urbino 12 · Nyíregyháza",
+        "author": "Tothh417",
+        "source": "https://commons.wikimedia.org/wiki/File:Ny%C3%ADregyh%C3%A1za_line_23.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5e/Ny%C3%ADregyh%C3%A1za_line_23.jpg/1280px-Ny%C3%ADregyh%C3%A1za_line_23.jpg",
+        "width": 2126,
+        "height": 1309
+      },
+      "specificationSources": [
+        {
+          "label": "Solaris · a paksi elektromos flotta",
+          "url": "https://www.solarisbus.com/en/press/electric-solaris-buses-will-go-to-paks-in-hungary-1215"
+        },
+        {
+          "label": "Nyíregyháza · üzemeltetői beszámoló, 2016",
+          "url": "https://varoshaza.nyiregyhaza.hu/lib/adattar/hatarozatok/2017/170510_h_100.pdf"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "urbino8",
+      "title": "Solaris Urbino 8,9 LE electric",
+      "photo": {
+        "caption": "Solaris Urbino 8,9 LE electric · Sète, Franciaország (általános típusfotó)",
+        "author": "Anthony Levrot",
+        "source": "https://commons.wikimedia.org/wiki/File:Solaris_Urbino_8.9_LE_Electric_(vue_avant_gauche)_-_S%C3%A8te_Agglop%C3%B4le_Mobilit%C3%A9_(S%C3%A8te).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4a/Solaris_Urbino_8.9_LE_Electric_%28vue_avant_gauche%29_-_S%C3%A8te_Agglop%C3%B4le_Mobilit%C3%A9_%28S%C3%A8te%29.jpg/1280px-Solaris_Urbino_8.9_LE_Electric_%28vue_avant_gauche%29_-_S%C3%A8te_Agglop%C3%B4le_Mobilit%C3%A9_%28S%C3%A8te%29.jpg",
+        "width": 5184,
+        "height": 3888
+      },
+      "specificationSources": [
+        {
+          "label": "Solaris · a paksi elektromos flotta",
+          "url": "https://www.solarisbus.com/en/press/electric-solaris-buses-will-go-to-paks-in-hungary-1215"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "vanhoolcng",
+      "title": "Van Hool New A330 CNG",
+      "photo": {
+        "caption": "Van Hool New A330 CNG · BKV, Budapest",
+        "author": "Sir Morosus",
+        "source": "https://commons.wikimedia.org/wiki/File:Van_Hool_A330_CNG_bus_(reg._MPW-616).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a1/Van_Hool_A330_CNG_bus_%28reg._MPW-616%29.jpg/1280px-Van_Hool_A330_CNG_bus_%28reg._MPW-616%29.jpg",
+        "width": 5152,
+        "height": 3864
+      },
+      "specificationSources": [
+        {
+          "label": "Üzemeltetői típusismertető",
+          "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/van-hool-new-a330-cng"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "vanhool",
+      "title": "Van Hool New A330",
+      "photo": {
+        "caption": "Van Hool New A330 · BKV, Budapest",
+        "author": "Kemenymate",
+        "source": "https://commons.wikimedia.org/wiki/File:266-os_busz_(MKL-981).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a6/266-os_busz_%28MKL-981%29.jpg/1280px-266-os_busz_%28MKL-981%29.jpg",
+        "width": 2535,
+        "height": 1903
+      },
+      "specificationSources": [
+        {
+          "label": "Üzemeltetői típusismertető",
+          "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/van-hool-new-a330"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "volvohybrid",
+      "title": "Volvo 7700 / 7900 Hybrid",
+      "photo": {
+        "caption": "Volvo 7900 Hybrid · BKV, Budapest",
+        "author": "Nohabfan618.629",
+        "source": "https://commons.wikimedia.org/wiki/File:BKV_Volvo_7905_Hybrid_PHG-650_Budapest,_R%C3%A1kosszentmih%C3%A1ly_vas%C3%BAt%C3%A1llom%C3%A1s.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/89/BKV_Volvo_7905_Hybrid_PHG-650_Budapest%2C_R%C3%A1kosszentmih%C3%A1ly_vas%C3%BAt%C3%A1llom%C3%A1s.jpg/1280px-BKV_Volvo_7905_Hybrid_PHG-650_Budapest%2C_R%C3%A1kosszentmih%C3%A1ly_vas%C3%BAt%C3%A1llom%C3%A1s.jpg",
+        "width": 5440,
+        "height": 3056
+      },
+      "specificationSources": [
+        {
+          "label": "Üzemeltetői típusismertető",
+          "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/volvo-7900h"
+        },
+        {
+          "label": "BKV · Volvo 7700H",
+          "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/volvo-7700h"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "localo",
+      "title": "Volvo-Alfa Localo",
+      "photo": {
+        "caption": "Volvo-Alfa Localo · Salgótarján",
+        "author": "Globetrotter19",
+        "source": "https://commons.wikimedia.org/wiki/File:Bus_terminus,_Alfa_Localo_(LUF-887),_2020_Salg%C3%B3tarj%C3%A1n.jpg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3c/Bus_terminus%2C_Alfa_Localo_%28LUF-887%29%2C_2020_Salg%C3%B3tarj%C3%A1n.jpg/1280px-Bus_terminus%2C_Alfa_Localo_%28LUF-887%29%2C_2020_Salg%C3%B3tarj%C3%A1n.jpg",
+        "width": 1704,
+        "height": 2272
+      },
+      "specificationSources": [
+        {
+          "label": "Wikimedia Commons · Alfa Localo típuskategória",
+          "url": "https://commons.wikimedia.org/wiki/Category:Alfa_Localo"
+        },
+        {
+          "label": "Alfa Busz · gyártástörténet",
+          "url": "https://iho.hu/hirek/megszunt-buszgyarak-nyomaban-alfa-busz-111113"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "urbino12electric",
+      "title": "Solaris Urbino 12 electric",
+      "photo": {
+        "caption": "Solaris Urbino 12 electric · Inowrocław, Lengyelország (általános típusfotó)",
+        "author": "Piotras18",
+        "source": "https://commons.wikimedia.org/wiki/File:Solaris_Urbino_12_Electric_Inowroc%C5%82aw.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f6/Solaris_Urbino_12_Electric_Inowroc%C5%82aw.jpg/1280px-Solaris_Urbino_12_Electric_Inowroc%C5%82aw.jpg",
+        "width": 4160,
+        "height": 3120
+      },
+      "specificationSources": [
+        {
+          "label": "Solaris · a paksi elektromos flotta",
+          "url": "https://www.solarisbus.com/en/press/electric-solaris-buses-will-go-to-paks-in-hungary-1215"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "vectron",
+      "title": "Siemens Vectron",
+      "photo": {
+        "caption": "MÁV-vonat Vectron mozdonnyal",
+        "author": "Alex Noble",
+        "source": "https://commons.wikimedia.org/wiki/File:20260602_MAV_193246.jpg",
+        "license": "CC0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8e/20260602_MAV_193246.jpg/1280px-20260602_MAV_193246.jpg",
+        "width": 6016,
+        "height": 4012
+      },
+      "specificationSources": [
+        {
+          "label": "MÁV · Vectronok érkezése",
+          "url": "https://www.mavcsoport.hu/mav/foszezonig-kozel-egy-tucat-erkezik-harom-mar-itt-van"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "astride",
+      "title": "Alstom Astride · Astrid",
+      "photo": {
+        "caption": "Alstom Astride · Astrid · típusillusztráció",
+        "author": "SkipzZ",
+        "source": "https://commons.wikimedia.org/wiki/File:Akiem_Astride_(490_015)_Budapest-Kelenf%C3%B6ld%C3%B6n.jpg",
+        "license": "CC0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/85/Akiem_Astride_%28490_015%29_Budapest-Kelenf%C3%B6ld%C3%B6n.jpg/1280px-Akiem_Astride_%28490_015%29_Budapest-Kelenf%C3%B6ld%C3%B6n.jpg",
+        "width": 4640,
+        "height": 3472
+      },
+      "specificationSources": [
+        {
+          "label": "MÁV · Alstom villanymozdonyok",
+          "url": "https://www.mavcsoport.hu/mav-szemelyszallitas/alstom-villanymozdonyokat-tesztel-mav-start"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "szergej",
+      "title": "M62 · Szergej",
+      "photo": {
+        "caption": "M62 001 Szergej Révfülöpön",
+        "author": "BáthoryPéter",
+        "source": "https://commons.wikimedia.org/wiki/File:M%C3%81V_M62-001_R%C3%A9vf%C3%BCl%C3%B6p%C3%B6n_2026-07-05.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/62/M%C3%81V_M62-001_R%C3%A9vf%C3%BCl%C3%B6p%C3%B6n_2026-07-05.jpg/1280px-M%C3%81V_M62-001_R%C3%A9vf%C3%BCl%C3%B6p%C3%B6n_2026-07-05.jpg",
+        "width": 3952,
+        "height": 2634
+      },
+      "specificationSources": [
+        {
+          "label": "MÁV · 60 éves a Szergej",
+          "url": "https://megallo.mavcsoport.hu/anno/60-eves-szergej"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "papagaj",
+      "title": "Ganz–MÁVAG · Papagáj",
+      "photo": {
+        "caption": "MÁV 432 162 Papagáj Cegléden",
+        "author": "B.Zsolt",
+        "source": "https://commons.wikimedia.org/wiki/File:M%C3%81V_432_162_Cegl%C3%A9den.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d1/M%C3%81V_432_162_Cegl%C3%A9den.jpg/1280px-M%C3%81V_432_162_Cegl%C3%A9den.jpg",
+        "width": 4608,
+        "height": 3072
+      },
+      "specificationSources": [
+        {
+          "label": "MÁV · Szilik és változataik",
+          "url": "https://www.mavcsoport.hu/fenyjarmuvek"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "setra417ul",
+      "title": "Setra S 417 UL",
+      "photo": {
+        "caption": "Setra S 417 UL · típusillusztráció",
+        "author": "COUVRAT Sylvain",
+        "source": "https://commons.wikimedia.org/wiki/File:Keolis_Delion_r%C3%A9seau_Express_A14_Setra_S_417_UL_DW-045-WT_(92)_n%C2%B0036.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c0/Keolis_Delion_r%C3%A9seau_Express_A14_Setra_S_417_UL_DW-045-WT_%2892%29_n%C2%B0036.jpg/1280px-Keolis_Delion_r%C3%A9seau_Express_A14_Setra_S_417_UL_DW-045-WT_%2892%29_n%C2%B0036.jpg",
+        "width": 3264,
+        "height": 1836
+      },
+      "specificationSources": [
+        {
+          "label": "Daimler Truck · Setra MultiClass",
+          "url": "https://www.daimlertruck.com/en/newsroom/pressrelease/versatile-success-with-unique-model-series-50243122"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "setra419ul",
+      "title": "Setra S 419 UL",
+      "photo": {
+        "caption": "Setra S 419 UL a 3433-as autóbuszvonalon",
+        "author": "Rakás",
+        "source": "https://commons.wikimedia.org/wiki/File:Setra_bus_on_bus_line_3433.jpeg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/dd/Setra_bus_on_bus_line_3433.jpeg/1280px-Setra_bus_on_bus_line_3433.jpeg",
+        "width": 4128,
+        "height": 2322
+      },
+      "specificationSources": [
+        {
+          "label": "Daimler Truck · Setra MultiClass",
+          "url": "https://www.daimlertruck.com/en/newsroom/pressrelease/versatile-success-with-unique-model-series-50243122"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "hev_mx",
+      "title": "LEW MX · HÉV",
+      "photo": {
+        "caption": "LEW MX · HÉV · típusillusztráció",
+        "author": "MSandor23",
+        "source": "https://commons.wikimedia.org/wiki/File:MX_t%C3%ADpus%C3%BA_H%C3%89V_szerelv%C3%A9ny_Dunaharasztin%C3%A1l..jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/53/MX_t%C3%ADpus%C3%BA_H%C3%89V_szerelv%C3%A9ny_Dunaharasztin%C3%A1l..jpg/1280px-MX_t%C3%ADpus%C3%BA_H%C3%89V_szerelv%C3%A9ny_Dunaharasztin%C3%A1l..jpg",
+        "width": 6000,
+        "height": 4000
+      },
+      "specificationSources": [
+        {
+          "label": "MÁV-HÉV · Közszolgáltatási járműjegyzék",
+          "url": "https://www.mavcsoport.hu/sites/default/files/upload/page/3m_igenybevett_halozat_es_eszkozok.pdf"
+        },
+        {
+          "label": "Típustörténet · MX és MXA",
+          "url": "https://hu.wikipedia.org/wiki/LEW_MX_%C3%A9s_MXA"
+        }
+      ],
+      "technicalDataRechecked": true
+    },
+    {
+      "id": "hev_mxa",
+      "title": "LEW MXA · HÉV",
+      "photo": {
+        "caption": "LEW MXA · HÉV · típusillusztráció",
+        "author": "Smiley.toerist",
+        "source": "https://commons.wikimedia.org/wiki/File:MXA_(1122)_on_level_crossing_at_Budakal%C3%A1sz,_Lenfon%C3%B3_H%C3%89V_station_2026.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f4/MXA_%281122%29_on_level_crossing_at_Budakal%C3%A1sz%2C_Lenfon%C3%B3_H%C3%89V_station_2026.jpg/1280px-MXA_%281122%29_on_level_crossing_at_Budakal%C3%A1sz%2C_Lenfon%C3%B3_H%C3%89V_station_2026.jpg",
+        "width": 5472,
+        "height": 3648
+      },
+      "specificationSources": [
+        {
+          "label": "MÁV-HÉV · Közszolgáltatási járműjegyzék",
+          "url": "https://www.mavcsoport.hu/sites/default/files/upload/page/3m_igenybevett_halozat_es_eszkozok.pdf"
+        },
+        {
+          "label": "Típustörténet · MX és MXA",
+          "url": "https://hu.wikipedia.org/wiki/LEW_MX_%C3%A9s_MXA"
+        }
+      ],
+      "technicalDataRechecked": true
+    },
+    {
+      "id": "icplus",
+      "title": "IC+ · Bbdpmz",
+      "photo": {
+        "caption": "IC+ · Bbdpmz · típusillusztráció",
+        "author": "Falk2",
+        "source": "https://commons.wikimedia.org/wiki/File:J33_717_M%C3%81V-Bbdpmz.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b6/J33_717_M%C3%81V-Bbdpmz.jpg/1280px-J33_717_M%C3%81V-Bbdpmz.jpg",
+        "width": 5715,
+        "height": 3810
+      },
+      "specificationSources": [
+        {
+          "label": "MÁV · Az első húsz IC+ kocsi",
+          "url": "https://www.mavcsoport.hu/mav-csoport/elkeszult-elso-husz-hazai-gyartasu-ic-kocsi"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "halberstadt_control",
+      "title": "Halberstadti vezérlőkocsi · Bybdtee",
+      "photo": {
+        "caption": "Halberstadti vezérlőkocsi · Bybdtee · típusillusztráció",
+        "author": "Bakter39",
+        "source": "https://commons.wikimedia.org/wiki/File:Fel%C3%BAj%C3%ADtott_Bybdtee_vez%C3%A9rl%C5%91kocsi.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/35/Fel%C3%BAj%C3%ADtott_Bybdtee_vez%C3%A9rl%C5%91kocsi.jpg/1280px-Fel%C3%BAj%C3%ADtott_Bybdtee_vez%C3%A9rl%C5%91kocsi.jpg",
+        "width": 3872,
+        "height": 2592
+      },
+      "specificationSources": [
+        {
+          "label": "MÁV · Ingavonatok és vezérlőkocsik",
+          "url": "https://www.mavcsoport.hu/sites/default/files/upload/page/vm_apr_final_webre_full.pdf"
+        },
+        {
+          "label": "MÁV · Szolgáltatásminőségi jelentés 2024",
+          "url": "https://www.mavcsoport.hu/sites/default/files/upload/page/szolgaltatasminosegi_jelentes_2024_start_teljes_mellekletekkel.pdf"
+        }
+      ],
+      "technicalDataRechecked": false
+    },
+    {
+      "id": "ikarusc56",
+      "title": "Ikarus C56",
+      "photo": {
+        "caption": "Ikarus C56 · típusillusztráció",
+        "author": "SzSzili01",
+        "source": "https://commons.wikimedia.org/wiki/File:Ikarus_C56_(HIV-468).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2f/Ikarus_C56_%28HIV-468%29.jpg/1280px-Ikarus_C56_%28HIV-468%29.jpg",
+        "width": 7391,
+        "height": 4157
+      },
+      "specificationSources": [
+        {
+          "label": "MÁV · 2026-os menetrend szerinti Ikarusok",
+          "url": "https://www.mavcsoport.hu/mav-szemelyszallitas/szolgaltatasok/esemenyek-es-nosztalgiajaratok/retro-es-tematikus-esemenyek"
+        },
+        {
+          "label": "Típustörténet · Ikarus C56",
+          "url": "https://hu.wikipedia.org/wiki/Ikarus_C56"
+        }
+      ],
+      "technicalDataRechecked": true
+    },
+    {
+      "id": "ikarusc80",
+      "title": "Ikarus C80",
+      "photo": {
+        "caption": "Ikarus C80 · típusillusztráció",
+        "author": "Tothh417",
+        "source": "https://commons.wikimedia.org/wiki/File:HEM-869_Ikarus_C80_in_Miskolc.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4c/HEM-869_Ikarus_C80_in_Miskolc.jpg/1280px-HEM-869_Ikarus_C80_in_Miskolc.jpg",
+        "width": 3094,
+        "height": 1890
+      },
+      "specificationSources": [
+        {
+          "label": "MÁV · 2026-os menetrend szerinti Ikarusok",
+          "url": "https://www.mavcsoport.hu/mav-szemelyszallitas/szolgaltatasok/esemenyek-es-nosztalgiajaratok/retro-es-tematikus-esemenyek"
+        },
+        {
+          "label": "Típustörténet · Ikarus C80",
+          "url": "https://hu.wikipedia.org/wiki/Ikarus_C80"
+        }
+      ],
+      "technicalDataRechecked": true
+    }
+  ],
+  "sourceAvailability": [
+    {
+      "url": "https://arrivahungary.hu/hirek/elindultak-az-arriva-csuklos-elektromos-buszai",
+      "status": 200,
+      "resolvedUrl": "https://arrivahungary.hu/hirek/elindultak-az-arriva-csuklos-elektromos-buszai",
+      "title": "ArrivaBus",
+      "contentType": "text/html; charset=utf-8"
+    },
+    {
+      "url": "https://bobalt.hu/photodb_hun/volanbusz/fotolist_volanbusz_autosan_lider.pdf",
+      "status": 200,
+      "resolvedUrl": "https://bobalt.hu/photodb_hun/volanbusz/fotolist_volanbusz_autosan_lider.pdf",
+      "title": "",
+      "contentType": "application/pdf"
+    },
+    {
+      "url": "https://bobalt.hu/photodb_hun/volanbusz/vb_menu.htm",
+      "status": 200,
+      "resolvedUrl": "https://bobalt.hu/photodb_hun/volanbusz/vb_menu.htm",
+      "title": "Vol�nbusz Zrt.",
+      "contentType": "text/html"
+    },
+    {
+      "url": "https://bobalt.hu/photodb_hun/volanbusz/vb_mercedesbenz_tourismo2.htm",
+      "status": 200,
+      "resolvedUrl": "https://bobalt.hu/photodb_hun/volanbusz/vb_mercedesbenz_tourismo2.htm",
+      "title": "Vol�nbusz Zrt. / Mercedes-Benz Tourismo II.",
+      "contentType": "text/html"
+    },
+    {
+      "url": "https://bobalt.hu/photodb_hun/volanbusz/vb_setra_s400.htm",
+      "status": 200,
+      "resolvedUrl": "https://bobalt.hu/photodb_hun/volanbusz/vb_setra_s400.htm",
+      "title": "Vol�nbusz Zrt. / Setra S400",
+      "contentType": "text/html"
+    },
+    {
+      "url": "https://commons.wikimedia.org/wiki/Category:Alfa_Localo",
+      "status": 200,
+      "resolvedUrl": "https://commons.wikimedia.org/wiki/Category:Alfa_Localo",
+      "title": "Category:Alfa Localo - Wikimedia Commons",
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://commons.wikimedia.org/wiki/Category:Irisbus_Evadys",
+      "status": 200,
+      "resolvedUrl": "https://commons.wikimedia.org/wiki/Category:Irisbus_Evadys",
+      "title": "Category:Irisbus Evadys - Wikimedia Commons",
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://credobus.hu/cegcsoportunk/",
+      "status": 200,
+      "resolvedUrl": "https://credobus.hu/cegcsoportunk/",
+      "title": "Cégcsoportunk - Credobus™",
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://credobus.hu/modellvalasztek/",
+      "status": 200,
+      "resolvedUrl": "https://credobus.hu/modellvalasztek/",
+      "title": "Modellválaszték - Credobus™",
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://credobus.hu/modellvalasztek/econell-12-next/",
+      "status": 200,
+      "resolvedUrl": "https://credobus.hu/modellvalasztek/econell-12-next/",
+      "title": "Econell 12 Next - Credobus™",
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://credobus.hu/modellvalasztek/econell-18-next/",
+      "status": 200,
+      "resolvedUrl": "https://credobus.hu/modellvalasztek/econell-18-next/",
+      "title": "Econell 18 Next - Credobus™",
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://en.wikipedia.org/wiki/Irisbus_Crossway",
+      "status": 200,
+      "resolvedUrl": "https://en.wikipedia.org/wiki/Irisbus_Crossway",
+      "title": "Irisbus Crossway - Wikipedia",
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://en.wikipedia.org/wiki/Irizar_Century",
+      "status": 200,
+      "resolvedUrl": "https://en.wikipedia.org/wiki/Irizar_Century",
+      "title": "Irizar Century - Wikipedia",
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://en.wikipedia.org/wiki/MAN_Lion%27s_Coach",
+      "status": 200,
+      "resolvedUrl": "https://en.wikipedia.org/wiki/MAN_Lion%27s_Coach",
+      "title": "MAN Lion's Coach - Wikipedia",
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://en.wikipedia.org/wiki/MAN_Truck_%26_Bus",
+      "status": 200,
+      "resolvedUrl": "https://en.wikipedia.org/wiki/MAN_Truck_%26_Bus",
+      "title": "MAN Truck &amp; Bus - Wikipedia",
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://en.wikipedia.org/wiki/Mercedes-Benz_Sprinter",
+      "status": 200,
+      "resolvedUrl": "https://en.wikipedia.org/wiki/Mercedes-Benz_Sprinter",
+      "title": "Mercedes-Benz Sprinter - Wikipedia",
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://en.wikipedia.org/wiki/Mercedes-Benz_Tourismo",
+      "status": 200,
+      "resolvedUrl": "https://en.wikipedia.org/wiki/Mercedes-Benz_Tourismo",
+      "title": "Mercedes-Benz Tourismo - Wikipedia",
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://en.wikipedia.org/wiki/North_American_Bus_Industries",
+      "status": 200,
+      "resolvedUrl": "https://en.wikipedia.org/wiki/North_American_Bus_Industries",
+      "title": "North American Bus Industries - Wikipedia",
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://en.wikipedia.org/wiki/Scania_OmniExpress",
+      "status": 200,
+      "resolvedUrl": "https://en.wikipedia.org/wiki/Scania_OmniExpress",
+      "title": "Scania OmniExpress - Wikipedia",
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://en.wikipedia.org/wiki/Setra",
+      "status": 200,
+      "resolvedUrl": "https://en.wikipedia.org/wiki/Setra",
+      "title": "Setra - Wikipedia",
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://en.wikipedia.org/wiki/Stadler_Citylink",
+      "status": 200,
+      "resolvedUrl": "https://en.wikipedia.org/wiki/Stadler_Citylink",
+      "title": "Stadler Citylink - Wikipedia",
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://en.wikipedia.org/wiki/Volvo_7900",
+      "status": 200,
+      "resolvedUrl": "https://en.wikipedia.org/wiki/Volvo_7900",
+      "title": "Volvo 7900 - Wikipedia",
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://en.wikipedia.org/wiki/Volvo_8700",
+      "status": 200,
+      "resolvedUrl": "https://en.wikipedia.org/wiki/Volvo_8700",
+      "title": "Volvo 8700 - Wikipedia",
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://en.wikipedia.org/wiki/Volvo_8900",
+      "status": 200,
+      "resolvedUrl": "https://en.wikipedia.org/wiki/Volvo_8900",
+      "title": "Volvo 8900 - Wikipedia",
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://en.wikipedia.org/wiki/Volvo_9700",
+      "status": 200,
+      "resolvedUrl": "https://en.wikipedia.org/wiki/Volvo_9700",
+      "title": "Volvo 9700 - Wikipedia",
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://hbweb.hu/jarmu/vb_kmkk_ddkk_enykk_pzw151a.htm",
+      "error": "fetch failed"
+    },
+    {
+      "url": "https://hbweb.hu/jarmu/vb_tde301a.htm",
+      "error": "fetch failed"
+    },
+    {
+      "url": "https://hu.wikipedia.org/wiki/Alfa_Regio",
+      "status": 200,
+      "resolvedUrl": "https://hu.wikipedia.org/wiki/Alfa_Regio",
+      "title": "Alfa Regio – Wikipédia",
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://hu.wikipedia.org/wiki/BDVmot",
+      "status": 200,
+      "resolvedUrl": "https://hu.wikipedia.org/wiki/BDVmot",
+      "title": "BDVmot – Wikipédia",
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://hu.wikipedia.org/wiki/Bzmot",
+      "status": 200,
+      "resolvedUrl": "https://hu.wikipedia.org/wiki/Bzmot",
+      "title": "Bzmot – Wikipédia",
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://hu.wikipedia.org/wiki/Credo_BN_12",
+      "status": 200,
+      "resolvedUrl": "https://hu.wikipedia.org/wiki/Credo_BN_12",
+      "title": "Credo BN 12 – Wikipédia",
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://hu.wikipedia.org/wiki/Credo_BN_18",
+      "status": 200,
+      "resolvedUrl": "https://hu.wikipedia.org/wiki/Credo_BN_18",
+      "title": "Credo BN 18 – Wikipédia",
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://hu.wikipedia.org/wiki/Credo_EC_11",
+      "status": 200,
+      "resolvedUrl": "https://hu.wikipedia.org/wiki/Credo_EC_11",
+      "title": "Credo EC 11 – Wikipédia",
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://hu.wikipedia.org/wiki/Credo_EC_12",
+      "status": 200,
+      "resolvedUrl": "https://hu.wikipedia.org/wiki/Credo_EC_12",
+      "title": "Credo EC 12 – Wikipédia",
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://hu.wikipedia.org/wiki/Credo_Econell_12",
+      "status": 200,
+      "resolvedUrl": "https://hu.wikipedia.org/wiki/Credo_Econell_12",
+      "title": "Credo Econell 12 – Wikipédia",
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://hu.wikipedia.org/wiki/Credo_EN_12",
+      "status": 200,
+      "resolvedUrl": "https://hu.wikipedia.org/wiki/Credo_EN_12",
+      "title": "Credo EN 12 – Wikipédia",
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://hu.wikipedia.org/wiki/Credo_IC_12",
+      "status": 200,
+      "resolvedUrl": "https://hu.wikipedia.org/wiki/Credo_IC_12",
+      "title": "Credo IC 12 – Wikipédia",
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://hu.wikipedia.org/wiki/Credo_Inovell_12",
+      "status": 200,
+      "resolvedUrl": "https://hu.wikipedia.org/wiki/Credo_Inovell_12",
+      "title": "Credo Inovell 12 – Wikipédia",
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://hu.wikipedia.org/wiki/Credo_LH_12",
+      "status": 200,
+      "resolvedUrl": "https://hu.wikipedia.org/wiki/Credo_LH_12",
+      "title": "Credo LH 12 – Wikipédia",
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://hu.wikipedia.org/wiki/Ikarus_C56",
+      "status": 200,
+      "resolvedUrl": "https://hu.wikipedia.org/wiki/Ikarus_C56",
+      "title": "Ikarus C56 – Wikipédia",
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://hu.wikipedia.org/wiki/Ikarus_C80",
+      "status": 200,
+      "resolvedUrl": "https://hu.wikipedia.org/wiki/Ikarus_C80",
+      "title": "Ikarus C80 – Wikipédia",
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://hu.wikipedia.org/wiki/M%C3%81V_416_sorozat",
+      "status": 200,
+      "resolvedUrl": "https://hu.wikipedia.org/wiki/M%C3%81V_416_sorozat",
+      "title": "MÁV 416 sorozat – Wikipédia",
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://hu.wikipedia.org/wiki/M%C3%81V_426_sorozat",
+      "status": 200,
+      "resolvedUrl": "https://hu.wikipedia.org/wiki/M%C3%81V_426_sorozat",
+      "title": "MÁV 426 sorozat – Wikipédia",
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://hu.wikipedia.org/wiki/M%C3%81V_470_sorozat",
+      "status": 200,
+      "resolvedUrl": "https://hu.wikipedia.org/wiki/M%C3%81V_470_sorozat",
+      "title": "MÁV 470 sorozat – Wikipédia",
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://hu.wikipedia.org/wiki/M%C3%81V_480_sorozat",
+      "status": 200,
+      "resolvedUrl": "https://hu.wikipedia.org/wiki/M%C3%81V_480_sorozat",
+      "title": "MÁV 480 sorozat – Wikipédia",
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://hu.wikipedia.org/wiki/M%C3%81V_M41_sorozat",
+      "status": 200,
+      "resolvedUrl": "https://hu.wikipedia.org/wiki/M%C3%81V_M41_sorozat",
+      "title": "MÁV M41 sorozat – Wikipédia",
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://hu.wikipedia.org/wiki/M%C3%81V_M47_sorozat",
+      "status": 200,
+      "resolvedUrl": "https://hu.wikipedia.org/wiki/M%C3%81V_M47_sorozat",
+      "title": "MÁV M47 sorozat – Wikipédia",
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://hu.wikipedia.org/wiki/M%C3%81V_V43_sorozat",
+      "status": 200,
+      "resolvedUrl": "https://hu.wikipedia.org/wiki/M%C3%81V_V43_sorozat",
+      "title": "MÁV V43 sorozat – Wikipédia",
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://hu.wikipedia.org/wiki/M%C3%81V_V63_sorozat",
+      "status": 200,
+      "resolvedUrl": "https://hu.wikipedia.org/wiki/M%C3%81V_V63_sorozat",
+      "title": "MÁV V63 sorozat – Wikipédia",
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://hu.wikipedia.org/wiki/MAN_Lion%E2%80%99s_City",
+      "status": 200,
+      "resolvedUrl": "https://hu.wikipedia.org/wiki/MAN_Lion%E2%80%99s_City",
+      "title": "MAN Lion’s City – Wikipédia",
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://hu.wikipedia.org/wiki/MAN_Lion%E2%80%99s_Classic",
+      "status": 200,
+      "resolvedUrl": "https://hu.wikipedia.org/wiki/MAN_Lion%E2%80%99s_Classic",
+      "title": "MAN Lion’s Classic – Wikipédia",
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://hu.wikipedia.org/wiki/MAN_Lion%E2%80%99s_Regio",
+      "status": 200,
+      "resolvedUrl": "https://hu.wikipedia.org/wiki/MAN_Lion%E2%80%99s_Regio",
+      "title": "MAN Lion’s Regio – Wikipédia",
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://hu.wikipedia.org/wiki/Mercedes-Benz_Conecto",
+      "status": 200,
+      "resolvedUrl": "https://hu.wikipedia.org/wiki/Mercedes-Benz_Conecto",
+      "title": "Mercedes-Benz Conecto – Wikipédia",
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://hu.wikipedia.org/wiki/LEW_MX_%C3%A9s_MXA",
+      "status": 200,
+      "resolvedUrl": "https://hu.wikipedia.org/wiki/LEW_MX_%C3%A9s_MXA",
+      "title": "LEW MX és MXA – Wikipédia",
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://hu.wikipedia.org/wiki/Stadler_FLIRT",
+      "status": 200,
+      "resolvedUrl": "https://hu.wikipedia.org/wiki/Stadler_FLIRT",
+      "title": "Stadler FLIRT – Wikipédia",
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://hu.wikipedia.org/wiki/Stadler_KISS",
+      "status": 200,
+      "resolvedUrl": "https://hu.wikipedia.org/wiki/Stadler_KISS",
+      "title": "Stadler KISS – Wikipédia",
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://hu.wikipedia.org/wiki/Volvo_7700",
+      "status": 200,
+      "resolvedUrl": "https://hu.wikipedia.org/wiki/Volvo_7700",
+      "title": "Volvo 7700 – Wikipédia",
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://hu.wikipedia.org/wiki/Volvo_8500",
+      "status": 200,
+      "resolvedUrl": "https://hu.wikipedia.org/wiki/Volvo_8500",
+      "title": "Volvo 8500 – Wikipédia",
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://iho.hu/hirek/megszunt-buszgyarak-nyomaban-alfa-busz-111113",
+      "status": 200,
+      "resolvedUrl": "https://iho.hu/hirek/megszunt-buszgyarak-nyomaban-alfa-busz-111113",
+      "title": "Megszűnt buszgyárak nyomában: Alfa Busz",
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://international-ikarus-fan-club.webnode.hu/ikarus-egyedi-es-arc-tipusok/",
+      "status": 200,
+      "resolvedUrl": "https://international-ikarus-fan-club.webnode.hu/ikarus-egyedi-es-arc-tipusok/",
+      "title": "Ikarus Egyedi típusok",
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://keolis.de/fahrzeuge/",
+      "status": 200,
+      "resolvedUrl": "https://keolis.de/fahrzeuge/",
+      "title": "Fahrzeuge im Regionalverkehr: TALENT, FLIRT und LINT",
+      "contentType": "text/html"
+    },
+    {
+      "url": "https://megallo.mavcsoport.hu/anno/60-eves-szergej",
+      "status": 200,
+      "resolvedUrl": "https://megallo.mavcsoport.hu/anno/60-eves-szergej",
+      "title": "60 éves a Szergej | MÁV-csoport magazin",
+      "contentType": "text/html; charset=utf-8"
+    },
+    {
+      "url": "https://megallo.mavcsoport.hu/hirvonal/hajdu-bihar-megyebe-megerkeztek-volanbusz-uj-buszai",
+      "status": 200,
+      "resolvedUrl": "https://megallo.mavcsoport.hu/hirvonal/hajdu-bihar-megyebe-megerkeztek-volanbusz-uj-buszai",
+      "title": "Hajdú-Bihar megyébe is megérkeztek a Volánbusz új buszai | MÁV-csoport magazin",
+      "contentType": "text/html; charset=utf-8"
+    },
+    {
+      "url": "https://megallo.mavcsoport.hu/rolunk/szinkron-remot-csorgok-zarandokvonatok-elen",
+      "status": 200,
+      "resolvedUrl": "https://megallo.mavcsoport.hu/rolunk/szinkron-remot-csorgok-zarandokvonatok-elen",
+      "title": "Szinkron remot Csörgők a zarándokvonatok élén | MÁV-csoport magazin",
+      "contentType": "text/html; charset=utf-8"
+    },
+    {
+      "url": "https://mvkzrt.hu/az-mvk-rol/rolunk/jarmuallomany",
+      "status": 200,
+      "resolvedUrl": "https://mvkzrt.hu/az-mvk-rol/rolunk/jarmuallomany",
+      "title": "Járműállomány | MVK Zrt.",
+      "contentType": "text/html; charset=utf-8"
+    },
+    {
+      "url": "https://news.cision.com/scania/r/new-scania-strategic-partnership-leads-to-world-premiere-for-global-coach-model,c452689",
+      "status": 200,
+      "resolvedUrl": "https://news.cision.com/scania/r/new-scania-strategic-partnership-leads-to-world-premiere-for-global-coach-model,c452689",
+      "title": "New Scania strategic partnership leads to world premiere for global coach model - Scania",
+      "contentType": "text/html; charset=utf-8"
+    },
+    {
+      "url": "https://old-ikarus.hu/v134_187/ik134_187.htm",
+      "status": 200,
+      "resolvedUrl": "https://old-ikarus.hu/v134_187/ik134_187.htm",
+      "title": "Az �j Ikarus",
+      "contentType": "text/html"
+    },
+    {
+      "url": "https://press.mantruckandbus.com/corporate/the-neoplan-tourliner-a-fixture-on-european-roads-for-20-years/",
+      "status": 200,
+      "resolvedUrl": "https://press.mantruckandbus.com/corporate/the-neoplan-tourliner-a-fixture-on-european-roads-for-20-years/",
+      "title": "The NEOPLAN Tourliner: a fixture on European roads for 20 years",
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://varoshaza.nyiregyhaza.hu/lib/adattar/hatarozatok/2017/170510_h_100.pdf",
+      "status": 200,
+      "resolvedUrl": "https://varoshaza.nyiregyhaza.hu/lib/adattar/hatarozatok/2017/170510_h_100.pdf",
+      "title": "",
+      "contentType": "application/pdf"
+    },
+    {
+      "url": "https://vasutgepeszet.hu/wp-content/uploads/vasutgepeszet_2022_2-11-sziklai-varga-kovacs.pdf",
+      "status": 200,
+      "resolvedUrl": "https://vasutgepeszet.hu/wp-content/uploads/vasutgepeszet_2022_2-11-sziklai-varga-kovacs.pdf",
+      "title": "",
+      "contentType": "application/pdf"
+    },
+    {
+      "url": "https://vbusz.hu/megerkezett-a-otvenedik-autobusz-a-v-busz-kotelekebe/",
+      "status": 200,
+      "resolvedUrl": "https://vbusz.hu/megerkezett-a-otvenedik-autobusz-a-v-busz-kotelekebe/",
+      "title": "Megérkezett a ötvenedik autóbusz a V-Busz kötelékébe - V-Busz",
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://wikibus.blob.core.windows.net/sources5668/Der%20Tourismo%20RH.pdf",
+      "status": 200,
+      "resolvedUrl": "https://wikibus.blob.core.windows.net/sources5668/Der%20Tourismo%20RH.pdf",
+      "title": "",
+      "contentType": "application/pdf"
+    },
+    {
+      "url": "https://www.bkv.hu/ftp/mozgasban/2018.01.sz.pdf",
+      "status": 200,
+      "resolvedUrl": "https://www.bkv.hu/ftp/mozgasban/2018.01.sz.pdf",
+      "title": "",
+      "contentType": "application/pdf"
+    },
+    {
+      "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/karsan-atak",
+      "error": "The operation was aborted due to timeout"
+    },
+    {
+      "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/mercedes-benz-citaro-c2",
+      "error": "The operation was aborted due to timeout"
+    },
+    {
+      "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/mercedes-benz-citaro-g-c2",
+      "error": "The operation was aborted due to timeout"
+    },
+    {
+      "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/mercedes-benz-citaro-k",
+      "error": "The operation was aborted due to timeout"
+    },
+    {
+      "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/mercedes-benz-conecto",
+      "error": "The operation was aborted due to timeout"
+    },
+    {
+      "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/mercedes-benz-conecto-2",
+      "error": "The operation was aborted due to timeout"
+    },
+    {
+      "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/mercedes-benz-conecto-g",
+      "error": "The operation was aborted due to timeout"
+    },
+    {
+      "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/mercedes-benz-conecto-g-2",
+      "error": "The operation was aborted due to timeout"
+    },
+    {
+      "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/mercedes-benz-o530-citaro",
+      "error": "The operation was aborted due to timeout"
+    },
+    {
+      "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/mercedes-benz-o530-citaro-g",
+      "error": "The operation was aborted due to timeout"
+    },
+    {
+      "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/modulo-ep-080-es-c68e",
+      "error": "The operation was aborted due to timeout"
+    },
+    {
+      "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/modulo-m108d",
+      "error": "The operation was aborted due to timeout"
+    },
+    {
+      "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/modulo-m168d",
+      "error": "The operation was aborted due to timeout"
+    },
+    {
+      "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/van-hool-new-a330",
+      "error": "The operation was aborted due to timeout"
+    },
+    {
+      "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/van-hool-new-a330-cng",
+      "error": "The operation was aborted due to timeout"
+    },
+    {
+      "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/volvo-7700h",
+      "error": "The operation was aborted due to timeout"
+    },
+    {
+      "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/volvo-7900h",
+      "error": "The operation was aborted due to timeout"
+    },
+    {
+      "url": "https://www.bkv.hu/hu/korabbi_jarmutesztek/credo_en_95",
+      "error": "The operation was aborted due to timeout"
+    },
+    {
+      "url": "https://www.daimlertruck.com/en/newsroom/pressrelease/70-years-of-setra-a-self-supporting-success-50243092",
+      "status": 200,
+      "resolvedUrl": "https://www.daimlertruck.com/en/newsroom/pressrelease/70-years-of-setra-a-self-supporting-success-50243092",
+      "title": "70 years of Setra – a self-supporting success | Daimler Truck",
+      "contentType": "text/html; charset=utf-8"
+    },
+    {
+      "url": "https://www.daimlertruck.com/en/newsroom/pressrelease/all-rounder-with-the-three-pointed-star-the-new-mercedes-benz-intouro-sets-the-standard-for-flexibility-efficiency-and-safety-47518321",
+      "status": 200,
+      "resolvedUrl": "https://www.daimlertruck.com/en/newsroom/pressrelease/all-rounder-with-the-three-pointed-star-the-new-mercedes-benz-intouro-sets-the-standard-for-flexibility-efficiency-and-safety-47518321",
+      "title": "All-rounder with the three-pointed star: the new Mercedes-Benz Intouro sets the standard for flexibility, efficiency and safety | Daimler Truck",
+      "contentType": "text/html; charset=utf-8"
+    },
+    {
+      "url": "https://www.daimlertruck.com/en/newsroom/pressrelease/daimler-buses-expands-production-capacity-cooperation-agreement-signed-with-bus-manufacturer-otokar-53189617",
+      "status": 200,
+      "resolvedUrl": "https://www.daimlertruck.com/en/newsroom/pressrelease/daimler-buses-expands-production-capacity-cooperation-agreement-signed-with-bus-manufacturer-otokar-53189617",
+      "title": "Daimler Buses expands production capacity: Cooperation agreement signed with bus manufacturer Otokar | Daimler Truck",
+      "contentType": "text/html; charset=utf-8"
+    },
+    {
+      "url": "https://www.daimlertruck.com/en/newsroom/pressrelease/versatile-success-with-unique-model-series-50243122",
+      "status": 200,
+      "resolvedUrl": "https://www.daimlertruck.com/en/newsroom/pressrelease/versatile-success-with-unique-model-series-50243122",
+      "title": "Versatile success with unique model series  | Daimler Truck",
+      "contentType": "text/html; charset=utf-8"
+    },
+    {
+      "url": "https://www.iveco.com/global/Press/PressReleases/2006/Irisbus-Iveco-presents-the-new-Recreo-and-Evadys-H",
+      "status": 200,
+      "resolvedUrl": "https://www.iveco.com/global/Press/PressReleases/2006/Irisbus-Iveco-presents-the-new-Recreo-and-Evadys-H",
+      "title": "Irisbus Iveco presents the new Recreo and Evadys H | Iveco",
+      "contentType": "text/html; charset=utf-8"
+    },
+    {
+      "url": "https://www.magyarbusz.info/2011/03/06/az-eselyegyenloseg-jegyeben-a-hazai-alacsonypadlos-buszok-fejlodese/",
+      "status": 200,
+      "resolvedUrl": "https://magyarbusz.info/2011/03/06/az-eselyegyenloseg-jegyeben-a-hazai-alacsonypadlos-buszok-fejlodese/",
+      "title": "Az esélyegyenlőség jegyében - a hazai alacsonypadlós buszok fejlődése | Magyarbusz [Info]",
+      "contentType": "text/html;charset=utf-8"
+    },
+    {
+      "url": "https://www.man.eu/hu/hu/autobusz/az-man-lion_s-city/dizelhajtas/man-lion_s-city.html",
+      "status": 200,
+      "resolvedUrl": "https://www.man.eu/hu/hu/autobusz/az-man-lion_s-city/dizelhajtas/man-lion_s-city.html",
+      "title": "MAN Lion&#39;s City | MAN",
+      "contentType": "text/html;charset=utf-8"
+    },
+    {
+      "url": "https://www.man.eu/hu/hu/autobusz/elektromos-autobusz/attekintes.html",
+      "status": 200,
+      "resolvedUrl": "https://www.man.eu/hu/hu/autobusz/elektromos-autobusz/attekintes.html",
+      "title": "MAN elektromos autóbusz: A modellek áttekintése | MAN",
+      "contentType": "text/html;charset=utf-8"
+    },
+    {
+      "url": "https://www.man.eu/hu/hu/rolunk/vallalat/hirek-es-media/news/gazuzemu-man-autobuszokkal-korszerusitette-flottajat-a-volanbusz-117184.html",
+      "status": 200,
+      "resolvedUrl": "https://www.man.eu/hu/hu/rolunk/vallalat/hirek-es-media/news/gazuzemu-man-autobuszokkal-korszerusitette-flottajat-a-volanbusz-117184.html",
+      "title": "Gázüzemű MAN autóbuszokkal korszerűsítette flottáját a Volánbusz | MAN",
+      "contentType": "text/html;charset=utf-8"
+    },
+    {
+      "url": "https://www.man.eu/hu/hu/rolunk/vallalat/hirek-es-media/news/joval-hatarido-elott_-zokkenomentesen-befejezodott-a-204-uj-man-lion_s-city-g-a23-csuklos-autobusz-atadasa-a-volanbusznak-77696.html",
+      "status": 200,
+      "resolvedUrl": "https://www.man.eu/hu/hu/rolunk/vallalat/hirek-es-media/news/joval-hatarido-elott_-zokkenomentesen-befejezodott-a-204-uj-man-lion_s-city-g-a23-csuklos-autobusz-atadasa-a-volanbusznak-77696.html",
+      "title": "Jóval határidő előtt, zökkenőmentesen befejeződött a 204 új MAN Lion’s City G A23 csuklós autóbusz átadása a Volánbusznak | MAN",
+      "contentType": "text/html;charset=utf-8"
+    },
+    {
+      "url": "https://www.mavcsoport.hu/fenyjarmuvek",
+      "status": 200,
+      "resolvedUrl": "https://www.mavcsoport.hu/fenyjarmuvek",
+      "title": "FÉNYJÁRATOK | MÁV-csoport",
+      "contentType": "text/html; charset=utf-8"
+    },
+    {
+      "url": "https://www.mavcsoport.hu/mav-csoport/elkeszult-elso-husz-hazai-gyartasu-ic-kocsi",
+      "status": 200,
+      "resolvedUrl": "https://www.mavcsoport.hu/mav-csoport/elkeszult-elso-husz-hazai-gyartasu-ic-kocsi",
+      "title": "Elkészült az első húsz hazai gyártású IC+ kocsi | MÁV-csoport",
+      "contentType": "text/html; charset=utf-8"
+    },
+    {
+      "url": "https://www.mavcsoport.hu/mav-csoport/hat-telepulesen-osszesen-husz-elektromos-meghajtasu-buszt-allit-forgalomba-mav-csoport",
+      "status": 200,
+      "resolvedUrl": "https://www.mavcsoport.hu/mav-csoport/hat-telepulesen-osszesen-husz-elektromos-meghajtasu-buszt-allit-forgalomba-mav-csoport",
+      "title": "Hat településen összesen húsz elektromos meghajtású buszt állít forgalomba a MÁV-csoport | MÁV-csoport",
+      "contentType": "text/html; charset=utf-8"
+    },
+    {
+      "url": "https://www.mavcsoport.hu/mav-csoport/ujabb-120-busz-erkezik-ezzel-mar-felezer-vadonatuj-jarmu-erositi-volan-buszflottat",
+      "status": 200,
+      "resolvedUrl": "https://www.mavcsoport.hu/mav-csoport/ujabb-120-busz-erkezik-ezzel-mar-felezer-vadonatuj-jarmu-erositi-volan-buszflottat",
+      "title": "Újabb 120 busz érkezik: ezzel már félezer vadonatúj jármű erősíti a VOLÁN-buszflottát! | MÁV-csoport",
+      "contentType": "text/html; charset=utf-8"
+    },
+    {
+      "url": "https://www.mavcsoport.hu/mav-szemelyszallitas/alstom-villanymozdonyokat-tesztel-mav-start",
+      "status": 200,
+      "resolvedUrl": "https://www.mavcsoport.hu/mav-szemelyszallitas/alstom-villanymozdonyokat-tesztel-mav-start",
+      "title": "Alstom villanymozdonyokat tesztel a MÁV-START | MÁV-csoport",
+      "contentType": "text/html; charset=utf-8"
+    },
+    {
+      "url": "https://www.mavcsoport.hu/mav-szemelyszallitas/belfoldi-utazas/egyseges-mav-start-elovarosi-flirt-motorvonatflottaja",
+      "status": 200,
+      "resolvedUrl": "https://www.mavcsoport.hu/mav-szemelyszallitas/belfoldi-utazas/egyseges-mav-start-elovarosi-flirt-motorvonatflottaja",
+      "title": "Egységes a MÁV-START elővárosi FLIRT motorvonatflottája | MÁV-csoport",
+      "contentType": "text/html; charset=utf-8"
+    },
+    {
+      "url": "https://www.mavcsoport.hu/mav-szemelyszallitas/belfoldi-utazas/forgalomban-az-elso-fecske-mozdony",
+      "status": 200,
+      "resolvedUrl": "https://www.mavcsoport.hu/mav-szemelyszallitas/belfoldi-utazas/forgalomban-az-elso-fecske-mozdony",
+      "title": "Forgalomban az első Fecske mozdony | MÁV-csoport",
+      "contentType": "text/html; charset=utf-8"
+    },
+    {
+      "url": "https://www.mavcsoport.hu/mav-szemelyszallitas/belfoldi-utazas/utazas-csaladdal-jarmutipusok",
+      "status": 200,
+      "resolvedUrl": "https://www.mavcsoport.hu/mav-szemelyszallitas/belfoldi-utazas/utazas-csaladdal-jarmutipusok",
+      "title": "Babakocsi elhelyezése az elővárosi vonatokon | MÁV-csoport",
+      "contentType": "text/html; charset=utf-8"
+    },
+    {
+      "url": "https://www.mavcsoport.hu/mav-szemelyszallitas/szolgaltatasok/esemenyek-es-nosztalgiajaratok/retro-es-tematikus-esemenyek",
+      "status": 200,
+      "resolvedUrl": "https://www.mavcsoport.hu/mav-szemelyszallitas/szolgaltatasok/esemenyek-es-nosztalgiajaratok/retro-es-tematikus-esemenyek",
+      "title": "A MÁV-csoport retró és tematikus eseményei | MÁV-csoport",
+      "contentType": "text/html; charset=utf-8"
+    },
+    {
+      "url": "https://www.mavcsoport.hu/mav-szemelyszallitas/szolgaltatasok/kerekparszallitas/belfold/jarmutipusok",
+      "status": 200,
+      "resolvedUrl": "https://www.mavcsoport.hu/mav-szemelyszallitas/szolgaltatasok/kerekparszallitas/belfold/jarmutipusok",
+      "title": "Kerékpárszállításra alkalmas járműtípusok | MÁV-csoport",
+      "contentType": "text/html; charset=utf-8"
+    },
+    {
+      "url": "https://www.mavcsoport.hu/mav-szemelyszallitas/szolgaltatasok/tramtrain/technikai-adatok",
+      "status": 200,
+      "resolvedUrl": "https://www.mavcsoport.hu/mav-szemelyszallitas/szolgaltatasok/tramtrain/technikai-adatok",
+      "title": "Technikai adatok és egyéb információk | MÁV-csoport",
+      "contentType": "text/html; charset=utf-8"
+    },
+    {
+      "url": "https://www.mavcsoport.hu/mav/foszezonig-kozel-egy-tucat-erkezik-harom-mar-itt-van",
+      "status": 200,
+      "resolvedUrl": "https://www.mavcsoport.hu/mav/foszezonig-kozel-egy-tucat-erkezik-harom-mar-itt-van",
+      "title": "A főszezonig közel egy tucat érkezik: három már itt van! | MÁV-csoport",
+      "contentType": "text/html; charset=utf-8"
+    },
+    {
+      "url": "https://www.mavcsoport.hu/sites/default/files/upload/page/3m_igenybevett_halozat_es_eszkozok.pdf",
+      "status": 200,
+      "resolvedUrl": "https://www.mavcsoport.hu/sites/default/files/upload/page/3m_igenybevett_halozat_es_eszkozok.pdf",
+      "title": "",
+      "contentType": "application/pdf"
+    },
+    {
+      "url": "https://www.mavcsoport.hu/sites/default/files/upload/page/szolgaltatasminosegi_jelentes_2024_start_teljes_mellekletekkel.pdf",
+      "status": 200,
+      "resolvedUrl": "https://www.mavcsoport.hu/sites/default/files/upload/page/szolgaltatasminosegi_jelentes_2024_start_teljes_mellekletekkel.pdf",
+      "title": "",
+      "contentType": "application/pdf"
+    },
+    {
+      "url": "https://www.mavcsoport.hu/sites/default/files/upload/page/vm_apr_final_webre_full.pdf",
+      "status": 200,
+      "resolvedUrl": "https://www.mavcsoport.hu/sites/default/files/upload/page/vm_apr_final_webre_full.pdf",
+      "title": "",
+      "contentType": "application/pdf"
+    },
+    {
+      "url": "https://www.mercedes-benz-bus.com/hu_HU/models/ecitaro.html",
+      "status": 200,
+      "resolvedUrl": "https://www.mercedes-benz-bus.com/hu/hu/models/ecitaro.html",
+      "title": "eCitaro | Mercedes-Benz Buses Magyarország",
+      "contentType": "text/html;charset=utf-8"
+    },
+    {
+      "url": "https://www.mercedes-benz-bus.com/hu/hu/models/intouro/facts-intouro.pdf",
+      "status": 200,
+      "resolvedUrl": "https://www.mercedes-benz-bus.com/hu/hu/models/intouro/facts-intouro.pdf",
+      "title": "",
+      "contentType": "application/pdf"
+    },
+    {
+      "url": "https://www.setra-bus.com/en_DE/brand/setraclassic/setra-history.html",
+      "status": 200,
+      "resolvedUrl": "https://www.setra-bus.com/int/en/fascination-setra/setraclassic.html",
+      "title": "SetraClassic | Setra Buses International",
+      "contentType": "text/html;charset=utf-8"
+    },
+    {
+      "url": "https://www.solarisbus.com/en/press/electric-solaris-buses-will-go-to-paks-in-hungary-1215",
+      "status": 200,
+      "resolvedUrl": "https://www.solarisbus.com/en/press/electric-solaris-buses-will-go-to-paks-in-hungary-1215",
+      "title": "Press",
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://www.volvobuses.com/content/dam/volvo-buses/markets/global/classic/news/2010/OnTheMove_2-2010_ENG.pdf",
+      "status": 200,
+      "resolvedUrl": "https://www.volvobuses.com/content/dam/volvo-buses/markets/global/classic/news/2010/OnTheMove_2-2010_ENG.pdf",
+      "title": "",
+      "contentType": "application/pdf"
+    }
+  ],
+  "seatingReviewedOn": "2026-11-14",
+  "seatingReviewFile": "bus-seating.json"
+}

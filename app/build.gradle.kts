@@ -84,6 +84,13 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-core:3.7.0")
 }
 
+// Catalog tests read these files directly, so content-only edits must invalidate their results.
+tasks.withType<Test>().configureEach {
+    inputs.file("src/main/assets/vehicle_models/catalog.json")
+    inputs.file(rootProject.file("research/fleet/backlog.json"))
+    inputs.file(rootProject.file("research/fleet/bus-seating.json"))
+}
+
 tasks.register<Copy>("exportReleaseApk") {
     dependsOn("assembleRelease")
     from(layout.buildDirectory.dir("outputs/apk/release")) { include("*.apk") }

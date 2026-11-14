@@ -2,6 +2,7 @@
 import fs from 'node:fs';
 const file = new URL('../app/src/main/assets/vehicle_models/catalog.json', import.meta.url);
 const catalog = JSON.parse(fs.readFileSync(file, 'utf8'));
+if (catalog.some(profile => profile.photos.length !== 1)) throw new Error('Every published profile must have exactly one reviewed photo');
 const title = source => decodeURIComponent(new URL(source).pathname.split('/wiki/')[1]).replaceAll('_', ' ');
 const photos = catalog.flatMap(p => p.photos);
 const titles = [...new Set(photos.map(p => title(p.source)))];
@@ -10,7 +11,7 @@ const clean = value => value.replace(/<[^>]*>/g, '').replace(/&amp;/g, '&').repl
 for (let start = 0; start < titles.length; start += 25) {
   const batch = titles.slice(start, start + 25);
   const params = new URLSearchParams({action: 'query', format: 'json', titles: batch.join('|'),
-    redirects: '1', prop: 'imageinfo', iiprop: 'url|extmetadata', iiurlwidth: '960'});
+    redirects: '1', prop: 'imageinfo', iiprop: 'url|size|extmetadata', iiurlwidth: '1280'});
   const response = await fetch(`https://commons.wikimedia.org/w/api.php?${params}`, {
     headers: {'User-Agent': 'MenetrendGO fleet catalogue maintenance/1.0'}, signal: AbortSignal.timeout(30000),
   });
@@ -33,6 +34,8 @@ for (let start = 0; start < titles.length; start += 25) {
     url.search = '';
     for (const photo of photos.filter(p => title(p.source) === original)) {
       photo.url = url.href;
+      photo.width = info.width;
+      photo.height = info.height;
       photo.license = license;
       photo.licenseUrl = (meta.LicenseUrl?.value || (license === 'Public domain' ? 'https://creativecommons.org/publicdomain/mark/1.0/' : '')).replace(/^http:/, 'https:').replace(/^\/\//, 'https://');
       photo.author ||= clean(meta.Artist?.value ?? '');

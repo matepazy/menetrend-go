@@ -1,0 +1,1249 @@
+{
+  "reviewedOn": "2026-11-14",
+  "definition": "Seated passengers only. Driver and separately identified crew seats excluded. Folding seats are shown separately when identified. Counts describe the stated example or manufacturer configuration, never a live seat inventory or guaranteed equipment of an arriving vehicle.",
+  "records": [
+    {
+      "id": "econell12",
+      "title": "Credo Econell 12",
+      "status": "verified",
+      "value": "Legfeljebb 43 fő (gyártói kivitel)",
+      "url": "https://credobus.hu/archive/wp-content/uploads/2018/02/2018-02-27-Credobus-Econell-12-m%C5%B1szaki-adatlap-hun.pdf",
+      "scope": "2018 manufacturer sheet: 43+1 seated, 90+1 total. The +1 driver is excluded.",
+      "seatedPassengers": [
+        43
+      ],
+      "kind": "manufacturer-maximum",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "econell12next",
+      "title": "Credobus Econell 12 Next",
+      "status": "verified",
+      "value": "43 fő (gyártói kivitel)",
+      "url": "https://credobus.hu/modellvalasztek/econell-12-next/",
+      "scope": "Manufacturer capacity section: 43+1 seated, 83+1 total. Driver excluded.",
+      "seatedPassengers": [
+        43
+      ],
+      "kind": "manufacturer-configuration",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "econell18next",
+      "title": "Credobus Econell 18 Next",
+      "status": "verified",
+      "value": "56 fő (gyártói kivitel)",
+      "url": "https://credobus.hu/modellvalasztek/econell-18-next/",
+      "scope": "Manufacturer capacity section: 56+1 seated, 126+1 total. Driver excluded.",
+      "seatedPassengers": [
+        56
+      ],
+      "kind": "manufacturer-configuration",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "inovell",
+      "title": "Credo Inovell 12",
+      "status": "verified",
+      "value": "Legfeljebb 49 fő (EC), 51 fő (IC)",
+      "url": "https://credobus.hu/archive/wp-content/uploads/2018/02/01-2017-08-11-Credobus-term%C3%A9kkatal%C3%B3gus-2017-hun-web.pdf",
+      "scope": "2017 manufacturer brochure page 40: EC 49+1, IC 51+1 maximum seated. Driver excluded.",
+      "seatedPassengers": [
+        49,
+        51
+      ],
+      "kind": "manufacturer-maximum",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "ec12",
+      "title": "Credo EC 12",
+      "status": "verified",
+      "value": "49 fő (körmendi MNY-912, példa)",
+      "url": "https://www.kormend.hu/editor_up/Hirek/2025/06/Kormend_2024._helyi_beszamolo.pdf",
+      "scope": "Volánbusz 2024 report, fleet appendix, MNY912: 72 total, 49 seated.",
+      "seatedPassengers": [
+        49
+      ],
+      "kind": "operator-example",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "ec11",
+      "title": "Credo EC 11",
+      "status": "verified",
+      "value": "34 fő (bátaszéki FSJ-892, példa)",
+      "url": "https://bataszek.hu/files/tartalom/test_ules/2023/20230510_rk/82_122360012023V_Bataszek_2022_evi_helyi_kozszolgaltatasi_beszamolo.pdf",
+      "scope": "Operator 2022 fleet report p19: FSJ892 EC11, total 91, seated 34.",
+      "seatedPassengers": [
+        34
+      ],
+      "kind": "operator-example",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "ic12",
+      "title": "Credo IC 12",
+      "status": "verified",
+      "value": "51 fő (mezőtúri LLL-882, a forgalmi adatából)",
+      "url": "https://mezotur.hu/wp-content/uploads/2025/11/Eloterjesztes-helyi-autobusz-kozlekedesrol.pdf",
+      "scope": "Operator2025 tender3.6.1 reports52 seated places according to the registration certificate. Derived passenger seats52 minus1driver =51. Registration S.1 includes driver per Directive1999/37 AnnexI. Later summary inconsistently calls this Econell, so use only the named individual IC12 row.",
+      "seatedPassengers": [
+        51
+      ],
+      "kind": "derived-operator-example",
+      "reviewedOn": "2026-11-14",
+      "additionalSources": [
+        "https://eur-lex.europa.eu/eli/dir/1999/37/2022-03-24/eng"
+      ]
+    },
+    {
+      "id": "lh12",
+      "title": "Credo LH 12",
+      "status": "unverified",
+      "value": "Kivitelfüggő, ellenőrzött adat még nincs",
+      "scope": "No verified original LH12 manufacturer or operator seating table located. SOR LH12 and later Optinell are distinct models and are not substituted.",
+      "seatedPassengers": [],
+      "kind": "unverified",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "bn12",
+      "title": "Credo BN 12",
+      "status": "verified",
+      "value": "29 fő (győri kivitel, példa)",
+      "url": "https://gyor.hu/easy-docs/6a2f97144135b",
+      "scope": "2025 MÁV report pp. 28–29: several BN12 vehicles have 29 seated passengers. Other layouts exist.",
+      "seatedPassengers": [
+        29
+      ],
+      "kind": "operator-example",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "bn18",
+      "title": "Credo BN 18",
+      "status": "verified",
+      "value": "38 vagy 40 fő (győri kivitelek, példa)",
+      "url": "https://gyor.hu/easy-docs/6a2f97144135b",
+      "scope": "2025 MÁV report pp. 27–28: KEX595 and KZX522 40, LKN330/331 and LUF359/360 38 seated. Not a complete family range.",
+      "seatedPassengers": [
+        38,
+        40
+      ],
+      "kind": "operator-example",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "en12",
+      "title": "Credo EN 12",
+      "status": "verified",
+      "value": "43 fő (makói LTL-728, példa)",
+      "url": "https://www.kti.hu/wp-content/uploads/2024/12/mako-varos-2023-evi-adatszolgaltatasa.pdf",
+      "scope": "Volánbusz report 2023 p17: LTL728, total 93, seated 43.",
+      "seatedPassengers": [
+        43
+      ],
+      "kind": "operator-example",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "intouro",
+      "title": "Mercedes-Benz Intouro",
+      "status": "verified",
+      "value": "51 fő, legfeljebb 55 (2020-as gyártói kivitel)",
+      "url": "https://www.daimlertruck.com/en/newsroom/pressrelease/all-rounder-with-the-three-pointed-star-the-new-mercedes-benz-intouro-sets-the-standard-for-flexibility-efficiency-and-safety-47518321",
+      "scope": "Manufacturer 2020 generation, 12.18m:51 standard passenger seats,55 maximum.",
+      "seatedPassengers": [
+        51,
+        55
+      ],
+      "kind": "manufacturer-configuration",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "intourom",
+      "title": "Mercedes-Benz Intouro M",
+      "status": "verified",
+      "value": "59 fő, legfeljebb 63 (2020-as gyártói kivitel)",
+      "url": "https://www.daimlertruck.com/en/newsroom/pressrelease/all-rounder-with-the-three-pointed-star-the-new-mercedes-benz-intouro-sets-the-standard-for-flexibility-efficiency-and-safety-47518321",
+      "scope": "Manufacturer 2020 M generation13.09m:59 standard passenger seats,63 maximum. Does not assert seating of older Intouro M vehicles.",
+      "seatedPassengers": [
+        59,
+        63
+      ],
+      "kind": "manufacturer-configuration",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "tourismo",
+      "title": "Mercedes-Benz Tourismo",
+      "status": "verified",
+      "value": "51–59 fő (2014-es gyári hosszváltozatok)",
+      "url": "https://www.mayfaircoaches.com/wp-content/uploads/2020/01/tourismo_en.pdf",
+      "scope": "Manufacturer brochure p5 distinguishes Tourismo51–59, K41 and RH51–55. Family range applies to explicitly dated lengths.",
+      "seatedPassengers": [
+        51,
+        59
+      ],
+      "kind": "manufacturer-configurations",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "tourismorh",
+      "title": "Mercedes-Benz Tourismo RH",
+      "status": "verified",
+      "value": "51 vagy 55 fő (RH / RH M gyári kivitelek)",
+      "url": "https://www.mayfaircoaches.com/wp-content/uploads/2020/01/tourismo_en.pdf",
+      "scope": "Manufacturer brochure p5 RH51–55 seats by length. Technical sheet standard RH51/RHM55. Excludes driver.",
+      "seatedPassengers": [
+        51,
+        55
+      ],
+      "kind": "manufacturer-configurations",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "tourismol",
+      "title": "Mercedes-Benz Tourismo L",
+      "status": "verified",
+      "value": "59 fő (gyári alapkivitel, példa)",
+      "url": "https://www.daimlertruck.com/en/newsroom/pressrelease/going-the-distance-three-luxuriously-fitted-mercedes-benz-tourismo-l-coaches-for-the-dutch-company-autobusbedrijf-doornbos-51879241",
+      "scope": "Manufacturer: standard59-seat Tourismo L, customer chose52. Use explicit standard-layout qualifier.",
+      "seatedPassengers": [
+        59
+      ],
+      "kind": "manufacturer-configuration",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "conecto",
+      "title": "Mercedes-Benz Conecto",
+      "status": "unverified",
+      "value": "Kivitelfüggő, ellenőrzött adat még nincs",
+      "scope": "Generic family profile spans generations. Original O345 solo seating not verified, and the exact LF generations already have separate entries. Do not borrow articulated O345G seats.",
+      "seatedPassengers": [],
+      "kind": "unverified",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "conectog",
+      "title": "Mercedes-Benz O345G Conecto",
+      "status": "verified",
+      "value": "44–56 fő (győri O345G-kivitelek, példa)",
+      "url": "https://gyor.hu/easy-docs/6a2f97144135b",
+      "scope": "2025 MÁV report p. 27: first-generation Conecto G type 671.332/333 examples with 44, 55 and 56 seats.",
+      "seatedPassengers": [
+        44,
+        55,
+        56
+      ],
+      "kind": "operator-example",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "sprinter",
+      "title": "Mercedes-Benz Sprinter",
+      "status": "verified",
+      "value": "Legfeljebb 21 utasülés (2019-es Travel 75, példa)",
+      "url": "https://www.daimlertruck.com/en/newsroom/pressrelease/mercedes-benz-future-proof-technology-maximum-profitability-highest-safety-levels-and-a-minibus-44302767",
+      "scope": "Manufacturer Travel75:18 passenger seats standard,21 passenger seats plus co-driver optional. Applies only to named example, not the photographed W906 or everySprinter.",
+      "seatedPassengers": [
+        21
+      ],
+      "kind": "manufacturer-example",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "mana23",
+      "title": "MAN Lion’s City G A23",
+      "status": "verified",
+      "value": "51 fő (2021-es VOLÁN-kivitel, példa)",
+      "url": "https://megallo.mavcsoport.hu/hirvonal/folyamatosan-erkeznek-volanbuszhoz-tavaly-ev-vegen-megrendelt-man-csuklos-autobuszok",
+      "scope": "Operator 204-bus2021 A23 delivery:51 seated55 standing. Keep separate from CNG A40 and newer18C.",
+      "seatedPassengers": [
+        51
+      ],
+      "kind": "operator-example",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "man12g",
+      "title": "MAN Lion’s City 12 G",
+      "status": "verified",
+      "value": "37 fő (gyártói kivitel, példa)",
+      "url": "https://www.man.eu/global/en/bus/the-man-lion_s-city/technology-and-specification/all-models-and-specifications.html",
+      "scope": "Manufacturer current 12G gas model:37 seats. Local city and regional layouts can have fewer.",
+      "seatedPassengers": [
+        37
+      ],
+      "kind": "manufacturer-configuration",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "mana21",
+      "title": "MAN Lion’s City A21",
+      "status": "verified",
+      "value": "29 fő (miskolci NL223-kivitel, példa)",
+      "url": "https://mvkzrt.hu/az-mvk-rol/rolunk/jarmuallomany",
+      "scope": "MVK A21 NL223 diesel entry explicitly separates 29 seated and 71 standing.",
+      "seatedPassengers": [
+        29
+      ],
+      "kind": "operator-example",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "mana78",
+      "title": "MAN Lion’s City A78",
+      "status": "verified",
+      "value": "40 fő (komáromi PCT-146, példa)",
+      "url": "https://www.komarom.hu/admin/adatok/ksz_beszamolo/2022.pdf",
+      "scope": "Operator2022 table: PCT146 LionsCityA78,74total40seated.",
+      "seatedPassengers": [
+        40
+      ],
+      "kind": "operator-example",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "manclassic",
+      "title": "MAN Lion’s Classic",
+      "status": "verified",
+      "value": "40 fő (2007-es gyári kivitel, példa)",
+      "url": "https://mtc-man.com/web/wp-content/uploads/2015/07/models-bus.pdf",
+      "scope": "Manufacturer2007 programme p2 LionClassic12m40passenger seats. Hosted by MAN distributor.",
+      "seatedPassengers": [
+        40
+      ],
+      "kind": "manufacturer-configuration",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "manregio",
+      "title": "MAN Lion’s Regio",
+      "status": "verified",
+      "value": "Legfeljebb 53 fő (12,25 m-es gyári kivitel)",
+      "url": "https://wikibus.blob.core.windows.net/sources2213/MAN%20Lion%27s%20Regio.pdf",
+      "scope": "Manufacturer brochure mirrored byWikibus: baseRegio12.25m maximum53 seats. LongerC/L not included.",
+      "seatedPassengers": [
+        53
+      ],
+      "kind": "manufacturer-maximum",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "manul",
+      "title": "MAN ÜL 313/353",
+      "status": "verified",
+      "value": "54 fő (torinói ÜL 313, példa)",
+      "url": "https://www.tplitalia.it/GTT/Documenti/SchedeTecnicheGTT-2017.pdf",
+      "scope": "GTT original fleet sheetIL03 p53,451–457:54passenger seats20standing1service place,75total. Operator document mirrored by TPLItalia.",
+      "seatedPassengers": [
+        54
+      ],
+      "kind": "operator-example",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "mancoach",
+      "title": "MAN Lion’s Coach",
+      "status": "verified",
+      "value": "Legfeljebb 53 fő (gyári kivitel)",
+      "url": "https://www.man.eu/mea/en/bus/coaches/the-man-lion_s-coach/technology-and-specifications/man-lion_s-coach-technical-data.html",
+      "scope": "Manufacturer technical specification explicitly maximum53 passenger seats for baseCoach.",
+      "seatedPassengers": [
+        53
+      ],
+      "kind": "manufacturer-maximum",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "mancoachl",
+      "title": "MAN Lion’s Coach L",
+      "status": "verified",
+      "value": "Legfeljebb 61 fő (13,9 m-es gyári kivitel)",
+      "url": "https://www.man.eu/global/en/bus/coaches/the-man-lion_s-coach/technology-and-specifications/man-lion_s-coach-technical-data.html",
+      "scope": "Manufacturer technical specification explicitly maximum61 passenger seats for13.901m CoachL. Not inferred from total rescue capacity.",
+      "seatedPassengers": [
+        61
+      ],
+      "kind": "manufacturer-maximum",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "volvo8900",
+      "title": "Volvo 8900",
+      "status": "verified",
+      "value": "53 fő (VOLÁN különjárati kivitel, példa)",
+      "url": "https://www.mavcsoport.hu/mav-szemelyszallitas/szolgaltatasok/kulonjaratok-es-ertekesites/buszberles",
+      "scope": "Operator explicitly says Volvo8900 has53 passenger seats. Not total capacity.",
+      "seatedPassengers": [
+        53
+      ],
+      "kind": "operator-example",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "volvo8700",
+      "title": "Volvo 8700",
+      "status": "verified",
+      "value": "33 fő (csongrádi MRY-948, példa)",
+      "url": "https://www.csongrad.hu/hun/testuleti2024/20240418/3mell.pdf",
+      "scope": "Operator2023 fleettable: MRY948 B12BLE8700,88total33seated.",
+      "seatedPassengers": [
+        33
+      ],
+      "kind": "operator-example",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "volvo9700",
+      "title": "Volvo 9700",
+      "status": "verified",
+      "value": "49–65 fő (2019-es gyári hossz- és ülésváltozatok)",
+      "url": "https://www.volvobuses.com/content/dam/volvo-buses/markets/master/coaches/complete-coaches/volvo-9700/specifications/9700-downloads/bro-volvo-9700-eu6-en-2019.pdf",
+      "scope": "Manufacturer2019 table:49/53 at12.4m,49/53/57 at13.1m,53/57/61 at13.9m,61/65 at15m depending seating/lift. Family scope explicitly qualified.",
+      "seatedPassengers": [
+        49,
+        53,
+        57,
+        61,
+        65
+      ],
+      "kind": "manufacturer-configurations",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "volvo7900a",
+      "title": "Volvo 7900A",
+      "status": "unverified",
+      "value": "Kivitelfüggő, ellenőrzött adat még nincs",
+      "scope": "No verified original diesel7900A seating table located. Solo hybrid and later electric-articulated capacity are different configurations.",
+      "seatedPassengers": [],
+      "kind": "unverified",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "volvo7700a",
+      "title": "Volvo 7700A",
+      "status": "verified",
+      "value": "52 fő (győri KPK-282, példa)",
+      "url": "https://gyor.hu/easy-docs/6a2f97144135b",
+      "scope": "2025 MÁV report p. 27: Volvo 7700A B9LA KPK282 has 147 total, 52 seated.",
+      "seatedPassengers": [
+        52
+      ],
+      "kind": "operator-example",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "volvo7700",
+      "title": "Volvo 7700",
+      "status": "verified",
+      "value": "32 fő (BKV-kivitel, példa)",
+      "url": "https://www.bkv.hu/de/volvo_7700_2013",
+      "scope": "Operator solo7700 sheet32+1, driver excluded. Not hybrid or articulated.",
+      "seatedPassengers": [
+        32
+      ],
+      "kind": "operator-example",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "volvo8500",
+      "title": "Volvo–Säffle 8500",
+      "status": "unverified",
+      "value": "Kivitelfüggő, ellenőrzött adat még nincs",
+      "scope": "No original manufacturer/operator seat count verified for this broad profile. Seller listings and total capacities are insufficient to establish the catalog configuration.",
+      "seatedPassengers": [],
+      "kind": "unverified",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "alfaregio",
+      "title": "Volvo–Alfa Regio",
+      "status": "verified",
+      "value": "49 fő (2019-es FKE-798, példa)",
+      "url": "https://www.kti.hu/wp-content/uploads/2020/12/Kazincbarcika-Va%CC%81ros-O%CC%88nkorma%CC%81nyzata%CC%81nak-2019.-e%CC%81vi-adatszolga%CC%81ltata%CC%81sa.pdf",
+      "scope": "Operator table3 p7: ALFA B7RREG FKE79849 seated,98 total.",
+      "seatedPassengers": [
+        49
+      ],
+      "kind": "operator-example",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "reform",
+      "title": "ITE Reform 501 LE",
+      "status": "verified",
+      "value": "45 fő (2022-es VOLÁN-kivitel)",
+      "url": "https://megallo.mavcsoport.hu/hirvonal/hajdu-bihar-megyebe-megerkeztek-volanbusz-uj-buszai",
+      "scope": "Operator2022 delivery501LE explicitly45seated30standing. Do not copy500LE36.",
+      "seatedPassengers": [
+        45
+      ],
+      "kind": "operator-example",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "tourliner",
+      "title": "Neoplan Tourliner",
+      "status": "verified",
+      "value": "49 fő (VOLÁN kéttengelyes kivitel, példa)",
+      "url": "https://www.mavcsoport.hu/mav-szemelyszallitas/szolgaltatasok/kulonjaratok-es-ertekesites/buszberles",
+      "scope": "Operator hire page explicitly distinguishes 2axle49 seats from 3axle55.",
+      "seatedPassengers": [
+        49
+      ],
+      "kind": "operator-example",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "tourlinerl",
+      "title": "Neoplan Tourliner L",
+      "status": "verified",
+      "value": "55 fő (VOLÁN háromtengelyes kivitel, példa)",
+      "url": "https://www.mavcsoport.hu/mav-szemelyszallitas/szolgaltatasok/kulonjaratok-es-ertekesites/buszberles",
+      "scope": "Operator hire page three-axle Tourliner55. Long L profile is three-axle. Other lengths/equipment are not inferred.",
+      "seatedPassengers": [
+        55
+      ],
+      "kind": "operator-example",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "setra415le",
+      "title": "Setra S 415 LE",
+      "status": "verified",
+      "value": "45 fő (2024-es dél-tiroli kivitel, példa)",
+      "url": "https://www.daimlertruck.com/en/newsroom/pressrelease/daimler-buses-delivers-265-setra-and-mercedes-benz-buses-to-private-south-tyrolean-bus-companies-52626856",
+      "scope": "Manufacturer identifies 12m S415LE with 45 seats and 42 standing places.",
+      "seatedPassengers": [
+        45
+      ],
+      "kind": "operator-example",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "setra315ul",
+      "title": "Setra S 315 UL",
+      "status": "verified",
+      "value": "53 fő (torinói kivitel, példa)",
+      "url": "https://www.tplitalia.it/GTT/Documenti/SchedeTecnicheGTT-2017.pdf",
+      "scope": "GTT original fleet sheetIL02 p52 explicitlyS315UL chassis/body:53passenger seats27standing1service place. Summary callsS315ULH. Not a manufacturer universal count.",
+      "seatedPassengers": [
+        53
+      ],
+      "kind": "operator-example",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "setra313ul",
+      "title": "Setra S 313 UL",
+      "status": "verified",
+      "value": "46 fő (Marsico Nuovo FS974NM, példa)",
+      "url": "https://www.regione.basilicata.it/wp-content/uploads/giunta/docs/DOCUMENT_FILE_3071445.pdf",
+      "scope": "Regional authority original fleet census page9 row916: S313UL11.32m46seated27standing0wheelchair. Foreign operator example, not assumed Volán count.",
+      "seatedPassengers": [
+        46
+      ],
+      "kind": "operator-example",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "setra516hd",
+      "title": "Setra S 516 HD",
+      "status": "verified",
+      "value": "48 fő (2026-os Arzt-kivitel, példa)",
+      "url": "https://www.daimlertruck.com/en/newsroom/pressrelease/16-new-setra-touring-coaches-for-cruise-passengers-53438499",
+      "scope": "Manufacturer explicitly distinguishes S516HD48 from S517HD52 and S516HDH. April2026 delivery.",
+      "seatedPassengers": [
+        48
+      ],
+      "kind": "operator-example",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "setra416",
+      "title": "Setra S 416 GT-HD",
+      "status": "verified",
+      "value": "48 vagy 53 fő (2005-ös gyári kivitelek)",
+      "url": "https://wikibus.blob.core.windows.net/sources1816/ComfortClass%20400%20Technical%20specifications.pdf",
+      "scope": "Manufacturer May2005 S416GT-HD48fourstar/53threestar passenger seats, driver and co-driver additional, excluded.",
+      "seatedPassengers": [
+        48,
+        53
+      ],
+      "kind": "manufacturer-configurations",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "setra415hd",
+      "title": "Setra S 415 HD",
+      "status": "verified",
+      "value": "44 vagy 49 fő (2005-ös gyári kivitelek)",
+      "url": "https://wikibus.blob.core.windows.net/sources1822/TopClass%20400%20Technical%20specifications.pdf",
+      "scope": "Manufacturer May2005 p3 S415HD44fourstar/49threestar passenger seats, driver and co-driver additional, excluded.",
+      "seatedPassengers": [
+        44,
+        49
+      ],
+      "kind": "manufacturer-configurations",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "crossway",
+      "title": "Irisbus Crossway",
+      "status": "verified",
+      "value": "49 fix + 2 lehajtható ülés (torinói 12 m-es, példa)",
+      "url": "https://www.tplitalia.it/GTT/Documenti/SchedeTecnicheGTT-2017.pdf",
+      "scope": "GTT IL08 2012–2013 fleet320–365:49+2seats, folding noted byasterisk. Wheelchair configuration49 seats. Separate driver/service1.",
+      "seatedPassengers": [
+        49,
+        2
+      ],
+      "kind": "operator-example",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "evadys",
+      "title": "Irisbus Evadys HD",
+      "status": "verified",
+      "value": "Legfeljebb 63 fő (12,8 m-es HD Line gyári kivitel)",
+      "url": "https://wikibus.blob.core.windows.net/sources1846/Irisbus%20Evadys.pdf",
+      "scope": "Original Irisbus brochure p16 explicitly EvadysH andHDLine upto63seated passengers depending length and national law. p17 table59at12m/63at12.8m. Not borrowed from newerIveco.",
+      "seatedPassengers": [
+        63
+      ],
+      "kind": "manufacturer-maximum",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "scaniatouring",
+      "title": "Scania Touring",
+      "status": "verified",
+      "value": "51 fő (gyári alapkivitel, példa)",
+      "url": "https://www.scania.com/ph/en/home/about-scania/newsroom/news/2023/Scania-Touring-banners-Manila-to-Bicol-service-of-Cagsawa-Travel-and-Tours.html",
+      "scope": "Manufacturer describes a standard51-seat Touring reduced to38 by customer. Regional standard configuration, not an assumed Volán count.",
+      "seatedPassengers": [
+        51
+      ],
+      "kind": "manufacturer-configuration",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "omnia",
+      "title": "Scania OmniExpress",
+      "status": "verified",
+      "value": "49 fix + 4 lehajtható ülés (12,4 m-es 3.20, példa)",
+      "url": "https://wikibus.blob.core.windows.net/sources2050/Scania%20OmniExpress%203.20.pdf",
+      "scope": "Manufacturer49+4+1 layout explicitly49passenger seats plus two folding double seats, separate driver. Qualified variant example.",
+      "seatedPassengers": [
+        49,
+        4
+      ],
+      "kind": "manufacturer-configuration",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "ikarus134",
+      "title": "Ikarus E134",
+      "status": "unverified",
+      "value": "Kivitelfüggő, ellenőrzött adat még nincs",
+      "scope": "Original introduction confirms E134, but does not state passenger-seat count in readable text. Do not copy V134 urban seats.",
+      "seatedPassengers": [],
+      "kind": "unverified",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "ikarus127",
+      "title": "ARC 127 · Ikarus E127",
+      "status": "unverified",
+      "value": "Kivitelfüggő, ellenőrzött adat még nincs",
+      "scope": "No original E127 seat count verified. V127 and ModuloM108D are distinct urban layouts.",
+      "seatedPassengers": [],
+      "kind": "unverified",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "ikarus395",
+      "title": "Ikarus EAG 395/E95",
+      "status": "unverified",
+      "value": "Kivitelfüggő, ellenőrzött adat még nincs",
+      "scope": "E95 family includes multiple chassis/lengths. Located sources either discuss other coaches or a converted Aeropark example with ambiguous32+1 seating. No family-wide number inferred.",
+      "seatedPassengers": [],
+      "kind": "unverified",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "ikarus94",
+      "title": "Ikarus EAG E94",
+      "status": "verified",
+      "value": "46 fő (2019-es MXN-646, példa)",
+      "url": "https://www.kti.hu/wp-content/uploads/2020/12/Kazincbarcika-Va%CC%81ros-O%CC%88nkorma%CC%81nyzata%CC%81nak-2019.-e%CC%81vi-adatszolga%CC%81ltata%CC%81sa.pdf",
+      "scope": "Operator table3 p7: MXN646 E9446 seated,88 total.",
+      "seatedPassengers": [
+        46
+      ],
+      "kind": "operator-example",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "autosan",
+      "title": "Autosan A1012T Lider",
+      "status": "verified",
+      "value": "45 vagy 47 fő (korai gyári kivitelek)",
+      "url": "https://wikibus.blob.core.windows.net/sources1819/Autobus%20turystyczny%20Autosan%20A1012T%20Lider.pdf",
+      "scope": "Manufacturer A1012T Lider brochure p2:47+1+1 standard,45+1+1 toilet, driver and attendant excluded. Not67-seat UK Eagle.",
+      "seatedPassengers": [
+        45,
+        47
+      ],
+      "kind": "manufacturer-configurations",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "irizar",
+      "title": "Irizar Century",
+      "status": "verified",
+      "value": "52 fő (2019-es FLR-810, példa)",
+      "url": "https://www.kti.hu/wp-content/uploads/2020/12/Kazincbarcika-Va%CC%81ros-O%CC%88nkorma%CC%81nyzata%CC%81nak-2019.-e%CC%81vi-adatszolga%CC%81ltata%CC%81sa.pdf",
+      "scope": "Operator table3 p7: IRIZAR ICENT FLR81052 seated and52 total.",
+      "seatedPassengers": [
+        52
+      ],
+      "kind": "operator-example",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "nabi",
+      "title": "NABI 700SE",
+      "status": "verified",
+      "value": "41 fő (2004-es gyártói kivitel)",
+      "url": "https://bse.hu/newkibdata/107947/_1_NAB040526ER02EN.pdf",
+      "scope": "NABI original stock-exchange release26May2004 explicitly700SE90passengers41seats.",
+      "seatedPassengers": [
+        41
+      ],
+      "kind": "manufacturer-configuration",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "bydk9ud",
+      "title": "BYD K9UD",
+      "status": "verified",
+      "value": "34 fő (győri), 35 fő (miskolci kivitel)",
+      "url": "https://mvkzrt.hu/az-mvk-rol/rolunk/jarmuallomany",
+      "scope": "MVK K9UD explicitly 35 seats. Győr 2025 report p.27 lists AAKZ175–180 with 34 seats. Both are examples, not exhaustive bounds.",
+      "seatedPassengers": [
+        34,
+        35
+      ],
+      "kind": "operator-example",
+      "reviewedOn": "2026-11-14",
+      "additionalSources": [
+        "https://gyor.hu/easy-docs/6a2f97144135b"
+      ]
+    },
+    {
+      "id": "bydb12",
+      "title": "BYD eBus B12",
+      "status": "verified",
+      "value": "32 fix ülés (budapesti Arriva-kivitel)",
+      "url": "https://arrivahungary.hu/hirek/megujult-az-andor-utcai-telephely-es-buszflotta",
+      "scope": "Operator2026 explicitly solo12m87total32fixedseats. No assumption about folding seats.",
+      "seatedPassengers": [
+        32
+      ],
+      "kind": "operator-example",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "bydb19",
+      "title": "BYD eBus B19",
+      "status": "verified",
+      "value": "48 fő (MVK B19-kivitel, példa)",
+      "url": "https://mvkzrt.hu/az-mvk-rol/rolunk/jarmuallomany",
+      "scope": "MVK B11U / eBus B19 entry: 48 seated, 73 standing plus wheelchair place. Budapest specification is not inferred.",
+      "seatedPassengers": [
+        48
+      ],
+      "kind": "operator-example",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "en95",
+      "title": "Credo EN 9,5",
+      "status": "verified",
+      "value": "26 fix + 1 lehajtható ülés (BKV-tesztkivitel)",
+      "url": "https://www.bkv.hu/hu/korabbi_jarmutesztek/credo_en_95",
+      "scope": "2010 BKV test sheet explicitly distinguishes 26 fixed passenger seats, one fold-down seat, and one driver seat.",
+      "seatedPassengers": [
+        26,
+        1
+      ],
+      "kind": "operator-example",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "ikarus120e",
+      "title": "Ikarus 120e",
+      "status": "verified",
+      "value": "27 + 2 utasülés (szczecineki kivitel, példa)",
+      "url": "https://www.ikarus.hu/post/we-have-started-deliveries-of-new-electric-buses-for-szczecinek",
+      "scope": "Manufacturer2024 explicitly27+2passenger seats86total. Preserve source notation, no unsupported identification of the2 as driver seats.",
+      "seatedPassengers": [
+        27,
+        2
+      ],
+      "kind": "operator-example",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "ikarusv127",
+      "title": "Ikarus V127",
+      "status": "unverified",
+      "value": "Kivitelfüggő, ellenőrzött adat még nincs",
+      "scope": "Operator introduction confirms PKD V127 but has no verified seated count. ModuloM108D29 cannot by itself establish V127 capacity.",
+      "seatedPassengers": [],
+      "kind": "unverified",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "karsanatak",
+      "title": "Karsan ATAK",
+      "status": "verified",
+      "value": "23 fő (BKV-kivitel, példa)",
+      "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/karsan-atak",
+      "scope": "BKV ATAK: 23+1 seated, driver excluded.",
+      "seatedPassengers": [
+        23
+      ],
+      "kind": "operator-example",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "man10e",
+      "title": "MAN Lion’s City 10 E",
+      "status": "verified",
+      "value": "33 fő (gyártói kivitel, példa)",
+      "url": "https://www.man.eu/global/en/bus/the-man-lion_s-city/technology-and-specification/all-models-and-specifications.html",
+      "scope": "Manufacturer 10.5 m 10E specification: 33 seats.",
+      "seatedPassengers": [
+        33
+      ],
+      "kind": "manufacturer-configuration",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "man12c",
+      "title": "MAN Lion’s City 12 C",
+      "status": "verified",
+      "value": "37 fő (gyártói kivitel, példa)",
+      "url": "https://www.man.eu/global/en/bus/the-man-lion_s-city/technology-and-specification/all-models-and-specifications.html",
+      "scope": "Manufacturer current diesel 12.2 m model: 37 seats, not the A21 generation.",
+      "seatedPassengers": [
+        37
+      ],
+      "kind": "manufacturer-configuration",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "man12e",
+      "title": "MAN Lion’s City 12 E",
+      "status": "verified",
+      "value": "44 fő (gyártói kivitel, példa)",
+      "url": "https://www.man.eu/global/en/bus/the-man-lion_s-city/electric-drive/man-lion_s-city_e.html",
+      "scope": "Electric-drive page lists 44 for the 12E. Another manufacturer overview lists45, so this is a qualified example configuration rather than a universal bound.",
+      "seatedPassengers": [
+        44
+      ],
+      "kind": "manufacturer-configuration",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "man18e",
+      "title": "MAN Lion’s City 18 E",
+      "status": "verified",
+      "value": "Legfeljebb 60 fő (gyártói adat)",
+      "url": "https://www.man.eu/ntg_media/media/pl/content_medien/doc/bw_master/bus_1/datenblaetter/20201110_Bus_Datenblatt_18E.pdf",
+      "scope": "Manufacturer 18E data sheet explicitly labels maximum number of seats60.",
+      "seatedPassengers": [
+        60
+      ],
+      "kind": "manufacturer-maximum",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "man18c",
+      "title": "MAN Lion’s City 18 C",
+      "status": "verified",
+      "value": "Legfeljebb 49 fő (gyártói adat)",
+      "url": "https://www.man.eu/ntg_media/media/en/content_medien/doc/bw_master/bus_1/datenblaetter/man_lions_city_18.pdf",
+      "scope": "Manufacturer diesel18 sheet explicitly maximum49 seats. Not gas18G or electric18E.",
+      "seatedPassengers": [
+        49
+      ],
+      "kind": "manufacturer-maximum",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "mana21cng",
+      "title": "MAN Lion’s City A21 CNG",
+      "status": "verified",
+      "value": "31 fő (miskolci kivitel, példa)",
+      "url": "https://mvkzrt.hu/az-mvk-rol/rolunk/jarmuallomany",
+      "scope": "MVK A21 CNG: 31 seated, 54 standing plus wheelchair place.",
+      "seatedPassengers": [
+        31
+      ],
+      "kind": "operator-example",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "mana40cng",
+      "title": "MAN Lion’s City GL A40 CNG",
+      "status": "verified",
+      "value": "42 fő (miskolci kivitel, példa)",
+      "url": "https://mvkzrt.hu/az-mvk-rol/rolunk/jarmuallomany",
+      "scope": "MVK A40 CNG: 42 seated, 113 standing plus wheelchair place.",
+      "seatedPassengers": [
+        42
+      ],
+      "kind": "operator-example",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "citaro",
+      "title": "Mercedes-Benz O530 Citaro",
+      "status": "verified",
+      "value": "26 vagy 32 fő (BKV-kivitelek)",
+      "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/mercedes-benz-o530-citaro",
+      "scope": "BKV O530 Citaro type sheet: 26+1 or 32+1. Driver excluded.",
+      "seatedPassengers": [
+        26,
+        32
+      ],
+      "kind": "operator-example",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "citarog",
+      "title": "Mercedes-Benz O530 Citaro G",
+      "status": "verified",
+      "value": "41 fő (BKV-kivitel, példa)",
+      "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/mercedes-benz-o530-citaro-g",
+      "scope": "BKV 41+1 seated. Driver excluded.",
+      "seatedPassengers": [
+        41
+      ],
+      "kind": "operator-example",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "citarok",
+      "title": "Mercedes-Benz O530 Citaro K",
+      "status": "verified",
+      "value": "26 fő (BKV O530 K-kivitel, példa)",
+      "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/mercedes-benz-o530-citaro-k",
+      "scope": "BKV O530 K sheet: 26+1 seated. Do not reuse the C2 K sheet.",
+      "seatedPassengers": [
+        26
+      ],
+      "kind": "operator-example",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "citaroc2",
+      "title": "Mercedes-Benz Citaro C2",
+      "status": "verified",
+      "value": "27 fő (BKV-kivitel, példa)",
+      "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/mercedes-benz-citaro-c2",
+      "scope": "BKV Citaro C2 sheet: 27+1 seated. Driver excluded.",
+      "seatedPassengers": [
+        27
+      ],
+      "kind": "operator-example",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "citaroc2g",
+      "title": "Mercedes-Benz Citaro C2 G",
+      "status": "verified",
+      "value": "35 fő (BKV-kivitel, példa)",
+      "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/mercedes-benz-citaro-g-c2",
+      "scope": "BKV Citaro G C2 sheet: 35+1 seated. Driver excluded.",
+      "seatedPassengers": [
+        35
+      ],
+      "kind": "operator-example",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "citaroc2k",
+      "title": "Mercedes-Benz Citaro C2 K",
+      "status": "verified",
+      "value": "27 fő (BKV C2 K-kivitel, példa)",
+      "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/mercedes-benz-citaro-c2-k",
+      "scope": "Correct C2 K sheet: 27+1 seated, distinct from first-generation O530 K.",
+      "seatedPassengers": [
+        27
+      ],
+      "kind": "operator-example",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "conectolf",
+      "title": "Mercedes-Benz Conecto · alacsonypadlós",
+      "status": "verified",
+      "value": "27 fő (BKV-kivitel, példa)",
+      "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/mercedes-benz-conecto",
+      "scope": "BKV Conecto sheet: 27+1 seated, driver excluded.",
+      "seatedPassengers": [
+        27
+      ],
+      "kind": "operator-example",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "conectoglf",
+      "title": "Mercedes-Benz Conecto G · alacsonypadlós",
+      "status": "verified",
+      "value": "35 fő (BKV-kivitel, példa)",
+      "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/mercedes-benz-conecto-g",
+      "scope": "BKV Conecto G sheet: 35+1 seated, driver excluded.",
+      "seatedPassengers": [
+        35
+      ],
+      "kind": "operator-example",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "conecto2",
+      "title": "Mercedes-Benz Conecto 2",
+      "status": "verified",
+      "value": "27 fő (BKV-kivitel, példa)",
+      "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/mercedes-benz-conecto-2",
+      "scope": "BKV Conecto 2: 27+1 seated, driver excluded.",
+      "seatedPassengers": [
+        27
+      ],
+      "kind": "operator-example",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "conecto2g",
+      "title": "Mercedes-Benz Conecto G 2",
+      "status": "verified",
+      "value": "38 fő (BKV-kivitel, példa)",
+      "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/mercedes-benz-conecto-g-2",
+      "scope": "BKV Conecto G 2: 38+1 seated, driver excluded.",
+      "seatedPassengers": [
+        38
+      ],
+      "kind": "operator-example",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "moduloc68",
+      "title": "Modulo C68E",
+      "status": "verified",
+      "value": "20 fő (BKV-kivitel, példa)",
+      "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/modulo-ep-080-es-c68e",
+      "scope": "BKV EP080ES/C68E: 20+1 seated, driver excluded.",
+      "seatedPassengers": [
+        20
+      ],
+      "kind": "operator-example",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "modulo108",
+      "title": "Modulo M108D",
+      "status": "verified",
+      "value": "29 fő (BKV-kivitel, példa)",
+      "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/modulo-m108d",
+      "scope": "BKV M108D: 29+1 seated, driver excluded.",
+      "seatedPassengers": [
+        29
+      ],
+      "kind": "operator-example",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "modulo168",
+      "title": "Modulo M168D",
+      "status": "verified",
+      "value": "37 fő (BKV-kivitel, példa)",
+      "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/modulo-m168d",
+      "scope": "BKV M168D: 37+1 seated, driver excluded.",
+      "seatedPassengers": [
+        37
+      ],
+      "kind": "operator-example",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "ecitaro",
+      "title": "Mercedes-Benz eCitaro",
+      "status": "verified",
+      "value": "28 fő (2021-es VOLÁN-kivitel)",
+      "url": "https://megallo.mavcsoport.hu/hirvonal/indul-elektromos-autobuszok-probauzeme",
+      "scope": "Operator explicitly28seated50standing, solo eCitaro.",
+      "seatedPassengers": [
+        28
+      ],
+      "kind": "operator-example",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "urbino12",
+      "title": "Solaris Urbino 12",
+      "status": "verified",
+      "value": "25 fő (piłai dízelkivitel, példa)",
+      "url": "https://www.solarisbus.com/en/press/pdf/1199",
+      "scope": "Manufacturer explicitly dieselUrbino1225seated90total. Hybrid27 is a different variant. Paks electric has separate profile.",
+      "seatedPassengers": [
+        25
+      ],
+      "kind": "operator-example",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "urbino8",
+      "title": "Solaris Urbino 8,9 LE electric",
+      "status": "verified",
+      "value": "24 fő (paksi 8,9 m-es kivitel)",
+      "url": "https://www.solarisbus.com/en/press/electric-solaris-buses-will-go-to-paks-in-hungary-1215",
+      "scope": "Manufacturer explicitly says smaller8.9m electric buses have24 seated passengers.",
+      "seatedPassengers": [
+        24
+      ],
+      "kind": "operator-example",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "vanhoolcng",
+      "title": "Van Hool New A330 CNG",
+      "status": "verified",
+      "value": "23 fő (BKV-kivitel, példa)",
+      "url": "https://www.bkv.hu/hu/cng_van_hool_a_330",
+      "scope": "BKV New A330 CNG sheet: 23+1 seated, driver excluded.",
+      "seatedPassengers": [
+        23
+      ],
+      "kind": "operator-example",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "vanhool",
+      "title": "Van Hool New A330",
+      "status": "verified",
+      "value": "28 fő (BKV-kivitel, példa)",
+      "url": "https://www.bkv.hu/en/jarmuveink/autobusz/van-hool-new-a330",
+      "scope": "BKV New A330 diesel sheet: 28+1 seated, driver excluded.",
+      "seatedPassengers": [
+        28
+      ],
+      "kind": "operator-example",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "volvohybrid",
+      "title": "Volvo 7700 / 7900 Hybrid",
+      "status": "verified",
+      "value": "36 fő (BKV 7700H és 7900H)",
+      "url": "https://www.bkv.hu/hu/jarmuveink/autobusz/volvo-7900h",
+      "scope": "Both BKV sheets list 36+1 seated. Driver excluded.",
+      "seatedPassengers": [
+        36
+      ],
+      "kind": "operator-example",
+      "reviewedOn": "2026-11-14",
+      "additionalSources": [
+        "https://www.bkv.hu/hu/jarmuveink/autobusz/volvo-7700h"
+      ]
+    },
+    {
+      "id": "localo",
+      "title": "Volvo-Alfa Localo",
+      "status": "verified",
+      "value": "27 vagy 33 fő (2024-es salgótarjáni példák)",
+      "url": "https://kozgyules.salgotarjan.hu/files/K%C3%B6zgy%C5%B1l%C3%A9s/2025/2025_04%20%28%C3%A1prilis%29/P%C3%B3tl%C3%B3lag%20felvett%20anyagok/Javaslat%20a%20M%C3%81V%20Szem%C3%A9lysz%C3%A1ll%C3%ADt%C3%A1si%20Zrt.%20St.%20mjv%20aut%C3%B3busszal%20v%C3%A9gzett%20helyi%20szem%C3%A9lysz%C3%A1ll%C3%ADt%C3%A1s%20k%C3%B6zszolg%C3%A1ltat%C3%A1si%20tev%C3%A9kenys%C3%A9g%20feladatainak%20ell%C3%A1t%C3%A1s%C3%A1r%C3%B3l%20sz%C3%B3l%C3%B3%202024.%20%C3%A9vi%20besz%C3%A1mol%C3%B3j%C3%A1nak%20elfogad%C3%A1s%C3%A1ra.pdf",
+      "scope": "Operator2024 appendix4 printedp22: KTK398/KXM049/050/04627seated, KXM04833seated,103total. Named layout examples.",
+      "seatedPassengers": [
+        27,
+        33
+      ],
+      "kind": "operator-example",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "urbino12electric",
+      "title": "Solaris Urbino 12 electric",
+      "status": "verified",
+      "value": "28 fő (paksi kivitel)",
+      "url": "https://www.solarisbus.com/en/press/electric-solaris-buses-will-go-to-paks-in-hungary-1215",
+      "scope": "Manufacturer Paks order:12m electric has28 seats. Do not copy to dieselUrbino12.",
+      "seatedPassengers": [
+        28
+      ],
+      "kind": "operator-example",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "setra417ul",
+      "title": "Setra S 417 UL",
+      "status": "verified",
+      "value": "61 fő (gyári alapkivitel, példa)",
+      "url": "https://www.setra-sturm.de/de/setra/multiclass/s415ul/data",
+      "scope": "Setra branded dealer manufacturer specification table: S417UL14.05m61standardTransit seats, distinct from13.38m ULbusiness59.",
+      "seatedPassengers": [
+        61
+      ],
+      "kind": "manufacturer-configuration",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "setra419ul",
+      "title": "Setra S 419 UL",
+      "status": "verified",
+      "value": "Legfeljebb 69 fő (gyártói adat)",
+      "url": "https://www.daimlertruck.com/en/newsroom/pressrelease/versatile-success-with-unique-model-series-50243122",
+      "scope": "Manufacturer identifies S419UL, not S417UL, as the series version with 69 seats.",
+      "seatedPassengers": [
+        69
+      ],
+      "kind": "manufacturer-maximum",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "ikarusc56",
+      "title": "Ikarus C56",
+      "status": "verified",
+      "value": "44 vagy 45 fő (2019-es kazincbarcikai példák)",
+      "url": "https://www.kti.hu/wp-content/uploads/2020/12/Kazincbarcika-Va%CC%81ros-O%CC%88nkorma%CC%81nyzata%CC%81nak-2019.-e%CC%81vi-adatszolga%CC%81ltata%CC%81sa.pdf",
+      "scope": "Operator report table3 p7: FLX176/JMN89345, LDL535/JMN89244 seated. Search snippets misalign rows, use full table.",
+      "seatedPassengers": [
+        44,
+        45
+      ],
+      "kind": "operator-example",
+      "reviewedOn": "2026-11-14"
+    },
+    {
+      "id": "ikarusc80",
+      "title": "Ikarus C80",
+      "status": "verified",
+      "value": "30 fő (győri JSB-293, példa)",
+      "url": "https://gyor.hu/easy-docs/6a2f97144135b",
+      "scope": "MÁV 2025 report p27: JSB293 Ikarus C80.40M, total147, seated30. Not copied from the 280 or generalized to all C80 layouts.",
+      "seatedPassengers": [
+        30
+      ],
+      "kind": "operator-example",
+      "reviewedOn": "2026-11-14"
+    }
+  ]
+}

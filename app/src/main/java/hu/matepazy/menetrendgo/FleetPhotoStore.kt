@@ -107,8 +107,8 @@ internal object FleetPhotoStore {
         BitmapFactory.decodeByteArray(bytes, 0, bytes.size, bounds)
         if (bounds.outWidth !in 1..8192 || bounds.outHeight !in 1..8192) return null
         val options = BitmapFactory.Options().apply {
-            while (bounds.outWidth / inSampleSize.coerceAtLeast(1) > 1200 ||
-                bounds.outHeight / inSampleSize.coerceAtLeast(1) > 1200) {
+            while (bounds.outWidth / inSampleSize.coerceAtLeast(1) > 1600 ||
+                bounds.outHeight / inSampleSize.coerceAtLeast(1) > 1600) {
                 inSampleSize = inSampleSize.coerceAtLeast(1) * 2
             }
         }

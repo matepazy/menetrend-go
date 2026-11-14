@@ -1,0 +1,181 @@
+[
+  {
+    "id": "en18",
+    "title": "Credo EN 18",
+    "aliases": [
+      "Credo EN 18"
+    ],
+    "description": "Alacsony belépésű, csuklós elővárosi autóbusz a korábbi Credo modellcsaládból. A városi BN 18 elővárosi rokona, három utasajtóval.",
+    "facts": [
+      "A városi BN 18-nak négy, az elővárosi EN 18-nak három utasajtaja van. A rokon karosszériában az üléselrendezést is a hosszabb utazásokhoz igazították."
+    ],
+    "sources": [
+      {
+        "label": "Típusismertető · bobalt.hu",
+        "url": "https://bobalt.hu/photodb_hun/volanbusz/vb_credo_en.htm"
+      },
+      {
+        "label": "Credo EN 18 · típusismertető",
+        "url": "https://hu.wikipedia.org/wiki/Credo_EN_18"
+      }
+    ],
+    "photos": [],
+    "researchStatus": "exact-type-commons-photo-unverified",
+    "reviewedOn": "2026-11-13"
+  },
+  {
+    "id": "setra419",
+    "title": "Setra S 419",
+    "aliases": [
+      "Setra S419"
+    ],
+    "description": "A Setra 400-as család hosszú, helyközi változata. A szolgáltató rövidített típusa nem adja meg a teljes gyári utótagot.",
+    "facts": [
+      "Az S 419 a Setra 400-as nemzedékéhez tartozik. Ebben a sorozatban összesen 22 különböző modell készült, a helyközi buszoktól az emeletes turistabuszig."
+    ],
+    "sources": [
+      {
+        "label": "Típusismertető · bobalt.hu",
+        "url": "https://bobalt.hu/photodb_hun/volanbusz/vb_setra_s400.htm"
+      },
+      {
+        "label": "Setra · a 300-as és 400-as sorozat története",
+        "url": "https://www.setra-bus.com/en_DE/brand/setraclassic/setra-history.html"
+      }
+    ],
+    "photos": [],
+    "researchStatus": "exact-type-commons-photo-unverified",
+    "reviewedOn": "2026-11-13"
+  },
+  {
+    "id": "optinell10",
+    "title": "Credobus Optinell 10",
+    "aliases": [
+      "Credo Optinell 10",
+      "Credobus Optinell 10"
+    ],
+    "description": "Kompakt, helyközi feladatokra fejlesztett magyar autóbusz a Credobus Optinell családból. A rövidebb kivitel a kisebb utasforgalmú vonalakhoz igazodik.",
+    "facts": [
+      "A gyártó a hagyományos szóló buszoknál mintegy 2–2,5 méterrel rövidebb alternatívaként mutatja be.",
+      "A 10-es és 12-es Optinell külön változat, ezért a fotóik és méretadataik nem cserélhetők fel."
+    ],
+    "sources": [
+      {
+        "label": "Credobus · Optinell",
+        "url": "https://credobus.hu/archive/autobuszok/optinell/"
+      }
+    ],
+    "photos": [],
+    "researchStatus": "exact-type-commons-photo-unverified",
+    "reviewedOn": "2026-11-13"
+  },
+  {
+    "id": "optinell12",
+    "title": "Credobus Optinell 12",
+    "aliases": [
+      "Credo Optinell 12",
+      "Credobus Optinell 12"
+    ],
+    "description": "Magyar gyártású helyközi autóbusz az Optinell család hosszabb változatából. A gyártó a könnyű szerkezetet és a hatékony üzemeltetést emeli ki a típusnál.",
+    "facts": [
+      "Az Optinell családot a Credobus két külön méretváltozatban, 10-es és 12-es jelöléssel ismerteti."
+    ],
+    "sources": [
+      {
+        "label": "Credobus · Optinell",
+        "url": "https://credobus.hu/archive/autobuszok/optinell/"
+      }
+    ],
+    "photos": [],
+    "researchStatus": "exact-type-commons-photo-unverified",
+    "reviewedOn": "2026-11-13"
+  },
+  {
+    "id": "ikarus260",
+    "title": "Ikarus 260",
+    "aliases": [
+      "Ikarus 260"
+    ],
+    "description": "A magyar közlekedés klasszikus, szóló, magaspadlós autóbusza a 200-as típuscsaládból. A Volán megőrzött járművei között nosztalgia- és tematikus utazásokon is megjelenik.",
+    "facts": [
+      "A MÁV egy megőrzött 260.20M változatot 11 méteres, helyközi, Rába–MAN dízelmotoros autóbuszként mutat be. Ez az adat erre a kivitelre vonatkozik."
+    ],
+    "sources": [
+      {
+        "label": "MÁV · Retró és tematikus események",
+        "url": "https://www.mavcsoport.hu/mav-szemelyszallitas/szolgaltatasok/esemenyek-es-nosztalgiajaratok/retro-es-tematikus-esemenyek"
+      }
+    ],
+    "photos": [
+      {
+        "caption": "Tisza Volán Ikarus 260 Makón",
+        "author": "Burrows",
+        "source": "https://commons.wikimedia.org/wiki/File:Ikarus_260_(FKB-536),_Tisza_Vol%C3%A1n,_Mak%C3%B3_03.jpg",
+        "license": "CC BY 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/3.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/da/Ikarus_260_%28FKB-536%29%2C_Tisza_Vol%C3%A1n%2C_Mak%C3%B3_03.jpg/960px-Ikarus_260_%28FKB-536%29%2C_Tisza_Vol%C3%A1n%2C_Mak%C3%B3_03.jpg"
+      }
+    ],
+    "researchStatus": "outside-current-passenger-scope",
+    "reviewedOn": "2026-11-13"
+  },
+  {
+    "id": "ikarus280",
+    "title": "Ikarus 280",
+    "aliases": [
+      "Ikarus 280"
+    ],
+    "description": "A 200-as Ikarus család csuklós, magaspadlós autóbusza. A magyar városi és elővárosi közlekedés ismert járműve, megőrzött példányai a Volán nosztalgiaflottájában is szerepelnek.",
+    "facts": [
+      "A Volán rendezvényein a 200 ezredik Ikarusként ismert 280-as is megjelenik.",
+      "A csuklós kialakítás nagyobb utasteret ad, mint a szóló 260-asé. A két típus fotója nem helyettesíti egymást."
+    ],
+    "sources": [
+      {
+        "label": "MÁV · Retró és tematikus események",
+        "url": "https://www.mavcsoport.hu/mav-szemelyszallitas/szolgaltatasok/esemenyek-es-nosztalgiajaratok/retro-es-tematikus-esemenyek"
+      }
+    ],
+    "photos": [
+      {
+        "caption": "Körös Volán Ikarus 280",
+        "author": "Gyenes Viktor",
+        "source": "https://commons.wikimedia.org/wiki/File:Ikarus_280_K%C3%B6r%C3%B6s_Vol%C3%A1n.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/33/Ikarus_280_K%C3%B6r%C3%B6s_Vol%C3%A1n.jpg/960px-Ikarus_280_K%C3%B6r%C3%B6s_Vol%C3%A1n.jpg"
+      }
+    ],
+    "researchStatus": "outside-current-passenger-scope",
+    "reviewedOn": "2026-11-13"
+  },
+  {
+    "id": "ikarus256",
+    "title": "Ikarus 256",
+    "aliases": [
+      "Ikarus 256"
+    ],
+    "description": "A klasszikus Ikarus 200-as család távolsági, magaspadlós autóbusza. A Volán nosztalgiaflottájában megőrzött példánnyal tematikus utazásokon is találkozhatsz.",
+    "facts": [
+      "A MÁV a Budapest-Kelenföld és Mohács közötti busójárási nosztalgiautazást is Ikarus 256-ossal hirdette meg."
+    ],
+    "sources": [
+      {
+        "label": "MÁV · Retró és tematikus események",
+        "url": "https://www.mavcsoport.hu/mav-szemelyszallitas/szolgaltatasok/esemenyek-es-nosztalgiajaratok/retro-es-tematikus-esemenyek"
+      }
+    ],
+    "photos": [
+      {
+        "caption": "Ikarus 256.50",
+        "author": "Beautiful J",
+        "source": "https://commons.wikimedia.org/wiki/File:Ikarus_256.50_VL.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/28/Ikarus_256.50_VL.jpg/960px-Ikarus_256.50_VL.jpg"
+      }
+    ],
+    "researchStatus": "outside-current-passenger-scope",
+    "reviewedOn": "2026-11-13"
+  }
+]

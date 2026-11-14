@@ -10,7 +10,8 @@ data class ModelPhoto(val url: String, val caption: String, val author: String,
     val agencies: List<String> = emptyList())
 data class VehicleModelProfile(val id: String, val title: String, val aliases: List<String>,
     val description: String, val facts: List<String>, val sources: List<Pair<String, String>>,
-    val photos: List<ModelPhoto>, val agencyProfiles: Map<String, String> = emptyMap())
+    val photos: List<ModelPhoto>, val agencyProfiles: Map<String, String> = emptyMap(),
+    val specifications: List<Pair<String, String>> = emptyList())
 
 /** Only explicit aliases match: a 12 m bus must never inherit the articulated variant's photo. */
 fun normalizedVehicleModel(value: String): String = Normalizer.normalize(value, Normalizer.Form.NFD)
@@ -51,6 +52,10 @@ object VehicleModelCatalog {
                         p.optJSONArray("agencies")?.let { a -> (0 until a.length()).map { a.getString(it) } }.orEmpty())
                 } }, row.optJSONObject("agencyProfiles")?.let { mappings ->
                     mappings.keys().asSequence().associateWith { mappings.getString(it) }
+                }.orEmpty(), row.optJSONArray("specifications")?.let { specs ->
+                    (0 until specs.length()).map { specs.getJSONObject(it).let { spec ->
+                        spec.getString("label") to spec.getString("value")
+                    } }
                 }.orEmpty())
         }
     }

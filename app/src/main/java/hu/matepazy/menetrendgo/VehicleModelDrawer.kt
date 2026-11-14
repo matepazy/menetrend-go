@@ -11,8 +11,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Close
@@ -99,8 +97,8 @@ import kotlinx.coroutines.withContext
     }
     val profile = result?.getOrNull()?.let { findVehicleModel(it, model, agencyName) }
         ?.let { vehicleModelForContext(it, mode, agencyName) }
-    var enlarged by remember(profile?.id) { mutableStateOf<Pair<Int, ImageBitmap>?>(null) }
-    val pager = rememberPagerState(pageCount = { profile?.photos?.size ?: 0 })
+    val photo = profile?.photos?.singleOrNull()
+    var enlarged by remember(profile?.id) { mutableStateOf<ImageBitmap?>(null) }
     AppBottomSheet(onDismissRequest = dismiss,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
         shape = MaterialTheme.shapes.extraLarge) {
@@ -137,17 +135,10 @@ import kotlinx.coroutines.withContext
                 else -> LazyColumn(Modifier.weight(1f), contentPadding = PaddingValues(
                     start = AppLayout.ItemGap, end = AppLayout.ItemGap,
                     bottom = AppLayout.SectionGap)) {
-                    if (profile.photos.isNotEmpty()) item {
+                    if (photo != null) item {
                         Column(verticalArrangement = Arrangement.spacedBy(AppLayout.CompactGap)) {
-                            HorizontalPager(pager, key = { profile.photos[it].url }) { index ->
-                                FleetPhoto(profile.photos[index], profile.title) { enlarged = index to it }
-                            }
-                            if (profile.photos.size > 1) Row(Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween) {
-                                Text("Fotók · lapozz a képek között", style = MaterialTheme.typography.labelMedium)
-                                Text("${pager.currentPage + 1} / ${profile.photos.size}", style = MaterialTheme.typography.labelMedium)
-                            }
-                            Text(profile.photos[pager.currentPage].caption,
+                            FleetPhoto(photo, profile.title) { enlarged = it }
+                            Text(photo.caption,
                                 style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             Text("A fotó típusillusztráció. Az érkező jármű festése és felszereltsége eltérhet.",
                                 style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -156,10 +147,21 @@ import kotlinx.coroutines.withContext
                         Text("Ehhez a típushoz még nincs szabadon felhasználható, ellenőrzött hazai fotónk.",
                             style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
-                    item { Text("A járműről", Modifier.padding(top = AppLayout.SectionGap, bottom = AppLayout.RelatedGap).semantics { heading() },
+                    item { Text("Adatlap", Modifier.padding(top = AppLayout.SectionGap, bottom = AppLayout.RelatedGap).semantics { heading() },
                         style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold) }
                     item { Text(profile.description,
                         style = MaterialTheme.typography.bodyLarge) }
+                    profile.specifications.forEach { (label, value) -> item {
+                        Column(Modifier.fillMaxWidth().padding(top = AppLayout.ItemGap).semantics(mergeDescendants = true) {},
+                            verticalArrangement = Arrangement.spacedBy(AppLayout.LabelGap)) {
+                            Text(label, style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(value, style = MaterialTheme.typography.bodyLarge,
+                                fontWeight = FontWeight.Medium)
+                            HorizontalDivider(Modifier.padding(top = AppLayout.RelatedGap),
+                                color = MaterialTheme.colorScheme.outlineVariant)
+                        }
+                    } }
                     item { Text(if (profile.facts.size == 1) "Érdekesség" else "Érdekességek",
                         Modifier.padding(top = AppLayout.SectionGap, bottom = AppLayout.RelatedGap).semantics { heading() },
                         style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold) }
@@ -168,14 +170,14 @@ import kotlinx.coroutines.withContext
                     } }
                     item { HorizontalDivider(Modifier.padding(top = AppLayout.SectionGap)) }
                     item {
-                        ModelSources(profile, profile.photos.getOrNull(pager.currentPage))
+                        ModelSources(profile, photo)
                     }
                 }
             }
         }
     }
-    enlarged?.let { (index, bitmap) ->
-        profile?.let { FleetPhotoViewer(it.photos, index, bitmap, onDismiss = { enlarged = null }) }
+    enlarged?.let { bitmap ->
+        photo?.let { FleetPhotoViewer(listOf(it), 0, bitmap, onDismiss = { enlarged = null }) }
     }
 }
 
