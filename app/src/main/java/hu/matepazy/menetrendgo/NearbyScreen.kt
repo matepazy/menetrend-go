@@ -60,14 +60,14 @@ import kotlinx.coroutines.withContext
     val groundColor=mapColors.background.toArgb()
     val mapTheme = listOf(groundColor,mapColors.surface.toArgb(),mapColors.onSurface.toArgb(),mapColors.primary.toArgb())
     val googleMap = vm.effectiveMapType.usesGoogleMaps
-    var mapSurface by remember {mutableStateOf<TransportMapSurface?>(null)}
-    var ready by remember {mutableStateOf(false)}
+    var mapSurface by remember(googleMap) {mutableStateOf<TransportMapSurface?>(null)}
+    var ready by remember(googleMap) {mutableStateOf(false)}
     LaunchedEffect(ready,mapTheme) { if(ready) mapSurface?.call("setAppTheme",*mapTheme.toTypedArray()) }
     var center by remember {mutableStateOf<Pair<Double,Double>?>(null)}
     var locationMessage by remember {mutableStateOf<String?>(null)}
     var locationVisible by remember {mutableStateOf(false)}
     var recenter by remember {mutableStateOf(false)}
-    var hasCentered by remember {mutableStateOf(false)}
+    var hasCentered by remember(googleMap) {mutableStateOf(false)}
     var allowed by remember {mutableStateOf(ContextCompat.checkSelfPermission(context,Manifest.permission.ACCESS_COARSE_LOCATION)==PackageManager.PERMISSION_GRANTED)}
     var preciseAllowed by remember {mutableStateOf(ContextCompat.checkSelfPermission(context,Manifest.permission.ACCESS_FINE_LOCATION)==PackageManager.PERMISSION_GRANTED)}
     // Android 12+ requires both permissions in the same request to offer precise location.
@@ -211,18 +211,12 @@ import kotlinx.coroutines.withContext
             recenter=false
         }
     }
-    var focusedOnce by remember(focusedId) {mutableStateOf(false)}
+    var focusedOnce by remember(googleMap,focusedId) {mutableStateOf(false)}
     LaunchedEffect(ready,focusedId,visibleVehicles) {
         if(ready && focusedId!=null && !focusedOnce) visibleVehicles.firstOrNull()?.let {
             mapSurface?.call("centerOn",it.lat,it.lon)
             focusedOnce=true
         }
-    }
-    DisposableEffect(googleMap) {
-        ready=false
-        focusedOnce=false
-        hasCentered=false
-        onDispose {mapSurface?.dispose();mapSurface=null;ready=false}
     }
     Box(Modifier.fillMaxSize()) {
         key(googleMap) {
@@ -286,6 +280,12 @@ import kotlinx.coroutines.withContext
                         .replace("/* VEHICLE_ICONS */",ctx.assets.open("vehicle-icons.js").bufferedReader().use {it.readText()})
                     loadDataWithBaseURL("https://menetrendgo.local/",html,"text/html","utf-8",null)
                 }
+            },onRelease={view->
+                // Release this renderer's view, never a replacement installed during composition.
+                view.removeJavascriptInterface("NativeMap")
+                view.destroy()
+                mapSurface=null
+                ready=false
             })
         }
         if(!routeOnly) {
