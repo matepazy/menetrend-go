@@ -34,6 +34,48 @@ class GoogleMapPresentationTest {
         File(dir,"$name.png").outputStream().use {bitmap.compress(Bitmap.CompressFormat.PNG,100,it)}
         bitmap.recycle()
     }
+    @Test fun journeyPathsRetainServiceColorsInBothThemes() {
+        assumeTrue(BuildConfig.MAPS_API_KEY_CONFIGURED)
+        var api:TransportMapSurface?=null
+        var theme by mutableStateOf("light")
+        val loaded=AtomicBoolean(false)
+        compose.setContent {
+            MenetrendTheme(theme) {
+                val colors=MaterialTheme.colorScheme
+                SideEffect {api?.call("setAppTheme",colors.background.toArgb(),colors.surface.toArgb(),colors.onSurface.toArgb(),colors.primary.toArgb())}
+                GoogleTransportMap(Modifier.fillMaxSize(),onReady={api=it},onVehicle={},onStop={},
+                    onViewport={_,_,_->},onLocationVisible={},loadPaths={JSONObject()})
+            }
+        }
+        compose.waitUntil(15000) {api!=null}
+        compose.runOnIdle {
+            val field=api!!.javaClass.getDeclaredField("map").apply {isAccessible=true}
+            (field.get(api) as GoogleMap).setOnMapLoadedCallback {loaded.set(true)}
+        }
+        val serviceColors=listOf("29803C","FECC00","#00A0E3")
+        compose.runOnIdle {
+            api!!.call("setRouteMode",true)
+            api!!.call("updateRoute",JSONArray(serviceColors.mapIndexed {index,color->
+                JSONObject().put("color",color).put("walking",false)
+                    .put("from",Station("$index","Teszt",47.50+index*.01,19.04+index*.01).json())
+                    .put("to",Station("${index+1}","Teszt",47.51+index*.01,19.05+index*.01).json())
+            }))
+        }
+        compose.waitUntil(20000) {loaded.get()}
+        for(mode in listOf("light","dark")) {
+            compose.runOnIdle {theme=mode}
+            compose.waitForIdle()
+            compose.runOnIdle {
+                val field=api!!.javaClass.getDeclaredField("routes").apply {isAccessible=true}
+                @Suppress("UNCHECKED_CAST")
+                val routes=field.get(api) as List<com.google.android.gms.maps.model.Polyline>
+                assertEquals(serviceColors.map {android.graphics.Color.parseColor("#"+it.removePrefix("#"))},routes.map {it.color})
+            }
+            // Let the SDK camera animation finish before the visual capture.
+            instrumentation.waitForIdleSync()
+            capture("journey-service-colors-$mode")
+        }
+    }
     @Test fun officialPictogramsKeepCircularSilhouetteAndDirection() {
         val artwork=NativeMapArtwork(instrumentation.targetContext)
         val density=instrumentation.targetContext.resources.displayMetrics.density

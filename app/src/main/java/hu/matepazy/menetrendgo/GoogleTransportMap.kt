@@ -270,7 +270,7 @@ private class GoogleMapSurface(
         map.setPadding(left,top+(12*density).toInt(),(12*density).toInt(),logoBottom)
     }
     private fun JSONObject.point()=LatLng(getDouble("lat"),getDouble("lon"))
-    private fun color(item:JSONObject)=runCatching {Color.parseColor(item.optString("color"))}.getOrDefault(Color.rgb(40,100,217))
+    private fun color(item:JSONObject)=runCatching {Color.parseColor("#"+item.optString("color").removePrefix("#"))}.getOrDefault(Color.rgb(40,100,217))
     private fun applyBasemapStyle() {
         val rules=JSONArray()
         if(dark) {
