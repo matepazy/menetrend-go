@@ -121,7 +121,7 @@ import kotlinx.coroutines.withContext
                 IconButton(onClick = dismiss) { Icon(Icons.Outlined.Close, "Járműtípus bemutatásának bezárása") }
             }
             when {
-                result == null -> LinearProgressIndicator(Modifier.fillMaxWidth().padding(AppLayout.SheetPadding))
+                result == null -> VehicleProgress(Modifier.fillMaxWidth().padding(AppLayout.SheetPadding))
                 result?.isFailure == true -> Column(Modifier.padding(AppLayout.SheetPadding)) {
                     Text("A járműismertető nem tölthető be.")
                     TextButton(onClick = { attempt++ }) { Text("Újrapróbálás") }

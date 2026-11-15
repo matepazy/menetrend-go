@@ -335,7 +335,7 @@ import kotlinx.coroutines.withContext
             modifier=Modifier.align(Alignment.BottomCenter).padding(16.dp),shape=androidx.compose.foundation.shape.RoundedCornerShape(24.dp),
             color=MaterialTheme.colorScheme.surface) {
             Column(Modifier.padding(16.dp),verticalArrangement=Arrangement.spacedBy(8.dp)) {
-                if(vm.vehiclesLoading) LinearProgressIndicator(Modifier.fillMaxWidth())
+                if(vm.vehiclesLoading) VehicleProgress(Modifier.fillMaxWidth())
                 Text(if(vm.vehiclesLoading) "Járműpozíció betöltése…" else "Ehhez a járathoz most nincs élő járműpozíció.",style=MaterialTheme.typography.bodyMedium)
             }
         }

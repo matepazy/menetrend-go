@@ -41,7 +41,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
         }
         Text(status, color = if (updates.state is UpdateState.Error) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface, style = MaterialTheme.typography.bodyMedium)
         Spacer(Modifier.height(12.dp))
-        if (updates.state == UpdateState.Checking) LinearProgressIndicator(Modifier.fillMaxWidth())
+        if (updates.state == UpdateState.Checking) VehicleProgress(Modifier.fillMaxWidth())
         Button(onClick = { updates.check() }, enabled = !updates.busy && updates.state != UpdateState.Checking && updates.state !is UpdateState.Completed, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Frissítések keresése") }
         (updates.state as? UpdateState.UpdateAvailable)?.let { update ->
             TextButton(onClick = { updates.select(update) }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Kiadás megtekintése") }
@@ -61,7 +61,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
     if (installedBeta && showVersions) Column(Modifier.padding(horizontal = AppLayout.PanelPadding), verticalArrangement = Arrangement.spacedBy(AppLayout.CompactGap)) {
         if (updates.versionsLoading) {
             Text("Verziók betöltése…", style = MaterialTheme.typography.bodyMedium)
-            LinearProgressIndicator(Modifier.fillMaxWidth())
+            VehicleProgress(Modifier.fillMaxWidth())
         }
         updates.versionsError?.let { Text(it, color = MaterialTheme.colorScheme.error) }
         if (updates.versionsError != null) TextButton(onClick = updates::loadVersions, enabled = !updates.versionsLoading) { Text("Újrapróbálás") }
@@ -161,8 +161,8 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
             when (val state = updates.state) {
                 is UpdateState.Downloading -> {
                     Text(if (state.progress < 0) "Letöltés…" else "Letöltés · ${(state.progress * 100).toInt()}%")
-                    if (state.progress < 0) LinearProgressIndicator(Modifier.fillMaxWidth())
-                    else LinearProgressIndicator(progress = { state.progress }, modifier = Modifier.fillMaxWidth())
+                    if (state.progress < 0) VehicleProgress(Modifier.fillMaxWidth())
+                    else VehicleProgress(Modifier.fillMaxWidth(), progress = state.progress)
                 }
                 is UpdateState.Completed -> {
                     Text("A letöltés kész. Az Android telepítőjében erősítsd meg a frissítést. Ha telepítési engedélyt kér, engedélyezd, majd térj vissza ide.", color = MaterialTheme.colorScheme.onSurfaceVariant)

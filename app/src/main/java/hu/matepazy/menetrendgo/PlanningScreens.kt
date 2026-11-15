@@ -600,7 +600,7 @@ private class SwipeAction(val icon: ImageVector, val description: String, val co
             // The system permission prompt may hide the IME; keep the picker alive.
             keyboardWasVisible=false
         })
-        if(loading) LinearProgressIndicator(Modifier.fillMaxWidth().padding(top=8.dp))
+        if(loading) VehicleProgress(Modifier.fillMaxWidth().padding(top=8.dp))
         if(error!=null) Text(error!!,color=if(results.isEmpty()) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
             style=MaterialTheme.typography.bodySmall,modifier=Modifier.padding(vertical=8.dp))
         if(!loading && query.length>=2 && results.isEmpty() && error==null) Text("Nincs ilyen megálló. Próbálj másik nevet.",Modifier.padding(vertical=12.dp))
@@ -1381,7 +1381,7 @@ internal fun sameJourneyStop(first: Station, second: Station): Boolean =
                 style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
             when {
                 raw==null -> InfoPanel("Nincs eltárolt nyers válasz","Indíts új keresést, majd nyisd meg újra az utazás részleteit.")
-                lines==null -> LinearProgressIndicator(Modifier.fillMaxWidth())
+                lines==null -> VehicleProgress(Modifier.fillMaxWidth())
                 else -> SelectionContainer(Modifier.weight(1f)) {
                     LazyColumn(Modifier.fillMaxSize(),contentPadding=PaddingValues(bottom=24.dp)) {
                         items(lines.orEmpty()) {line ->

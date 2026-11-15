@@ -194,7 +194,7 @@ internal fun vehicleStopPlatform(platform: String, mode: String): String = when(
             // A failed refresh keeps the stops already shown; only a first load without data shows the full error.
             when {
                 detail==null && error!=null -> InfoPanel("A megállók nem tölthetők be",error,retry)
-                detail==null -> LinearProgressIndicator(Modifier.fillMaxWidth())
+                detail==null -> VehicleProgress(Modifier.fillMaxWidth())
                 else -> {
                     error?.let {RefreshFailure(retry)}
                     if(upcoming.isEmpty()) Text(if(stops.isEmpty()) "Nincs elérhető megállóadat." else "Nincs további várható megálló a menetrendben.",

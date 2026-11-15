@@ -244,7 +244,7 @@ private fun featherMask(top: Boolean, endY: Float=Float.POSITIVE_INFINITY)=
 }
 @Composable fun LoadingRows() {
     Column(verticalArrangement=Arrangement.spacedBy(AppLayout.ItemGap)) {
-        LinearProgressIndicator(Modifier.fillMaxWidth().clip(CircleShape))
+        VehicleProgress(Modifier.fillMaxWidth().clip(CircleShape))
         repeat(3) { Surface(Modifier.fillMaxWidth().height(100.dp),shape=RoundedCornerShape(28.dp),color=MaterialTheme.colorScheme.surfaceVariant.copy(alpha=.5f)) {} }
     }
 }

@@ -85,7 +85,7 @@ import kotlinx.coroutines.delay
                 }
                 pinMessage?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
             }
-            if (loading) item { LinearProgressIndicator(Modifier.fillMaxWidth()) }
+            if (loading) item { VehicleProgress(Modifier.fillMaxWidth()) }
             error?.let { message -> item {
                 Text(if (updated > 0) "Korábbi adatok · $message" else message, color = MaterialTheme.colorScheme.error)
                 TextButton(onClick = { refresh++ }) { Text("Újrapróbálás") }

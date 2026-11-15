@@ -292,7 +292,7 @@ class StopBoardWidgetActivity : ComponentActivity() {
         Text("Indulási tábla widget", style = MaterialTheme.typography.headlineSmall)
         Text("Keress egy állomást vagy megállót, majd válaszd ki a pontos helyet.")
         OutlinedTextField(query, { query = it.take(100) }, Modifier.fillMaxWidth(), label = { Text("Állomás vagy megálló") }, singleLine = true)
-        if (loading) LinearProgressIndicator(Modifier.fillMaxWidth())
+        if (loading) VehicleProgress(Modifier.fillMaxWidth())
         error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
         if (!loading && query.length >= 2 && (stops ?: places).isEmpty() && error == null) Text("Nincs találat. Próbálj másik megállónevet.")
         LazyColumn {

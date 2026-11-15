@@ -75,7 +75,7 @@ internal fun NetworkAlertsDrawer(vm: AppState, dismiss: () -> Unit) {
                     }
                 }
             }
-            if (vm.networkAlertsLoading) item(key = "progress") { LinearProgressIndicator(Modifier.fillMaxWidth().clip(CircleShape)) }
+            if (vm.networkAlertsLoading) item(key = "progress") { VehicleProgress(Modifier.fillMaxWidth().clip(CircleShape)) }
             vm.networkAlertsError?.let { message -> item(key = "error") {
                 if (alerts == null) InfoPanel("A közlemények nem tölthetők be", message) { vm.loadNetworkAlerts(force = true) }
                 else Text("Korábbi adatok · $message", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.error)

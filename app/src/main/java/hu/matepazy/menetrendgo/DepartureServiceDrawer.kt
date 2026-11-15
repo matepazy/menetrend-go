@@ -87,7 +87,7 @@ import org.json.JSONObject
                 else -> "Tervezett menetrend · ${departure.serviceDay}"
             }, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(top = AppLayout.CompactGap, bottom = AppLayout.ItemGap))
-            if (loading) LinearProgressIndicator(Modifier.fillMaxWidth())
+            if (loading) VehicleProgress(Modifier.fillMaxWidth())
             LazyColumn(Modifier.weight(1f), contentPadding = PaddingValues(bottom = AppLayout.SheetPadding),
                 verticalArrangement = Arrangement.spacedBy(AppLayout.CompactGap)) {
                 error?.let { message -> item {

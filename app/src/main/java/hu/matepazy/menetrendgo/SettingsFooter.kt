@@ -72,7 +72,7 @@ internal const val KnowledgeBaseUrl = "https://menetrendgo.hu/tudasbazis"
  * speed in vehicle heights per second, and the whole-body motion of its SVG. Trains bob by [bob] units every
  * [period] seconds; buses ([rockX] set) rock about their rear axle at (rockX, 108). [puffs] are exhaust x positions.
  */
-private enum class FooterVehicle(
+internal enum class FooterVehicle(
     @DrawableRes val art: Int, val units: Float, val speed: Float, val bob: Float, val period: Float,
     val rockX: Float = Float.NaN, val puffs: List<Float> = emptyList()
 ) {
@@ -160,7 +160,7 @@ private val ExhaustColor = Color(0xFF9AA3AB)
 }
 
 /** The Desiro's diesel puffs: three staggered circles per stack that rise back, grow and fade every .9s. */
-private fun DrawScope.exhaust(x: Float, unit: Float, clock: Float) {
+internal fun DrawScope.exhaust(x: Float, unit: Float, clock: Float) {
     listOf(0f, .3f, .6f).forEach { lead ->
         val p = ((clock + lead) / .9f) % 1f
         val eased = 1f - (1f - p) * (1f - p)
@@ -172,18 +172,20 @@ private fun DrawScope.exhaust(x: Float, unit: Float, clock: Float) {
 
 /** Three speed lines trailing the vehicle, each fading in and stretching out every .42s, as on the website. */
 @Composable private fun BoxScope.Wake(color: Color, vh: Dp, x: Float, clock: Float) {
-    Canvas(Modifier.matchParentSize()) {
-        val h = vh.toPx()
-        val line = 3.dp.toPx()
-        val top = size.height - 8.dp.toPx() - h + h * .22f
-        val right = x - 6.dp.toPx()
-        listOf(.5f to 0f, .8f to .14f, .35f to .28f).forEachIndexed { i, (length, lead) ->
-            val p = ((clock + lead) / .42f) % 1f
-            val alpha = if (p < .35f) .45f * p / .35f else .45f * (1f - (p - .35f) / .65f)
-            val full = h * length
-            val w = full * (.4f + .6f * p)
-            val left = right - full / 2 - w / 2 + (10f - 46f * p).dp.toPx()
-            drawRoundRect(color.copy(alpha = alpha), Offset(left, top + i * (h * .13f + line)), Size(w, line), CornerRadius(line / 2))
-        }
+    Canvas(Modifier.matchParentSize()) { speedLines(color, vh.toPx(), size.height - 8.dp.toPx(), x, clock) }
+}
+
+/** The website's speed lines behind a vehicle [h] px tall whose rear is at [rear] and bottom at [bottom]; [scale] shrinks the strokes for small vehicles. */
+internal fun DrawScope.speedLines(color: Color, h: Float, bottom: Float, rear: Float, clock: Float, scale: Float = 1f) {
+    val line = 3.dp.toPx() * scale
+    val top = bottom - h + h * .22f
+    val right = rear - 6.dp.toPx() * scale
+    listOf(.5f to 0f, .8f to .14f, .35f to .28f).forEachIndexed { i, (length, lead) ->
+        val p = ((clock + lead) / .42f) % 1f
+        val alpha = if (p < .35f) .45f * p / .35f else .45f * (1f - (p - .35f) / .65f)
+        val full = h * length
+        val w = full * (.4f + .6f * p)
+        val left = right - full / 2 - w / 2 + (10f - 46f * p).dp.toPx() * scale
+        drawRoundRect(color.copy(alpha = alpha), Offset(left, top + i * (h * .13f + line)), Size(w, line), CornerRadius(line / 2))
     }
 }
