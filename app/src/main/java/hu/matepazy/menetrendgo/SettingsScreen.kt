@@ -33,12 +33,9 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 
 private enum class SettingsPage(val title: String) {
     Home("Beállítások"), Appearance("Megjelenés"), Notifications("Értesítések"),
-    Updates("Frissítések"), Extras("Kiegészítő funkciók"), About("Az alkalmazásról"), Developer("Fejlesztői beállítások");
+    Updates("Frissítések"), Extras("Kiegészítő funkciók"), Developer("Fejlesztői beállítások");
 
-    val parent: SettingsPage get() = when (this) {
-        Developer -> About
-        else -> Home
-    }
+    val parent: SettingsPage get() = Home
 }
 
 @Composable fun SettingsScreen(vm: AppState) {
@@ -92,10 +89,20 @@ private enum class SettingsPage(val title: String) {
                             SettingsRow("Kiegészítő funkciók", vm.extraFeaturesSummary, onClick = { navigate(SettingsPage.Extras) })
                         }
                     }
-                    item {
+                    if (vm.developerSettingsUnlocked) item {
                         SettingsGroup {
-                            SettingsRow("Az alkalmazásról", "MenetrendGO · ${BuildConfig.VERSION_NAME}", onClick = { navigate(SettingsPage.About) })
+                            SettingsRow("Fejlesztői beállítások", onClick = { navigate(SettingsPage.Developer) })
                         }
+                    }
+                    item {
+                        // Five taps on the app name unlock the developer settings.
+                        SettingsFooter(onNameTap = if (vm.developerSettingsUnlocked) null else ({
+                            developerUnlockTaps++
+                            if (developerUnlockTaps >= 5) {
+                                vm.unlockDeveloperSettings()
+                                Toast.makeText(context, "Fejlesztői beállítások engedélyezve", Toast.LENGTH_SHORT).show()
+                            }
+                        }))
                     }
                 }
                 SettingsPage.Extras -> {
@@ -179,43 +186,6 @@ private enum class SettingsPage(val title: String) {
                         }
                     }
                     item { SettingsNote("Az Android energiatakarékossága késleltetheti az értesítéseket.") }
-                }
-                SettingsPage.About -> {
-                    item {
-                        Glass(Modifier.fillMaxWidth()) {
-                            Text("MenetrendGO", modifier = Modifier.heightIn(min = 48.dp).clickable(
-                                enabled = !vm.developerSettingsUnlocked,
-                                onClick = {
-                                    developerUnlockTaps++
-                                    if (developerUnlockTaps >= 5) {
-                                        vm.unlockDeveloperSettings()
-                                        Toast.makeText(context, "Fejlesztői beállítások engedélyezve", Toast.LENGTH_SHORT).show()
-                                    }
-                                }
-                            ), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
-                            Text("${BuildConfig.VERSION_NAME} verzió", Modifier.padding(top = 4.dp), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            Spacer(Modifier.height(16.dp))
-                            Text("Magyarországi közösségi közlekedés, könnyebben átláthatóan. Tervezz utazást, nézd meg a járatok megállóit és kövesd a járműveket a térképen.", style = MaterialTheme.typography.bodyLarge)
-                            Spacer(Modifier.height(12.dp))
-                            Text("Bérleteid érvényességét is nyilvántarthatod, és emlékeztetőt kérhetsz a lejáratukról.", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        }
-                    }
-                    item {
-                        Glass(Modifier.fillMaxWidth()) {
-                            Text("Adatok és függetlenség", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-                            Spacer(Modifier.height(8.dp))
-                            Text("A menetrendi és járműadatok a MÁVPlusz rendszeréből származnak. A friss adatokhoz internetkapcsolat szükséges.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            Spacer(Modifier.height(12.dp))
-                            Text("A MenetrendGO független, nem hivatalos alkalmazás, nem áll kapcsolatban a MÁV-val. Az adatok hiányozhatnak vagy késhetnek.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        }
-                    }
-                    if (vm.developerSettingsUnlocked) {
-                        item {
-                            SettingsGroup {
-                                SettingsRow("Fejlesztői beállítások", onClick = { navigate(SettingsPage.Developer) })
-                            }
-                        }
-                    }
                 }
                 SettingsPage.Developer -> {
                     item {
