@@ -29,6 +29,7 @@ fun hungarianServiceName(category: String, mode: String): String {
         "bus", "coach" -> "Autóbusz"
         "suburban railway", "suburban train" -> "HÉV"
         "tram" -> "Villamos"
+        "trolleybus" -> "Trolibusz"
         "", "rail", "train" -> when (mode) {
             "WALK" -> "Gyalog"
             "BUS", "COACH" -> "Autóbusz"
@@ -36,6 +37,8 @@ fun hungarianServiceName(category: String, mode: String): String {
             "SUBURBAN_RAILWAY" -> "HÉV"
             "TRAMTRAIN" -> "TramTrain"
             "TRAM" -> "Villamos"
+            "TROLLEYBUS" -> "Trolibusz"
+            "SUBWAY" -> "Metró"
             "FERRY" -> "Hajó"
             else -> "Vonat"
         }

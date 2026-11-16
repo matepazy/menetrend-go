@@ -225,7 +225,7 @@ private fun specIcon(label: String, value: String, mode: String): ImageVector {
     val text = value.lowercase()
     return when {
         "gyártó" in label.lowercase() -> Icons.Outlined.Factory
-        label == "Járműfajta" -> if (mode == "BUS" || mode == "COACH" || "busz" in text) Icons.Outlined.DirectionsBus
+        label == "Járműfajta" -> if (mode == "BUS" || mode == "COACH" || mode == "TROLLEYBUS" || "busz" in text) Icons.Outlined.DirectionsBus
             else if (mode == "TRAM") Icons.Outlined.Tram else Icons.Outlined.Train
         label == "Hajtás" -> when {
             listOf("villamos", "elektrom", "akkumul").any { it in text } -> Icons.Outlined.ElectricBolt

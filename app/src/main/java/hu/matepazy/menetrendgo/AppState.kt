@@ -84,7 +84,9 @@ class AppState(app: Application) : AndroidViewModel(app) {
     }
     var customMapEnabled by mutableStateOf(prefs.getBoolean("custom_map_enabled", false)); private set
     var mapType by mutableStateOf(MapType.fromId(prefs.getString("map_type", "standard"))); private set
-    var vehicleFilters by mutableStateOf(MapVehicleFilter.entries.filter { prefs.getBoolean(it.prefKey, it.defaultEnabled) }.toSet()); private set
+    // Trolleybuses used to sit under local buses, so an unset switch inherits that choice.
+    var vehicleFilters by mutableStateOf(MapVehicleFilter.entries.filter { prefs.getBoolean(it.prefKey,
+        if (it == MapVehicleFilter.Trolleybus) prefs.getBoolean(MapVehicleFilter.LocalBus.prefKey, it.defaultEnabled) else it.defaultEnabled) }.toSet()); private set
     val showLocalBuses get() = MapVehicleFilter.LocalBus in vehicleFilters
     var showMapStops by mutableStateOf(prefs.getBoolean("show_map_stops", true)); private set
     fun chooseMapStops(enabled: Boolean) { showMapStops = enabled; prefs.edit().putBoolean("show_map_stops", enabled).apply() }

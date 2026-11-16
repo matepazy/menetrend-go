@@ -743,7 +743,7 @@ private class SwipeAction(val icon: ImageVector, val description: String, val co
 
 private fun serviceIcon(leg: Leg): ImageVector = when(leg.mode) {
     "WALK" -> Icons.AutoMirrored.Outlined.DirectionsWalk
-    "BUS", "COACH", "RAIL_REPLACEMENT_BUS" -> Icons.Outlined.DirectionsBus
+    "BUS", "COACH", "RAIL_REPLACEMENT_BUS", "TROLLEYBUS" -> Icons.Outlined.DirectionsBus
     "TRAM", "TRAMTRAIN" -> Icons.Outlined.Tram
     "SUBURBAN_RAILWAY" -> Icons.Outlined.DirectionsTransit
     else -> Icons.Outlined.Train

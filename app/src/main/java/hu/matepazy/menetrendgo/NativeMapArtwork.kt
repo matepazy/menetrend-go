@@ -16,10 +16,12 @@ internal class NativeMapArtwork(private val context:Context) {
     private val cache=linkedMapOf<String,BitmapDescriptor>()
     companion object {
         val modeColors=mapOf("RAIL" to 0xff003a7e.toInt(),"COACH" to 0xfffdc300.toInt(),"BUS" to 0xff009ee3.toInt(),
-            "SUBURBAN_RAILWAY" to 0xff005e3b.toInt(),"TRAMTRAIN" to 0xfff29101.toInt(),"RAIL_REPLACEMENT_BUS" to 0xffc4146e.toInt())
+            "SUBURBAN_RAILWAY" to 0xff005e3b.toInt(),"TRAMTRAIN" to 0xfff29101.toInt(),"RAIL_REPLACEMENT_BUS" to 0xffc4146e.toInt(),
+            "TRAM" to 0xffffd800.toInt(),"TROLLEYBUS" to 0xffe41f18.toInt())
         private val resources=mapOf("RAIL" to R.drawable.ic_mode_rail,"COACH" to R.drawable.ic_mode_coach,
             "BUS" to R.drawable.ic_mode_local_bus,"SUBURBAN_RAILWAY" to R.drawable.ic_mode_hev,
-            "TRAMTRAIN" to R.drawable.ic_mode_tramtrain,"RAIL_REPLACEMENT_BUS" to R.drawable.ic_mode_replacement_bus)
+            "TRAMTRAIN" to R.drawable.ic_mode_tramtrain,"RAIL_REPLACEMENT_BUS" to R.drawable.ic_mode_replacement_bus,
+            "TRAM" to R.drawable.ic_mode_tram,"TROLLEYBUS" to R.drawable.ic_mode_trolleybus)
     }
     private data class Glyph(val width:Float,val paths:List<Pair<Path,Int>>)
     private val glyphs=resources.mapValues {(_,resource)->

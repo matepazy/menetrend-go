@@ -177,4 +177,6 @@ private fun MapVehicleFilter.pictogram(): Int = when (this) {
     MapVehicleFilter.SuburbanRailway -> R.drawable.ic_mode_hev
     MapVehicleFilter.TramTrain -> R.drawable.ic_mode_tramtrain
     MapVehicleFilter.ReplacementBus -> R.drawable.ic_mode_replacement_bus
+    MapVehicleFilter.Trolleybus -> R.drawable.ic_mode_trolleybus
+    MapVehicleFilter.Tram -> R.drawable.ic_mode_tram
 }

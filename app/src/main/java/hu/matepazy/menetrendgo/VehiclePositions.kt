@@ -12,9 +12,11 @@ enum class MapVehicleFilter(
 ) {
     Rail("rail", "map_rail", "Vonatok", "Személy-, gyors- és InterCity-vonatok", true, setOf("RAIL")),
     Coach("coach", "map_coaches", "Helyközi autóbuszok", "Regionális és távolsági autóbuszjáratok", true, setOf("COACH")),
-    LocalBus("local_bus", "map_local_buses", "Helyi autóbuszok", "Városi autóbusz- és trolibuszjáratok élő pozíciói", false, setOf("BUS", "TROLLEYBUS")),
+    LocalBus("local_bus", "map_local_buses", "Helyi autóbuszok", "Városi autóbuszjáratok élő pozíciói", false, setOf("BUS")),
+    Trolleybus("trolleybus", "map_trolleybuses", "Trolibuszok", "Városi trolibuszjáratok élő pozíciói", false, setOf("TROLLEYBUS")),
+    Tram("tram", "map_trams", "Villamosok", "Városi villamosjáratok élő pozíciói", true, setOf("TRAM")),
     SuburbanRailway("suburban_railway", "map_suburban_railway", "HÉV", "Budapesti elővárosi vasútvonalak", true, setOf("SUBURBAN_RAILWAY")),
-    TramTrain("tramtrain", "map_tramtrain", "TramTrain", "Szeged–Hódmezővásárhely vasútvillamos", true, setOf("TRAMTRAIN", "TRAM")),
+    TramTrain("tramtrain", "map_tramtrain", "TramTrain", "Szeged–Hódmezővásárhely vasútvillamos", true, setOf("TRAMTRAIN")),
     ReplacementBus("replacement_bus", "map_replacement_buses", "Vonatpótló autóbuszok", "Vágányzári és rendkívüli pótlóbuszok", true, setOf("RAIL_REPLACEMENT_BUS"));
 
     companion object {
