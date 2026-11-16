@@ -181,25 +181,16 @@ internal fun vehicleStopPlatform(platform: String, mode: String): String = when(
     val dark=LocalAppDarkTheme.current
     val colorContext=remember(context,dark) {departureThemeContext(context,dark)}
         Column(Modifier.fillMaxWidth().weight(1f).padding(horizontal=AppLayout.SheetPadding)) {
-            Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically) {
-                Box(Modifier.weight(1f)) {RouteBadge(vehicle.badgeLeg(),contentPadding=if(vehicle.routeLogo!=null) PaddingValues(0.dp) else PaddingValues(horizontal=14.dp,vertical=6.dp),
-                    showModeIcon=false)}
+            Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(AppLayout.CompactGap),
+                verticalAlignment=Alignment.CenterVertically) {
+                RouteBadge(vehicle.badgeLeg(),contentPadding=if(vehicle.routeLogo!=null) PaddingValues(0.dp) else PaddingValues(horizontal=14.dp,vertical=6.dp),
+                    showModeIcon=false)
+                Icon(Icons.AutoMirrored.Outlined.ArrowForward,"Irány",Modifier.size(20.dp),
+                    tint=MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(if(stops.isNotEmpty()) stops.last().name else vehicle.headsign,Modifier.weight(1f),
+                    style=MaterialTheme.typography.titleMedium,fontWeight=FontWeight.Bold,
+                    maxLines=2,overflow=TextOverflow.Ellipsis)
                 IconButton(onClick=dismiss) {Icon(Icons.Outlined.Close,"Jármű részleteinek bezárása")}
-            }
-            Column(Modifier.fillMaxWidth().padding(top=AppLayout.RelatedGap),
-                verticalArrangement=Arrangement.spacedBy(AppLayout.LabelGap)) {
-                if(stops.isNotEmpty()) Row(Modifier.fillMaxWidth(),
-                    horizontalArrangement=Arrangement.spacedBy(AppLayout.CompactGap),
-                    verticalAlignment=Alignment.CenterVertically) {
-                    Text(stops.first().name,Modifier.weight(1f,fill=false),
-                        style=MaterialTheme.typography.bodyMedium,fontWeight=FontWeight.Normal,
-                        color=MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines=1,softWrap=false,overflow=TextOverflow.Ellipsis)
-                    Icon(Icons.AutoMirrored.Outlined.ArrowForward,"Irány",Modifier.size(20.dp),
-                        tint=MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-                Text(if(stops.isNotEmpty()) stops.last().name else vehicle.headsign,
-                    style=MaterialTheme.typography.titleLarge,fontWeight=FontWeight.Bold)
             }
             upcoming.firstOrNull()?.let {next ->
                 val time=vehicleDelayTime(next)
