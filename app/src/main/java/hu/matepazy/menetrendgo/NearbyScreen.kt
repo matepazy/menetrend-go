@@ -55,9 +55,9 @@ import kotlinx.coroutines.withContext
     var selectedVehicle by vm::mapVehicle
     // The vehicle sheet rests at half height over a live, pannable map.
     MapSheetScaffold(open=selectedVehicle!=null,onDismissRequest={selectedVehicle=null},restingFraction=.5f,
-        sheetContent={expanded -> selectedVehicle?.let {selected ->
+        sheetContent={_ -> selectedVehicle?.let {selected ->
             val live=vm.vehicles.firstOrNull {it.id==selected.id} ?: selected
-            MapVehicleSheetContent(vm,live,expanded) {selectedVehicle=null}
+            MapVehicleSheetContent(vm,live) {selectedVehicle=null}
         }}) {sheetHeight -> TransportMapContent(vm,journey,focusedId,routeOnly,back,sheetHeight)}
 }
 

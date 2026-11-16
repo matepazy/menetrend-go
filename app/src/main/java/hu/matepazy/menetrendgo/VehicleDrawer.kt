@@ -1,6 +1,11 @@
 package hu.matepazy.menetrendgo
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.outlined.ExpandMore
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -117,7 +122,7 @@ internal fun vehicleStopPlatform(platform: String, mode: String): String = when(
 }
 
 /** Live-map selection content: loads and refreshes the trip while the map sheet shows it. */
-@Composable fun ColumnScope.MapVehicleSheetContent(vm: AppState, vehicle: Vehicle, expanded: Boolean, dismiss: () -> Unit) {
+@Composable fun ColumnScope.MapVehicleSheetContent(vm: AppState, vehicle: Vehicle, dismiss: () -> Unit) {
     var day by remember(vehicle.id) {mutableStateOf(LocalDate.now(Budapest).toString())}
     var now by remember {mutableLongStateOf(System.currentTimeMillis())}
     val lifecycle=LocalLifecycleOwner.current.lifecycle
@@ -132,7 +137,7 @@ internal fun vehicleStopPlatform(platform: String, mode: String): String = when(
     }
     LaunchedEffect(Unit) {while(true) {now=System.currentTimeMillis();delay(15_000)}}
     val detail=vm.detail?.takeIf {it.optString("gtfsId")==vehicle.id}
-    VehicleDrawerContent(vehicle, detail, day, now, vm.detailError, {vm.loadTrip(vehicle.id,day)}, dismiss, expanded)
+    VehicleDrawerContent(vehicle, detail, day, now, vm.detailError, {vm.loadTrip(vehicle.id,day)}, dismiss)
 }
 
 /** Modal presentation for independently loaded stop-board departures. */
@@ -145,14 +150,13 @@ internal fun vehicleStopPlatform(platform: String, mode: String): String = when(
     retry: () -> Unit,
     dismiss: () -> Unit,
 ) {
-    AppExpandableBottomSheet(onDismissRequest=dismiss,initialHeightFraction=.78f) {expanded ->
-        VehicleDrawerContent(vehicle, detail, day, now, error, retry, dismiss, expanded)
+    AppExpandableBottomSheet(onDismissRequest=dismiss,initialHeightFraction=.78f) {
+        VehicleDrawerContent(vehicle, detail, day, now, error, retry, dismiss)
     }
 }
 
-/** Shared drawer body. Fully expanded, the stop list also holds the stops already passed,
- * above the next stop, so the rider can scroll back without losing the current position. */
-@Composable private fun ColumnScope.VehicleDrawerContent(
+/** Shared drawer body: the next stop leads; passed stops unfold above it on request. */
+@Composable internal fun ColumnScope.VehicleDrawerContent(
     vehicle: Vehicle,
     detail: JSONObject?,
     day: String,
@@ -160,18 +164,19 @@ internal fun vehicleStopPlatform(platform: String, mode: String): String = when(
     error: String?,
     retry: () -> Unit,
     dismiss: () -> Unit,
-    expanded: Boolean,
 ) {
     val stops=remember(detail,day) {detail?.let {vehicleStops(it,day)}.orEmpty()}
     val upcoming=upcomingVehicleStops(stops,now,detail,vehicle)
     val nextIndex=stops.size-upcoming.size
-    val shown=if(expanded) stops else upcoming
+    // Passed stops unfold in place under an explicit toggle, independent of the sheet height,
+    // so a drag never swaps the list. Each vehicle opens on its next stop.
+    var showPassed by rememberSaveable(vehicle.id) {mutableStateOf(false)}
+    val shown=if(showPassed) stops else upcoming
     val offset=stops.size-shown.size
     val listState=rememberLazyListState()
-    // Collapsing returns the list to the next stop; expanding keeps it there (rows are keyed).
-    LaunchedEffect(expanded) {if(!expanded && listState.firstVisibleItemIndex>0) listState.scrollToItem(0)}
     val showUicCode=vehicle.mode!="RAIL" && vehicle.uicCode.isNotBlank()
     val track=TimelineTrack(serviceColor(vehicle.badgeLeg()))
+    val passedTrack=track.copy(color=track.color.copy(alpha=.6f))
     val context=LocalContext.current
     val dark=LocalAppDarkTheme.current
     val colorContext=remember(context,dark) {departureThemeContext(context,dark)}
@@ -227,22 +232,46 @@ internal fun vehicleStopPlatform(platform: String, mode: String): String = when(
                     if(shown.isEmpty()) Text(if(stops.isEmpty()) "Nincs elérhető megállóadat." else "Nincs további várható megálló a menetrendben.",
                         modifier=Modifier.padding(bottom=24.dp))
                     else LazyColumn(Modifier.weight(1f),state=listState,contentPadding=PaddingValues(bottom=24.dp)) {
+                        if(nextIndex>0) item(key="passed") {
+                            PassedStopsToggle(nextIndex,showPassed,passedTrack,Modifier.animateItem()) {showPassed=!showPassed}
+                        }
                         itemsIndexed(shown,key={index,_ -> offset+index}) {index,stop ->
                             val position=offset+index
                             val next=position==nextIndex
                             val passed=position<nextIndex
                             val row=@Composable {
                                 TimetableStopRow(stop.name,ServiceTime(stop.scheduled,stop.arrival,stop.realtime),
-                                    stop.platform,vehicle.mode,track,first=index==0,last=index==shown.lastIndex,
-                                    prominent=next || (passed && position==0),next=next)
+                                    stop.platform,vehicle.mode,track,
+                                    first=position==0 && nextIndex==0,last=index==shown.lastIndex,
+                                    prominent=next || position==0,next=next,
+                                    // Passed rows dim as a whole; the next stop's incoming leg matches them.
+                                    incomingTrack=if(next) passedTrack else track)
                             }
-                            if(passed) Box(Modifier.alpha(.6f).semantics(mergeDescendants=true) {stateDescription="Elhagyott megálló"}) {row()}
-                            else row()
+                            val motion=Modifier.animateItem(fadeInSpec=tween(AppMotion.Feedback),
+                                placementSpec=tween(AppMotion.Reveal,easing=AppMotion.Arrival),fadeOutSpec=tween(AppMotion.Dismiss))
+                            if(passed) Box(motion.alpha(.6f).semantics(mergeDescendants=true) {stateDescription="Elhagyott megálló"}) {row()}
+                            else Box(motion) {row()}
                         }
                     }
                 }
             }
         }
+}
+
+/** Starts the dimmed track that the passed stops continue below it, like a route origin. */
+@Composable private fun PassedStopsToggle(count: Int, open: Boolean, track: TimelineTrack, modifier: Modifier, toggle: () -> Unit) {
+    val rotation by animateFloatAsState(if(open) 180f else 0f,tween(AppMotion.Reveal,easing=AppMotion.State),label="Passed stops")
+    Box(modifier) {
+        TimelineRow(null,track,incoming=null,outgoing=track,marker={},bottomPadding=0.dp) {
+            TextButton(onClick=toggle,shape=MaterialTheme.shapes.extraSmall,
+                contentPadding=PaddingValues(vertical=AppLayout.CompactGap),modifier=Modifier.fillMaxWidth().heightIn(min=48.dp)
+                    .semantics {stateDescription=if(open) "Kibontva" else "Összecsukva"}) {
+                Text("$count elhagyott megálló",Modifier.weight(1f))
+                Icon(Icons.Outlined.ExpandMore,if(open) "Elhagyott megállók elrejtése" else "Elhagyott megállók megjelenítése",
+                    Modifier.size(20.dp).graphicsLayer {rotationZ=rotation})
+            }
+        }
+    }
 }
 
 @Composable internal fun VehicleTelemetry(vehicle: Vehicle, modifier: Modifier = Modifier) {
