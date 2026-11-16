@@ -35,7 +35,10 @@ data class Vehicle(val id: String, val name: String, val headsign: String, val m
     val routeColor: String = "", val category: String = "", val routeLongName: String = "",
     val heading: Double? = null, val model: String = "", val registration: String = "", val uicCode: String = "",
     val routeShortName: String = "", val vehicleId: String = "", val agencyName: String = "", val routeLogo: RouteLogo? = null,
-    val positionUpdatedSeconds: Long? = null, val speedMetersPerSecond: Double? = null) {
+    val positionUpdatedSeconds: Long? = null, val speedMetersPerSecond: Double? = null,
+    val sources: Int = VehicleSources.MAV) {
+    /** Opens a MÁVPlusz timetable: MÁV vehicles and utas.hu vehicles whose trip id was translated. */
+    val hasMavTrip: Boolean get() = !id.startsWith("utas:")
     val modelAndRegistration: String get() {
         val modelName=model.trim()
         val plate=registration.trim()

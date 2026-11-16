@@ -14,6 +14,7 @@ class AppState(app: Application) : AndroidViewModel(app) {
     private val prefs = app.getSharedPreferences("menetrendgo", 0)
     val updates = UpdateController(app, viewModelScope)
     private val mav=MavClient()
+    private val utas=UtasClient()
     var passGeography by mutableStateOf<PassGeography?>(null); private set
     init {
         viewModelScope.launch {
@@ -73,6 +74,14 @@ class AppState(app: Application) : AndroidViewModel(app) {
     ); private set
     val mapRefreshSeconds get() = if (rapidRefresh) 15 else 75
     val journeyRefreshSeconds get() = if (rapidRefresh) 30 else 75
+    var dataSourceMode by mutableStateOf(DataSourceMode.fromId(prefs.getString("data_source_mode", null))); private set
+    fun chooseDataSourceMode(mode: DataSourceMode) {
+        if (mode == dataSourceMode) return
+        dataSourceMode = mode
+        prefs.edit().putString("data_source_mode", mode.id).apply()
+        // Switching sources must not keep showing the other mode's vehicles until the next tick.
+        viewModelScope.launch { refreshVehicles(forceRefresh = true) }
+    }
     var customMapEnabled by mutableStateOf(prefs.getBoolean("custom_map_enabled", false)); private set
     var mapType by mutableStateOf(MapType.fromId(prefs.getString("map_type", "standard"))); private set
     var vehicleFilters by mutableStateOf(MapVehicleFilter.entries.filter { prefs.getBoolean(it.prefKey, it.defaultEnabled) }.toSet()); private set
@@ -291,13 +300,38 @@ class AppState(app: Application) : AndroidViewModel(app) {
         if (vehiclesLoading) return
         vehiclesLoading = true
         try {
-            val snapshot=mav.vehicles(forceRefresh, mapRefreshSeconds)
+            val (snapshot,partialError)=when(dataSourceMode) {
+                DataSourceMode.Single -> mav.vehicles(forceRefresh, mapRefreshSeconds) to null
+                DataSourceMode.Aggregated -> aggregatedVehicles(forceRefresh)
+            }
             vehicles=snapshot.first
             vehicleUpdated=snapshot.second
-            vehicleError = null
+            vehicleError = partialError
         } catch (e: CancellationException) { throw e }
         catch (e: Exception) { vehicleError = e.message ?: "Nem sikerült frissíteni a járműveket." }
         finally { vehiclesLoading = false }
+    }
+    /** Both providers in parallel. One failing provider degrades to the other with a notice;
+     * only a double failure is an error. */
+    private suspend fun aggregatedVehicles(forceRefresh: Boolean): Pair<Pair<List<Vehicle>,Long>,String?> = coroutineScope {
+        suspend fun <T> attempt(block: suspend () -> T): Result<T> =
+            try { Result.success(block()) } catch (e: CancellationException) { throw e } catch (e: Exception) { Result.failure(e) }
+        val mavResult=async { attempt { mav.vehicles(forceRefresh, mapRefreshSeconds) } }
+        val utasResult=async { attempt { utas.vehicles(forceRefresh, mapRefreshSeconds) } }
+        val m=mavResult.await(); val u=utasResult.await()
+        val mavSnapshot=m.getOrNull(); val utasSnapshot=u.getOrNull()
+        if (mavSnapshot==null && utasSnapshot==null) throw m.exceptionOrNull()!!
+        val now=System.currentTimeMillis()/1000
+        val merged=withContext(Dispatchers.Default) {
+            mergeVehicleSources(mavSnapshot?.first.orEmpty(), utasSnapshot?.first.orEmpty(), now)
+        }
+        val updated=listOfNotNull(mavSnapshot?.second,utasSnapshot?.second).min()
+        val notice=when {
+            mavSnapshot==null -> "A MÁVPlusz járműadatai most nem érhetők el, csak az utas.hu járművei láthatók."
+            utasSnapshot==null -> "Az utas.hu most nem érhető el, csak a MÁVPlusz járművei láthatók."
+            else -> null
+        }
+        (merged to updated) to notice
     }
     internal suspend fun refreshDepartures() {
         if (searching || journeys.isEmpty()) return
@@ -359,6 +393,8 @@ class AppState(app: Application) : AndroidViewModel(app) {
         detailKey=key
         detailError = null
         if (id.isBlank()) { detailError = "Ehhez a szakaszhoz nincs járatazonosító."; return }
+        // utas.hu-only vehicles have no MÁVPlusz trip to query; the drawer shows live data only.
+        if (id.startsWith("utas:")) return
         detailJob = viewModelScope.launch {
             detailLoading = true
             try { detail = mav.trip(id,day,refreshSeconds=mapRefreshSeconds) }

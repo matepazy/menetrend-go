@@ -33,7 +33,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 
 private enum class SettingsPage(val title: String) {
     Home("Beállítások"), Appearance("Megjelenés"), Notifications("Értesítések"),
-    Updates("Frissítések"), Extras("Kiegészítő funkciók"), Developer("Fejlesztői beállítások");
+    Updates("Frissítések"), DataSources("Adatforrások kezelése"), Extras("Kiegészítő funkciók"), Developer("Fejlesztői beállítások");
 
     val parent: SettingsPage get() = Home
 }
@@ -86,6 +86,7 @@ private enum class SettingsPage(val title: String) {
                             SettingsRow("Megjelenés", themeLabel(vm.theme), onClick = { navigate(SettingsPage.Appearance) })
                             SettingsRow("Értesítések", if (!notificationsEnabled) "Kikapcsolva az Androidban" else if (vm.passesEnabled) "${vm.passReminders.size} / ${PassReminder.entries.size} emlékeztető bekapcsolva" else "Android értesítésbeállítások", onClick = { navigate(SettingsPage.Notifications) })
                             SettingsRow("Frissítések", if (vm.updates.enabled) "Automatikus ellenőrzés bekapcsolva" else "Kézi ellenőrzés", onClick = { navigate(SettingsPage.Updates) })
+                            SettingsRow("Adatforrások kezelése", vm.dataSourceMode.title, onClick = { navigate(SettingsPage.DataSources) })
                             SettingsRow("Kiegészítő funkciók", vm.extraFeaturesSummary, onClick = { navigate(SettingsPage.Extras) })
                         }
                     }
@@ -139,6 +140,28 @@ private enum class SettingsPage(val title: String) {
                 }
                 SettingsPage.Updates -> {
                     item { Column(verticalArrangement = Arrangement.spacedBy(AppLayout.ItemGap)) { UpdateSettings(vm.updates) } }
+                }
+                SettingsPage.DataSources -> {
+                    item {
+                        SettingsGroup {
+                            Column(Modifier.selectableGroup().padding(vertical = 4.dp)) {
+                                DataSourceMode.entries.forEach { mode ->
+                                    Row(
+                                        Modifier.fillMaxWidth().selectable(vm.dataSourceMode == mode, role = Role.RadioButton, onClick = { vm.chooseDataSourceMode(mode) })
+                                            .padding(horizontal = 20.dp, vertical = 12.dp).heightIn(min = 48.dp),
+                                        verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)
+                                    ) {
+                                        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                            Text(mode.title, style = MaterialTheme.typography.bodyLarge)
+                                            Text(mode.summary, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                        }
+                                        RadioButton(selected = vm.dataSourceMode == mode, onClick = null)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    item { SettingsNote("Az adatforrás a térkép élő járműveire vonatkozik. Az útvonaltervezés, az indulások és a járatok menetrendje mindkét módban a MÁVPlusz adataiból származik. Aggregált módban ugyanazt a járművet a rendszámáról, a vonatszámáról vagy a vonalról és a helyzetéről ismerjük fel, a jármű típusát és adatait pedig abból a forrásból vesszük, amelyik ismeri. A csak utas.hu által jelentett járműveknél menetrend nem érhető el.") }
                 }
                 SettingsPage.Appearance -> {
                     item {

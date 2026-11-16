@@ -121,7 +121,7 @@ internal fun vehicleStopPlatform(platform: String, mode: String): String = when(
     val lifecycle=LocalLifecycleOwner.current.lifecycle
     LaunchedEffect(vehicle.id,lifecycle,vm.mapRefreshSeconds) {
         lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-            while(true) {
+            while(vehicle.hasMavTrip) {
                 day=LocalDate.now(Budapest).toString()
                 vm.loadTrip(vehicle.id,day)
                 delay(vm.mapRefreshSeconds * 1_000L)
@@ -193,6 +193,9 @@ internal fun vehicleStopPlatform(platform: String, mode: String): String = when(
             Spacer(Modifier.height(AppLayout.SheetPadding))
             // A failed refresh keeps the stops already shown; only a first load without data shows the full error.
             when {
+                !vehicle.hasMavTrip -> Text("Ehhez a járműhöz csak élő pozíció érhető el, menetrend nem.",
+                    modifier=Modifier.padding(bottom=24.dp),style=MaterialTheme.typography.bodyMedium,
+                    color=MaterialTheme.colorScheme.onSurfaceVariant)
                 detail==null && error!=null -> InfoPanel("A megállók nem tölthetők be",error,retry)
                 detail==null -> VehicleProgress(Modifier.fillMaxWidth())
                 else -> {
