@@ -42,6 +42,12 @@ android {
         }
     }
     buildTypes {
+        // Sign debug with the release key so a debug APK updates the installed GitHub release in place.
+        debug {
+            if (signingPropertiesFile.isFile) {
+                signingConfig = signingConfigs.getByName("release")
+            }
+        }
         release {
             isMinifyEnabled = true
             isShrinkResources = true
