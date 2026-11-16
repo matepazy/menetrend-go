@@ -1,6 +1,7 @@
 package hu.matepazy.menetrendgo
 
 import android.animation.ValueAnimator
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.PredictiveBackHandler
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.CubicBezierEasing
@@ -20,6 +21,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -69,7 +71,7 @@ fun AppBottomSheet(
 fun AppExpandableBottomSheet(
     onDismissRequest: () -> Unit,
     initialHeightFraction: Float,
-    content: @Composable ColumnScope.() -> Unit,
+    content: @Composable ColumnScope.(expanded: Boolean) -> Unit,
 ) {
     val state = rememberStandardBottomSheetState(initialValue = SheetValue.Hidden, skipHiddenState = false)
     val dismiss by rememberUpdatedState(onDismissRequest)
@@ -156,9 +158,78 @@ fun AppExpandableBottomSheet(
                     sheetContent = {
                         Column(Modifier.fillMaxWidth().fillMaxHeight().then(preserveContentProportions).windowInsetsPadding(
                             WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom)
-                        ), content = content)
+                        )) { content(state.currentValue == SheetValue.Expanded) }
                     },
                 ) {}
+            }
+        }
+    }
+}
+
+/**
+ * A non-modal sheet over the live map. It rests at [restingFraction] of the height while the
+ * map above stays interactive; only full expansion dims the map. Dragging below the resting
+ * height or Back from rest dismisses it. [content] receives the visible resting height, so
+ * map overlays and camera fits can keep clear of the sheet.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MapSheetScaffold(
+    open: Boolean,
+    onDismissRequest: () -> Unit,
+    restingFraction: Float,
+    sheetContent: @Composable ColumnScope.(expanded: Boolean) -> Unit,
+    content: @Composable (restingHeight: Dp) -> Unit,
+) {
+    // A selection that survives recreation rests at once instead of animating from hidden.
+    val state = rememberStandardBottomSheetState(
+        initialValue = if (open) SheetValue.PartiallyExpanded else SheetValue.Hidden, skipHiddenState = false)
+    val dismiss by rememberUpdatedState(onDismissRequest)
+    val isOpen by rememberUpdatedState(open)
+    val scope = rememberCoroutineScope()
+    LaunchedEffect(open) { if (open) state.partialExpand() else state.hide() }
+    LaunchedEffect(state) {
+        // The sheet starts hidden; only a hide after it was shown is a user dismissal.
+        var shown = false
+        snapshotFlow { state.currentValue }.collect {
+            if (it != SheetValue.Hidden) shown = true
+            else if (shown) { shown = false; if (isOpen) dismiss() }
+        }
+    }
+    BoxWithConstraints(Modifier.fillMaxSize()) {
+        val density = LocalDensity.current
+        val topGap = with(density) { WindowInsets.safeDrawing.getTop(this).toDp() } + AppLayout.RelatedGap
+        val restingHeight = maxHeight * restingFraction
+        val restingOffset = with(density) { (maxHeight - restingHeight).toPx() }
+        val expandedOffset = with(density) { topGap.toPx() }
+        // Expansion follows the measured sheet position, not the settle target, so the
+        // scrim tracks the finger and the stop list changes only once the sheet is at the top.
+        val progress by remember(restingOffset, expandedOffset) { derivedStateOf {
+            val offset = runCatching { state.requireOffset() }.getOrDefault(restingOffset)
+            ((restingOffset - offset) / (restingOffset - expandedOffset).coerceAtLeast(1f)).coerceIn(0f, 1f)
+        } }
+        val expanded = open && progress > .98f
+        BackHandler(open) { scope.launch { if (progress > .5f) state.partialExpand() else state.hide() } }
+        // A fixed content height keeps the expanded anchor below the status bar and stable during drags.
+        val contentHeight = (maxHeight - topGap - 48.dp).coerceAtLeast(0.dp)
+        BottomSheetScaffold(
+            scaffoldState = rememberBottomSheetScaffoldState(bottomSheetState = state),
+            sheetPeekHeight = restingHeight,
+            sheetShape = MaterialTheme.shapes.extraLarge.copy(bottomStart = CornerSize(0.dp), bottomEnd = CornerSize(0.dp)),
+            containerColor = Color.Transparent,
+            sheetContent = {
+                Column(Modifier.fillMaxWidth().height(contentHeight).windowInsetsPadding(
+                    WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom)
+                )) { sheetContent(expanded) }
+            },
+        ) {
+            Box(Modifier.fillMaxSize()) {
+                content(if (open) restingHeight else 0.dp)
+                if (open && progress > 0f) Box(Modifier.fillMaxSize().graphicsLayer { alpha = progress }
+                    .background(BottomSheetDefaults.ScrimColor).clickable(
+                        interactionSource = remember { MutableInteractionSource() }, indication = null,
+                        onClickLabel = "Részletek összecsukása", onClick = { scope.launch { state.partialExpand() } },
+                    ))
             }
         }
     }

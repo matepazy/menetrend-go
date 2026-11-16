@@ -9,7 +9,12 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.SystemBarStyle
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
@@ -320,6 +325,10 @@ private fun featherMask(top: Boolean, endY: Float=Float.POSITIVE_INFINITY)=
             }
             Scaffold(containerColor=Color.Transparent,contentWindowInsets=WindowInsets(0),
                 bottomBar={ if(!wide && !mapScreen) {
+                    // The live-map vehicle sheet takes the bottom edge; the bar returns when it closes.
+                    AnimatedVisibility(!(tab==1 && vm.mapVehicle!=null),
+                        enter=slideInVertically(tween(AppMotion.Reveal,easing=AppMotion.Arrival)) {it}+fadeIn(tween(AppMotion.Reveal)),
+                        exit=slideOutVertically(tween(AppMotion.Dismiss)) {it}+fadeOut(tween(AppMotion.Dismiss))) {
                     Surface(Modifier.navigationBarsPadding().padding(horizontal=AppLayout.PageGutter,vertical=6.dp),shape=MaterialTheme.shapes.large,color=MaterialTheme.colorScheme.surface) {
                         Row(Modifier.fillMaxWidth().padding(6.dp),horizontalArrangement=Arrangement.spacedBy(4.dp)) {
                             destinations.forEach { (index,label) ->
@@ -344,6 +353,7 @@ private fun featherMask(top: Boolean, endY: Float=Float.POSITIVE_INFINITY)=
                                 }
                             }
                         }
+                    }
                     }
                 } }
             ) { inset ->

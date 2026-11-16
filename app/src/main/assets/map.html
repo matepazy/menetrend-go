@@ -424,6 +424,24 @@ window.setAppTheme=(ground,surface,ink,action)=>{
 };
 let topInset=0;window.setTopInset=px=>{topInset=px;document.documentElement.style.setProperty('--top-inset',px+'px');reportLocation()};
 window.centerOn=(lat,lon)=>{map.setView([lat,lon],12)};
+// A selected live-map vehicle shows its complete trip. Fit once per trip and geometry
+// kind (stops, then the full shape), keeping clear of the resting sheet; restore on clear.
+const focusLayer=L.layerGroup().addTo(map);let focusKey='',focusReturn=null,focusActive=false;
+window.focusVehicle=(focus,bottom)=>{
+ focusLayer.clearLayers();
+ if(!focus){focusKey='';focusActive=false;if(focusReturn){map.setView(focusReturn.center,focusReturn.zoom);focusReturn=null}return}
+ if(!focusActive){focusActive=true;focusReturn=focus.restore?{center:map.getCenter(),zoom:map.getZoom()}:null}
+ const hex=(focus.color||'').replace(/^#/,''),color=/^[0-9a-f]{6}$/i.test(hex)?'#'+hex:'#4e6581';
+ const path=(focus.path||[]).filter(p=>Array.isArray(p)&&p.length>1&&Number.isFinite(p[0])&&Number.isFinite(p[1])).map(([lon,lat])=>[lat,lon]);
+ const stops=(focus.stops||[]).filter(s=>s&&Number.isFinite(s.lat)&&Number.isFinite(s.lon)).map(s=>[s.lat,s.lon]);
+ const line=path.length>1?path:stops;
+ if(line.length>1)L.polyline(line,{color,weight:5,opacity:.85,interactive:false}).addTo(focusLayer);
+ stops.forEach(p=>L.circleMarker(p,{radius:4,color,fillColor:'white',fillOpacity:1,weight:2,interactive:false}).addTo(focusLayer));
+ const key=focus.id+'|'+(path.length>1?'path':stops.length>1?'stops':focus.vehicle?'vehicle':'none');
+ if(key===focusKey)return;focusKey=key;
+ const points=[...line,...(focus.vehicle?[[focus.vehicle.lat,focus.vehicle.lon]]:[])];
+ if(points.length)map.fitBounds(points,{paddingTopLeft:[32,topInset+32],paddingBottomRight:[32,(+bottom||0)+32],maxZoom:points.length>1?16:Math.max(map.getZoom(),14)});
+};
 let userLocation=null,userDot=null;
 function reportLocation(){const p=userLocation&&map.latLngToContainerPoint(userLocation),size=map.getSize();if(window.NativeMap) NativeMap.locationInView(!!p&&p.x>=8&&p.x<=size.x-8&&p.y>=topInset+8&&p.y<=size.y-bottomInset-32)}
 window.updateLocation=(lat,lon,recenter)=>{

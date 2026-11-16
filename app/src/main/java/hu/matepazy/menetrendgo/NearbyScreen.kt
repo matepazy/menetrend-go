@@ -52,9 +52,21 @@ import kotlinx.coroutines.withContext
 /** Shared map renderer. A route screen never requests the user's location or loads unrelated markers. */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable private fun TransportMap(vm: AppState, journey: Journey?, focusedId: String?, routeOnly: Boolean, back: () -> Unit={}) {
+    var selectedVehicle by vm::mapVehicle
+    // The vehicle sheet rests at half height over a live, pannable map.
+    MapSheetScaffold(open=selectedVehicle!=null,onDismissRequest={selectedVehicle=null},restingFraction=.5f,
+        sheetContent={expanded -> selectedVehicle?.let {selected ->
+            val live=vm.vehicles.firstOrNull {it.id==selected.id} ?: selected
+            MapVehicleSheetContent(vm,live,expanded) {selectedVehicle=null}
+        }}) {sheetHeight -> TransportMapContent(vm,journey,focusedId,routeOnly,back,sheetHeight)}
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable private fun TransportMapContent(vm: AppState, journey: Journey?, focusedId: String?, routeOnly: Boolean, back: () -> Unit, sheetHeight: androidx.compose.ui.unit.Dp) {
     val context=LocalContext.current
     val tracking by JourneyTracking.state.collectAsStateWithLifecycle()
-    val bottomInset=LocalBottomOverlayInset.current.value
+    // While the vehicle sheet rests, map attribution, status and camera fits keep clear of it.
+    val bottomInset=maxOf(LocalBottomOverlayInset.current,sheetHeight).value
     val topInset=WindowInsets.safeDrawing.asPaddingValues().calculateTopPadding()
     val mapColors=MaterialTheme.colorScheme
     val groundColor=mapColors.background.toArgb()
@@ -85,6 +97,8 @@ import kotlinx.coroutines.withContext
     val snackbars=remember {SnackbarHostState()}
     val scope=rememberCoroutineScope()
     var selectedVehicle by vm::mapVehicle
+    // On the live map a selected vehicle is isolated, with its complete trip drawn and fitted.
+    val focusId=selectedVehicle?.id?.takeIf {!routeOnly}
     val onSelect by rememberUpdatedState<(Vehicle) -> Unit>({vehicle -> vm.loadTrip(vehicle.id,java.time.LocalDate.now(Budapest).toString());selectedVehicle=vehicle})
     var mapTypesOpen by rememberSaveable {mutableStateOf(false)}
     var searchQuery by rememberSaveable {mutableStateOf("")}
@@ -116,8 +130,9 @@ import kotlinx.coroutines.withContext
         if(routeOnly) vm.vehicles else mapLayerVehicles(vm.vehicles,vm.vehicleFilters)
     }
     val stationSearch=remember(context,stopClient) {StationSearch(context,stopClient::stations)}
-    val visibleVehicles=remember(routeOnly,journey,focusedId,allVehicles,vm.vehicleUpdated,searchVehicleId) {
+    val visibleVehicles=remember(routeOnly,journey,focusedId,allVehicles,vm.vehicleUpdated,searchVehicleId,focusId) {
         when {
+            focusId!=null -> vm.vehicles.filter {it.id==focusId}.ifEmpty {listOfNotNull(selectedVehicle)}
             routeOnly && focusedId!=null -> vehicleForTrip(vm.vehicles,focusedId)
             routeOnly && journey!=null -> routeVehicles(journey,vm.vehicles,System.currentTimeMillis())
             routeOnly -> emptyList()
@@ -182,6 +197,29 @@ import kotlinx.coroutines.withContext
             mapSurface?.call("updateVehicles",array)
             mapSurface?.call("updateRoute",route)
         }
+    }
+    var focusPath by remember(focusId) {mutableStateOf<JSONArray?>(null)}
+    LaunchedEffect(focusId) {
+        if(focusId==null || focusId.startsWith("utas:")) return@LaunchedEffect
+        try {focusPath=stopClient.vehiclePaths(listOf(focusId)).optJSONArray(focusId)}
+        catch(e: kotlinx.coroutines.CancellationException) {throw e}
+        catch(_: Exception) { /* The trip's stops still outline the route. */ }
+    }
+    val focusStops=remember(vm.detail,focusId) {
+        vm.detail?.takeIf {focusId!=null && it.optString("gtfsId")==focusId}?.array("stoptimes").orEmpty().mapNotNull {time ->
+            time.optJSONObject("stop")?.takeIf {it.has("lat") && it.has("lon")}?.let {JSONObject().put("lat",it.getDouble("lat")).put("lon",it.getDouble("lon"))}
+        }
+    }
+    val focusVehicle=visibleVehicles.firstOrNull {it.id==focusId}
+    // Return to the earlier view only when the rider chose the vehicle on this map instance.
+    val restoreView=remember(focusId,googleMap) {ready}
+    LaunchedEffect(ready,focusId,focusPath,focusStops,bottomInset) {
+        if(!ready) return@LaunchedEffect
+        val focus=focusId?.let {id -> JSONObject().put("id",id)
+            .put("color",focusVehicle?.let {serviceColorHex(it.badgeLeg())} ?: JSONObject.NULL)
+            .put("restore",restoreView).put("path",focusPath ?: JSONArray()).put("stops",JSONArray(focusStops))
+            .put("vehicle",focusVehicle?.let {JSONObject().put("lat",it.lat).put("lon",it.lon)} ?: JSONObject.NULL)}
+        mapSurface?.call("focusVehicle",focus ?: JSONObject.NULL,bottomInset)
     }
     val alertSession = tracking.session?.takeIf { JourneyTracking.enabled(context) && !it.awaitingBoarding &&
         (journey == null && !routeOnly || journey?.trackingKey == it.journey.trackingKey) }
@@ -341,7 +379,6 @@ import kotlinx.coroutines.withContext
         }
         if(mapTypesOpen) MapTypeDrawer(vm) {mapTypesOpen=false}
         selectedStop?.let {StopBoardDrawer(it, dismiss={selectedStop=null})}
-        selectedVehicle?.let {selected -> VehicleDrawer(vm,currentVehicles.firstOrNull {it.id==selected.id} ?: selected) {selectedVehicle=null}}
         SnackbarHost(snackbars,Modifier.align(Alignment.BottomCenter).padding(bottom=LocalBottomOverlayInset.current+12.dp))
     }
 }

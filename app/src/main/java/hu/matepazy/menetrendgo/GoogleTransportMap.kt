@@ -171,6 +171,11 @@ private class GoogleMapSurface(
     private val stopLabels=mutableMapOf<List<String>,Marker>()
     private val stopLabelStyles=mutableMapOf<List<String>,Triple<String,Int,Int>>()
     private var displayedStops=emptyList<Station>()
+    private val focusLines=mutableListOf<Polyline>()
+    private val focusStops=mutableListOf<Marker>()
+    private var focusKey=""
+    private var focusReturn:CameraPosition?=null
+    private var focusActive=false
     private var destroyed=false
 
     init {
@@ -247,6 +252,7 @@ private class GoogleMapSurface(
             }
             "centerOn"->map.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng((args[0] as Number).toDouble(),(args[1] as Number).toDouble()),max(14f,map.cameraPosition.zoom)))
             "updateRoute"->drawRoute(args[0] as JSONArray)
+            "focusVehicle"->focusVehicle(args[0] as? JSONObject,(args[1] as Number).toFloat())
             "updateDestinationAlert"->{
                 alerts.forEach {it.remove()};alerts.clear()
                 (args[0] as? JSONObject)?.let {area->
@@ -422,6 +428,38 @@ private class GoogleMapSurface(
             if(routeMode)for(i in 0 until vehicles.length())points.add(vehicles.getJSONObject(i).point())
             val bounds=LatLngBounds.builder().apply {points.forEach(::include)}.build()
             map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds,(60*density).toInt()))
+        }
+    }
+    /** Matches map.html: draw the selected trip, fit once per geometry kind, restore on clear. */
+    private fun focusVehicle(focus:JSONObject?,bottomDp:Float) {
+        focusLines.forEach {it.remove()};focusLines.clear();focusStops.forEach {it.remove()};focusStops.clear()
+        if(focus==null) {
+            focusKey=""
+            focusActive=false
+            focusReturn?.let {map.animateCamera(CameraUpdateFactory.newCameraPosition(it))}
+            focusReturn=null
+            return
+        }
+        if(!focusActive) {focusActive=true;focusReturn=if(focus.optBoolean("restore")) map.cameraPosition else null}
+        val color=color(focus)
+        val path=focus.optJSONArray("path")?.let {items->(0 until items.length()).mapNotNull {i->
+            items.optJSONArray(i)?.let {LatLng(it.optDouble(1),it.optDouble(0))}
+        }}.orEmpty().filter {it.latitude.isFinite() && it.longitude.isFinite()}
+        val stops=focus.optJSONArray("stops")?.objects().orEmpty().mapNotNull {runCatching {it.point()}.getOrNull()}
+        val line=if(path.size>1) path else stops
+        if(line.size>1)map.addPolyline(PolylineOptions().addAll(line).color(color).width(5*density).zIndex(.4f))?.let(focusLines::add)
+        stops.forEach {map.addMarker(MarkerOptions().position(it).icon(artwork.dot(4f,Color.WHITE,color,2f)).anchor(.5f,.5f).zIndex(1f))?.let(focusStops::add)}
+        val vehicle=focus.optJSONObject("vehicle")?.let {runCatching {it.point()}.getOrNull()}
+        val key=focus.optString("id")+"|"+when {path.size>1->"path";stops.size>1->"stops";vehicle!=null->"vehicle";else->"none"}
+        if(key==focusKey)return
+        focusKey=key
+        // The sheet's resting height arrives with this call; apply it before fitting.
+        bottom=(bottomDp*density).toInt();padding()
+        val points=line+listOfNotNull(vehicle)
+        when {
+            points.size>1->map.animateCamera(CameraUpdateFactory.newLatLngBounds(
+                LatLngBounds.builder().apply {points.forEach(::include)}.build(),(32*density).toInt()))
+            points.size==1->map.animateCamera(CameraUpdateFactory.newLatLngZoom(points[0],max(14f,map.cameraPosition.zoom)))
         }
     }
     fun finishMotion() {

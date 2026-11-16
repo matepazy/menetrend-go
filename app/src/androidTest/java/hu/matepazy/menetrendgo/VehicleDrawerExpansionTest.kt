@@ -36,11 +36,11 @@ class VehicleDrawerExpansionTest {
             MenetrendTheme(if (dark) "dark" else "light") {
                 CompositionLocalProvider(LocalDensity provides Density(LocalDensity.current.density, if (dark) 1.3f else 1f)) {
                     safeTop = WindowInsets.safeDrawing.getTop(LocalDensity.current)
+                    // A provider error without trip data exercises the real drawer without a network dependency.
                     if (open.value) VehicleDrawer(
-                        androidx.compose.runtime.remember { AppState(app).also { store.put("vehicle", it) } },
-                        // A missing trip ID exercises the real drawer without a network dependency.
                         Vehicle("", "787/17", "Budapest, Széll Kálmán tér → Nagysáp, autóbusz-forduló", "BUS", 47.5, 19.0),
-                        dismiss = { open.value = false },
+                        detail = null, day = java.time.LocalDate.now().toString(), now = System.currentTimeMillis(),
+                        error = "Ehhez a szakaszhoz nincs járatazonosító.", retry = {}, dismiss = { open.value = false },
                     )
                 }
             }
