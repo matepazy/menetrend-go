@@ -96,6 +96,8 @@ tasks.withType<Test>().configureEach {
     inputs.file(rootProject.file("research/fleet/backlog.json"))
     inputs.file(rootProject.file("research/fleet/bus-seating.json"))
     inputs.file(rootProject.file("research/fleet/bus-standing.json"))
+    inputs.file(rootProject.file("research/fleet/tram-trolley-review.json"))
+    inputs.file(rootProject.file("research/fleet/tram-trolley-live-2026-11-16.json"))
 }
 
 tasks.register<Copy>("exportReleaseApk") {

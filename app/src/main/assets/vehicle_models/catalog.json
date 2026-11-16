@@ -7021,5 +7021,971 @@
         "height": 1890
       }
     ]
+  },
+  {
+    "id": "caf5",
+    "title": "CAF Urbos 3 · 5 modul",
+    "aliases": [
+      "CAF 5 modulos szerelvény",
+      "CAF Urbos 3/5"
+    ],
+    "description": "A budapesti CAF villamosok rövidebb, ötrészes változata, alacsonypadlós utastérrel.",
+    "facts": [
+      "A BKV adatlapján 34,166 méteres hossz szerepel, így ez a változat több mint húsz méterrel rövidebb a kilencrészes CAF-nál.",
+      "A BKV adatlapja nyolc vontatómotort sorol fel."
+    ],
+    "sources": [
+      {
+        "label": "BKV · CAF Urbos 3 · 5 modul",
+        "url": "https://www.bkv.hu/hu/jarmuveink/villamos/caf-35"
+      },
+      {
+        "label": "BKV · Alacsonypadlós villamosok",
+        "url": "https://www.bkv.hu/hu/content/strategiai_celunk_hogy_a_fogyatekkal_elokre_kulon_figyeljunk_20220527"
+      }
+    ],
+    "photos": [
+      {
+        "caption": "CAF Urbos 3 · 5 modul · típusillusztráció",
+        "author": "Globetrotter19",
+        "source": "https://commons.wikimedia.org/wiki/File:CAF_Urbos_at_Savoya_Park_Shopping_Complex_terminal,_2016_Albertfalva.jpg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f3/CAF_Urbos_at_Savoya_Park_Shopping_Complex_terminal%2C_2016_Albertfalva.jpg/1280px-CAF_Urbos_at_Savoya_Park_Shopping_Complex_terminal%2C_2016_Albertfalva.jpg",
+        "width": 2272,
+        "height": 1704
+      }
+    ],
+    "specifications": [
+      {
+        "label": "Gyártó / korszerűsítő",
+        "value": "CAF"
+      },
+      {
+        "label": "Járműfajta",
+        "value": "Csuklós villamos"
+      },
+      {
+        "label": "Hajtás",
+        "value": "Villamos, felsővezetékről"
+      },
+      {
+        "label": "Hossz",
+        "value": "34,166 m"
+      },
+      {
+        "label": "Szélesség",
+        "value": "2,40 m"
+      },
+      {
+        "label": "Utasülőhelyek",
+        "value": "46 fő (BKV CAF 3/5 adatlap)"
+      },
+      {
+        "label": "Állóhelyek",
+        "value": "154 fő (BKV CAF 3/5 adatlap, 4 fő/m²)"
+      },
+      {
+        "label": "Padlókialakítás",
+        "value": "Alacsonypadlós"
+      }
+    ]
+  },
+  {
+    "id": "caf9",
+    "title": "CAF Urbos 3 · 9 modul",
+    "aliases": [
+      "CAF 9 modulos szerelvény",
+      "CAF Urbos 3/9"
+    ],
+    "description": "A budapesti CAF villamoscsalád hosszú, kilencrészes változata, alacsonypadlós utastérrel.",
+    "facts": [
+      "A BKV adatlapján 55,911 méteres hossz szerepel.",
+      "Húsz kereke és tizenkét vontatómotorja van."
+    ],
+    "sources": [
+      {
+        "label": "BKV · CAF Urbos 3 · 9 modul",
+        "url": "https://www.bkv.hu/hu/jarmuveink/villamos/caf-9"
+      },
+      {
+        "label": "BKV · Alacsonypadlós villamosok",
+        "url": "https://www.bkv.hu/hu/content/strategiai_celunk_hogy_a_fogyatekkal_elokre_kulon_figyeljunk_20220527"
+      }
+    ],
+    "photos": [
+      {
+        "caption": "CAF Urbos 3 · 9 modul · típusillusztráció",
+        "author": "Albert Lugosi",
+        "source": "https://commons.wikimedia.org/wiki/File:1-es_villamos_(2111).jpg",
+        "license": "CC BY 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/08/1-es_villamos_%282111%29.jpg/1280px-1-es_villamos_%282111%29.jpg",
+        "width": 1350,
+        "height": 900
+      }
+    ],
+    "specifications": [
+      {
+        "label": "Gyártó / korszerűsítő",
+        "value": "CAF"
+      },
+      {
+        "label": "Járműfajta",
+        "value": "Csuklós villamos"
+      },
+      {
+        "label": "Hajtás",
+        "value": "Villamos, felsővezetékről"
+      },
+      {
+        "label": "Hossz",
+        "value": "55,911 m"
+      },
+      {
+        "label": "Szélesség",
+        "value": "2,40 m"
+      },
+      {
+        "label": "Utasülőhelyek",
+        "value": "81 fő (BKV CAF 3/9 adatlap)"
+      },
+      {
+        "label": "Állóhelyek",
+        "value": "264 fő (BKV CAF 3/9 adatlap, 4 fő/m²)"
+      },
+      {
+        "label": "Padlókialakítás",
+        "value": "Alacsonypadlós"
+      }
+    ]
+  },
+  {
+    "id": "combino",
+    "title": "Siemens Combino Supra",
+    "aliases": [
+      "Siemens Combino",
+      "Siemens Combino Supra"
+    ],
+    "description": "A budapesti Nagykörútról ismert, közel 54 méter hosszú, alacsonypadlós csuklós villamos.",
+    "facts": [
+      "Az első budapesti Combino 2006. július 1-jén állt utasforgalomba.",
+      "A BKV 40 járműből álló Combino-flottát szerzett be."
+    ],
+    "sources": [
+      {
+        "label": "BKV · Siemens Combino Supra",
+        "url": "https://www.bkv.hu/hu/jarmuveink/villamos/siemens-combino"
+      },
+      {
+        "label": "BKV · 20 éves a Combino",
+        "url": "https://www.bkv.hu/hu/content/combino-20-eve-forgalomban-az-ikonikussa-valt-villamostipus"
+      }
+    ],
+    "photos": [
+      {
+        "caption": "Siemens Combino Supra · típusillusztráció",
+        "author": "Sir Morosus",
+        "source": "https://commons.wikimedia.org/wiki/File:Siemens_Combino_Supra_(Budapest).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3a/Siemens_Combino_Supra_%28Budapest%29.jpg/1280px-Siemens_Combino_Supra_%28Budapest%29.jpg",
+        "width": 5152,
+        "height": 3864
+      }
+    ],
+    "specifications": [
+      {
+        "label": "Gyártó / korszerűsítő",
+        "value": "Siemens"
+      },
+      {
+        "label": "Járműfajta",
+        "value": "Csuklós villamos"
+      },
+      {
+        "label": "Hajtás",
+        "value": "Villamos, felsővezetékről"
+      },
+      {
+        "label": "Hossz",
+        "value": "53,99 m"
+      },
+      {
+        "label": "Szélesség",
+        "value": "2,40 m"
+      },
+      {
+        "label": "Utasülőhelyek",
+        "value": "64 fő (BKV Combino Supra adatlap)"
+      },
+      {
+        "label": "Állóhelyek",
+        "value": "286 fő (BKV Combino Supra adatlap, 4 fő/m²)"
+      },
+      {
+        "label": "Padlókialakítás",
+        "value": "Alacsonypadlós"
+      }
+    ]
+  },
+  {
+    "id": "tw6000",
+    "title": "TW 6000",
+    "aliases": [
+      "TW 6000"
+    ],
+    "description": "Nyolctengelyes csuklós villamos, amelyet Budapesten hannoveri villamosként is ismernek.",
+    "facts": [
+      "A BKV első beszerzése 2001–2002-ben történt, majd további járművek is érkeztek.",
+      "A BKV adatlapja 27 méteres járműhosszt és nyolc tengelyt ad meg."
+    ],
+    "sources": [
+      {
+        "label": "BKV · TW 6000",
+        "url": "https://www.bkv.hu/hu/jarmuveink/villamos/tw6000"
+      }
+    ],
+    "photos": [
+      {
+        "caption": "TW 6000 · típusillusztráció",
+        "author": "Sir Morosus",
+        "source": "https://commons.wikimedia.org/wiki/File:TW_6000_in_Budapest_(line_62,_reg_No.1514.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/26/TW_6000_in_Budapest_%28line_62%2C_reg_No.1514.jpg/1280px-TW_6000_in_Budapest_%28line_62%2C_reg_No.1514.jpg",
+        "width": 3657,
+        "height": 3334
+      }
+    ],
+    "specifications": [
+      {
+        "label": "Gyártó / korszerűsítő",
+        "value": "DÜWAG / LHB"
+      },
+      {
+        "label": "Járműfajta",
+        "value": "Csuklós villamos"
+      },
+      {
+        "label": "Hajtás",
+        "value": "Villamos, felsővezetékről"
+      },
+      {
+        "label": "Hossz",
+        "value": "27,00 m"
+      },
+      {
+        "label": "Szélesség",
+        "value": "2,40 m"
+      },
+      {
+        "label": "Utasülőhelyek",
+        "value": "46 fő (BKV TW6000 adatlap)"
+      },
+      {
+        "label": "Állóhelyek",
+        "value": "130 fő (BKV TW6000 adatlap, 4 fő/m²)"
+      }
+    ]
+  },
+  {
+    "id": "t5c5k",
+    "title": "Tátra T5C5K",
+    "aliases": [
+      "Tátra T5C5K"
+    ],
+    "description": "A budapesti T5C5 villamos korszerűsített változata. A férőhelyadatok egyetlen kocsira vonatkoznak.",
+    "facts": [
+      "A BKV típustáblája a T5C5 és T5C5K járműveket közösen ismerteti.",
+      "Egy kocsi négy tengelyen fut, a BKV adatlapján 14,7 méteres hossz szerepel."
+    ],
+    "sources": [
+      {
+        "label": "BKV · Tátra T5C5K",
+        "url": "https://www.bkv.hu/hu/jarmuveink/villamos/t5c5"
+      }
+    ],
+    "photos": [
+      {
+        "caption": "Tátra T5C5K · típusillusztráció",
+        "author": "Kemenymate",
+        "source": "https://commons.wikimedia.org/wiki/File:41-es_villamos_(4158-4223).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f6/41-es_villamos_%284158-4223%29.jpg/1280px-41-es_villamos_%284158-4223%29.jpg",
+        "width": 4470,
+        "height": 2348
+      }
+    ],
+    "specifications": [
+      {
+        "label": "Gyártó / korszerűsítő",
+        "value": "ČKD Tatra / BKV"
+      },
+      {
+        "label": "Járműfajta",
+        "value": "Villamos motorkocsi"
+      },
+      {
+        "label": "Hajtás",
+        "value": "Villamos, felsővezetékről"
+      },
+      {
+        "label": "Hossz",
+        "value": "14,70 m"
+      },
+      {
+        "label": "Szélesség",
+        "value": "2,48 m"
+      },
+      {
+        "label": "Utasülőhelyek",
+        "value": "26 fő (BKV T5C5/T5C5K adatlap, egy kocsi)"
+      },
+      {
+        "label": "Állóhelyek",
+        "value": "74 fő (BKV T5C5/T5C5K adatlap, egy kocsi, 4 fő/m²)"
+      }
+    ]
+  },
+  {
+    "id": "kcsv7",
+    "title": "Ganz KCSV7",
+    "aliases": [
+      "KCSV7 Korszerűsített Ganz",
+      "Ganz KCSV7"
+    ],
+    "description": "A Ganz csuklós villamos korszerűsített változata, három járműrésszel.",
+    "facts": [
+      "Az A és B végrészek között a C jelű középrész helyezkedik el.",
+      "Mindkét végén vezetőfülke található, oldalanként öt kétszárnyú ajtóval."
+    ],
+    "sources": [
+      {
+        "label": "BKV · Ganz KCSV7",
+        "url": "https://www.bkv.hu/hu/jarmuveink/villamos/kcsv7"
+      },
+      {
+        "label": "BKV · KCSV7 típusismereti jegyzet",
+        "url": "https://villamosoktatas.hu/jvt/elmelet/tipus/kcsv7/kcsv7-2022.pdf"
+      }
+    ],
+    "photos": [
+      {
+        "caption": "Ganz KCSV7 · típusillusztráció",
+        "author": "Sir Morosus",
+        "source": "https://commons.wikimedia.org/wiki/File:Ganz_KCSV7_villamos_(1326)_a_Festetics_utcai_v%C3%A9g%C3%A1llom%C3%A1son.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f0/Ganz_KCSV7_villamos_%281326%29_a_Festetics_utcai_v%C3%A9g%C3%A1llom%C3%A1son.jpg/1280px-Ganz_KCSV7_villamos_%281326%29_a_Festetics_utcai_v%C3%A9g%C3%A1llom%C3%A1son.jpg",
+        "width": 5152,
+        "height": 3864
+      }
+    ],
+    "specifications": [
+      {
+        "label": "Gyártó / korszerűsítő",
+        "value": "Ganz / Ganz-Ansaldo"
+      },
+      {
+        "label": "Járműfajta",
+        "value": "Csuklós villamos"
+      },
+      {
+        "label": "Hajtás",
+        "value": "Villamos, felsővezetékről"
+      },
+      {
+        "label": "Hossz",
+        "value": "26,00 m"
+      },
+      {
+        "label": "Szélesség",
+        "value": "2,30 m"
+      },
+      {
+        "label": "Utasülőhelyek",
+        "value": "36 fő (BKV KCSV7 adatlap)"
+      },
+      {
+        "label": "Állóhelyek",
+        "value": "156 fő (BKV KCSV7 adatlap, 4 fő/m²)"
+      }
+    ]
+  },
+  {
+    "id": "ganzcs",
+    "title": "Ganz ipari csuklós",
+    "aliases": [
+      "Ganz csuklós",
+      "Ganz CSMG"
+    ],
+    "description": "A Ganz klasszikus budapesti csuklós villamosa. Ez a profil az eredeti, 1400-as sorozatot ismerteti.",
+    "facts": [
+      "A BKV 1967 és 1978 közötti beszerzési időszakot tüntet fel.",
+      "A 26 méteres kocsi nyolc tengelyen fut."
+    ],
+    "sources": [
+      {
+        "label": "BKV · Ganz ipari csuklós",
+        "url": "https://www.bkv.hu/hu/jarmuveink/villamos/ganz-csuklos-1400-sor"
+      }
+    ],
+    "photos": [
+      {
+        "caption": "Ganz ipari csuklós · típusillusztráció",
+        "author": "Ralf Roletschek",
+        "source": "https://commons.wikimedia.org/wiki/File:14-05-06-Tram-Budapest-Keleti-p%C3%A1lyaudvar-RalfR.jpg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a9/14-05-06-Tram-Budapest-Keleti-p%C3%A1lyaudvar-RalfR.jpg/1280px-14-05-06-Tram-Budapest-Keleti-p%C3%A1lyaudvar-RalfR.jpg",
+        "width": 7360,
+        "height": 4912
+      }
+    ],
+    "specifications": [
+      {
+        "label": "Gyártó / korszerűsítő",
+        "value": "Ganz-MÁVAG / Ganz Villamossági Művek"
+      },
+      {
+        "label": "Járműfajta",
+        "value": "Csuklós villamos"
+      },
+      {
+        "label": "Hajtás",
+        "value": "Villamos, felsővezetékről"
+      },
+      {
+        "label": "Hossz",
+        "value": "26,00 m"
+      },
+      {
+        "label": "Szélesség",
+        "value": "2,30 m"
+      },
+      {
+        "label": "Utasülőhelyek",
+        "value": "40 fő (BKV 1400-as sorozat adatlap)"
+      },
+      {
+        "label": "Állóhelyek",
+        "value": "126 fő (BKV 1400-as sorozat adatlap, 4 fő/m²)"
+      }
+    ]
+  },
+  {
+    "id": "fogas",
+    "title": "SGP fogaskerekű motorkocsi",
+    "aliases": [
+      "Fogaskerekű motorkocsi"
+    ],
+    "description": "A budapesti fogaskerekű vasút villamos motorkocsija. Az itt szereplő méretek és ülőhelyek a motorkocsira vonatkoznak.",
+    "facts": [
+      "A jelenlegi SGP vonatok 1973-tól közlekednek a fogaskerekű vasúton.",
+      "A vezérlőpótkocsi külön jármű, ezért annak kerékpáros elrendezését nem számítjuk a motorkocsi ülőhelyeihez."
+    ],
+    "sources": [
+      {
+        "label": "BKV · SGP fogaskerekű motorkocsi",
+        "url": "https://www.bkv.hu/hu/jarmuveink/villamos/fogaskereku-vasut"
+      },
+      {
+        "label": "BKV · A fogaskerekű története",
+        "url": "https://bkv.hu/hu/nosztalgia/2_50"
+      }
+    ],
+    "photos": [
+      {
+        "caption": "SGP fogaskerekű motorkocsi · típusillusztráció",
+        "author": "Jakub Hałun",
+        "source": "https://commons.wikimedia.org/wiki/File:20190503_The_Budapest_Cog-wheel_Railway_at_V%C3%A1rosmajor_1125_2220_DxO.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8c/20190503_The_Budapest_Cog-wheel_Railway_at_V%C3%A1rosmajor_1125_2220_DxO.jpg/1280px-20190503_The_Budapest_Cog-wheel_Railway_at_V%C3%A1rosmajor_1125_2220_DxO.jpg",
+        "width": 3128,
+        "height": 3197
+      }
+    ],
+    "specifications": [
+      {
+        "label": "Gyártó / korszerűsítő",
+        "value": "SGP"
+      },
+      {
+        "label": "Járműfajta",
+        "value": "Fogaskerekű motorkocsi"
+      },
+      {
+        "label": "Hajtás",
+        "value": "Villamos, felsővezetékről"
+      },
+      {
+        "label": "Hossz",
+        "value": "15,00 m"
+      },
+      {
+        "label": "Szélesség",
+        "value": "3,15 m"
+      },
+      {
+        "label": "Utasülőhelyek",
+        "value": "41 fő (BKV motorkocsi-adatlap, pótkocsi nélkül)"
+      }
+    ]
+  },
+  {
+    "id": "trollino12a",
+    "title": "Ganz–Solaris Trollino 12A",
+    "aliases": [
+      "GANZ-SOLARIS Trollino 12 trolibusz"
+    ],
+    "description": "Alacsonypadlós, szóló városi trolibusz. A férőhelyek a BKV megnevezett kivitelét jellemzik.",
+    "facts": [
+      "A második utasajtónál rámpa segíti a kerekesszékkel utazók felszállását.",
+      "A BKV adatlapja egy kerekesszék elhelyezésére szolgáló helyet tüntet fel."
+    ],
+    "sources": [
+      {
+        "label": "BKV · Ganz–Solaris Trollino 12A",
+        "url": "https://www.bkv.hu/hu/jarmuveink/trolibusz/ganz-solaris-trollino-12a"
+      }
+    ],
+    "photos": [
+      {
+        "caption": "Ganz–Solaris Trollino 12A · típusillusztráció",
+        "author": "Bakó Ádám",
+        "source": "https://commons.wikimedia.org/wiki/File:Budapest_XIV.,_Hermina_%C3%BAt._-_Solaris_Ganz_Trollino_12.jpg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/93/Budapest_XIV.%2C_Hermina_%C3%BAt._-_Solaris_Ganz_Trollino_12.jpg/1280px-Budapest_XIV.%2C_Hermina_%C3%BAt._-_Solaris_Ganz_Trollino_12.jpg",
+        "width": 1600,
+        "height": 1200
+      }
+    ],
+    "specifications": [
+      {
+        "label": "Gyártó / korszerűsítő",
+        "value": "Solaris / Ganz"
+      },
+      {
+        "label": "Járműfajta",
+        "value": "Szóló trolibusz"
+      },
+      {
+        "label": "Hajtás",
+        "value": "Villamos, felsővezetékről"
+      },
+      {
+        "label": "Hossz",
+        "value": "12,00 m"
+      },
+      {
+        "label": "Szélesség",
+        "value": "2,50 m"
+      },
+      {
+        "label": "Utasülőhelyek",
+        "value": "28 fő (BKV adatlap, utasülések, vezető nélkül)"
+      },
+      {
+        "label": "Állóhelyek",
+        "value": "50 fő (BKV adatlap, 4 fő/m²)"
+      },
+      {
+        "label": "Padlókialakítás",
+        "value": "Alacsonypadlós"
+      }
+    ]
+  },
+  {
+    "id": "trollino12d",
+    "title": "Ganz–Solaris Trollino 12D",
+    "aliases": [
+      "GANZ-SOLARIS Trollino 12D trolibusz"
+    ],
+    "description": "Alacsonypadlós, szóló városi trolibusz. A férőhelyek a BKV megnevezett kivitelét jellemzik.",
+    "facts": [
+      "A felsővezetéktől független haladást dízel-elektromos segédhajtás is lehetővé teszi.",
+      "A BKV adatlapja egy kerekesszék elhelyezésére szolgáló helyet tüntet fel."
+    ],
+    "sources": [
+      {
+        "label": "BKV · Ganz–Solaris Trollino 12D",
+        "url": "https://www.bkv.hu/hu/jarmuveink/trolibusz/ganz-solaris-trollino-12d"
+      }
+    ],
+    "photos": [
+      {
+        "caption": "Ganz–Solaris Trollino 12D · típusillusztráció",
+        "author": "LaSza",
+        "source": "https://commons.wikimedia.org/wiki/File:73-as_trolibusz,_Budapest_(626,_20260206).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/81/73-as_trolibusz%2C_Budapest_%28626%2C_20260206%29.jpg/1280px-73-as_trolibusz%2C_Budapest_%28626%2C_20260206%29.jpg",
+        "width": 4624,
+        "height": 2604
+      }
+    ],
+    "specifications": [
+      {
+        "label": "Gyártó / korszerűsítő",
+        "value": "Solaris / Ganz"
+      },
+      {
+        "label": "Járműfajta",
+        "value": "Szóló trolibusz"
+      },
+      {
+        "label": "Hajtás",
+        "value": "Villamos, felsővezetékről"
+      },
+      {
+        "label": "Hossz",
+        "value": "12,00 m"
+      },
+      {
+        "label": "Szélesség",
+        "value": "2,55 m"
+      },
+      {
+        "label": "Utasülőhelyek",
+        "value": "30 fő (BKV adatlap, utasülések, vezető nélkül)"
+      },
+      {
+        "label": "Állóhelyek",
+        "value": "40 fő (BKV adatlap, 4 fő/m²)"
+      },
+      {
+        "label": "Padlókialakítás",
+        "value": "Alacsonypadlós"
+      }
+    ]
+  },
+  {
+    "id": "trollino12sk",
+    "title": "Škoda–Solaris Trollino 12 · III. generáció",
+    "aliases": [
+      "SKODA-SOLARIS Trollino 12 szóló tr."
+    ],
+    "description": "Alacsonypadlós, szóló városi trolibusz. A férőhelyek a BKV megnevezett kivitelét jellemzik.",
+    "facts": [
+      "A BKV adatlapja vezetőtéri és utastéri légkondicionálást is felsorol.",
+      "A BKV adatlapja egy kerekesszék elhelyezésére szolgáló helyet tüntet fel."
+    ],
+    "sources": [
+      {
+        "label": "BKV · Škoda–Solaris Trollino 12 · III. generáció",
+        "url": "https://www.bkv.hu/hu/jarmuveink/trolibusz/skoda-solaris-trollino-12"
+      }
+    ],
+    "photos": [
+      {
+        "caption": "Škoda–Solaris Trollino 12 · III. generáció · típusillusztráció",
+        "author": "LaSza",
+        "source": "https://commons.wikimedia.org/wiki/File:Solaris_Trollino_12_(8005,_Budapest).JPG",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/78/Solaris_Trollino_12_%288005%2C_Budapest%29.JPG/1280px-Solaris_Trollino_12_%288005%2C_Budapest%29.JPG",
+        "width": 3840,
+        "height": 2160
+      }
+    ],
+    "specifications": [
+      {
+        "label": "Gyártó / korszerűsítő",
+        "value": "Solaris / Škoda"
+      },
+      {
+        "label": "Járműfajta",
+        "value": "Szóló trolibusz"
+      },
+      {
+        "label": "Hajtás",
+        "value": "Villamos, felsővezetékről"
+      },
+      {
+        "label": "Hossz",
+        "value": "12,00 m"
+      },
+      {
+        "label": "Szélesség",
+        "value": "2,55 m"
+      },
+      {
+        "label": "Utasülőhelyek",
+        "value": "27 fő (BKV adatlap, utasülések, vezető nélkül)"
+      },
+      {
+        "label": "Állóhelyek",
+        "value": "40 fő (BKV adatlap, 4 fő/m²)"
+      },
+      {
+        "label": "Padlókialakítás",
+        "value": "Alacsonypadlós"
+      }
+    ]
+  },
+  {
+    "id": "trollino18sk",
+    "title": "Škoda–Solaris Trollino 18 · III. generáció",
+    "aliases": [
+      "SKODA-SOLARIS Trollino 18 csuklós tr."
+    ],
+    "description": "Alacsonypadlós, csuklós városi trolibusz. A férőhelyek a BKV megnevezett kivitelét jellemzik.",
+    "facts": [
+      "A csuklós változat 18 méter hosszú, a vontatómotor teljesítménye 250 kW.",
+      "A BKV adatlapja egy kerekesszék elhelyezésére szolgáló helyet tüntet fel."
+    ],
+    "sources": [
+      {
+        "label": "BKV · Škoda–Solaris Trollino 18 · III. generáció",
+        "url": "https://www.bkv.hu/hu/jarmuveink/trolibusz/skoda-solaris-trollino-18"
+      }
+    ],
+    "photos": [
+      {
+        "caption": "Škoda–Solaris Trollino 18 · III. generáció · típusillusztráció",
+        "author": "Kemenymate",
+        "source": "https://commons.wikimedia.org/wiki/File:82-es_trolibusz_(9012).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5a/82-es_trolibusz_%289012%29.jpg/1280px-82-es_trolibusz_%289012%29.jpg",
+        "width": 4608,
+        "height": 2592
+      }
+    ],
+    "specifications": [
+      {
+        "label": "Gyártó / korszerűsítő",
+        "value": "Solaris / Škoda"
+      },
+      {
+        "label": "Járműfajta",
+        "value": "Csuklós trolibusz"
+      },
+      {
+        "label": "Hajtás",
+        "value": "Villamos, felsővezetékről"
+      },
+      {
+        "label": "Hossz",
+        "value": "18,00 m"
+      },
+      {
+        "label": "Szélesség",
+        "value": "2,55 m"
+      },
+      {
+        "label": "Utasülőhelyek",
+        "value": "41 fő (BKV adatlap, utasülések, vezető nélkül)"
+      },
+      {
+        "label": "Állóhelyek",
+        "value": "93 fő (BKV adatlap, 4 fő/m²)"
+      },
+      {
+        "label": "Padlókialakítás",
+        "value": "Alacsonypadlós"
+      }
+    ]
+  },
+  {
+    "id": "trollino12iv",
+    "title": "Škoda–Solaris Trollino 12 · IV. generáció",
+    "aliases": [
+      "4. gen. SOLARIS Trollino 12 trolibusz"
+    ],
+    "description": "Alacsonypadlós, szóló városi trolibusz. A férőhelyek a BKV megnevezett kivitelét jellemzik.",
+    "facts": [
+      "A negyedik generáció külön karosszériaváltozat, saját férőhelyadatokkal.",
+      "A BKV adatlapja egy kerekesszék elhelyezésére szolgáló helyet tüntet fel."
+    ],
+    "sources": [
+      {
+        "label": "BKV · Škoda–Solaris Trollino 12 · IV. generáció",
+        "url": "https://www.bkv.hu/hu/jarmuveink/trolibusz/skoda-solaris-4g-trollino-12"
+      }
+    ],
+    "photos": [
+      {
+        "caption": "Škoda–Solaris Trollino 12 · IV. generáció · típusillusztráció",
+        "author": "Kemenymate",
+        "source": "https://commons.wikimedia.org/wiki/File:76-os_trolibusz_(8108).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b4/76-os_trolibusz_%288108%29.jpg/1280px-76-os_trolibusz_%288108%29.jpg",
+        "width": 1893,
+        "height": 1425
+      }
+    ],
+    "specifications": [
+      {
+        "label": "Gyártó / korszerűsítő",
+        "value": "Solaris / Škoda"
+      },
+      {
+        "label": "Járműfajta",
+        "value": "Szóló trolibusz"
+      },
+      {
+        "label": "Hajtás",
+        "value": "Villamos, felsővezetékről"
+      },
+      {
+        "label": "Hossz",
+        "value": "12,00 m"
+      },
+      {
+        "label": "Szélesség",
+        "value": "2,55 m"
+      },
+      {
+        "label": "Utasülőhelyek",
+        "value": "26 fő (BKV adatlap, utasülések, vezető nélkül)"
+      },
+      {
+        "label": "Állóhelyek",
+        "value": "50 fő (BKV adatlap, 4 fő/m²)"
+      },
+      {
+        "label": "Padlókialakítás",
+        "value": "Alacsonypadlós"
+      }
+    ]
+  },
+  {
+    "id": "trollino18iv",
+    "title": "Škoda–Solaris Trollino 18 · IV. generáció",
+    "aliases": [
+      "4. gen. SOLARIS Trollino 18 trolibusz"
+    ],
+    "description": "Alacsonypadlós, csuklós városi trolibusz. A férőhelyek a BKV megnevezett kivitelét jellemzik.",
+    "facts": [
+      "A BKV adatlapján 38 utasülés szerepel, eltérően a korábbi generáció elrendezésétől.",
+      "A BKV adatlapja egy kerekesszék elhelyezésére szolgáló helyet tüntet fel."
+    ],
+    "sources": [
+      {
+        "label": "BKV · Škoda–Solaris Trollino 18 · IV. generáció",
+        "url": "https://www.bkv.hu/hu/jarmuveink/trolibusz/skoda-solaris-4g-trollino-18"
+      }
+    ],
+    "photos": [
+      {
+        "caption": "Škoda–Solaris Trollino 18 · IV. generáció · típusillusztráció",
+        "author": "Kemenymate",
+        "source": "https://commons.wikimedia.org/wiki/File:75-%C3%B6s_trolibusz_(9105).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/39/75-%C3%B6s_trolibusz_%289105%29.jpg/1280px-75-%C3%B6s_trolibusz_%289105%29.jpg",
+        "width": 3669,
+        "height": 2571
+      }
+    ],
+    "specifications": [
+      {
+        "label": "Gyártó / korszerűsítő",
+        "value": "Solaris / Škoda"
+      },
+      {
+        "label": "Járműfajta",
+        "value": "Csuklós trolibusz"
+      },
+      {
+        "label": "Hajtás",
+        "value": "Villamos, felsővezetékről"
+      },
+      {
+        "label": "Hossz",
+        "value": "18,00 m"
+      },
+      {
+        "label": "Szélesség",
+        "value": "2,55 m"
+      },
+      {
+        "label": "Utasülőhelyek",
+        "value": "38 fő (BKV adatlap, utasülések, vezető nélkül)"
+      },
+      {
+        "label": "Állóhelyek",
+        "value": "96 fő (BKV adatlap, 4 fő/m²)"
+      },
+      {
+        "label": "Padlókialakítás",
+        "value": "Alacsonypadlós"
+      }
+    ]
+  },
+  {
+    "id": "skoda26",
+    "title": "Škoda 26THU3 · ForCity Classic",
+    "aliases": [
+      "Škoda 26THU3 csuklós villamos",
+      "Škoda 26THU3"
+    ],
+    "description": "Miskolc ötrészes, kétirányú, teljesen alacsonypadlós villamosa.",
+    "facts": [
+      "A miskolci flotta 31 járműből áll.",
+      "A gyártó három forgóvázat alkalmazott az ötrészes jármű alatt."
+    ],
+    "sources": [
+      {
+        "label": "MVK · Járműállomány",
+        "url": "https://mvkzrt.hu/az-mvk-rol/rolunk/jarmuallomany"
+      },
+      {
+        "label": "Škoda · ForCity Classic Miskolc",
+        "url": "https://www.skodagroup.com/cs/reference/tramvaj-forcity-classic-miskolc"
+      }
+    ],
+    "photos": [
+      {
+        "caption": "Škoda 26THU3 · ForCity Classic · típusillusztráció",
+        "author": "Palickap",
+        "source": "https://commons.wikimedia.org/wiki/File:Miskolc,_Sz%C3%A9chenyi_utca_(3).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2d/Miskolc%2C_Sz%C3%A9chenyi_utca_%283%29.jpg/1280px-Miskolc%2C_Sz%C3%A9chenyi_utca_%283%29.jpg",
+        "width": 3968,
+        "height": 2976
+      }
+    ],
+    "specifications": [
+      {
+        "label": "Gyártó / korszerűsítő",
+        "value": "Škoda Transportation"
+      },
+      {
+        "label": "Járműfajta",
+        "value": "Csuklós villamos"
+      },
+      {
+        "label": "Hajtás",
+        "value": "Villamos, felsővezetékről"
+      },
+      {
+        "label": "Hossz",
+        "value": "32,10 m"
+      },
+      {
+        "label": "Szélesség",
+        "value": "2,65 m"
+      },
+      {
+        "label": "Utasülőhelyek",
+        "value": "56 fő (MVK járműállományi adatlap)"
+      },
+      {
+        "label": "Állóhelyek",
+        "value": "205 fő (MVK járműállományi adatlap, sűrűség nincs megadva)"
+      },
+      {
+        "label": "Padlókialakítás",
+        "value": "Alacsonypadlós, 100%"
+      }
+    ]
   }
 ]

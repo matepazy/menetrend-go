@@ -1,6 +1,20 @@
 # Fleet catalog review · 2026-11-13
 
-The Android catalog publishes 121 profiles. Every published profile has exactly one selected Wikimedia Commons photograph, a Hungarian description, a labeled basic fact sheet, curiosities and source links. The existing app style and native sheet, retry, zoom, Back and source disclosure behavior are preserved.
+## Tram and trolleybus additions · 2026-11-16
+
+The Android catalog now contains **136 profiles**, including **15 newly reviewed live-map models**. The sections below retain the scope and results of their dated earlier reviews.
+
+`tram-trolley-live-2026-11-16.json` records the exact model labels observed in public utas.hu daytime queries for Budapest, Szeged, Debrecen and Miskolc. Budapest supplied 14 identifiable models and Miskolc supplied the Škoda 26THU3. Szeged and Debrecen returned no tram/trolleybus vehicles in this sample. This is observed-feed coverage, not an assertion of complete national fleet coverage. `Mobil OBU villamos` identifies onboard equipment rather than a vehicle type and deliberately remains unmatched.
+
+New profiles cover the five- and nine-section CAF Urbos, Combino Supra, TW6000, modernized Tátra T5C5K, KCSV7, original Ganz articulated tram, SGP rack motor car, Ganz–Solaris Trollino 12A and 12D, third- and fourth-generation Škoda–Solaris Trollino 12 and 18, and Miskolc's Škoda 26THU3. Exact provider aliases distinguish generations, lengths and drives. No route-based type inference was added.
+
+Each has one visually reviewed exterior Commons photo, offline author/license/source credits, a Hungarian description, two facts and a sourced specification sheet. The images show the appropriate Hungarian vehicle variant. Source widths range from 1350 to 7360 pixels, with thumbnails up to 1280 pixels. All 15 selected downloads decode successfully and are below the app's 2 MiB limit. Search results were rejected when they depicted interiors, a different generation or a different Ganz modernization. Selected metadata and specification references are in `tram-trolley-review.json` and also appended to `catalog-review.json`.
+
+Capacity comes from the operator's named vehicle sheet. Tram figures refer to one vehicle, not a coupled consist. The T5C5K count is explicitly scoped to BKV's combined T5C5/T5C5K sheet and is not a claim about every later modernization. Trolleybus seating excludes the separately listed `+1` driver. BKV's standing figures retain the published 4 persons/m² density. MVK explicitly publishes 205 standing places for the 26THU3 without specifying density, so that qualification is visible. It is not combined with the manufacturer's different density-based total. The rack motor-car sheet's ambiguous standing/trailer/bicycle columns are omitted. Unverified floor-layout rows are omitted rather than inferred from the live accessibility flag.
+
+No application UI, runtime image search or backend inference changes were necessary.
+
+At the 2026-11-13 review, the Android catalog published 121 profiles. Every published profile has exactly one selected Wikimedia Commons photograph, a Hungarian description, a labeled basic fact sheet, curiosities and source links. The existing app style and native sheet, retry, zoom, Back and source disclosure behavior are preserved.
 
 This is a curated model guide, not a live inventory of serviceable vehicles. Current passenger use is the inclusion scope. A model's maximum speed, production period or layout describes that type or the explicitly named variant. It does not describe the equipment or operating speed of an individual arriving service. Existing local-operator profiles remain supported alongside MÁV, HÉV and Volán profiles.
 

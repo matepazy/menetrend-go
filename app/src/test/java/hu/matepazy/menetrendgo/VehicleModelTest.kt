@@ -17,10 +17,12 @@ class VehicleModelTest {
         @Suppress("UNCHECKED_CAST")
         val records = research["records"] as List<Map<String, Any>>
         val buses = catalog.filter { row -> (row["specifications"] as List<*>)
-            .any { (it as Map<*, *>)["label"] == "Utasülőhelyek" } }
+            .any { spec -> (spec as Map<*, *>)["value"].toString().let {
+                it.contains("autóbusz", ignoreCase = true) || it.contains("Minibusz", ignoreCase = true)
+            } } }
         assertEquals(buses.map { it["id"] }.toSet(), records.map { it["id"] }.toSet())
         assertEquals(buses.size, records.size)
-        for (bus in catalog) {
+        for (bus in buses) {
             val fields = (bus["specifications"] as List<*>).map { it as Map<*, *> }
             val standing = fields.filter { it["label"] == "Állóhelyek" }
             val record = records.singleOrNull { it["id"] == bus["id"] }
@@ -104,6 +106,50 @@ class VehicleModelTest {
 
     private fun profile(id: String, vararg aliases: String) = VehicleModelProfile(
         id, id, aliases.toList(), "", emptyList(), emptyList(), emptyList())
+
+    @Test fun tramAndTrolleyProfilesCoverObservedModelsWithoutGuessingEquipmentLabels() {
+        val json = Moshi.Builder().build()
+        @Suppress("UNCHECKED_CAST")
+        val catalog = json.adapter(List::class.java)
+            .fromJson(File("src/main/assets/vehicle_models/catalog.json").readText()) as List<Map<String, Any>>
+        @Suppress("UNCHECKED_CAST")
+        val review = json.adapter(Map::class.java)
+            .fromJson(File("../research/fleet/tram-trolley-review.json").readText()) as Map<String, Any>
+        @Suppress("UNCHECKED_CAST")
+        val live = json.adapter(Map::class.java)
+            .fromJson(File("../research/fleet/tram-trolley-live-2026-11-16.json").readText()) as Map<String, Any>
+        val aliases = catalog.flatMap { row -> (row["aliases"] as List<*>).map {
+            normalizedVehicleModel(it.toString()) to row["id"]
+        } }.toMap()
+        val observed = (live["cities"] as List<*>).flatMap { (it as Map<*, *>)["models"] as List<*> }
+        observed.filter { it != "Mobil OBU villamos" }.forEach {
+            assertTrue("Missing observed model: $it", normalizedVehicleModel(it.toString()) in aliases)
+        }
+        assertFalse(normalizedVehicleModel("Mobil OBU villamos") in aliases)
+        assertNotEquals(aliases[normalizedVehicleModel("CAF 5 modulos szerelvény")],
+            aliases[normalizedVehicleModel("CAF 9 modulos szerelvény")])
+        assertNotEquals(aliases[normalizedVehicleModel("SKODA-SOLARIS Trollino 12 szóló tr.")],
+            aliases[normalizedVehicleModel("4. gen. SOLARIS Trollino 12 trolibusz")])
+        for (item in review["profiles"] as List<*>) {
+            val record = item as Map<*, *>
+            val row = catalog.single { it["id"] == record["id"] }
+            val specs = (row["specifications"] as List<*>).map { it as Map<*, *> }
+            val seat = specs.single { it["label"] == "Utasülőhelyek" }["value"].toString()
+            assertTrue(seat.startsWith("${(record["seatedPassengers"] as Number).toInt()} fő ("))
+            val standing = specs.filter { it["label"] == "Állóhelyek" }
+            if (record["standingPassengers"] == null) assertTrue(standing.isEmpty())
+            else {
+                assertEquals(1, standing.size)
+                assertTrue(standing.single()["value"].toString().startsWith(
+                    "${(record["standingPassengers"] as Number).toInt()} fő ("))
+            }
+            val photo = (row["photos"] as List<*>).single() as Map<*, *>
+            assertTrue((photo["width"] as Number).toInt() >= 1280)
+            assertTrue((photo["height"] as Number).toInt() >= 900)
+        }
+        val motor = catalog.single { it["id"] == "fogas" }
+        assertFalse((motor["specifications"] as List<*>).any { (it as Map<*, *>)["label"] == "Állóhelyek" })
+    }
 
     @Test fun normalizesProviderTypographyWithoutGuessingVariants() {
         val profiles = listOf(profile("short", "Credo Econell 12"),

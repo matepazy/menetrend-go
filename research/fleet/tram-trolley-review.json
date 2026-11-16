@@ -1,0 +1,443 @@
+{
+  "reviewedOn": "2026-11-16",
+  "profileCount": 15,
+  "scope": "All 15 identifiable TRAM/TROLLEYBUS model labels observed in the saved utas.hu snapshot. Not a complete national fleet inventory.",
+  "capacityPolicy": "Tram counts refer to one specified vehicle, not coupled consists. Trolleybus +1 is the driver and is excluded. Standing counts are explicitly published, never total minus seated. The MVK 205 standing count has no published density and is not presented as 4 persons/m². The manufacturer describes a different density/total.",
+  "unresolved": [
+    {
+      "alias": "Mobil OBU villamos",
+      "reason": "Onboard-unit label, not a model. Never infer a type or photo from the route or position."
+    }
+  ],
+  "profiles": [
+    {
+      "id": "caf5",
+      "title": "CAF Urbos 3 · 5 modul",
+      "mode": "TRAM",
+      "scope": "BKV CAF 3/5 adatlap",
+      "seatedPassengers": 46,
+      "standingPassengers": 154,
+      "standingScope": "BKV CAF 3/5 adatlap, 4 fő/m²",
+      "specificationSources": [
+        {
+          "label": "BKV · CAF Urbos 3 · 5 modul",
+          "url": "https://www.bkv.hu/hu/jarmuveink/villamos/caf-35"
+        },
+        {
+          "label": "BKV · Alacsonypadlós villamosok",
+          "url": "https://www.bkv.hu/hu/content/strategiai_celunk_hogy_a_fogyatekkal_elokre_kulon_figyeljunk_20220527"
+        }
+      ],
+      "photo": {
+        "caption": "CAF Urbos 3 · 5 modul · típusillusztráció",
+        "author": "Globetrotter19",
+        "source": "https://commons.wikimedia.org/wiki/File:CAF_Urbos_at_Savoya_Park_Shopping_Complex_terminal,_2016_Albertfalva.jpg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f3/CAF_Urbos_at_Savoya_Park_Shopping_Complex_terminal%2C_2016_Albertfalva.jpg/1280px-CAF_Urbos_at_Savoya_Park_Shopping_Complex_terminal%2C_2016_Albertfalva.jpg",
+        "width": 2272,
+        "height": 1704
+      },
+      "technicalDataRechecked": true,
+      "photoReview": "Exterior, exact model and generation checked against the Commons file and visible fleet number."
+    },
+    {
+      "id": "caf9",
+      "title": "CAF Urbos 3 · 9 modul",
+      "mode": "TRAM",
+      "scope": "BKV CAF 3/9 adatlap",
+      "seatedPassengers": 81,
+      "standingPassengers": 264,
+      "standingScope": "BKV CAF 3/9 adatlap, 4 fő/m²",
+      "specificationSources": [
+        {
+          "label": "BKV · CAF Urbos 3 · 9 modul",
+          "url": "https://www.bkv.hu/hu/jarmuveink/villamos/caf-9"
+        },
+        {
+          "label": "BKV · Alacsonypadlós villamosok",
+          "url": "https://www.bkv.hu/hu/content/strategiai_celunk_hogy_a_fogyatekkal_elokre_kulon_figyeljunk_20220527"
+        }
+      ],
+      "photo": {
+        "caption": "CAF Urbos 3 · 9 modul · típusillusztráció",
+        "author": "Albert Lugosi",
+        "source": "https://commons.wikimedia.org/wiki/File:1-es_villamos_(2111).jpg",
+        "license": "CC BY 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/08/1-es_villamos_%282111%29.jpg/1280px-1-es_villamos_%282111%29.jpg",
+        "width": 1350,
+        "height": 900
+      },
+      "technicalDataRechecked": true,
+      "photoReview": "Exterior, exact model and generation checked against the Commons file and visible fleet number."
+    },
+    {
+      "id": "combino",
+      "title": "Siemens Combino Supra",
+      "mode": "TRAM",
+      "scope": "BKV Combino Supra adatlap",
+      "seatedPassengers": 64,
+      "standingPassengers": 286,
+      "standingScope": "BKV Combino Supra adatlap, 4 fő/m²",
+      "specificationSources": [
+        {
+          "label": "BKV · Siemens Combino Supra",
+          "url": "https://www.bkv.hu/hu/jarmuveink/villamos/siemens-combino"
+        },
+        {
+          "label": "BKV · 20 éves a Combino",
+          "url": "https://www.bkv.hu/hu/content/combino-20-eve-forgalomban-az-ikonikussa-valt-villamostipus"
+        }
+      ],
+      "photo": {
+        "caption": "Siemens Combino Supra · típusillusztráció",
+        "author": "Sir Morosus",
+        "source": "https://commons.wikimedia.org/wiki/File:Siemens_Combino_Supra_(Budapest).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3a/Siemens_Combino_Supra_%28Budapest%29.jpg/1280px-Siemens_Combino_Supra_%28Budapest%29.jpg",
+        "width": 5152,
+        "height": 3864
+      },
+      "technicalDataRechecked": true,
+      "photoReview": "Exterior, exact model and generation checked against the Commons file and visible fleet number."
+    },
+    {
+      "id": "tw6000",
+      "title": "TW 6000",
+      "mode": "TRAM",
+      "scope": "BKV TW6000 adatlap",
+      "seatedPassengers": 46,
+      "standingPassengers": 130,
+      "standingScope": "BKV TW6000 adatlap, 4 fő/m²",
+      "specificationSources": [
+        {
+          "label": "BKV · TW 6000",
+          "url": "https://www.bkv.hu/hu/jarmuveink/villamos/tw6000"
+        }
+      ],
+      "photo": {
+        "caption": "TW 6000 · típusillusztráció",
+        "author": "Sir Morosus",
+        "source": "https://commons.wikimedia.org/wiki/File:TW_6000_in_Budapest_(line_62,_reg_No.1514.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/26/TW_6000_in_Budapest_%28line_62%2C_reg_No.1514.jpg/1280px-TW_6000_in_Budapest_%28line_62%2C_reg_No.1514.jpg",
+        "width": 3657,
+        "height": 3334
+      },
+      "technicalDataRechecked": true,
+      "photoReview": "Exterior, exact model and generation checked against the Commons file and visible fleet number."
+    },
+    {
+      "id": "t5c5k",
+      "title": "Tátra T5C5K",
+      "mode": "TRAM",
+      "scope": "BKV T5C5/T5C5K adatlap, egy kocsi",
+      "seatedPassengers": 26,
+      "standingPassengers": 74,
+      "standingScope": "BKV T5C5/T5C5K adatlap, egy kocsi, 4 fő/m²",
+      "specificationSources": [
+        {
+          "label": "BKV · Tátra T5C5K",
+          "url": "https://www.bkv.hu/hu/jarmuveink/villamos/t5c5"
+        }
+      ],
+      "photo": {
+        "caption": "Tátra T5C5K · típusillusztráció",
+        "author": "Kemenymate",
+        "source": "https://commons.wikimedia.org/wiki/File:41-es_villamos_(4158-4223).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f6/41-es_villamos_%284158-4223%29.jpg/1280px-41-es_villamos_%284158-4223%29.jpg",
+        "width": 4470,
+        "height": 2348
+      },
+      "technicalDataRechecked": true,
+      "photoReview": "Exterior, exact model and generation checked against the Commons file and visible fleet number."
+    },
+    {
+      "id": "kcsv7",
+      "title": "Ganz KCSV7",
+      "mode": "TRAM",
+      "scope": "BKV KCSV7 adatlap",
+      "seatedPassengers": 36,
+      "standingPassengers": 156,
+      "standingScope": "BKV KCSV7 adatlap, 4 fő/m²",
+      "specificationSources": [
+        {
+          "label": "BKV · Ganz KCSV7",
+          "url": "https://www.bkv.hu/hu/jarmuveink/villamos/kcsv7"
+        },
+        {
+          "label": "BKV · KCSV7 típusismereti jegyzet",
+          "url": "https://villamosoktatas.hu/jvt/elmelet/tipus/kcsv7/kcsv7-2022.pdf"
+        }
+      ],
+      "photo": {
+        "caption": "Ganz KCSV7 · típusillusztráció",
+        "author": "Sir Morosus",
+        "source": "https://commons.wikimedia.org/wiki/File:Ganz_KCSV7_villamos_(1326)_a_Festetics_utcai_v%C3%A9g%C3%A1llom%C3%A1son.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f0/Ganz_KCSV7_villamos_%281326%29_a_Festetics_utcai_v%C3%A9g%C3%A1llom%C3%A1son.jpg/1280px-Ganz_KCSV7_villamos_%281326%29_a_Festetics_utcai_v%C3%A9g%C3%A1llom%C3%A1son.jpg",
+        "width": 5152,
+        "height": 3864
+      },
+      "technicalDataRechecked": true,
+      "photoReview": "Exterior, exact model and generation checked against the Commons file and visible fleet number."
+    },
+    {
+      "id": "ganzcs",
+      "title": "Ganz ipari csuklós",
+      "mode": "TRAM",
+      "scope": "BKV 1400-as sorozat adatlap",
+      "seatedPassengers": 40,
+      "standingPassengers": 126,
+      "standingScope": "BKV 1400-as sorozat adatlap, 4 fő/m²",
+      "specificationSources": [
+        {
+          "label": "BKV · Ganz ipari csuklós",
+          "url": "https://www.bkv.hu/hu/jarmuveink/villamos/ganz-csuklos-1400-sor"
+        }
+      ],
+      "photo": {
+        "caption": "Ganz ipari csuklós · típusillusztráció",
+        "author": "Ralf Roletschek",
+        "source": "https://commons.wikimedia.org/wiki/File:14-05-06-Tram-Budapest-Keleti-p%C3%A1lyaudvar-RalfR.jpg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a9/14-05-06-Tram-Budapest-Keleti-p%C3%A1lyaudvar-RalfR.jpg/1280px-14-05-06-Tram-Budapest-Keleti-p%C3%A1lyaudvar-RalfR.jpg",
+        "width": 7360,
+        "height": 4912
+      },
+      "technicalDataRechecked": true,
+      "photoReview": "Exterior, exact model and generation checked against the Commons file and visible fleet number."
+    },
+    {
+      "id": "fogas",
+      "title": "SGP fogaskerekű motorkocsi",
+      "mode": "TRAM",
+      "scope": "BKV motorkocsi-adatlap, pótkocsi nélkül",
+      "seatedPassengers": 41,
+      "standingPassengers": null,
+      "standingScope": "Omitted: the rack motor-car table mixes motor and trailer/bicycle layouts.",
+      "specificationSources": [
+        {
+          "label": "BKV · SGP fogaskerekű motorkocsi",
+          "url": "https://www.bkv.hu/hu/jarmuveink/villamos/fogaskereku-vasut"
+        },
+        {
+          "label": "BKV · A fogaskerekű története",
+          "url": "https://bkv.hu/hu/nosztalgia/2_50"
+        }
+      ],
+      "photo": {
+        "caption": "SGP fogaskerekű motorkocsi · típusillusztráció",
+        "author": "Jakub Hałun",
+        "source": "https://commons.wikimedia.org/wiki/File:20190503_The_Budapest_Cog-wheel_Railway_at_V%C3%A1rosmajor_1125_2220_DxO.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8c/20190503_The_Budapest_Cog-wheel_Railway_at_V%C3%A1rosmajor_1125_2220_DxO.jpg/1280px-20190503_The_Budapest_Cog-wheel_Railway_at_V%C3%A1rosmajor_1125_2220_DxO.jpg",
+        "width": 3128,
+        "height": 3197
+      },
+      "technicalDataRechecked": true,
+      "photoReview": "Exterior, exact model and generation checked against the Commons file and visible fleet number."
+    },
+    {
+      "id": "trollino12a",
+      "title": "Ganz–Solaris Trollino 12A",
+      "mode": "TROLLEYBUS",
+      "scope": "BKV adatlap, utasülések, vezető nélkül",
+      "seatedPassengers": 28,
+      "standingPassengers": 50,
+      "standingScope": "BKV adatlap, 4 fő/m²",
+      "specificationSources": [
+        {
+          "label": "BKV · Ganz–Solaris Trollino 12A",
+          "url": "https://www.bkv.hu/hu/jarmuveink/trolibusz/ganz-solaris-trollino-12a"
+        }
+      ],
+      "photo": {
+        "caption": "Ganz–Solaris Trollino 12A · típusillusztráció",
+        "author": "Bakó Ádám",
+        "source": "https://commons.wikimedia.org/wiki/File:Budapest_XIV.,_Hermina_%C3%BAt._-_Solaris_Ganz_Trollino_12.jpg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/93/Budapest_XIV.%2C_Hermina_%C3%BAt._-_Solaris_Ganz_Trollino_12.jpg/1280px-Budapest_XIV.%2C_Hermina_%C3%BAt._-_Solaris_Ganz_Trollino_12.jpg",
+        "width": 1600,
+        "height": 1200
+      },
+      "technicalDataRechecked": true,
+      "photoReview": "Exterior, exact model and generation checked against the Commons file and visible fleet number."
+    },
+    {
+      "id": "trollino12d",
+      "title": "Ganz–Solaris Trollino 12D",
+      "mode": "TROLLEYBUS",
+      "scope": "BKV adatlap, utasülések, vezető nélkül",
+      "seatedPassengers": 30,
+      "standingPassengers": 40,
+      "standingScope": "BKV adatlap, 4 fő/m²",
+      "specificationSources": [
+        {
+          "label": "BKV · Ganz–Solaris Trollino 12D",
+          "url": "https://www.bkv.hu/hu/jarmuveink/trolibusz/ganz-solaris-trollino-12d"
+        }
+      ],
+      "photo": {
+        "caption": "Ganz–Solaris Trollino 12D · típusillusztráció",
+        "author": "LaSza",
+        "source": "https://commons.wikimedia.org/wiki/File:73-as_trolibusz,_Budapest_(626,_20260206).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/81/73-as_trolibusz%2C_Budapest_%28626%2C_20260206%29.jpg/1280px-73-as_trolibusz%2C_Budapest_%28626%2C_20260206%29.jpg",
+        "width": 4624,
+        "height": 2604
+      },
+      "technicalDataRechecked": true,
+      "photoReview": "Exterior, exact model and generation checked against the Commons file and visible fleet number."
+    },
+    {
+      "id": "trollino12sk",
+      "title": "Škoda–Solaris Trollino 12 · III. generáció",
+      "mode": "TROLLEYBUS",
+      "scope": "BKV adatlap, utasülések, vezető nélkül",
+      "seatedPassengers": 27,
+      "standingPassengers": 40,
+      "standingScope": "BKV adatlap, 4 fő/m²",
+      "specificationSources": [
+        {
+          "label": "BKV · Škoda–Solaris Trollino 12 · III. generáció",
+          "url": "https://www.bkv.hu/hu/jarmuveink/trolibusz/skoda-solaris-trollino-12"
+        }
+      ],
+      "photo": {
+        "caption": "Škoda–Solaris Trollino 12 · III. generáció · típusillusztráció",
+        "author": "LaSza",
+        "source": "https://commons.wikimedia.org/wiki/File:Solaris_Trollino_12_(8005,_Budapest).JPG",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/78/Solaris_Trollino_12_%288005%2C_Budapest%29.JPG/1280px-Solaris_Trollino_12_%288005%2C_Budapest%29.JPG",
+        "width": 3840,
+        "height": 2160
+      },
+      "technicalDataRechecked": true,
+      "photoReview": "Exterior, exact model and generation checked against the Commons file and visible fleet number."
+    },
+    {
+      "id": "trollino18sk",
+      "title": "Škoda–Solaris Trollino 18 · III. generáció",
+      "mode": "TROLLEYBUS",
+      "scope": "BKV adatlap, utasülések, vezető nélkül",
+      "seatedPassengers": 41,
+      "standingPassengers": 93,
+      "standingScope": "BKV adatlap, 4 fő/m²",
+      "specificationSources": [
+        {
+          "label": "BKV · Škoda–Solaris Trollino 18 · III. generáció",
+          "url": "https://www.bkv.hu/hu/jarmuveink/trolibusz/skoda-solaris-trollino-18"
+        }
+      ],
+      "photo": {
+        "caption": "Škoda–Solaris Trollino 18 · III. generáció · típusillusztráció",
+        "author": "Kemenymate",
+        "source": "https://commons.wikimedia.org/wiki/File:82-es_trolibusz_(9012).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5a/82-es_trolibusz_%289012%29.jpg/1280px-82-es_trolibusz_%289012%29.jpg",
+        "width": 4608,
+        "height": 2592
+      },
+      "technicalDataRechecked": true,
+      "photoReview": "Exterior, exact model and generation checked against the Commons file and visible fleet number."
+    },
+    {
+      "id": "trollino12iv",
+      "title": "Škoda–Solaris Trollino 12 · IV. generáció",
+      "mode": "TROLLEYBUS",
+      "scope": "BKV adatlap, utasülések, vezető nélkül",
+      "seatedPassengers": 26,
+      "standingPassengers": 50,
+      "standingScope": "BKV adatlap, 4 fő/m²",
+      "specificationSources": [
+        {
+          "label": "BKV · Škoda–Solaris Trollino 12 · IV. generáció",
+          "url": "https://www.bkv.hu/hu/jarmuveink/trolibusz/skoda-solaris-4g-trollino-12"
+        }
+      ],
+      "photo": {
+        "caption": "Škoda–Solaris Trollino 12 · IV. generáció · típusillusztráció",
+        "author": "Kemenymate",
+        "source": "https://commons.wikimedia.org/wiki/File:76-os_trolibusz_(8108).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b4/76-os_trolibusz_%288108%29.jpg/1280px-76-os_trolibusz_%288108%29.jpg",
+        "width": 1893,
+        "height": 1425
+      },
+      "technicalDataRechecked": true,
+      "photoReview": "Exterior, exact model and generation checked against the Commons file and visible fleet number."
+    },
+    {
+      "id": "trollino18iv",
+      "title": "Škoda–Solaris Trollino 18 · IV. generáció",
+      "mode": "TROLLEYBUS",
+      "scope": "BKV adatlap, utasülések, vezető nélkül",
+      "seatedPassengers": 38,
+      "standingPassengers": 96,
+      "standingScope": "BKV adatlap, 4 fő/m²",
+      "specificationSources": [
+        {
+          "label": "BKV · Škoda–Solaris Trollino 18 · IV. generáció",
+          "url": "https://www.bkv.hu/hu/jarmuveink/trolibusz/skoda-solaris-4g-trollino-18"
+        }
+      ],
+      "photo": {
+        "caption": "Škoda–Solaris Trollino 18 · IV. generáció · típusillusztráció",
+        "author": "Kemenymate",
+        "source": "https://commons.wikimedia.org/wiki/File:75-%C3%B6s_trolibusz_(9105).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/39/75-%C3%B6s_trolibusz_%289105%29.jpg/1280px-75-%C3%B6s_trolibusz_%289105%29.jpg",
+        "width": 3669,
+        "height": 2571
+      },
+      "technicalDataRechecked": true,
+      "photoReview": "Exterior, exact model and generation checked against the Commons file and visible fleet number."
+    },
+    {
+      "id": "skoda26",
+      "title": "Škoda 26THU3 · ForCity Classic",
+      "mode": "TRAM",
+      "scope": "MVK járműállományi adatlap",
+      "seatedPassengers": 56,
+      "standingPassengers": 205,
+      "standingScope": "MVK járműállományi adatlap, sűrűség nincs megadva",
+      "specificationSources": [
+        {
+          "label": "MVK · Járműállomány",
+          "url": "https://mvkzrt.hu/az-mvk-rol/rolunk/jarmuallomany"
+        },
+        {
+          "label": "Škoda · ForCity Classic Miskolc",
+          "url": "https://www.skodagroup.com/cs/reference/tramvaj-forcity-classic-miskolc"
+        }
+      ],
+      "photo": {
+        "caption": "Škoda 26THU3 · ForCity Classic · típusillusztráció",
+        "author": "Palickap",
+        "source": "https://commons.wikimedia.org/wiki/File:Miskolc,_Sz%C3%A9chenyi_utca_(3).jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2d/Miskolc%2C_Sz%C3%A9chenyi_utca_%283%29.jpg/1280px-Miskolc%2C_Sz%C3%A9chenyi_utca_%283%29.jpg",
+        "width": 3968,
+        "height": 2976
+      },
+      "technicalDataRechecked": true,
+      "photoReview": "Exterior, exact model and generation checked against the Commons file and visible fleet number."
+    }
+  ]
+}

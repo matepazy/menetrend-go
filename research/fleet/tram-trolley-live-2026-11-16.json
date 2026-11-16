@@ -1,0 +1,45 @@
+{
+  "queriedOn": "2026-11-16",
+  "source": "https://utas.hu",
+  "note": "Point-in-time daytime sample, not a complete fleet inventory. Mobil OBU villamos is equipment metadata, not an identifiable model.",
+  "cities": [
+    {
+      "city": "Budapest",
+      "vehicleCount": 204,
+      "models": [
+        "4. gen. SOLARIS Trollino 12 trolibusz",
+        "4. gen. SOLARIS Trollino 18 trolibusz",
+        "CAF 5 modulos szerelvény",
+        "CAF 9 modulos szerelvény",
+        "Fogaskerekű motorkocsi",
+        "GANZ-SOLARIS Trollino 12 trolibusz",
+        "GANZ-SOLARIS Trollino 12D trolibusz",
+        "Ganz csuklós",
+        "KCSV7 Korszerűsített Ganz",
+        "Mobil OBU villamos",
+        "SKODA-SOLARIS Trollino 12 szóló tr.",
+        "SKODA-SOLARIS Trollino 18 csuklós tr.",
+        "Siemens Combino",
+        "TW 6000",
+        "Tátra T5C5K"
+      ]
+    },
+    {
+      "city": "Szeged",
+      "vehicleCount": 0,
+      "models": []
+    },
+    {
+      "city": "Debrecen",
+      "vehicleCount": 0,
+      "models": []
+    },
+    {
+      "city": "Miskolc",
+      "vehicleCount": 6,
+      "models": [
+        "Škoda 26THU3 csuklós villamos"
+      ]
+    }
+  ]
+}
