@@ -1,5 +1,10 @@
 package hu.matepazy.menetrendgo
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.*
@@ -21,6 +26,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.semantics
@@ -171,8 +179,7 @@ internal fun vehicleStopPlatform(platform: String, mode: String): String = when(
     // Passed stops unfold in place under an explicit toggle, independent of the sheet height,
     // so a drag never swaps the list. Each vehicle opens on its next stop.
     var showPassed by rememberSaveable(vehicle.id) {mutableStateOf(false)}
-    val shown=if(showPassed) stops else upcoming
-    val offset=stops.size-shown.size
+    val empty=if(showPassed) stops.isEmpty() else upcoming.isEmpty()
     val listState=rememberLazyListState()
     val showUicCode=vehicle.mode!="RAIL" && vehicle.uicCode.isNotBlank()
     val track=TimelineTrack(serviceColor(vehicle.badgeLeg()))
@@ -210,7 +217,9 @@ internal fun vehicleStopPlatform(platform: String, mode: String): String = when(
                     if(showUicCode) VehicleMetadataRow(Icons.Outlined.Badge,"Pályaszám",vehicle.uicCode)
                 }
             }
-            Spacer(Modifier.height(AppLayout.SheetPadding))
+            // The toggle row's 48dp target already carries whitespace above its label.
+            val leadsWithToggle=vehicle.hasMavTrip && detail!=null && !empty && nextIndex>0
+            Spacer(Modifier.height(if(leadsWithToggle) AppLayout.LabelGap else AppLayout.ItemGap))
             // A failed refresh keeps the stops already shown; only a first load without data shows the full error.
             when {
                 !vehicle.hasMavTrip -> Text("Ehhez a járműhöz csak élő pozíció érhető el, menetrend nem.",
@@ -220,28 +229,43 @@ internal fun vehicleStopPlatform(platform: String, mode: String): String = when(
                 detail==null -> VehicleProgress(Modifier.fillMaxWidth())
                 else -> {
                     error?.let {RefreshFailure(retry)}
-                    if(shown.isEmpty()) Text(if(stops.isEmpty()) "Nincs elérhető megállóadat." else "Nincs további várható megálló a menetrendben.",
+                    @Composable fun StopRow(position: Int, stop: VehicleStop) {
+                        val next=position==nextIndex
+                        TimetableStopRow(stop.name,ServiceTime(stop.scheduled,stop.arrival,stop.realtime),
+                            stop.platform,vehicle.mode,track,
+                            first=position==0,last=position==stops.lastIndex,
+                            prominent=next || position==0,next=next,
+                            // Passed rows dim as a whole; the next stop's incoming leg matches them.
+                            incomingTrack=if(next) passedTrack else track)
+                    }
+                    if(empty) Text(if(stops.isEmpty()) "Nincs elérhető megállóadat." else "Nincs további várható megálló a menetrendben.",
                         modifier=Modifier.padding(bottom=24.dp))
                     else LazyColumn(Modifier.weight(1f),state=listState,contentPadding=PaddingValues(bottom=24.dp)) {
-                        if(nextIndex>0) item(key="passed") {
-                            PassedStopsToggle(nextIndex,showPassed,passedTrack,Modifier.animateItem()) {showPassed=!showPassed}
-                        }
-                        itemsIndexed(shown,key={index,_ -> offset+index}) {index,stop ->
-                            val position=offset+index
-                            val next=position==nextIndex
-                            val passed=position<nextIndex
-                            val row=@Composable {
-                                TimetableStopRow(stop.name,ServiceTime(stop.scheduled,stop.arrival,stop.realtime),
-                                    stop.platform,vehicle.mode,track,
-                                    first=position==0 && nextIndex==0,last=index==shown.lastIndex,
-                                    prominent=next || position==0,next=next,
-                                    // Passed rows dim as a whole; the next stop's incoming leg matches them.
-                                    incomingTrack=if(next) passedTrack else track)
+                        if(nextIndex>0) {
+                            item(key="passed") {
+                                PassedStopsToggle(nextIndex,showPassed,passedTrack,Modifier) {showPassed=!showPassed}
                             }
-                            val motion=Modifier.animateItem(fadeInSpec=tween(AppMotion.Feedback),
-                                placementSpec=tween(AppMotion.Reveal,easing=AppMotion.Arrival),fadeOutSpec=tween(AppMotion.Dismiss))
-                            if(passed) Box(motion.alpha(.6f).semantics(mergeDescendants=true) {stateDescription="Elhagyott megálló"}) {row()}
-                            else Box(motion) {row()}
+                            // One block grows open from the toggle and pushes the next stop down with it,
+                            // instead of rows popping in at full height (same motion as köztes megálló).
+                            item(key="passed-stops") {
+                                AnimatedVisibility(showPassed,
+                                    enter=expandVertically(tween(AppMotion.Reveal,easing=AppMotion.Arrival),expandFrom=Alignment.Top)+fadeIn(tween(AppMotion.Reveal)),
+                                    exit=shrinkVertically(tween(AppMotion.Reveal,easing=AppMotion.State),shrinkTowards=Alignment.Top)+fadeOut(tween(AppMotion.Dismiss))) {
+                                    Column(Modifier.alpha(.6f)) {
+                                        stops.take(nextIndex).forEachIndexed {position,stop ->
+                                            Box(Modifier.semantics(mergeDescendants=true) {stateDescription="Elhagyott megálló"}) {StopRow(position,stop)}
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        itemsIndexed(upcoming,key={index,_ -> nextIndex+index}) {index,stop ->
+                            // No placement animation: the rows follow the growing block frame by frame
+                            // rather than lagging behind it and overlapping the unfolding stops.
+                            Box(Modifier.animateItem(fadeInSpec=tween(AppMotion.Feedback),
+                                placementSpec=null,fadeOutSpec=tween(AppMotion.Dismiss))) {
+                                StopRow(nextIndex+index,stop)
+                            }
                         }
                     }
                 }
@@ -249,11 +273,27 @@ internal fun vehicleStopPlatform(platform: String, mode: String): String = when(
         }
 }
 
-/** Starts the dimmed track that the passed stops continue below it, like a route origin. */
+/** Folded, the dimmed track enters as a fading dot trail standing in for the hidden stops and turns
+ * solid at the label, instead of being cut off. Unfolded, the route origin below takes over and the row has no track. */
 @Composable private fun PassedStopsToggle(count: Int, open: Boolean, track: TimelineTrack, modifier: Modifier, toggle: () -> Unit) {
     val rotation by animateFloatAsState(if(open) 180f else 0f,tween(AppMotion.Reveal,easing=AppMotion.State),label="Passed stops")
-    Box(modifier) {
-        TimelineRow(null,track,incoming=null,outgoing=track,marker={},bottomPadding=0.dp) {
+    val timeGutter=56.dp*LocalDensity.current.fontScale
+    // The trail recedes downward and fades in step with the stops unfolding, and grows back when they fold.
+    val trail by animateFloatAsState(if(open) 0f else 1f,
+        tween(if(open) AppMotion.Dismiss else AppMotion.Reveal,easing=if(open) AppMotion.State else AppMotion.Arrival),label="Passed stops trail")
+    Box(modifier.drawBehind {
+        if(trail<=0f) return@drawBehind
+        val x=(timeGutter+12.dp).toPx()
+        val drop=(1-trail)*size.height/2
+        val center=size.height/2+drop
+        val pitch=7.dp.toPx()
+        fun color(alpha: Float)=track.color.copy(alpha=track.color.alpha*alpha*trail)
+        listOf(.3f,.55f,.8f).forEachIndexed {index,alpha ->
+            drawCircle(color(alpha),2.dp.toPx(),Offset(x,center-pitch*(3-index)))
+        }
+        drawLine(color(1f),Offset(x,minOf(center-2.dp.toPx(),size.height)),Offset(x,size.height),strokeWidth=4.dp.toPx())
+    }) {
+        TimelineRow(null,track,incoming=null,outgoing=null,marker={},bottomPadding=0.dp) {
             TextButton(onClick=toggle,shape=MaterialTheme.shapes.extraSmall,
                 contentPadding=PaddingValues(vertical=AppLayout.CompactGap),modifier=Modifier.fillMaxWidth().heightIn(min=48.dp)
                     .semantics {stateDescription=if(open) "Kibontva" else "Összecsukva"}) {
