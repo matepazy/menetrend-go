@@ -9,6 +9,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.SystemBarStyle
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.togetherWith
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.fadeIn
@@ -83,9 +85,14 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge(statusBarStyle=SystemBarStyle.auto(
             android.graphics.Color.TRANSPARENT,android.graphics.Color.TRANSPARENT))
         setContent { val state: AppState = viewModel(); MenetrendTheme(state.theme) {
-            StationFocusOverlay { MenetrendApp(state, intent.getStringExtra("tab"), trackingRequest,
-                if (intent.getBooleanExtra("tracking", false)) intent.getStringExtra("trackingSession") else null) }
-            UpdateHost(state.updates)
+            AnimatedContent(state.onboardingDone, transitionSpec = {
+                fadeIn(tween(AppMotion.Reveal, easing = AppMotion.Arrival)) togetherWith fadeOut(tween(AppMotion.Dismiss))
+            }, label = "Onboarding") { done ->
+                if (!done) OnboardingFlow(state::finishOnboarding)
+                else StationFocusOverlay { MenetrendApp(state, intent.getStringExtra("tab"), trackingRequest,
+                    if (intent.getBooleanExtra("tracking", false)) intent.getStringExtra("trackingSession") else null) }
+            }
+            if (state.onboardingDone) UpdateHost(state.updates)
         } }
     }
 }

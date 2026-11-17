@@ -58,6 +58,10 @@ class AppState(app: Application) : AndroidViewModel(app) {
     val extraFeaturesSummary get() = if (activeExtraFeatureCount == 0) "Nincs aktív kiegészítő funkció"
         else "$activeExtraFeatureCount funkció bekapcsolva"
     var developerSettingsUnlocked by mutableStateOf(prefs.getBoolean("developer_settings_unlocked", false)); private set
+    // Shown once to every installation, including upgrades; Fejlesztői beállítások can replay it.
+    var onboardingDone by mutableStateOf(prefs.getBoolean("onboarding_done", false)); private set
+    fun finishOnboarding() { onboardingDone = true; prefs.edit().putBoolean("onboarding_done", true).apply() }
+    fun restartOnboarding() { onboardingDone = false; prefs.edit().putBoolean("onboarding_done", false).apply() }
     var journeyTrackingBetaEnabled by mutableStateOf(JourneyTracking.enabled(app)); private set
     init { if (!journeyTrackingBetaEnabled) JourneyTracking.stop(app) }
     fun chooseJourneyTrackingBeta(enabled: Boolean) {

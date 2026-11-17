@@ -242,6 +242,7 @@ private enum class SettingsPage(val title: String) {
                             }
                         }
                     }
+                    item { SettingsGroup { SettingsRow("Onboarding újrakezdése", "Újra megjelenik az üdvözlőképernyő és a bemutató.", onClick = vm::restartOnboarding) } }
                     item { SettingsNote("OTP GraphQL · HTTPS. Az adatfeldolgozás és a gyorsítótár ezen az eszközön fut. Nincs külön MenetrendGO-kiszolgáló.") }
                 }
             }
