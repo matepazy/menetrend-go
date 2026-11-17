@@ -12,8 +12,8 @@ enum class MapVehicleFilter(
 ) {
     Rail("rail", "map_rail", "Vonatok", "Személy-, gyors- és InterCity-vonatok", true, setOf("RAIL")),
     Coach("coach", "map_coaches", "Helyközi autóbuszok", "Regionális és távolsági autóbuszjáratok", true, setOf("COACH")),
-    LocalBus("local_bus", "map_local_buses", "Helyi autóbuszok", "Városi autóbuszjáratok élő pozíciói", false, setOf("BUS")),
-    Trolleybus("trolleybus", "map_trolleybuses", "Trolibuszok", "Városi trolibuszjáratok élő pozíciói", false, setOf("TROLLEYBUS")),
+    LocalBus("local_bus", "map_local_buses", "Helyi autóbuszok", "Városi autóbuszjáratok élő pozíciói", true, setOf("BUS")),
+    Trolleybus("trolleybus", "map_trolleybuses", "Trolibuszok", "Városi trolibuszjáratok élő pozíciói", true, setOf("TROLLEYBUS")),
     Tram("tram", "map_trams", "Villamosok", "Városi villamosjáratok élő pozíciói", true, setOf("TRAM")),
     SuburbanRailway("suburban_railway", "map_suburban_railway", "HÉV", "Budapesti elővárosi vasútvonalak", true, setOf("SUBURBAN_RAILWAY")),
     TramTrain("tramtrain", "map_tramtrain", "TramTrain", "Szeged–Hódmezővásárhely vasútvillamos", true, setOf("TRAMTRAIN")),
@@ -38,7 +38,8 @@ internal fun mapLayerVehicles(
 internal fun mapLayerVehicles(vehicles: List<Vehicle>, showLocalBuses: Boolean): List<Vehicle> =
     mapLayerVehicles(
         vehicles,
-        if (showLocalBuses) MapVehicleFilter.entries.toSet() else MapVehicleFilter.defaultFilters
+        if (showLocalBuses) MapVehicleFilter.entries.toSet()
+        else MapVehicleFilter.entries.toSet() - setOf(MapVehicleFilter.LocalBus, MapVehicleFilter.Trolleybus)
     )
 
 internal fun parseVehiclePosition(v: JSONObject): Vehicle? {

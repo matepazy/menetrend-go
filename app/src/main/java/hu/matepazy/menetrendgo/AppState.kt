@@ -82,7 +82,7 @@ class AppState(app: Application) : AndroidViewModel(app) {
             if (!prefs.contains("rapid_refresh")) prefs.edit().putBoolean("rapid_refresh", enabled).apply()
         }
     ); private set
-    val mapRefreshSeconds get() = if (rapidRefresh) 15 else 75
+    val mapRefreshSeconds get() = if (rapidRefresh) 15 else 30
     val journeyRefreshSeconds get() = if (rapidRefresh) 30 else 75
     var dataSourceMode by mutableStateOf(initialDataSourceMode); private set
     var showDataSourceIntro by mutableStateOf(prefs.getBoolean("data_source_intro_pending", false)); private set

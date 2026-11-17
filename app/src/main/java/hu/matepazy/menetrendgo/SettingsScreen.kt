@@ -142,6 +142,7 @@ private enum class SettingsPage(val title: String) {
                     item { Column(verticalArrangement = Arrangement.spacedBy(AppLayout.ItemGap)) { UpdateSettings(vm.updates) } }
                 }
                 SettingsPage.DataSources -> {
+                    item { RapidRefreshSetting(vm.rapidRefresh, vm::chooseRapidRefresh) }
                     item {
                         SettingsGroup {
                             Column(Modifier.selectableGroup().padding(vertical = 4.dp)) {
@@ -212,9 +213,6 @@ private enum class SettingsPage(val title: String) {
                 }
                 SettingsPage.Developer -> {
                     item {
-                        RapidRefreshSetting(vm.rapidRefresh, vm::chooseRapidRefresh)
-                    }
-                    item {
                         SettingsGroup {
                             Row(
                                 Modifier.fillMaxWidth().toggleable(vm.showRawGraphQl, role = Role.Switch, onValueChange = vm::chooseRawGraphQl).padding(AppLayout.PanelPadding),
@@ -277,8 +275,8 @@ private fun themeLabel(value: String) = when (value) {
             verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text("Rapid Refresh", style = MaterialTheme.typography.titleMedium)
-                Text("Bekapcsolva minden élő járműadatot mutató térkép 15, az indulások és az utazás részletei 30 másodpercenként frissülnek. Kikapcsolva mindegyik 75 másodpercenként frissül.",
+                Text("Gyors frissítés", style = MaterialTheme.typography.titleMedium)
+                Text("A térképek alapból 30, bekapcsolva 15 másodpercenként frissülnek. Az indulások és az utazás részletei alapból 75, bekapcsolva 30 másodpercenként frissülnek.",
                     style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             Switch(checked = enabled, onCheckedChange = null)
