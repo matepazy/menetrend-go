@@ -29,6 +29,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.semantics
@@ -188,6 +189,9 @@ internal fun vehicleStopPlatform(platform: String, mode: String): String = when(
     val dark=LocalAppDarkTheme.current
     val colorContext=remember(context,dark) {departureThemeContext(context,dark)}
         Column(Modifier.fillMaxWidth().weight(1f).padding(horizontal=AppLayout.SheetPadding)) {
+            // The summary stays visible when the map sheet collapses to a peek.
+            val reportSummary=LocalMapSheetSummaryHeight.current
+            Column(if(reportSummary!=null) Modifier.onSizeChanged {reportSummary(it.height)} else Modifier) {
             Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(AppLayout.CompactGap),
                 verticalAlignment=Alignment.CenterVertically) {
                 RouteBadge(vehicle.badgeLeg(),contentPadding=if(vehicle.routeLogo!=null) PaddingValues(0.dp) else PaddingValues(horizontal=14.dp,vertical=6.dp),
@@ -216,6 +220,7 @@ internal fun vehicleStopPlatform(platform: String, mode: String): String = when(
                     }
                     if(showUicCode) VehicleMetadataRow(Icons.Outlined.Badge,"Pályaszám",vehicle.uicCode)
                 }
+            }
             }
             // The toggle row's 48dp target already carries whitespace above its label.
             val leadsWithToggle=vehicle.hasMavTrip && detail!=null && !empty && nextIndex>0
