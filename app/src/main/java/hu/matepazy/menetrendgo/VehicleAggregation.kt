@@ -9,7 +9,7 @@ enum class DataSourceMode(val id: String, val title: String, val summary: String
     Aggregated("aggregated", "Aggregált", "A MÁVPlusz és az utas.hu élő adatai egyesítve. Több jármű, a duplikátumok összevonva.");
 
     companion object {
-        fun fromId(id: String?): DataSourceMode = entries.firstOrNull { it.id == id } ?: Single
+        fun fromId(id: String?): DataSourceMode = entries.firstOrNull { it.id == id } ?: Aggregated
     }
 }
 

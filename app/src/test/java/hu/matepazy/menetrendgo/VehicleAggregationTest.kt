@@ -6,6 +6,12 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class VehicleAggregationTest {
+    @Test fun aggregatedIsDefaultButExplicitSingleRemainsSelectable() {
+        assertEquals(DataSourceMode.Aggregated, DataSourceMode.fromId(null))
+        assertEquals(DataSourceMode.Aggregated, DataSourceMode.fromId("unknown"))
+        assertEquals(DataSourceMode.Single, DataSourceMode.fromId("single"))
+    }
+
     private val fixture = JSONObject(javaClass.classLoader!!.getResource("utas-vehicles-2026-11-16.json").readText())
     private val now = 1_794_848_700L
 
@@ -147,7 +153,7 @@ class VehicleAggregationTest {
         assertEquals(0, modeFamily("TRAMTRAIN"))
         assertEquals(1, modeFamily("RAIL_REPLACEMENT_BUS"))
         assertEquals(111_195.0, approxDistanceMeters(47.0, 19.0, 48.0, 19.0), 500.0)
-        assertEquals(DataSourceMode.Single, DataSourceMode.fromId(null))
+        assertEquals(DataSourceMode.Aggregated, DataSourceMode.fromId(null))
         assertEquals(DataSourceMode.Aggregated, DataSourceMode.fromId("aggregated"))
         assertEquals(8, UtasTile.hungary.size)
         assertTrue(UtasTile.hungary.all { it.latSpan <= 0.9 && it.lonSpan <= 0.9 })

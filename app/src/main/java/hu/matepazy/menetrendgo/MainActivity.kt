@@ -92,7 +92,7 @@ class MainActivity : ComponentActivity() {
                 else StationFocusOverlay { MenetrendApp(state, intent.getStringExtra("tab"), trackingRequest,
                     if (intent.getBooleanExtra("tracking", false)) intent.getStringExtra("trackingSession") else null) }
             }
-            if (state.onboardingDone) UpdateHost(state.updates)
+            if (state.onboardingDone && !state.showDataSourceIntro && !state.showPassesFeatureIntro) UpdateHost(state.updates)
         } }
     }
 }
@@ -412,10 +412,35 @@ private fun featherMask(top: Boolean, endY: Float=Float.POSITIVE_INFINITY)=
                         }
         }
     }
-    if (vm.showPassesFeatureIntro && !vm.passesEnabled) {
+    if (vm.showDataSourceIntro) {
+        DataSourceIntroSheet(vm::dismissDataSourceIntro) {
+            vm.chooseDataSourceMode(DataSourceMode.Single)
+            vm.dismissDataSourceIntro()
+        }
+    } else if (vm.showPassesFeatureIntro && !vm.passesEnabled) {
         PassesFeatureIntroSheet(vm::dismissPassesFeatureIntro) { vm.choosePassesEnabled(true) }
     }
 
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable internal fun DataSourceIntroSheet(onDismiss: () -> Unit, onRestore: () -> Unit) {
+    AppBottomSheet(onDismissRequest = onDismiss, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
+        Column(Modifier.fillMaxWidth().heightIn(max = androidx.compose.ui.platform.LocalConfiguration.current.screenHeightDp.dp * .85f)) {
+            Column(Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState())
+                .padding(horizontal = AppLayout.SheetPadding), verticalArrangement = Arrangement.spacedBy(AppLayout.ItemGap)) {
+                PageTitle("Több élő jármű a térképen")
+                Text("A frissítés után az adatforrásod Aggregált módra váltott. A térképen mostantól a MÁVPlusz és az utas.hu egyesített élő járműadatai jelennek meg.",
+                    style = MaterialTheme.typography.bodyLarge)
+                Text("Ha a korábbi működést szeretnéd, bármikor visszaválthatsz az Egyforrásos (régi) módra a Beállítások → Adatforrások kezelése menüben. Az útvonaltervezés és a menetrendek továbbra is a MÁVPlusz adatait használják.",
+                    style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            Column(Modifier.fillMaxWidth().padding(AppLayout.SheetPadding), verticalArrangement = Arrangement.spacedBy(AppLayout.CompactGap)) {
+                MainButton("Rendben", Icons.Outlined.Check, onClick = onDismiss)
+                TextButton(onClick = onRestore, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Vissza a régi adatforrásra") }
+            }
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

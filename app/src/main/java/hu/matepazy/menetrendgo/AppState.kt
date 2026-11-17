@@ -12,6 +12,12 @@ import java.time.Instant
 
 class AppState(app: Application) : AndroidViewModel(app) {
     private val prefs = app.getSharedPreferences("menetrendgo", 0)
+    // Run before other preference initializers can make a fresh installation look existing.
+    private val initialDataSourceMode = initializeDataSourcePreferences(prefs,
+        prefs.all.isNotEmpty() || runCatching {
+            val info = app.packageManager.getPackageInfo(app.packageName, 0)
+            info.lastUpdateTime > info.firstInstallTime
+        }.getOrDefault(false))
     val updates = UpdateController(app, viewModelScope)
     private val mav=MavClient()
     private val utas=UtasClient()
@@ -78,7 +84,12 @@ class AppState(app: Application) : AndroidViewModel(app) {
     ); private set
     val mapRefreshSeconds get() = if (rapidRefresh) 15 else 75
     val journeyRefreshSeconds get() = if (rapidRefresh) 30 else 75
-    var dataSourceMode by mutableStateOf(DataSourceMode.fromId(prefs.getString("data_source_mode", null))); private set
+    var dataSourceMode by mutableStateOf(initialDataSourceMode); private set
+    var showDataSourceIntro by mutableStateOf(prefs.getBoolean("data_source_intro_pending", false)); private set
+    fun dismissDataSourceIntro() {
+        showDataSourceIntro = false
+        prefs.edit().putBoolean("data_source_intro_pending", false).apply()
+    }
     fun chooseDataSourceMode(mode: DataSourceMode) {
         if (mode == dataSourceMode) return
         dataSourceMode = mode
