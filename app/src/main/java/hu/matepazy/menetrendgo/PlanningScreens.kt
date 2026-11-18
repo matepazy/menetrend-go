@@ -449,12 +449,17 @@ private class SwipeAction(val icon: ImageVector, val description: String, val co
 @Composable private fun SwipeActionsRow(actions: List<SwipeAction>, host: SwipeHost, modifier: Modifier = Modifier,
     content: @Composable (open: Boolean, close: () -> Unit) -> Unit) {
     val shape = RoundedCornerShape(28.dp)
-    val reveal = with(LocalDensity.current) { 72.dp.toPx() * actions.size }
+    val density = LocalDensity.current
+    val reveal = with(density) { 72.dp.toPx() * actions.size }
+    // Past either rest the row turns rubbery: resistance grows towards these limits instead of hitting a wall.
+    val overOpen = with(density) { 40.dp.toPx() };val overClosed = with(density) { 20.dp.toPx() }
     val offset = remember { androidx.compose.animation.core.Animatable(0f) }
     val scope = rememberCoroutineScope()
     var closing by remember { mutableStateOf(false) }
+    // Releases carry the finger's velocity into an underdamped spring, so the row lands, overshoots a little and settles.
+    val settle = remember { spring<Float>(dampingRatio=.62f,stiffness=380f) }
     // Stays "open" for a beat after closing so the tap that dismissed the row cannot also start its search.
-    val close: () -> Unit = { scope.launch { closing = true;offset.animateTo(0f,tween(150));delay(250);closing = false } }
+    val close: () -> Unit = { scope.launch { closing = true;offset.animateTo(0f,spring(.78f,520f));delay(250);closing = false } }
     val open = offset.value < 0f
     LaunchedEffect(open) {
         if(open) host.closeOpen?.takeIf { it !== close }?.invoke()
@@ -466,15 +471,33 @@ private class SwipeAction(val icon: ImageVector, val description: String, val co
             val b = it.boundsInWindow();host.deleteBounds = androidx.compose.ui.geometry.Rect(b.right - reveal,b.top,b.right,b.bottom)
         }.background(actions.first().container),horizontalArrangement=Arrangement.End) {
             // The first action's colour fills the whole row so it shows behind the card's rounded corners.
-            actions.forEach { a ->
+            actions.forEachIndexed { i, a ->
+                // Icons swell in as their slot opens (the outermost first) and bulge a touch further when overdragged.
+                val slotStart = (actions.size - 1 - i).toFloat() / actions.size
                 Box(Modifier.width(72.dp).fillMaxHeight().background(a.container),contentAlignment=Alignment.Center) {
-                    IconButton(onClick={ close();a.onClick() },Modifier.fillMaxSize()) { Icon(a.icon,a.description,tint=a.content) }
+                    IconButton(onClick={ close();a.onClick() },Modifier.fillMaxSize().graphicsLayer {
+                        val f = -offset.value / reveal
+                        val grow = ((f - slotStart) * actions.size).coerceIn(0f,1f)
+                        val s = .55f + .45f * grow + .12f * (f - 1f).coerceIn(0f,1f) * reveal / overOpen
+                        scaleX = s;scaleY = s;alpha = grow
+                    }) { Icon(a.icon,a.description,tint=a.content) }
                 }
             }
         }
         Box(Modifier.offset { androidx.compose.ui.unit.IntOffset(offset.value.toInt(),0) }
-            .draggable(rememberDraggableState { d -> scope.launch { offset.snapTo((offset.value + d).coerceIn(-reveal,0f)) } },Orientation.Horizontal,
-                onDragStopped={ v -> scope.launch { offset.animateTo(if(offset.value < -reveal / 2 || v < -800f) -reveal else 0f,tween(150)) } })) {
+            .draggable(rememberDraggableState { d -> scope.launch {
+                val x = offset.value
+                val over = if(x < -reveal) -reveal - x else if(x > 0f) x else 0f
+                val limit = if(x < -reveal) overOpen else overClosed
+                val outward = (x <= -reveal && d < 0f) || (x >= 0f && d > 0f)
+                val k = if(outward) (1f - over / limit).coerceIn(0f,1f).let { it * it } else 1f
+                offset.snapTo((x + d * k).coerceIn(-reveal - overOpen,overClosed))
+            } },Orientation.Horizontal,
+                onDragStopped={ v -> scope.launch {
+                    // Aim where the fling would carry the row, not where the finger let go.
+                    val target = if(offset.value + v * .12f < -reveal / 2) -reveal else 0f
+                    offset.animateTo(target,settle,v)
+                } })) {
             content(open || closing,close)
         }
     }
