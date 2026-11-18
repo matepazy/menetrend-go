@@ -28,8 +28,13 @@ import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionOnScreen
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.heading
@@ -97,6 +102,9 @@ import kotlinx.coroutines.withContext
         ?.let { vehicleModelForContext(it, mode, agencyName) }
     val photo = profile?.photos?.singleOrNull()
     var enlarged by remember(profile?.id) { mutableStateOf<ImageBitmap?>(null) }
+    var enlargedFrom by remember(profile?.id) { mutableStateOf<PhotoOrigin?>(null) }
+    // Set only once the viewer has drawn the photo over the thumbnail, so the slot never shows empty.
+    var lifted by remember(profile?.id) { mutableStateOf(false) }
     AppBottomSheet(onDismissRequest = dismiss,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
         shape = MaterialTheme.shapes.extraLarge) {
@@ -135,7 +143,9 @@ import kotlinx.coroutines.withContext
                     bottom = AppLayout.SectionGap)) {
                     if (photo != null) item {
                         Column(verticalArrangement = Arrangement.spacedBy(AppLayout.CompactGap)) {
-                            FleetPhoto(photo, profile.title) { enlarged = it }
+                            FleetPhoto(photo, profile.title, lifted) { bitmap, from ->
+                                enlarged = bitmap; enlargedFrom = from
+                            }
                             Text(photo.caption,
                                 style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             Text("A fotó típusillusztráció. Az érkező jármű festése és felszereltsége eltérhet.",
@@ -166,7 +176,8 @@ import kotlinx.coroutines.withContext
         }
     }
     enlarged?.let { bitmap ->
-        photo?.let { FleetPhotoViewer(listOf(it), 0, bitmap, onDismiss = { enlarged = null }) }
+        photo?.let { FleetPhotoViewer(listOf(it), 0, bitmap, enlargedFrom, onShown = { lifted = true },
+            onDismiss = { enlarged = null; lifted = false }) }
     }
 }
 
@@ -242,7 +253,9 @@ private fun specIcon(label: String, value: String, mode: String): ImageVector {
     }
 }
 
-@Composable private fun FleetPhoto(photo: ModelPhoto, title: String, onEnlarge: (ImageBitmap) -> Unit) {
+/** While [lifted], the picture is on its way to or inside the viewer, so its slot stays empty. */
+@Composable private fun FleetPhoto(photo: ModelPhoto, title: String, lifted: Boolean,
+    onEnlarge: (ImageBitmap, PhotoOrigin?) -> Unit) {
     val context = LocalContext.current.applicationContext
     var attempt by remember(photo.url) { mutableIntStateOf(0) }
     val bitmap by produceState<Result<ImageBitmap>?>(null, photo.url, attempt) {
@@ -251,12 +264,24 @@ private fun specIcon(label: String, value: String, mode: String): ImageVector {
             catch (cancelled: CancellationException) { throw cancelled }
             catch (_: Exception) { Result.failure(IllegalStateException("Photo unavailable")) }
     }
-    Surface(Modifier.fillMaxWidth().aspectRatio(1.5f).clip(MaterialTheme.shapes.small),
+    val shape = MaterialTheme.shapes.small
+    val density = LocalDensity.current
+    var origin by remember { mutableStateOf<PhotoOrigin?>(null) }
+    Surface(Modifier.fillMaxWidth().aspectRatio(1.5f).clip(shape)
+        .onGloballyPositioned { box ->
+            val bounds = Rect(box.positionOnScreen(), box.size.toSize())
+            origin = PhotoOrigin(bounds, shape.topStart.toPx(bounds.size, density))
+        },
         color = MaterialTheme.colorScheme.surfaceContainer) {
         bitmap?.getOrNull()?.let { loaded ->
-            Box(Modifier.fillMaxSize().clickable(role = Role.Button, onClickLabel = "Fotó nagyítása") { onEnlarge(loaded) }) {
+            // The expand control settles back in after the photo has landed instead of popping.
+            val control by animateFloatAsState(if (lifted) 0f else 1f,
+                tween(if (lifted) 0 else AppMotion.Feedback, easing = AppMotion.Arrival), label = "Photo expand control")
+            Box(Modifier.fillMaxSize().graphicsLayer { alpha = if (lifted) 0f else 1f }
+                .clickable(role = Role.Button, onClickLabel = "Fotó nagyítása") { onEnlarge(loaded, origin) }) {
                 Image(loaded, "$title · ${photo.caption}", Modifier.fillMaxSize(), contentScale = ContentScale.Fit)
-                FilledTonalIconButton(onClick = { onEnlarge(loaded) }, modifier = Modifier.align(Alignment.BottomEnd).padding(8.dp)) {
+                FilledTonalIconButton(onClick = { onEnlarge(loaded, origin) },
+                    modifier = Modifier.align(Alignment.BottomEnd).padding(8.dp).graphicsLayer { alpha = control }) {
                     Icon(Icons.Outlined.OpenInFull, "Fotó nagyítása")
                 }
             }
