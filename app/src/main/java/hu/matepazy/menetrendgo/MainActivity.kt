@@ -309,6 +309,7 @@ private fun featherMask(top: Boolean, endY: Float=Float.POSITIVE_INFINITY)=
         }
     }
     val mapScreen=page=="routeMap" || page=="vehicleMap"
+    var navInMotion by remember { mutableStateOf(false) }
     LaunchedEffect(vm.passesEnabled) {
         if (!vm.passesEnabled && tab == 2) { tab = 0; page = "search"; selected = null }
     }
@@ -339,7 +340,8 @@ private fun featherMask(top: Boolean, endY: Float=Float.POSITIVE_INFINITY)=
                         level=GlassLevel.Floating) {
                         LiquidNavigationBar(destinations.map { (index,label) -> label to icons[index] },
                             selected=destinations.indexOfFirst { it.first==tab },largeFont=largeFont,
-                            onSelect={ pos -> returning=false;tab=destinations[pos].first;page="search";selected=null })
+                            onSelect={ pos -> returning=false;tab=destinations[pos].first;page="search";selected=null },
+                            onMotion={ navInMotion=it })
                     }
                     }
                 } }
@@ -368,6 +370,7 @@ private fun featherMask(top: Boolean, endY: Float=Float.POSITIVE_INFINITY)=
                                 else -> SearchScreen(vm) {}
                             }
     }
+    CompositionLocalProvider(LocalNavigationInMotion provides { navInMotion }) {
     PredictiveBackPane(enabled=mapScreen && vm.mapVehicle==null,onBack=::back,
         preview={ NavigationFrame(mapScreen=false) { BackPreview() } }) {
         NavigationFrame(mapScreen) {
@@ -391,6 +394,7 @@ private fun featherMask(top: Boolean, endY: Float=Float.POSITIVE_INFINITY)=
                         }
                         }
         }
+    }
     }
     if (vm.showDataSourceIntro) {
         DataSourceIntroSheet(vm::dismissDataSourceIntro) {

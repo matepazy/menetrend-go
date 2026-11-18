@@ -34,7 +34,9 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlin.math.abs
 import kotlin.math.exp
 import kotlin.math.max
@@ -63,6 +65,25 @@ internal object LiquidIndicator {
     }
 }
 
+/**
+ * Whether the phone navigation pill is still travelling. A destination that inflates a platform view
+ * (the map) waits for it, so the main thread stays free and the pill's motion never stalls on loading.
+ */
+internal val LocalNavigationInMotion = staticCompositionLocalOf<() -> Boolean> { { false } }
+
+/** False until the navigation pill has settled (or [timeoutMillis] passed); then stays true. */
+@Composable internal fun rememberNavigationSettled(timeoutMillis: Long = 1200): Boolean {
+    val moving = LocalNavigationInMotion.current
+    var settled by remember { mutableStateOf(!moving()) }
+    if (!settled) LaunchedEffect(Unit) {
+        withTimeoutOrNull(timeoutMillis) { snapshotFlow { moving() }.first { !it } }
+        // One more frame so the pill's last spring step draws before the heavy work starts.
+        withFrameNanos { }
+        settled = true
+    }
+    return settled
+}
+
 private val LeadEdge = spring<Float>(dampingRatio = .78f, stiffness = 900f)
 private val TrailEdge = spring<Float>(dampingRatio = .6f, stiffness = 260f)
 // Drag smoothing time constants (seconds): the leading edge hugs the finger, the trailing edge lags.
@@ -81,6 +102,7 @@ private const val DragTrailLag = .095f
     largeFont: Boolean,
     onSelect: (Int) -> Unit,
     modifier: Modifier = Modifier,
+    onMotion: (Boolean) -> Unit = {},
 ) {
     val gap = with(LocalDensity.current) { 4.dp.toPx() }
     val corner = with(LocalDensity.current) { 26.dp.toPx() }
@@ -135,7 +157,20 @@ private const val DragTrailLag = .095f
     val haptics = LocalHapticFeedback.current
     val currentSelected by rememberUpdatedState(selectedPos)
     val currentSlot by rememberUpdatedState(slot)
-    val currentSelect by rememberUpdatedState(onSelect)
+    val currentMotion by rememberUpdatedState(onMotion)
+    // Flag the motion in the same snapshot as the selection, before the destination composes.
+    val currentSelect by rememberUpdatedState<(Int) -> Unit> { index ->
+        if (index != selectedPos) onMotion(true)
+        onSelect(index)
+    }
+    LaunchedEffect(Unit) {
+        snapshotFlow {
+            val tolerance = currentSlot * .02f + 1f
+            val l = LiquidIndicator.slotLeft(currentSelected, currentSlot, gap)
+            !placed || !dragging && abs(left.value - l) < tolerance && abs(right.value - l - currentSlot) < tolerance &&
+                abs(left.velocity) < currentSlot * .6f && abs(right.velocity) < currentSlot * .6f
+        }.collect { currentMotion(!it) }
+    }
     val pill = MaterialTheme.colorScheme.primaryContainer.copy(alpha = .65f)
     val pillTone = pillGlassTone()
     // Held under the finger, the lens catches a little more light.
@@ -205,7 +240,7 @@ private const val DragTrailLag = .095f
             val pressed by press.collectIsPressedAsState()
             val scale by animateFloatAsState(if (pressed) .94f else 1f, spring(Spring.DampingRatioMediumBouncy, Spring.StiffnessMedium), label = "Navigation press")
             Column(Modifier.weight(1f).fillMaxHeight().graphicsLayer { scaleX = scale; scaleY = scale }
-                .selectable(selected = index == selectedPos, interactionSource = press, indication = null, role = Role.Tab, onClick = { onSelect(index) })
+                .selectable(selected = index == selectedPos, interactionSource = press, indication = null, role = Role.Tab, onClick = { currentSelect(index) })
                 .padding(horizontal = 2.dp, vertical = 8.dp).heightIn(min = if (largeFont) 64.dp else 48.dp),
                 horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
                 Icon(icon, null, Modifier.size(24.dp), tint = tint)

@@ -261,9 +261,12 @@ import kotlinx.coroutines.withContext
             focusedOnce=true
         }
     }
+    // The map's platform view inflates on the main thread; let the navigation pill finish first.
+    val mapAllowed=rememberNavigationSettled()
     Box(Modifier.fillMaxSize()) {
         key(googleMap) {
-        if (googleMap) {
+        if (!mapAllowed) Box(Modifier.fillMaxSize())
+        else if (googleMap) {
             GoogleTransportMap(
                 modifier=Modifier.fillMaxSize().testTag("google-transport-map"),
                 onReady={mapSurface=it;ready=true},
