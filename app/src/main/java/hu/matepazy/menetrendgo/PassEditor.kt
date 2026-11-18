@@ -44,11 +44,9 @@ internal fun passDate(date: LocalDate): String = date.format(PassDateFormat)
             }
             Column(verticalArrangement=Arrangement.spacedBy(8.dp)) {
                 Text("Bérlet típusa",style=MaterialTheme.typography.titleMedium,fontWeight=FontWeight.SemiBold)
-                FlowRow(horizontalArrangement=Arrangement.spacedBy(AppLayout.CompactGap),verticalArrangement=Arrangement.spacedBy(AppLayout.CompactGap)) {
-                    listOf("country" to "Ország", "county" to "Megye", "local" to "Helyi").forEach {(value,label)->
-                        FilterChip(type==value,{type=value},label={Text(label)},leadingIcon=if(type==value) ({Icon(Icons.Outlined.Check,null,Modifier.size(18.dp))}) else null,shape=CircleShape,modifier=Modifier.heightIn(min=48.dp))
-                    }
-                }
+                val types = listOf("country" to "Ország", "county" to "Megye", "local" to "Helyi")
+                LiquidSegmentedBar(types.map { it.second to null }, types.indexOfFirst { it.first == type }, { type = types[it].first },
+                    container = MaterialTheme.colorScheme.surfaceContainerHighest)
                 if(type=="county") Box {
                     OutlinedButton(onClick={countyOpen=true},shape=RoundedCornerShape(24.dp),modifier=Modifier.fillMaxWidth().heightIn(min=56.dp)) {
                         Text("$county megye",Modifier.weight(1f));Icon(Icons.Outlined.ExpandMore,"Megye kiválasztása")
@@ -62,10 +60,9 @@ internal fun passDate(date: LocalDate): String = date.format(PassDateFormat)
             }
             Column(verticalArrangement=Arrangement.spacedBy(8.dp)) {
                 Text("Érvényesség",style=MaterialTheme.typography.titleMedium,fontWeight=FontWeight.SemiBold)
-                FlowRow(horizontalArrangement=Arrangement.spacedBy(AppLayout.CompactGap),verticalArrangement=Arrangement.spacedBy(AppLayout.CompactGap)) {
-                    FilterChip(thirtyDays,{thirtyDays=true;endDay=starts.plusDays(29).toEpochDay()},label={Text("30 napos")},leadingIcon=if(thirtyDays) ({Icon(Icons.Outlined.Link,null,Modifier.size(18.dp))}) else null,shape=CircleShape,modifier=Modifier.heightIn(min=48.dp))
-                    FilterChip(!thirtyDays,{thirtyDays=false},label={Text("Egyéni")},shape=CircleShape,modifier=Modifier.heightIn(min=48.dp))
-                }
+                LiquidSegmentedBar(listOf("30 napos" to Icons.Outlined.Link, "Egyéni" to null), if(thirtyDays) 0 else 1, {
+                    if(it == 0) { thirtyDays=true;endDay=starts.plusDays(29).toEpochDay() } else thirtyDays=false
+                }, container = MaterialTheme.colorScheme.surfaceContainerHighest)
                 PassDateButton("Kezdőnap",starts) {calendar="start"}
                 PassDateButton("Lejárat napja",expires) {calendar="end"}
                 Text(if(thirtyDays) "A két dátum együtt változik, a kezdőnappal együtt 30 napot számolunk." else "A bérleten feltüntetett dátumokat add meg. A lejárat napjának végéig számolunk.",style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)

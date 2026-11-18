@@ -1,5 +1,7 @@
 package hu.matepazy.menetrendgo
 
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
@@ -79,14 +81,16 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
         AppBottomSheet(onDismissRequest = { showChannel = false }, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true), containerColor = MaterialTheme.colorScheme.surface) {
             Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(AppLayout.SheetPadding), verticalArrangement = Arrangement.spacedBy(AppLayout.ItemGap)) {
                 PageTitle("Frissítési csatorna")
-                Column(Modifier.selectableGroup()) {
-                    listOf("release" to "Stabil", "pre-release" to "Béta").forEach { (value, label) ->
-                        Row(Modifier.fillMaxWidth().selectable(choice == value, enabled = channelEnabled, role = Role.RadioButton, onClick = {
+                val channels = listOf("release" to "Stabil", "pre-release" to "Béta")
+                val pill = rememberLiquidSelection(channels.indexOfFirst { it.first == choice }, vertical = true)
+                Column(Modifier.selectableGroup().liquidSelectionHost(pill, MaterialTheme.colorScheme.primaryContainer.copy(alpha = .65f), 24.dp)) {
+                    channels.forEachIndexed { index, (value, label) ->
+                        Row(Modifier.fillMaxWidth().liquidOption(pill, index).clip(RoundedCornerShape(24.dp)).selectable(choice == value, interactionSource = null, indication = null, enabled = channelEnabled, role = Role.RadioButton, onClick = {
                             if (value == "pre-release" && updates.channel != value) {
                                 showChannel = false
                                 showBetaConsent = true
                             } else choice = value
-                        }).padding(vertical = 8.dp).heightIn(min = 48.dp), verticalAlignment = Alignment.CenterVertically) {
+                        }).padding(horizontal = 16.dp, vertical = 8.dp).heightIn(min = 48.dp), verticalAlignment = Alignment.CenterVertically) {
                             Text(label, Modifier.weight(1f))
                             RadioButton(choice == value, onClick = null, enabled = channelEnabled)
                         }

@@ -1,5 +1,6 @@
 package hu.matepazy.menetrendgo
 
+import androidx.compose.ui.draw.clip
 import android.content.Intent
 import android.provider.Settings
 import android.widget.Toast
@@ -145,11 +146,12 @@ private enum class SettingsPage(val title: String) {
                     item { RapidRefreshSetting(vm.rapidRefresh, vm::chooseRapidRefresh) }
                     item {
                         SettingsGroup {
-                            Column(Modifier.selectableGroup().padding(vertical = 4.dp)) {
-                                DataSourceMode.entries.forEach { mode ->
+                            val pill = rememberLiquidSelection(DataSourceMode.entries.indexOf(vm.dataSourceMode), vertical = true)
+                            Column(Modifier.selectableGroup().padding(4.dp).liquidSelectionHost(pill, MaterialTheme.colorScheme.primaryContainer.copy(alpha = .65f), 24.dp)) {
+                                DataSourceMode.entries.forEachIndexed { index, mode ->
                                     Row(
-                                        Modifier.fillMaxWidth().selectable(vm.dataSourceMode == mode, role = Role.RadioButton, onClick = { vm.chooseDataSourceMode(mode) })
-                                            .padding(horizontal = 20.dp, vertical = 12.dp).heightIn(min = 48.dp),
+                                        Modifier.fillMaxWidth().liquidOption(pill, index).clip(RoundedCornerShape(24.dp)).selectable(vm.dataSourceMode == mode, interactionSource = null, indication = null, role = Role.RadioButton, onClick = { vm.chooseDataSourceMode(mode) })
+                                            .padding(horizontal = 16.dp, vertical = 12.dp).heightIn(min = 48.dp),
                                         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)
                                     ) {
                                         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -167,11 +169,13 @@ private enum class SettingsPage(val title: String) {
                 SettingsPage.Appearance -> {
                     item {
                         SettingsGroup {
-                            Column(Modifier.selectableGroup().padding(vertical = 4.dp)) {
-                                listOf("system", "light", "dark", "oled").forEach { value ->
+                            val themes = listOf("system", "light", "dark", "oled")
+                            val pill = rememberLiquidSelection(themes.indexOf(vm.theme), vertical = true)
+                            Column(Modifier.selectableGroup().padding(4.dp).liquidSelectionHost(pill, MaterialTheme.colorScheme.primaryContainer.copy(alpha = .65f), 24.dp)) {
+                                themes.forEachIndexed { index, value ->
                                     Row(
-                                        Modifier.fillMaxWidth().selectable(vm.theme == value, role = Role.RadioButton, onClick = { vm.chooseTheme(value) })
-                                            .padding(horizontal = 20.dp, vertical = 12.dp).heightIn(min = 48.dp),
+                                        Modifier.fillMaxWidth().liquidOption(pill, index).clip(RoundedCornerShape(24.dp)).selectable(vm.theme == value, interactionSource = null, indication = null, role = Role.RadioButton, onClick = { vm.chooseTheme(value) })
+                                            .padding(horizontal = 16.dp, vertical = 12.dp).heightIn(min = 48.dp),
                                         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)
                                     ) {
                                         Text(themeLabel(value), Modifier.weight(1f), style = MaterialTheme.typography.bodyLarge)

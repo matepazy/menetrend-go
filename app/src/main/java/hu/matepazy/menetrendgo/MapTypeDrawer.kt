@@ -1,5 +1,7 @@
 package hu.matepazy.menetrendgo
 
+import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -49,11 +51,17 @@ import androidx.compose.ui.unit.dp
                 IconButton(onClick = dismiss) { Icon(Icons.Outlined.Close, "Térképrétegek bezárása") }
             }
             Text("Térképtípus", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-            Column(Modifier.selectableGroup(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                MapType.entries.filter { it != MapType.Custom || (vm.customMapEnabled && validMapTileUrl(vm.customMapUrl)) }.forEach { type ->
+            val types = MapType.entries.filter { it != MapType.Custom || (vm.customMapEnabled && validMapTileUrl(vm.customMapUrl)) }
+            val pill = rememberLiquidSelection(types.indexOf(vm.effectiveMapType), vertical = true)
+            // The host paints the resting cards and the selection pill that flows across them.
+            Column(Modifier.selectableGroup().liquidSelectionHost(pill, MaterialTheme.colorScheme.primaryContainer, 24.dp,
+                base = MaterialTheme.colorScheme.surface), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                types.forEachIndexed { index, type ->
                     val selected = vm.effectiveMapType == type
-                    Surface(shape = RoundedCornerShape(24.dp), color = if (selected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface) {
-                        Row(Modifier.fillMaxWidth().selectable(selected, role = Role.RadioButton,
+                    val on = pill.coverage(index)
+                    val accent = lerp(MaterialTheme.colorScheme.onSurfaceVariant, MaterialTheme.colorScheme.onPrimaryContainer, on)
+                    Surface(Modifier.liquidOption(pill, index), shape = RoundedCornerShape(24.dp), color = Color.Transparent) {
+                        Row(Modifier.fillMaxWidth().selectable(selected, interactionSource = null, indication = null, role = Role.RadioButton,
                             onClick = { vm.chooseMapType(type); dismiss() }).heightIn(min = 72.dp).padding(16.dp),
                             verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                             Icon(when (type) {
@@ -62,11 +70,11 @@ import androidx.compose.ui.unit.dp
                                 MapType.Hybrid -> Icons.Outlined.Layers
                                 MapType.Rail -> Icons.Outlined.Train
                                 MapType.Custom -> Icons.Outlined.Link
-                            }, null, tint = if (selected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant)
+                            }, null, tint = accent)
                             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                                 Text(type.title, style = MaterialTheme.typography.titleMedium)
                                 Text(type.summary, style = MaterialTheme.typography.bodyMedium,
-                                    color = if (selected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant)
+                                    color = accent)
                             }
                             RadioButton(selected = selected, onClick = null)
                         }
