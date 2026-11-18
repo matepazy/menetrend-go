@@ -225,8 +225,7 @@ private fun featherMask(top: Boolean, endY: Float=Float.POSITIVE_INFINITY)=
 }
 
 @Composable fun Glass(modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {
-    val colors = MaterialTheme.colorScheme
-    Surface(modifier=modifier,shape=MaterialTheme.shapes.medium,color=colors.surface) {
+    GlassSurface(modifier=modifier,shape=MaterialTheme.shapes.medium) {
         Column(Modifier.padding(AppLayout.PanelPadding),content=content)
     }
 }
@@ -336,7 +335,8 @@ private fun featherMask(top: Boolean, endY: Float=Float.POSITIVE_INFINITY)=
                     AnimatedVisibility(!(tab==1 && vm.mapVehicle!=null),
                         enter=slideInVertically(tween(AppMotion.Reveal,easing=AppMotion.Arrival)) {it}+fadeIn(tween(AppMotion.Reveal)),
                         exit=slideOutVertically(tween(AppMotion.Dismiss)) {it}+fadeOut(tween(AppMotion.Dismiss))) {
-                    Surface(Modifier.navigationBarsPadding().padding(horizontal=AppLayout.PageGutter,vertical=6.dp),shape=MaterialTheme.shapes.large,color=MaterialTheme.colorScheme.surface) {
+                    GlassSurface(Modifier.navigationBarsPadding().padding(horizontal=AppLayout.PageGutter,vertical=6.dp),shape=MaterialTheme.shapes.large,
+                        level=GlassLevel.Floating) {
                         LiquidNavigationBar(destinations.map { (index,label) -> label to icons[index] },
                             selected=destinations.indexOfFirst { it.first==tab },largeFont=largeFont,
                             onSelect={ pos -> returning=false;tab=destinations[pos].first;page="search";selected=null })

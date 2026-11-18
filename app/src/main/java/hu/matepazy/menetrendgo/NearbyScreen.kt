@@ -336,7 +336,7 @@ import kotlinx.coroutines.withContext
                 enter=fadeIn(tween(AppMotion.Feedback)),exit=fadeOut(tween(AppMotion.Feedback))) {
             Column(modifier=Modifier.padding(top=topInset+10.dp,start=10.dp),
                 verticalArrangement=Arrangement.spacedBy(AppLayout.CompactGap)) {
-                Surface(shape=androidx.compose.foundation.shape.CircleShape,color=MaterialTheme.colorScheme.surface) {
+                GlassSurface(shape=androidx.compose.foundation.shape.CircleShape,level=GlassLevel.Floating) {
                     IconButton(onClick={mapTypesOpen=true},enabled=!searchFocused,modifier=Modifier.size(48.dp)) {
                         Icon(Icons.Outlined.Layers,"Térképrétegek")
                     }

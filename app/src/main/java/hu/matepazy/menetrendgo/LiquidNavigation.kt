@@ -17,7 +17,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.graphicsLayer
@@ -138,6 +137,9 @@ private const val DragTrailLag = .095f
     val currentSlot by rememberUpdatedState(slot)
     val currentSelect by rememberUpdatedState(onSelect)
     val pill = MaterialTheme.colorScheme.primaryContainer.copy(alpha = .65f)
+    val pillTone = pillGlassTone()
+    // Held under the finger, the lens catches a little more light.
+    val held by animateFloatAsState(if (dragging) .45f else 0f, spring(stiffness = Spring.StiffnessMediumLow), label = "Navigation pill glint")
     val activeTint = MaterialTheme.colorScheme.primary
     val idleTint = MaterialTheme.colorScheme.onSurfaceVariant
 
@@ -153,7 +155,8 @@ private const val DragTrailLag = .095f
             val l = max(center - half, -pad); val r = min(center + half, size.width + pad)
             val w = r - l
             val h = size.height * LiquidIndicator.heightFactor(w, slot)
-            drawRoundRect(pill, Offset(l, (size.height - h) / 2), Size(w, h), CornerRadius(min(corner, h / 2)))
+            drawGlassPill(pill, Offset(l, (size.height - h) / 2), Size(w, h), min(corner, h / 2), pillTone,
+                max(pillGlint(right.value - left.value, slot), held))
         }
         .pointerInput(count) {
             val tracker = VelocityTracker()

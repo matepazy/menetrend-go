@@ -110,7 +110,7 @@ import kotlinx.coroutines.withContext
                 }, label = "Map search expansion") { open ->
             if (!open) {
                 if (selectedVehicleName != null) {
-                    Surface(shape = MaterialTheme.shapes.medium, color = MaterialTheme.colorScheme.surface,
+                    GlassSurface(shape = MaterialTheme.shapes.medium, level = GlassLevel.Floating,
                         modifier = Modifier.padding(start = 56.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Row(Modifier.weight(1f).heightIn(min = 48.dp)
@@ -128,13 +128,13 @@ import kotlinx.coroutines.withContext
                         }
                     }
                 } else {
-                Surface(shape = CircleShape, color = MaterialTheme.colorScheme.surface) {
+                GlassSurface(shape = CircleShape, level = GlassLevel.Floating) {
                     IconButton(onClick = { expanded = true; onFocusChange(true) }, modifier = Modifier.size(48.dp)) {
                         Icon(Icons.Outlined.Search, "Keresés a térképen")
                     }
                 }
                 }
-            } else Surface(shape = MaterialTheme.shapes.medium, color = MaterialTheme.colorScheme.surface,
+            } else GlassSurface(shape = MaterialTheme.shapes.medium, level = GlassLevel.Floating,
                 modifier = Modifier.heightIn(max = panelHeight)
                     .onGloballyPositioned { spotlight.bounds = it.boundsInWindow() }
                     .semantics { paneTitle = "Térkép keresése"; dismiss { close(); true } }) {
@@ -227,8 +227,8 @@ import kotlinx.coroutines.withContext
             }
             }
             AnimatedVisibility(!expanded, enter = fadeIn(tween(AppMotion.Feedback)), exit = fadeOut(tween(AppMotion.Dismiss))) {
-            Surface(modifier = Modifier.padding(top = AppLayout.CompactGap),
-                shape = CircleShape, color = MaterialTheme.colorScheme.surface) {
+            GlassSurface(modifier = Modifier.padding(top = AppLayout.CompactGap),
+                shape = CircleShape, level = GlassLevel.Floating) {
                 IconButton(onClick = onRefresh, enabled = !refreshing, modifier = Modifier.size(48.dp)) {
                     if (refreshing) CircularProgressIndicator(Modifier.size(24.dp)
                         .semantics { contentDescription = "Járműpozíciók frissítése folyamatban" }, strokeWidth = 2.dp)

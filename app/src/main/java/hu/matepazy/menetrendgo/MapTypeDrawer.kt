@@ -55,7 +55,7 @@ import androidx.compose.ui.unit.dp
             val pill = rememberLiquidSelection(types.indexOf(vm.effectiveMapType), vertical = true)
             // The host paints the resting cards and the selection pill that flows across them.
             Column(Modifier.selectableGroup().liquidSelectionHost(pill, MaterialTheme.colorScheme.primaryContainer, 24.dp,
-                base = MaterialTheme.colorScheme.surface), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                base = MaterialTheme.colorScheme.surface, tone = pillGlassTone()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 types.forEachIndexed { index, type ->
                     val selected = vm.effectiveMapType == type
                     val on = pill.coverage(index)
@@ -97,7 +97,7 @@ import androidx.compose.ui.unit.dp
             }
             MapStopsToggle(vm)
             val enabledFilters = MapVehicleFilter.entries.filter { it in vm.vehicleFilters }
-            Surface(onClick = { filtersOpen = true }, shape = RoundedCornerShape(24.dp),
+            GlassSurface(onClick = { filtersOpen = true }, shape = RoundedCornerShape(24.dp),
                 color = MaterialTheme.colorScheme.surface,
                 modifier = Modifier.fillMaxWidth().semantics {
                     stateDescription = if (enabledFilters.isEmpty()) "Nincs megjelenített járműtípus"

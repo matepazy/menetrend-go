@@ -102,7 +102,7 @@ internal val Counties=listOf("Baranya","Bács-Kiskun","Békés","Borsod-Abaúj-Z
             }
         }
         if(vm.passes.isNotEmpty()) item {
-            Surface(onClick={details="reminders"},shape=MaterialTheme.shapes.medium,color=MaterialTheme.colorScheme.surface) {
+            GlassSurface(onClick={details="reminders"},shape=MaterialTheme.shapes.medium) {
                 Row(Modifier.fillMaxWidth().padding(16.dp),verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(12.dp)) {
                     Icon(Icons.Outlined.NotificationsNone,null,tint=MaterialTheme.colorScheme.onSurfaceVariant)
                     Column(Modifier.weight(1f),verticalArrangement=Arrangement.spacedBy(4.dp)) {

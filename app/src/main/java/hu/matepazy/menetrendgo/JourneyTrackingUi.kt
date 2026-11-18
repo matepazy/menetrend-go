@@ -189,7 +189,7 @@ internal fun JourneyTrackingSheet(journey: Journey, selectedLegIndex: Int, onDis
 internal fun ActiveJourneyTracking(onOpen: (Journey) -> Unit) {
     val tracking by JourneyTracking.state.collectAsStateWithLifecycle()
     tracking.session?.let { session ->
-        Surface(onClick = { onOpen(session.journey) }, shape = MaterialTheme.shapes.medium, color = MaterialTheme.colorScheme.surface) {
+        GlassSurface(onClick = { onOpen(session.journey) }, shape = MaterialTheme.shapes.medium) {
             Row(Modifier.fillMaxWidth().heightIn(min = 56.dp).padding(horizontal = AppLayout.PanelPadding, vertical = AppLayout.RelatedGap),
                 verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(AppLayout.RelatedGap)) {
                 Icon(Icons.Outlined.NotificationsActive, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)

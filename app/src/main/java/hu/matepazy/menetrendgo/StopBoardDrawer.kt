@@ -94,7 +94,7 @@ import kotlinx.coroutines.delay
                 Text("A következő 24 órában nincs felszállásra alkalmas indulás ennél a megállónál.", style = MaterialTheme.typography.bodyLarge)
             }
             items(departures.filter { it.time.estimate >= now - 30_000 }, key = { it.key }) { departure ->
-                Surface(shape = RoundedCornerShape(32.dp), color = MaterialTheme.colorScheme.surface,
+                GlassSurface(shape = RoundedCornerShape(32.dp),
                     modifier = Modifier.fillMaxWidth().clickable(
                         enabled = departure.tripId.isNotBlank(), role = Role.Button,
                         onClickLabel = "Járat részleteinek megnyitása"

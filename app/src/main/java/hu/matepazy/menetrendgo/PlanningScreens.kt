@@ -295,7 +295,7 @@ private class SwipeHost {
         SwipeAction(Icons.Outlined.Edit,"${saved.name} szerkesztése",MaterialTheme.colorScheme.primary,MaterialTheme.colorScheme.onPrimary) {onEdit(saved)},
         SwipeAction(Icons.Outlined.Delete,"${saved.name} törlése",MaterialTheme.colorScheme.error,MaterialTheme.colorScheme.onError) {vm.removeSavedSearch(saved)}),
         swipeHost) { open,close ->
-        Surface(onClick={if(open) close() else {vm.useSavedSearch(saved);onSearch()}},shape=RoundedCornerShape(28.dp),color=MaterialTheme.colorScheme.surface) {
+        GlassSurface(onClick={if(open) close() else {vm.useSavedSearch(saved);onSearch()}},shape=RoundedCornerShape(28.dp),color=MaterialTheme.colorScheme.surface) {
             Row(Modifier.fillMaxWidth().padding(start=AppLayout.PanelPadding,top=12.dp,bottom=12.dp,end=8.dp),verticalAlignment=Alignment.CenterVertically) {
                 Icon(saved.icon.vector,null,tint=MaterialTheme.colorScheme.primary)
                 Spacer(Modifier.width(16.dp))
@@ -312,7 +312,7 @@ private class SwipeHost {
 
 @Composable private fun RecentSearchRow(vm: AppState, recent: Recent, swipeHost: SwipeHost, onSearch: () -> Unit) {
     SwipeToDeleteRow("${recent.from.name} – ${recent.to.name}",{vm.removeRecent(recent)},swipeHost) { open,close ->
-        Surface(onClick={if(open) close() else {vm.from=recent.from;vm.to=recent.to;vm.useNow=true;vm.arriveBy=false;onSearch()}},shape=RoundedCornerShape(28.dp),color=MaterialTheme.colorScheme.surface) {
+        GlassSurface(onClick={if(open) close() else {vm.from=recent.from;vm.to=recent.to;vm.useNow=true;vm.arriveBy=false;onSearch()}},shape=RoundedCornerShape(28.dp),color=MaterialTheme.colorScheme.surface) {
             Row(Modifier.fillMaxWidth().padding(AppLayout.PanelPadding),verticalAlignment=Alignment.CenterVertically) {
                 Icon(Icons.Outlined.History,null,tint=MaterialTheme.colorScheme.onSurfaceVariant)
                 Spacer(Modifier.width(16.dp));Column(Modifier.weight(1f)) {
@@ -407,7 +407,7 @@ private fun Modifier.swipeBetweenTabs(host: SwipeHost, pager: CollectionPager, c
         val pressed by press.collectIsPressedAsState()
         animateFloatAsState(if(pressed) .94f else 1f,spring(Spring.DampingRatioMediumBouncy,Spring.StiffnessMedium),label="Collection tab press $index")
     }
-    Surface(modifier.fillMaxWidth(),shape=MaterialTheme.shapes.large,color=colors.surface) {
+    GlassSurface(modifier.fillMaxWidth(),shape=MaterialTheme.shapes.large,color=colors.surface) {
         BoxWithConstraints(Modifier.fillMaxWidth().padding(6.dp)) {
             val tabPx = with(LocalDensity.current) { ((maxWidth - gap) / 2).toPx() }
             val stepPx = tabPx + with(LocalDensity.current) { gap.toPx() }
@@ -417,8 +417,9 @@ private fun Modifier.swipeBetweenTabs(host: SwipeHost, pager: CollectionPager, c
             val currentStep by rememberUpdatedState(stepPx)
             LaunchedEffect(pill) { pill.run { if(currentTab <= 0f) null else (pager.progress * currentStep).let { it to it + currentTab } } }
             val pillColor = colors.primaryContainer.copy(alpha=.65f)
+            val pillTone = pillGlassTone()
             Row(Modifier.fillMaxWidth().drawBehind {
-                if(pill.placed) drawLiquidPill(pillColor,pill.start,pill.end,tabPx,false,0f,size.height,26.dp.toPx())
+                if(pill.placed) drawLiquidPill(pillColor,pill.start,pill.end,tabPx,false,0f,size.height,26.dp.toPx(),pillTone)
             },horizontalArrangement=Arrangement.spacedBy(gap)) {
                 tabs.forEachIndexed { index, (label, icon) ->
                     val on = if(pill.placed) pill.coverage(index * stepPx, index * stepPx + tabPx)
@@ -960,7 +961,7 @@ internal const val DeparturePaginationKey = "later-departures"
             val leftEarly=!walkingOnly && presentation==DeparturePresentation.LeftEarly
             val earlier=presentation==DeparturePresentation.Past || leftEarly
             val departingNow=presentation==DeparturePresentation.DepartingNow
-            Surface(onClick={select(journey)},shape=RoundedCornerShape(32.dp),color=MaterialTheme.colorScheme.surface,tonalElevation=0.dp,
+            GlassSurface(onClick={select(journey)},shape=RoundedCornerShape(32.dp),
                 modifier=Modifier.semantics {
                     if(leftEarly) stateDescription=LeftEarlyDescription
                     else if(earlier) stateDescription="Korábbi indulás"
@@ -1163,7 +1164,7 @@ internal fun sameJourneyStop(first: Station, second: Station): Boolean =
             Text(refreshError, color=MaterialTheme.colorScheme.error, style=MaterialTheme.typography.bodyMedium)
         }
         item {
-            Surface(shape=RoundedCornerShape(32.dp),color=MaterialTheme.colorScheme.surface) {
+            GlassSurface(shape=RoundedCornerShape(32.dp)) {
                 Column(Modifier.fillMaxWidth().padding(AppLayout.PanelPadding)) {
                     val connection=TimelineTrack(MaterialTheme.colorScheme.onSurfaceVariant,walking=true)
                     journey.legs.forEachIndexed {index,leg ->
@@ -1296,7 +1297,7 @@ internal fun sameJourneyStop(first: Station, second: Station): Boolean =
         }
         journey.legs.filter { !it.walking && it.services.isNotEmpty() }.forEach {leg ->
             item {
-                Surface(shape=MaterialTheme.shapes.large,color=MaterialTheme.colorScheme.surface) {
+                GlassSurface(shape=MaterialTheme.shapes.large) {
                     Column(Modifier.fillMaxWidth().padding(AppLayout.PanelPadding),verticalArrangement=Arrangement.spacedBy(AppLayout.ItemGap)) {
                         RouteBadge(leg)
                         Text("${leg.from.name} → ${leg.to.name}",style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)

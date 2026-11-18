@@ -147,7 +147,7 @@ private enum class SettingsPage(val title: String) {
                     item {
                         SettingsGroup {
                             val pill = rememberLiquidSelection(DataSourceMode.entries.indexOf(vm.dataSourceMode), vertical = true)
-                            Column(Modifier.selectableGroup().padding(4.dp).liquidSelectionHost(pill, MaterialTheme.colorScheme.primaryContainer.copy(alpha = .65f), 24.dp)) {
+                            Column(Modifier.selectableGroup().padding(4.dp).liquidSelectionHost(pill, MaterialTheme.colorScheme.primaryContainer.copy(alpha = .65f), 24.dp, tone = pillGlassTone())) {
                                 DataSourceMode.entries.forEachIndexed { index, mode ->
                                     Row(
                                         Modifier.fillMaxWidth().liquidOption(pill, index).clip(RoundedCornerShape(24.dp)).selectable(vm.dataSourceMode == mode, interactionSource = null, indication = null, role = Role.RadioButton, onClick = { vm.chooseDataSourceMode(mode) })
@@ -171,7 +171,7 @@ private enum class SettingsPage(val title: String) {
                         SettingsGroup {
                             val themes = listOf("system", "light", "dark", "oled")
                             val pill = rememberLiquidSelection(themes.indexOf(vm.theme), vertical = true)
-                            Column(Modifier.selectableGroup().padding(4.dp).liquidSelectionHost(pill, MaterialTheme.colorScheme.primaryContainer.copy(alpha = .65f), 24.dp)) {
+                            Column(Modifier.selectableGroup().padding(4.dp).liquidSelectionHost(pill, MaterialTheme.colorScheme.primaryContainer.copy(alpha = .65f), 24.dp, tone = pillGlassTone())) {
                                 themes.forEachIndexed { index, value ->
                                     Row(
                                         Modifier.fillMaxWidth().liquidOption(pill, index).clip(RoundedCornerShape(24.dp)).selectable(vm.theme == value, interactionSource = null, indication = null, role = Role.RadioButton, onClick = { vm.chooseTheme(value) })
@@ -289,7 +289,7 @@ private fun themeLabel(value: String) = when (value) {
 }
 
 @Composable internal fun SettingsGroup(content: @Composable ColumnScope.() -> Unit) {
-    Surface(Modifier.fillMaxWidth(), shape = RoundedCornerShape(28.dp), color = MaterialTheme.colorScheme.surface) {
+    GlassSurface(Modifier.fillMaxWidth(), shape = RoundedCornerShape(28.dp)) {
         Column(content = content)
     }
 }

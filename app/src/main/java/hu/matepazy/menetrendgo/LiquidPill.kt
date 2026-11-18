@@ -116,16 +116,17 @@ internal class LiquidEdges(var start: Float = 0f, var end: Float = 0f) {
  * swells it, by up to the same share as the phone navigation pill, measured against the resting length.
  */
 internal fun DrawScope.drawLiquidPill(color: Color, start: Float, end: Float, rest: Float, vertical: Boolean,
-    crossStart: Float, crossLength: Float, corner: Float) {
+    crossStart: Float, crossLength: Float, corner: Float, tone: GlassTone = GlassTone.None) {
     if (rest <= 0f) return
     val center = (start + end) / 2
     val length = maxOf(end - start, rest * .55f)
     val change = (1f - LiquidIndicator.heightFactor(length, rest)) * min(crossLength, rest)
     val cross = crossLength - change
     val crossOffset = crossStart + change / 2
-    val radius = CornerRadius(min(corner, min(cross, length) / 2))
-    if (vertical) drawRoundRect(color, Offset(crossOffset, center - length / 2), Size(cross, length), radius)
-    else drawRoundRect(color, Offset(center - length / 2, crossOffset), Size(length, cross), radius)
+    val radius = min(corner, min(cross, length) / 2)
+    val glint = pillGlint(end - start, rest)
+    if (vertical) drawGlassPill(color, Offset(crossOffset, center - length / 2), Size(cross, length), radius, tone, glint)
+    else drawGlassPill(color, Offset(center - length / 2, crossOffset), Size(length, cross), radius, tone, glint)
 }
 
 /** A liquid selection over options laid out in one parent along one axis. */
@@ -163,7 +164,7 @@ internal fun Modifier.liquidOption(selection: LiquidSelection, index: Int) = onP
  * must flow over; [crossInset] keeps the pill inside full-bleed rows.
  */
 internal fun Modifier.liquidSelectionHost(selection: LiquidSelection, color: Color, corner: Dp,
-    base: Color? = null, baseCorner: Dp = corner, crossInset: Dp = 0.dp) = drawBehind {
+    base: Color? = null, baseCorner: Dp = corner, crossInset: Dp = 0.dp, tone: GlassTone = GlassTone.None) = drawBehind {
     if (base != null) selection.bounds.values.forEach {
         drawRoundRect(base, it.topLeft, it.size, CornerRadius(baseCorner.toPx()))
     }
@@ -171,8 +172,8 @@ internal fun Modifier.liquidSelectionHost(selection: LiquidSelection, color: Col
     val m = selection.motion
     if (!m.placed) return@drawBehind
     val inset = crossInset.toPx()
-    if (selection.vertical) drawLiquidPill(color, m.start, m.end, chosen.height, true, chosen.left + inset, chosen.width - 2 * inset, corner.toPx())
-    else drawLiquidPill(color, m.start, m.end, chosen.width, false, chosen.top + inset, chosen.height - 2 * inset, corner.toPx())
+    if (selection.vertical) drawLiquidPill(color, m.start, m.end, chosen.height, true, chosen.left + inset, chosen.width - 2 * inset, corner.toPx(), tone)
+    else drawLiquidPill(color, m.start, m.end, chosen.width, false, chosen.top + inset, chosen.height - 2 * inset, corner.toPx(), tone)
 }
 
 /**
@@ -190,9 +191,9 @@ internal fun Modifier.liquidSelectionHost(selection: LiquidSelection, color: Col
 ) {
     val colors = MaterialTheme.colorScheme
     val selection = rememberLiquidSelection(selected, vertical = false)
-    Surface(modifier.fillMaxWidth(), shape = MaterialTheme.shapes.large, color = container) {
+    GlassSurface(modifier.fillMaxWidth(), shape = MaterialTheme.shapes.large, color = container) {
         Row(Modifier.fillMaxWidth().padding(6.dp).height(IntrinsicSize.Min).selectableGroup()
-            .liquidSelectionHost(selection, colors.primaryContainer.copy(alpha = .65f), 26.dp),
+            .liquidSelectionHost(selection, colors.primaryContainer.copy(alpha = .65f), 26.dp, tone = pillGlassTone()),
             horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             options.forEachIndexed { index, (label, icon) ->
                 val tint = lerp(colors.onSurfaceVariant, colors.primary, selection.coverage(index))

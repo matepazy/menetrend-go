@@ -83,7 +83,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
                 PageTitle("Frissítési csatorna")
                 val channels = listOf("release" to "Stabil", "pre-release" to "Béta")
                 val pill = rememberLiquidSelection(channels.indexOfFirst { it.first == choice }, vertical = true)
-                Column(Modifier.selectableGroup().liquidSelectionHost(pill, MaterialTheme.colorScheme.primaryContainer.copy(alpha = .65f), 24.dp)) {
+                Column(Modifier.selectableGroup().liquidSelectionHost(pill, MaterialTheme.colorScheme.primaryContainer.copy(alpha = .65f), 24.dp, tone = pillGlassTone())) {
                     channels.forEachIndexed { index, (value, label) ->
                         Row(Modifier.fillMaxWidth().liquidOption(pill, index).clip(RoundedCornerShape(24.dp)).selectable(choice == value, interactionSource = null, indication = null, enabled = channelEnabled, role = Role.RadioButton, onClick = {
                             if (value == "pre-release" && updates.channel != value) {

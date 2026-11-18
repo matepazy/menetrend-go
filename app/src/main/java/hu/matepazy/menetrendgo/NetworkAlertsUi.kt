@@ -136,7 +136,7 @@ private fun NetworkAlertCard(item: NetworkAlert, today: LocalDate, open: Boolean
     val fullTitle = remember(alert.title, colors.primary) { alertMarkup(alert.title, links) }
     val chevron by animateFloatAsState(if (open) 180f else 0f, tween(AppMotion.Feedback), label = "Alert expand")
     val meta = listOfNotNull(item.operatorName, item.effectLabel).joinToString(" · ")
-    Surface(shape = cardShape, color = colors.surface, modifier = Modifier.fillMaxWidth()) {
+    GlassSurface(shape = cardShape, modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.clickable(role = Role.Button, onClickLabel = if (open) "Közlemény összecsukása" else "Közlemény kibontása", onClick = toggle)
             .animateContentSize(tween(AppMotion.Reveal, easing = AppMotion.State)).padding(AppLayout.PanelPadding),
             verticalArrangement = Arrangement.spacedBy(AppLayout.RelatedGap)) {

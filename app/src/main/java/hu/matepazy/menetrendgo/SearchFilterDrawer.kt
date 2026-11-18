@@ -107,7 +107,7 @@ import androidx.compose.ui.unit.dp
                 Text(if (count == 0) "Több feltételt is választhatsz." else "$count feltétel kiválasztva",
                     style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 val enabledVehicles = SearchVehicle.entries.filter { vehicles.isEmpty() || it in vehicles }
-                Surface(onClick = { vehiclesOpen = true }, shape = RoundedCornerShape(24.dp),
+                GlassSurface(onClick = { vehiclesOpen = true }, shape = RoundedCornerShape(24.dp),
                     color = MaterialTheme.colorScheme.surface,
                     modifier = Modifier.fillMaxWidth().padding(top = 12.dp).semantics {
                         stateDescription = "Kiválasztott járműtípusok: ${enabledVehicles.joinToString { it.title }}"
