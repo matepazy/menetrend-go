@@ -305,7 +305,8 @@ private enum class Cast(val vehicle: FooterVehicle, val honk: String) {
             drawText(label, topLeft = Offset(x(bx) - label.size.width / 2f, y(160.5f) - label.size.height / 2f))
         }
 
-        fun vehicle(c: Cast, front: Float, contact: Float, height: Float) {
+        // A parked train stands still: its running bob is ~1 px at this size and reads as a twitch.
+        fun vehicle(c: Cast, front: Float, contact: Float, height: Float, parked: Boolean = false) {
             val v = c.vehicle
             val h = height * s
             val w = h * v.aspect
@@ -321,14 +322,14 @@ private enum class Cast(val vehicle: FooterVehicle, val honk: String) {
                     val p = .5f - .5f * cos(PI.toFloat() * clock / v.period)
                     rotate(-.25f + .45f * p - hop(c) * 2f, Offset(v.rockX * unit, 108f * unit))
                     translate(0f, -v.bob * unit * p)
-                } else translate(0f, -v.bob * unit * (.5f - .5f * cos(2f * PI.toFloat() * clock / v.period)))
+                } else if (!parked) translate(0f, -v.bob * unit * (.5f - .5f * cos(2f * PI.toFloat() * clock / v.period)))
             }) {
                 drawImage(art.getValue(c), dstSize = IntSize(w.roundToInt(), h.roundToInt()), filterQuality = FilterQuality.High)
                 if (motion) v.puffs.forEach { exhaust(it, unit, clock) }
             }
         }
 
-        vehicle(Cast.Szili, BudapestCentre + 70f, BackTrack, 21f)
+        vehicle(Cast.Szili, BudapestCentre + 70f, BackTrack, 21f, parked = true)
         val train = cam + trainLead.value
         val moving = motion && (abs(camera.velocity) > 20f || trainLead.isRunning)
         if (moving) speedLines(scheme.outline, TrainHeight * s, y(FrontTrack), x(train) - TrainHeight * s * FooterVehicle.Flirt.aspect, clock)
