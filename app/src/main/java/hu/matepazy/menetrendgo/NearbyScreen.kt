@@ -58,11 +58,11 @@ import kotlinx.coroutines.withContext
         sheetContent={_ -> selectedVehicle?.let {selected ->
             val live=vm.vehicles.firstOrNull {it.id==selected.id} ?: selected
             MapVehicleSheetContent(vm,live) {selectedVehicle=null}
-        }}) {sheetHeight -> TransportMapContent(vm,journey,focusedId,routeOnly,back,sheetHeight)}
+        }}) {sheetHeight,liveSheetHeight -> TransportMapContent(vm,journey,focusedId,routeOnly,back,sheetHeight,liveSheetHeight)}
 }
 
 @OptIn(ExperimentalLayoutApi::class)
-@Composable private fun TransportMapContent(vm: AppState, journey: Journey?, focusedId: String?, routeOnly: Boolean, back: () -> Unit, sheetHeight: androidx.compose.ui.unit.Dp) {
+@Composable private fun TransportMapContent(vm: AppState, journey: Journey?, focusedId: String?, routeOnly: Boolean, back: () -> Unit, sheetHeight: androidx.compose.ui.unit.Dp, liveSheetHeight: () -> androidx.compose.ui.unit.Dp) {
     val context=LocalContext.current
     val tracking by JourneyTracking.state.collectAsStateWithLifecycle()
     // While the vehicle sheet rests, map attribution, status and camera fits keep clear of it.
@@ -237,6 +237,11 @@ import kotlinx.coroutines.withContext
         if(ready) mapSurface?.call("setMapType",vm.effectiveMapType.id,vm.customMapUrl)
     }
     LaunchedEffect(ready,bottomInset) {if(ready) mapSurface?.call("setBottomInset",bottomInset)}
+    // The attribution logo rides on the sheet's edge during a drag; padding follows only the settled rest.
+    val overlayInset=LocalBottomOverlayInset.current
+    LaunchedEffect(ready,overlayInset,liveSheetHeight) {
+        if(ready) snapshotFlow {maxOf(overlayInset,liveSheetHeight()).value}.collect {mapSurface?.call("setLiveBottomInset",it)}
+    }
     LaunchedEffect(ready,topInset) {
         if(ready) mapSurface?.call("setTopInset",topInset.value)
     }

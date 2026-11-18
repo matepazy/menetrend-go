@@ -54,7 +54,9 @@ val LocalMapSheetSummaryHeight = staticCompositionLocalOf<((Int) -> Unit)?> { nu
  * and hidden. The map above stays interactive; only the way to full height dims it. Drags follow
  * the finger, flings move one rest in their direction, and a spring carries the release velocity.
  * Material's sheet has a single partial rest, so this is built on [AnchoredDraggableState].
- * [content] receives the settled visible height, so map overlays and camera fits keep clear of the sheet.
+ * [content] receives the settled visible height, so map overlays and camera fits keep clear of the sheet,
+ * and a reader of the live visible height for overlays that follow a drag
+ * frame by frame. Read it inside a snapshot flow or layout block, not in composition.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -63,7 +65,7 @@ fun MapSheetScaffold(
     onDismissRequest: () -> Unit,
     restingFraction: Float,
     sheetContent: @Composable ColumnScope.(expanded: Boolean) -> Unit,
-    content: @Composable (restingHeight: Dp) -> Unit,
+    content: @Composable (restingHeight: Dp, liveHeight: () -> Dp) -> Unit,
 ) {
     // A selection that survives recreation rests at once instead of animating from hidden.
     val state = remember { AnchoredDraggableState(if (open) MapSheetValue.Half else MapSheetValue.Hidden) }
@@ -153,7 +155,11 @@ fun MapSheetScaffold(
             state.settledValue == MapSheetValue.Hidden -> if (shown) 0.dp else halfHeight
             else -> halfHeight
         }
-        content(settledHeight)
+        val liveHeight = remember(layoutPx, density) { {
+            val offset = state.offset.takeUnless { it.isNaN() } ?: layoutPx
+            with(density) { (layoutPx - offset).coerceAtLeast(0f).toDp() }
+        } }
+        content(settledHeight, liveHeight)
         if (open && progress > 0f) Box(Modifier.fillMaxSize().graphicsLayer { alpha = progress }
             .background(BottomSheetDefaults.ScrimColor).clickable(
                 interactionSource = remember { MutableInteractionSource() }, indication = null,

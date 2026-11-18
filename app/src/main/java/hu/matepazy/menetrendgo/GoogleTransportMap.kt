@@ -155,6 +155,8 @@ private class GoogleMapSurface(
     private var motionEnabled=true
     private var top=0
     private var bottom=0
+    private var liveBottom=-1
+    private var watermark:android.view.View?=null
     private var location:Marker?=null
     private var routeKey=""
     private val routes=mutableListOf<Polyline>()
@@ -228,6 +230,7 @@ private class GoogleMapSurface(
                 drawStops()
             }
             "setBottomInset"->{bottom=((args[0] as Number).toFloat()*density).toInt();padding()}
+            "setLiveBottomInset"->{liveBottom=((args[0] as Number).toFloat()*density).toInt();followSheet()}
             "setTopInset"->{top=((args[0] as Number).toFloat()*density).toInt();padding()}
             "setRouteMode"->routeMode=args[0] as Boolean
             "setVehicleMotionEnabled"->{motionEnabled=args[0] as Boolean;if(!motionEnabled)finishMotion()}
@@ -272,8 +275,21 @@ private class GoogleMapSurface(
         val left=((AppLayout.PageGutter.value-5)*density).roundToInt()
         // The overlay includes a 6dp top margin, and the SDK adds its own 6dp below the logo.
         // Subtract 4dp to leave an 8dp visible gap above the bar, following its measured height.
-        val logoBottom=if(bottom>0) (bottom-4*density).roundToInt().coerceAtLeast(0) else (12*density).roundToInt()
-        map.setPadding(left,top+(12*density).toInt(),(12*density).toInt(),logoBottom)
+        map.setPadding(left,top+(12*density).toInt(),(12*density).toInt(),logoBottom(bottom))
+        followSheet()
+    }
+    private fun logoBottom(inset:Int)=if(inset>0) (inset-4*density).roundToInt().coerceAtLeast(0) else (12*density).roundToInt()
+    // Padding moves the camera, so it changes only at rest; mid-drag the Google logo is shifted to
+    // the sheet's live edge instead, staying visible beside it rather than hiding and reappearing.
+    private fun followSheet() {
+        val logo=watermark ?: view.findViewWithTag<android.view.View>("GoogleWatermark")?.also {found->
+            // The SDK lays the logo out inside a container padded like the map, which clips anything
+            // moved below the padded area; let the logo draw there while it follows the sheet down.
+            var parent=found.parent as? android.view.ViewGroup
+            while(parent!=null && parent!==view) {parent.clipToPadding=false;parent.clipChildren=false;parent=parent.parent as? android.view.ViewGroup}
+            watermark=found
+        } ?: return
+        logo.translationY=if(liveBottom<0) 0f else (logoBottom(bottom)-logoBottom(liveBottom)).toFloat()
     }
     private fun JSONObject.point()=LatLng(getDouble("lat"),getDouble("lon"))
     private fun color(item:JSONObject)=runCatching {Color.parseColor("#"+item.optString("color").removePrefix("#"))}.getOrDefault(Color.rgb(40,100,217))

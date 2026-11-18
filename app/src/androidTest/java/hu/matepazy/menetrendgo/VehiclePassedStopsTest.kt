@@ -38,7 +38,7 @@ class VehiclePassedStopsTest {
                 MapSheetScaffold(open = true, onDismissRequest = {}, restingFraction = .5f, sheetContent = {
                     VehicleDrawerContent(Vehicle("trip", "47", "Deák Ferenc tér", "TRAM", 47.5, 19.0),
                         detail, java.time.LocalDate.now(Budapest).toString(), now, null, {}, {})
-                }) { Box(Modifier.fillMaxSize()) }
+                }) { _, _ -> Box(Modifier.fillMaxSize()) }
             }
         }
         val close = compose.onNodeWithContentDescription("Jármű részleteinek bezárása")
