@@ -337,29 +337,9 @@ private fun featherMask(top: Boolean, endY: Float=Float.POSITIVE_INFINITY)=
                         enter=slideInVertically(tween(AppMotion.Reveal,easing=AppMotion.Arrival)) {it}+fadeIn(tween(AppMotion.Reveal)),
                         exit=slideOutVertically(tween(AppMotion.Dismiss)) {it}+fadeOut(tween(AppMotion.Dismiss))) {
                     Surface(Modifier.navigationBarsPadding().padding(horizontal=AppLayout.PageGutter,vertical=6.dp),shape=MaterialTheme.shapes.large,color=MaterialTheme.colorScheme.surface) {
-                        Row(Modifier.fillMaxWidth().padding(6.dp),horizontalArrangement=Arrangement.spacedBy(4.dp)) {
-                            destinations.forEach { (index,label) ->
-                                val active=tab==index
-                                val tint by animateColorAsState(
-                                    if(active) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
-                                    tween(AppMotion.Feedback),label="Navigation content")
-                                val selection by animateColorAsState(
-                                    MaterialTheme.colorScheme.primaryContainer.copy(alpha=if(active) .65f else 0f),
-                                    tween(AppMotion.Feedback),label="Navigation selection")
-                                val press=remember { MutableInteractionSource() }
-                                val pressed by press.collectIsPressedAsState()
-                                val scale by animateFloatAsState(if(pressed) .94f else 1f,spring(Spring.DampingRatioMediumBouncy,Spring.StiffnessMedium),label="Navigation press")
-                                Column(Modifier.weight(1f).graphicsLayer { scaleX=scale;scaleY=scale }.clip(RoundedCornerShape(26.dp))
-                                    .background(selection)
-                                    .selectable(selected=active,interactionSource=press,indication=null,role=Role.Tab,onClick={returning=false;tab=index;page="search";selected=null})
-                                    .padding(horizontal=2.dp,vertical=8.dp).heightIn(min=if(largeFont) 64.dp else 48.dp),
-                                    horizontalAlignment=Alignment.CenterHorizontally,verticalArrangement=Arrangement.Center) {
-                                    Icon(icons[index],null,Modifier.size(24.dp),tint=tint)
-                                    Spacer(Modifier.height(5.dp))
-                                    Text(label,style=MaterialTheme.typography.labelMedium,textAlign=TextAlign.Center,maxLines=2,color=tint)
-                                }
-                            }
-                        }
+                        LiquidNavigationBar(destinations.map { (index,label) -> label to icons[index] },
+                            selected=destinations.indexOfFirst { it.first==tab },largeFont=largeFont,
+                            onSelect={ pos -> returning=false;tab=destinations[pos].first;page="search";selected=null })
                     }
                     }
                 } }
