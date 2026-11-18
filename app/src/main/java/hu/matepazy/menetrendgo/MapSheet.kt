@@ -80,10 +80,13 @@ fun MapSheetScaffold(
     val motion = remember { spring<Float>(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessMediumLow) }
 
     // Springs from the current offset with the gesture's velocity, retargeting if anchors move.
+    // Heading to hidden releases the selection at once: the screen behind returns to its normal
+    // mode while the sheet slides away, instead of after the spring's long tail has settled.
     suspend fun animateTo(target: MapSheetValue, velocity: Float = 0f) {
         if (!state.anchors.hasPositionFor(target)) return
         var startVelocity = velocity
         state.anchoredDrag(target) { anchors, latest ->
+            if (latest == MapSheetValue.Hidden && isOpen) dismiss()
             val from = state.offset.takeUnless { it.isNaN() } ?: anchors.positionOf(latest)
             animate(from, anchors.positionOf(latest), startVelocity, motion) { value, v -> dragTo(value, v); startVelocity = v }
         }
@@ -106,7 +109,11 @@ fun MapSheetScaffold(
         animateTo(target, velocity)
     }
 
-    LaunchedEffect(open) { animateTo(if (open) MapSheetValue.Half else MapSheetValue.Hidden) }
+    LaunchedEffect(open) {
+        // A dismissal from the sheet itself is already sliding away with its gesture's velocity.
+        if (!open && state.targetValue == MapSheetValue.Hidden) return@LaunchedEffect
+        animateTo(if (open) MapSheetValue.Half else MapSheetValue.Hidden)
+    }
     LaunchedEffect(state) {
         // The sheet starts hidden; only reaching hidden after it was shown is a user dismissal.
         snapshotFlow { state.settledValue }.collect {
@@ -210,7 +217,8 @@ fun MapSheetScaffold(
                     dismiss("Bezárás") { scope.launch { animateTo(MapSheetValue.Hidden) }; true }
                 }, contentAlignment = Alignment.Center) { BottomSheetDefaults.DragHandle() }
                 val reportSummary = remember { { px: Int -> summaryPx = px } }
-                CompositionLocalProvider(LocalMapSheetSummaryHeight provides reportSummary) { sheetContent(expanded) }
+                // Content stays composed while the dismissed sheet slides away, then leaves.
+                if (open || shown) CompositionLocalProvider(LocalMapSheetSummaryHeight provides reportSummary) { sheetContent(expanded) }
             }
         }
     }

@@ -53,9 +53,12 @@ import kotlinx.coroutines.withContext
 @OptIn(ExperimentalLayoutApi::class)
 @Composable private fun TransportMap(vm: AppState, journey: Journey?, focusedId: String?, routeOnly: Boolean, back: () -> Unit={}) {
     var selectedVehicle by vm::mapVehicle
+    // The selection clears as soon as the sheet heads away; the last vehicle fills it until hidden.
+    var sheetVehicle by remember { mutableStateOf(selectedVehicle) }
+    LaunchedEffect(selectedVehicle) { selectedVehicle?.let { sheetVehicle=it } }
     // The vehicle sheet rests at half height over a live, pannable map.
     MapSheetScaffold(open=selectedVehicle!=null,onDismissRequest={selectedVehicle=null},restingFraction=.5f,
-        sheetContent={_ -> selectedVehicle?.let {selected ->
+        sheetContent={_ -> (selectedVehicle ?: sheetVehicle)?.let {selected ->
             val live=vm.vehicles.firstOrNull {it.id==selected.id} ?: selected
             MapVehicleSheetContent(vm,live) {selectedVehicle=null}
         }}) {sheetHeight,liveSheetHeight -> TransportMapContent(vm,journey,focusedId,routeOnly,back,sheetHeight,liveSheetHeight)}
