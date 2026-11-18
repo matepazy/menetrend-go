@@ -1,0 +1,441 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2280 269" width="2280" height="269">
+  <defs>
+    <!-- Fények és árnyékok -->
+    <filter id="glow-headlight" x="-70%" y="-70%" width="240%" height="240%">
+      <feGaussianBlur stdDeviation="4.5" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+    <filter id="glow-taillight" x="-70%" y="-70%" width="240%" height="240%">
+      <feGaussianBlur stdDeviation="4" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+
+    <!-- Sötétített Desiro ablaküveg és üvegcsillanás -->
+    <linearGradient id="desiro-glass" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#10141a" />
+      <stop offset="38%" stop-color="#222a36" />
+      <stop offset="85%" stop-color="#131820" />
+      <stop offset="100%" stop-color="#0a0d12" />
+    </linearGradient>
+    <linearGradient id="glass-reflection" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.16" />
+      <stop offset="40%" stop-color="#ffffff" stop-opacity="0.02" />
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0.08" />
+    </linearGradient>
+
+    <!-- MÁV vörös fényezés (valósághű, enyhén üzemeltetett tónus) -->
+    <linearGradient id="mav-red" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#c4261f" />
+      <stop offset="28%" stop-color="#db322a" />
+      <stop offset="82%" stop-color="#bd231c" />
+      <stop offset="100%" stop-color="#941914" />
+    </linearGradient>
+
+    <!-- Szürke tető és homlokív -->
+    <linearGradient id="desiro-roof-grey" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#616873" />
+      <stop offset="48%" stop-color="#7c8491" />
+      <stop offset="90%" stop-color="#585f69" />
+      <stop offset="100%" stop-color="#454a52" />
+    </linearGradient>
+
+    <!-- Alsó sötétszürke szoknya -->
+    <linearGradient id="desiro-skirt-grey" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#595f69" />
+      <stop offset="45%" stop-color="#454a52" />
+      <stop offset="100%" stop-color="#2b2e33" />
+    </linearGradient>
+
+    <!-- Fehér ajtó- és díszcsík gradiens -->
+    <linearGradient id="desiro-white" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f7f7f2" />
+      <stop offset="65%" stop-color="#ebebe4" />
+      <stop offset="100%" stop-color="#d4d4cc" />
+    </linearGradient>
+
+    <!-- Visszafogott üzemi patina (fékpor, alsó felverődés) -->
+    <linearGradient id="subtle-weathering" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#241c16" stop-opacity="0.18" />
+      <stop offset="22%" stop-color="#000000" stop-opacity="0" />
+      <stop offset="76%" stop-color="#2b231d" stop-opacity="0.06" />
+      <stop offset="100%" stop-color="#1a1410" stop-opacity="0.42" />
+    </linearGradient>
+
+    <!-- Utastéri ülés és kapaszkodó sablonok -->
+    <g id="seat-high">
+      <path d="M 0,24 L 3,5 L 13,5 L 16,24 L 16,38 L 0,38 Z" fill="#293545" opacity="0.62" />
+      <rect x="3" y="3" width="10" height="3.2" rx="1" fill="#4f637d" opacity="0.55" />
+    </g>
+    <g id="seat-low">
+      <path d="M 0,28 L 3,6 L 15,6 L 18,28 L 18,52 L 0,52 Z" fill="#293545" opacity="0.62" />
+      <rect x="3" y="4" width="12" height="3.5" rx="1" fill="#4f637d" opacity="0.55" />
+    </g>
+
+    <!-- Magaspadlós ablak sablon (88 x 58) -->
+    <g id="win-high-floor">
+      <rect x="0" y="0" width="88" height="58" rx="3" fill="url(#desiro-glass)" />
+      <use href="#seat-high" x="14" y="18" />
+      <use href="#seat-high" x="56" y="18" />
+      <!-- Felső bukóablak vízszintes osztóléce és zárja -->
+      <line x1="0" y1="18" x2="88" y2="18" stroke="#181c21" stroke-width="2.2" />
+      <line x1="0" y1="19.5" x2="88" y2="19.5" stroke="#454c54" stroke-width="0.9" />
+      <rect x="41" y="15.5" width="6" height="2.2" rx="0.5" fill="#9ea5ad" opacity="0.7" />
+      <rect x="0" y="0" width="88" height="58" rx="3" fill="url(#glass-reflection)" />
+    </g>
+
+    <!-- Alacsonypadlós panorámaablak sablon (110 x 88) -->
+    <g id="win-low-floor">
+      <rect x="0" y="0" width="110" height="88" rx="3" fill="url(#desiro-glass)" />
+      <use href="#seat-low" x="16" y="34" />
+      <use href="#seat-low" x="52" y="34" />
+      <use href="#seat-low" x="84" y="34" />
+      <!-- Sárga függőleges kapaszkodóoszlop -->
+      <line x1="46" y1="2" x2="46" y2="86" stroke="#d4b22a" stroke-width="1.8" opacity="0.45" />
+      <!-- Felső bukóablak osztóléc -->
+      <line x1="0" y1="20" x2="110" y2="20" stroke="#181c21" stroke-width="2.2" />
+      <line x1="0" y1="21.5" x2="110" y2="21.5" stroke="#454c54" stroke-width="0.9" />
+      <rect x="52" y="17.5" width="6" height="2.2" rx="0.5" fill="#9ea5ad" opacity="0.7" />
+      <rect x="0" y="0" width="110" height="88" rx="3" fill="url(#glass-reflection)" />
+    </g>
+
+    <!-- Kétszárnyú fehér alacsonypadlós lengő-toló utasajtó (84 x 148) -->
+    <g id="desiro-door">
+      <!-- Fekete gumitömítéses keret -->
+      <rect x="0" y="0" width="84" height="148" rx="3" fill="#141619" />
+      <!-- Bal ajtószárny -->
+      <rect x="3" y="3" width="37" height="142" rx="2" fill="url(#desiro-white)" stroke="#9ea3a8" stroke-width="0.9" />
+      <rect x="7" y="9" width="29" height="90" rx="3.5" fill="url(#desiro-glass)" stroke="#1b1e22" stroke-width="2" />
+      <line x1="21" y1="11" x2="21" y2="97" stroke="#d4b22a" stroke-width="1.6" opacity="0.4" />
+      <rect x="7" y="9" width="29" height="90" rx="3.5" fill="url(#glass-reflection)" />
+      <!-- Jobb ajtószárny -->
+      <rect x="44" y="3" width="37" height="142" rx="2" fill="url(#desiro-white)" stroke="#9ea3a8" stroke-width="0.9" />
+      <rect x="48" y="9" width="29" height="90" rx="3.5" fill="url(#desiro-glass)" stroke="#1b1e22" stroke-width="2" />
+      <line x1="62" y1="11" x2="62" y2="97" stroke="#d4b22a" stroke-width="1.6" opacity="0.4" />
+      <rect x="48" y="9" width="29" height="90" rx="3.5" fill="url(#glass-reflection)" />
+      <!-- Középső gumiprofil, vésznyitó kar és zöld ajtónyitó gombok -->
+      <line x1="42" y1="2" x2="42" y2="146" stroke="#0d0e10" stroke-width="2.5" />
+      <circle cx="34" cy="108" r="2.3" fill="#2ea85f" stroke="#181a1c" stroke-width="0.7" />
+      <circle cx="50" cy="108" r="2.3" fill="#2ea85f" stroke="#181a1c" stroke-width="0.7" />
+      <rect x="12" y="106" width="5" height="3" rx="0.6" fill="#c92b24" />
+      <rect x="67" y="106" width="5" height="3" rx="0.6" fill="#c92b24" />
+      <!-- Kihúzható lépcső a küszöb alatt -->
+      <rect x="3" y="146" width="78" height="5.5" rx="1" fill="#26292e" stroke="#111214" stroke-width="0.8" />
+      <line x1="5" y1="148.5" x2="79" y2="148.5" stroke="#e3b829" stroke-width="1.1" opacity="0.8" />
+    </g>
+
+    <!-- Kerék sablonok (end wheel r=18, jacobs wheel r=17) -->
+    <g id="wheel-end">
+      <circle cx="0" cy="0" r="18" fill="#191c1f" stroke="#0a0b0d" stroke-width="1.8" />
+      <circle cx="0" cy="0" r="15.2" fill="none" stroke="#6c737c" stroke-width="1.2" />
+      <circle cx="0" cy="0" r="12" fill="#3a3f46" />
+      <circle cx="0" cy="0" r="8.2" fill="#525861" stroke="#222529" stroke-width="1" />
+      <g fill="#1c1f22">
+        <circle cx="-5.5" cy="0" r="1.1" /><circle cx="5.5" cy="0" r="1.1" />
+        <circle cx="0" cy="-5.5" r="1.1" /><circle cx="0" cy="5.5" r="1.1" />
+        <circle cx="-3.9" cy="-3.9" r="1" /><circle cx="3.9" cy="3.9" r="1" />
+        <circle cx="-3.9" cy="3.9" r="1" /><circle cx="3.9" cy="-3.9" r="1" />
+      </g>
+      <circle cx="0" cy="0" r="3.6" fill="#202326" />
+    </g>
+
+    <g id="wheel-jacobs">
+      <circle cx="0" cy="0" r="17" fill="#191c1f" stroke="#0a0b0d" stroke-width="1.8" />
+      <circle cx="0" cy="0" r="14.2" fill="none" stroke="#6c737c" stroke-width="1.1" />
+      <circle cx="0" cy="0" r="11.2" fill="#3a3f46" />
+      <circle cx="0" cy="0" r="7.5" fill="#525861" stroke="#222529" stroke-width="0.9" />
+      <circle cx="0" cy="0" r="3.4" fill="#202326" />
+    </g>
+
+    <!-- Hajtott végforgóváz (Siemens SF 600, rail line y=+34) -->
+    <g id="end-bogie">
+      <use href="#wheel-end" x="-44" y="16" />
+      <use href="#wheel-end" x="44" y="16" />
+      <!-- Féktuskók -->
+      <rect x="-62" y="10" width="3.5" height="11" rx="0.8" fill="#232527" />
+      <rect x="-26" y="10" width="3.5" height="11" rx="0.8" fill="#232527" />
+      <rect x="22.5" y="10" width="3.5" height="11" rx="0.8" fill="#232527" />
+      <rect x="58.5" y="10" width="3.5" height="11" rx="0.8" fill="#232527" />
+      <!-- Forgóvázkeret -->
+      <path d="M -68,1 L 68,1 L 60,15 L -60,15 Z" fill="#2c3036" stroke="#141619" stroke-width="1.4" />
+      <rect x="-62" y="3" width="124" height="4" rx="1" fill="#474d56" />
+      <!-- Szekunder légrugó és primer rugófészkek -->
+      <rect x="-17" y="-2" width="34" height="9" rx="3" fill="#1a1c1f" stroke="#525861" stroke-width="1" />
+      <rect x="-52" y="5" width="13" height="11" rx="2" fill="#3a3f46" stroke="#181a1c" stroke-width="1" />
+      <rect x="39" y="5" width="13" height="11" rx="2" fill="#3a3f46" stroke="#181a1c" stroke-width="1" />
+      <!-- Ferde lengéscsillapítók és fékhenger -->
+      <line x1="-28" y1="14" x2="-15" y2="3" stroke="#858c94" stroke-width="2.2" />
+      <line x1="28" y1="14" x2="15" y2="3" stroke="#858c94" stroke-width="2.2" />
+      <circle cx="0" cy="11" r="5.5" fill="#23262b" stroke="#636972" stroke-width="1" />
+      <!-- Homokolócsövek -->
+      <line x1="-30" y1="12" x2="-27" y2="23" stroke="#1c1e21" stroke-width="1.6" />
+      <line x1="30" y1="12" x2="27" y2="23" stroke="#1c1e21" stroke-width="1.6" />
+    </g>
+
+    <!-- Középső Jacobs-forgóváz (rail line y=+34) -->
+    <g id="jacobs-bogie">
+      <use href="#wheel-jacobs" x="-42" y="17" />
+      <use href="#wheel-jacobs" x="42" y="17" />
+      <rect x="-59" y="11" width="3" height="10" rx="0.7" fill="#232527" />
+      <rect x="56" y="11" width="3" height="10" rx="0.7" fill="#232527" />
+      <path d="M -64,2 L 64,2 L 56,15 L -56,15 Z" fill="#2a2e33" stroke="#141618" stroke-width="1.4" />
+      <rect x="-18" y="-3" width="36" height="10" rx="3" fill="#181a1c" stroke="#525861" stroke-width="1" />
+      <rect x="-49" y="5" width="12" height="10" rx="2" fill="#383c42" />
+      <rect x="37" y="5" width="12" height="10" rx="2" fill="#383c42" />
+      <line x1="-26" y1="14" x2="-15" y2="3" stroke="#7c848c" stroke-width="2" />
+      <line x1="26" y1="14" x2="15" y2="3" stroke="#7c848c" stroke-width="2" />
+    </g>
+
+    <!-- Scharfenberg automata központi ütköző-vonókészülék -->
+    <g id="scharfenberg-left">
+      <rect x="-26" y="-6.5" width="26" height="13" rx="1.5" fill="#26292e" stroke="#111214" stroke-width="1.2" />
+      <path d="M -26,-9.5 L -35,-6.5 L -35,6.5 L -26,9.5 Z" fill="#1a1c1f" stroke="#0d0e10" stroke-width="1" />
+      <circle cx="-30.5" cy="-3" r="1.6" fill="#68707a" />
+      <circle cx="-30.5" cy="3" r="1.6" fill="#68707a" />
+      <rect x="-24" y="6.5" width="18" height="6.5" rx="1" fill="#363a42" />
+    </g>
+    <g id="scharfenberg-right">
+      <rect x="0" y="-6.5" width="26" height="13" rx="1.5" fill="#26292e" stroke="#111214" stroke-width="1.2" />
+      <path d="M 26,-9.5 L 35,-6.5 L 35,6.5 L 26,9.5 Z" fill="#1a1c1f" stroke="#0d0e10" stroke-width="1" />
+      <circle cx="30.5" cy="-3" r="1.6" fill="#68707a" />
+      <circle cx="30.5" cy="3" r="1.6" fill="#68707a" />
+      <rect x="6" y="6.5" width="18" height="6.5" rx="1" fill="#363a42" />
+    </g>
+
+    <!-- MÁV fehér szárnyaskerék embléma -->
+    <g id="mav-winged-wheel">
+      <circle cx="0" cy="0" r="10.5" fill="none" stroke="#f5f5f0" stroke-width="2.4" />
+      <circle cx="0" cy="0" r="3" fill="#f5f5f0" />
+      <path d="M -22,-5 L -10,-5 L -12,-1 L -20,-1 Z" fill="#f5f5f0" />
+      <path d="M -19,1 L -10,1 L -11,4.5 L -17,4.5 Z" fill="#f5f5f0" />
+      <path d="M 22,-5 L 10,-5 L 12,-1 L 20,-1 Z" fill="#f5f5f0" />
+      <path d="M 19,1 L 10,1 L 11,4.5 L 17,4.5 Z" fill="#f5f5f0" />
+    </g>
+  </defs>
+
+  <!-- ===================================================================== -->
+  <!-- KÖZÉPSŐ HARMONIKA CSUKLÓ ÉS JACOBS-FORGÓVÁZ (x=1140, rail y=268)      -->
+  <!-- ===================================================================== -->
+  <g id="center-articulation" transform="translate(1102, 58)">
+    <!-- Középső Jacobs-forgóváz (local rail y=210) -->
+    <use href="#jacobs-bogie" x="38" y="176" />
+    <!-- Sötétszürke harmonika csukló -->
+    <rect x="0" y="6" width="76" height="176" rx="3" fill="#17191c" stroke="#0b0c0d" stroke-width="1.5" />
+    <g fill="#2b2f36" stroke="#0d0e10" stroke-width="1.2">
+      <rect x="8" y="7" width="11" height="174" rx="2" />
+      <rect x="24" y="7" width="11" height="174" rx="2" />
+      <rect x="41" y="7" width="11" height="174" rx="2" />
+      <rect x="57" y="7" width="11" height="174" rx="2" />
+    </g>
+    <!-- Harmonika alatti szoknya-átmenet -->
+    <rect x="4" y="176" width="68" height="11" rx="1" fill="#2c3036" />
+  </g>
+
+  <!-- ===================================================================== -->
+  <!-- 1. TAG (BAL OLDAL - HÁTSÓ EGYSÉG): H-MÁVTR 95 55 6342 004-6           -->
+  <!-- ===================================================================== -->
+  <g id="unit-a" transform="translate(62, 58)">
+    <!-- Tetőberendezések: hűtő/klímapodok, kipufogócsonk és antennák -->
+    <rect x="175" y="-11" width="195" height="13" rx="3" fill="#636a75" stroke="#363a42" stroke-width="1.2" />
+    <line x1="185" y1="-6" x2="360" y2="-6" stroke="#3d424a" stroke-width="1.4" />
+    <!-- Kipufogó-kémény és enyhe koromnyom körülötte -->
+    <rect x="392" y="-15" width="13" height="16" rx="2" fill="#26292e" />
+    <ellipse cx="402" cy="-2" rx="36" ry="5" fill="#181a1c" opacity="0.38" />
+    <!-- Második tetőklíma az alacsonypadlós rész felett -->
+    <rect x="640" y="-11" width="210" height="13" rx="3" fill="#636a75" stroke="#363a42" stroke-width="1.2" />
+    <line x1="650" y1="-6" x2="840" y2="-6" stroke="#3d424a" stroke-width="1.4" />
+    <line x1="145" y1="0" x2="145" y2="-13" stroke="#2c3034" stroke-width="1.3" />
+
+    <!-- Hátsó hajtott forgóváz (local rail y=210) -->
+    <use href="#end-bogie" x="195" y="176" />
+
+    <!-- Hátsó Scharfenberg kapcsolókészülék (balra, local y=166) -->
+    <use href="#scharfenberg-left" x="2" y="166" />
+
+    <!-- Fő kocsiszekrény kontúr (áramvonalas Desiro homlokívvel) -->
+    <path d="M 135,0
+             L 1034,0
+             Q 1040,0 1040,6
+             L 1040,185
+             L 14,185
+             C 3,185 -3,176 -3,162
+             C -3,122 18,48 56,16
+             C 78,2 106,0 135,0 Z" fill="url(#mav-red)" stroke="#6e1612" stroke-width="1.2" />
+
+    <!-- Szürke tetőív, amely elöl ívesen lehajlik a homlokszélvédő felső pereméig! -->
+    <path d="M 135,0
+             L 1034,0
+             Q 1040,0 1040,6
+             L 1040,14
+             L 112,14
+             C 86,14 62,25 43,48
+             L 28,48
+             C 52,16 90,0 135,0 Z" fill="url(#desiro-roof-grey)" />
+
+    <!-- Fehér díszcsík (ajtó előtt és után megszakítva) -->
+    <path d="M 0,146 L 434,146 L 434,160 L -2,160 Z" fill="url(#desiro-white)" />
+    <rect x="518" y="146" width="522" height="14" fill="url(#desiro-white)" />
+
+    <!-- Alsó sötétszürke szoknya -->
+    <path d="M -2,160 L 1040,160 L 1040,185 L 14,185 C 4,185 -1,177 -2,166 Z" fill="url(#desiro-skirt-grey)" />
+
+    <!-- Kerékív kivágások a szürke szoknyán -->
+    <path d="M 122,185 C 128,159 262,159 268,185 Z" fill="#17191c" />
+    <path d="M 118,185 C 125,156 265,156 272,185" fill="none" stroke="#2b2e33" stroke-width="3" />
+    <path d="M 968,185 C 974,161 1040,161 1040,185 Z" fill="#17191c" />
+
+    <!-- Visszafogott üzemi patina -->
+    <path d="M 135,0 L 1040,0 L 1040,185 L 14,185 C 3,185 -3,176 -3,162 C -3,122 18,48 56,16 C 78,2 106,0 135,0 Z" fill="url(#subtle-weathering)" />
+
+    <!-- Vezetőállás homlokszélvédő és oldalablak -->
+    <!-- Ferde homlokszélvédő profil -->
+    <path d="M 52,20 C 31,44 15,82 9,114 L 27,114 C 33,82 47,46 66,20 Z" fill="url(#desiro-glass)" stroke="#141619" stroke-width="2" />
+    <line x1="18" y1="111" x2="40" y2="62" stroke="#181a1c" stroke-width="2.2" />
+    <!-- Vezetőfülke oldalablak + visszapillantó tükör -->
+    <path d="M 74,22 L 124,22 L 124,86 L 42,86 C 50,60 62,38 74,22 Z" fill="url(#desiro-glass)" stroke="#141619" stroke-width="2.5" />
+    <line x1="94" y1="22" x2="94" y2="86" stroke="#1c1f24" stroke-width="2" />
+    <rect x="37" y="32" width="6" height="22" rx="1.5" fill="#17191c" />
+
+    <!-- MAGASPADLÓS ABLAK-ÖV (3 rövidebb ablak a fülke és az ajtó között, y=20..86) -->
+    <rect x="132" y="20" width="292" height="66" rx="4" fill="#141619" />
+    <use href="#win-high-floor" x="136" y="24" />
+    <use href="#win-high-floor" x="232" y="24" />
+    <use href="#win-high-floor" x="328" y="24" />
+    <!-- 2. osztályú jelzés a 3. ablak melletti sötét oszlopon (referenciakép szerint!) -->
+    <text x="420" y="37" text-anchor="middle" fill="#f2f2ed" font-family="Arial, sans-serif" font-size="11" font-weight="bold">2</text>
+
+    <!-- KÉTSZÁRNYÚ FEHÉR UTASAJTÓ (x=434..518) -->
+    <use href="#desiro-door" x="434" y="34" />
+
+    <!-- ALACSONYPADLÓS PANORÁMAABLAK-ÖV (4 magas ablak az ajtó és a csukló között, y=20..116) -->
+    <rect x="530" y="20" width="486" height="96" rx="4" fill="#141619" />
+    <use href="#win-low-floor" x="535" y="24" />
+    <use href="#win-low-floor" x="653" y="24" />
+    <use href="#win-low-floor" x="771" y="24" />
+    <use href="#win-low-floor" x="889" y="24" />
+    <!-- 2. osztályú jelzés a csukló előtti sötét oszlopon -->
+    <text x="1008" y="37" text-anchor="middle" fill="#f2f2ed" font-family="Arial, sans-serif" font-size="11" font-weight="bold">2</text>
+
+    <!-- MÁV FEHÉR SZÁRNYSKERÉK ÉS MŰSZAKI FELIRATOK -->
+    <use href="#mav-winged-wheel" x="276" y="116" />
+    <!-- Hűtőrács az alvázszoknyán a forgóváz és az ajtó között -->
+    <rect x="335" y="164" width="42" height="16" rx="1.5" fill="#2c3036" stroke="#181a1c" stroke-width="0.9" />
+    <line x1="338" y1="168" x2="374" y2="168" stroke="#595f69" stroke-width="1" />
+    <line x1="338" y1="172" x2="374" y2="172" stroke="#595f69" stroke-width="1" />
+    <line x1="338" y1="176" x2="374" y2="176" stroke="#595f69" stroke-width="1" />
+
+    <text x="535" y="175" fill="#e6e4dc" font-family="Arial, sans-serif" font-size="7.5" font-weight="bold">H-MÁVTR  95 55 6342 004-6</text>
+    <!-- Oldalsó sárga prizmák és emelési pontok -->
+    <rect x="295" y="167" width="12" height="4" rx="1" fill="#e3a81e" />
+    <rect x="760" y="167" width="12" height="4" rx="1" fill="#e3a81e" />
+
+    <!-- Világító vörös zárjelző fény a szerelvény végén (bal oldalon) -->
+    <circle cx="4" cy="132" r="4.5" fill="#ff2424" filter="url(#glow-taillight)" />
+    <circle cx="4" cy="132" r="2" fill="#ffd6d6" />
+  </g>
+
+  <!-- ===================================================================== -->
+  <!-- 2. TAG (JOBB OLDAL - ELSŐ EGYSÉG): 6342 504-5                         -->
+  <!-- ===================================================================== -->
+  <g id="unit-b" transform="translate(1178, 58)">
+    <!-- Tetőberendezések -->
+    <rect x="190" y="-11" width="210" height="13" rx="3" fill="#636a75" stroke="#363a42" stroke-width="1.2" />
+    <line x1="200" y1="-6" x2="390" y2="-6" stroke="#3d424a" stroke-width="1.4" />
+    <rect x="635" y="-15" width="13" height="16" rx="2" fill="#26292e" />
+    <ellipse cx="628" cy="-2" rx="36" ry="5" fill="#181a1c" opacity="0.38" />
+    <rect x="670" y="-11" width="195" height="13" rx="3" fill="#636a75" stroke="#363a42" stroke-width="1.2" />
+    <line x1="680" y1="-6" x2="855" y2="-6" stroke="#3d424a" stroke-width="1.4" />
+    <line x1="895" y1="0" x2="895" y2="-13" stroke="#2c3034" stroke-width="1.3" />
+
+    <!-- Első hajtott forgóváz (local rail y=210) -->
+    <use href="#end-bogie" x="845" y="176" />
+
+    <!-- Első Scharfenberg kapcsolókészülék (jobbra, local y=166) -->
+    <use href="#scharfenberg-right" x="1038" y="166" />
+
+    <!-- Fő kocsiszekrény kontúr -->
+    <path d="M 6,0
+             L 905,0
+             C 934,0 962,2 984,16
+             C 1022,48 1043,122 1043,162
+             C 1043,176 1037,185 1026,185
+             L 0,185
+             L 0,6
+             Q 0,0 6,0 Z" fill="url(#mav-red)" stroke="#6e1612" stroke-width="1.2" />
+
+    <!-- Szürke tetőív, amely elöl ívesen lehajlik a homlokszélvédő felső pereméig -->
+    <path d="M 6,0
+             L 905,0
+             C 950,0 988,16 1012,48
+             L 997,48
+             C 978,25 954,14 928,14
+             L 0,14
+             L 0,6
+             Q 0,0 6,0 Z" fill="url(#desiro-roof-grey)" />
+
+    <!-- Fehér díszcsík (ajtó előtt és után megszakítva) -->
+    <rect x="0" y="146" width="522" height="14" fill="url(#desiro-white)" />
+    <path d="M 606,146 L 1040,146 L 1042,160 L 606,160 Z" fill="url(#desiro-white)" />
+
+    <!-- Alsó sötétszürke szoknya -->
+    <path d="M 0,160 L 1042,160 C 1041,177 1036,185 1026,185 L 0,185 Z" fill="url(#desiro-skirt-grey)" />
+
+    <!-- Kerékív kivágások a szürke szoknyán -->
+    <path d="M 0,185 C 0,161 66,161 72,185 Z" fill="#17191c" />
+    <path d="M 772,185 C 778,159 912,159 918,185 Z" fill="#17191c" />
+    <path d="M 768,185 C 775,156 915,156 922,185" fill="none" stroke="#2b2e33" stroke-width="3" />
+
+    <!-- Visszafogott üzemi patina -->
+    <path d="M 6,0 L 905,0 C 934,0 962,2 984,16 C 1022,48 1043,122 1043,162 C 1043,176 1037,185 1026,185 L 0,185 L 0,6 Q 0,0 6,0 Z" fill="url(#subtle-weathering)" />
+
+    <!-- ALACSONYPADLÓS PANORÁMAABLAK-ÖV (4 magas ablak, y=20..116) -->
+    <rect x="24" y="20" width="486" height="96" rx="4" fill="#141619" />
+    <use href="#win-low-floor" x="41" y="24" />
+    <use href="#win-low-floor" x="159" y="24" />
+    <use href="#win-low-floor" x="277" y="24" />
+    <use href="#win-low-floor" x="395" y="24" />
+    <text x="32" y="37" text-anchor="middle" fill="#f2f2ed" font-family="Arial, sans-serif" font-size="11" font-weight="bold">2</text>
+
+    <!-- KÉTSZÁRNYÚ FEHÉR UTASAJTÓ (x=522..606) -->
+    <use href="#desiro-door" x="522" y="34" />
+
+    <!-- MAGASPADLÓS ABLAK-ÖV (3 rövidebb ablak, y=20..86) -->
+    <rect x="616" y="20" width="292" height="66" rx="4" fill="#141619" />
+    <use href="#win-high-floor" x="624" y="24" />
+    <use href="#win-high-floor" x="720" y="24" />
+    <use href="#win-high-floor" x="816" y="24" />
+    <text x="620" y="37" text-anchor="middle" fill="#f2f2ed" font-family="Arial, sans-serif" font-size="11" font-weight="bold">2</text>
+
+    <!-- Első vezetőállás oldalablak és homlokszélvédő -->
+    <path d="M 916,22 L 966,22 C 978,38 990,60 998,86 L 916,86 Z" fill="url(#desiro-glass)" stroke="#141619" stroke-width="2.5" />
+    <!-- Vezetőülés sziluettje -->
+    <rect x="926" y="54" width="12" height="28" rx="2" fill="#2c3847" opacity="0.7" />
+    <line x1="946" y1="22" x2="946" y2="86" stroke="#1c1f24" stroke-width="2" />
+    <rect x="997" y="32" width="6" height="22" rx="1.5" fill="#17191c" />
+
+    <!-- Ferde homlokszélvédő profil -->
+    <path d="M 988,20 C 1009,44 1025,82 1031,114 L 1013,114 C 1007,82 993,46 974,20 Z" fill="url(#desiro-glass)" stroke="#141619" stroke-width="2" />
+    <line x1="1022" y1="111" x2="1000" y2="62" stroke="#181a1c" stroke-width="2.2" />
+
+    <!-- MÁV FEHÉR SZÁRNYSKERÉK ÉS MŰSZAKI FELIRATOK -->
+    <use href="#mav-winged-wheel" x="764" y="116" />
+    <rect x="663" y="164" width="42" height="16" rx="1.5" fill="#2c3036" stroke="#181a1c" stroke-width="0.9" />
+    <line x1="666" y1="168" x2="702" y2="168" stroke="#595f69" stroke-width="1" />
+    <line x1="666" y1="172" x2="702" y2="172" stroke="#595f69" stroke-width="1" />
+    <line x1="666" y1="176" x2="702" y2="176" stroke="#595f69" stroke-width="1" />
+
+    <text x="415" y="175" fill="#e6e4dc" font-family="Arial, sans-serif" font-size="7.5" font-weight="bold">H-MÁVTR  95 55 6342 504-5</text>
+    <rect x="268" y="167" width="12" height="4" rx="1" fill="#e3a81e" />
+    <rect x="733" y="167" width="12" height="4" rx="1" fill="#e3a81e" />
+
+    <!-- Világító melegfehér homlokfényszórók elöl (jobb oldalon) -->
+    <circle cx="1036" cy="132" r="4.8" fill="#fffbe0" filter="url(#glow-headlight)" />
+    <circle cx="1036" cy="132" r="2.2" fill="#ffffff" />
+    <circle cx="991" cy="21" r="3.4" fill="#fff7c2" filter="url(#glow-headlight)" />
+  </g>
+</svg>

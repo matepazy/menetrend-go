@@ -1,0 +1,291 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 172" width="1160" height="172">
+  <defs>
+    <!-- Fények és árnyékok -->
+    <filter id="glow-headlight" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="4" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+    <filter id="glow-taillight" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="3.5" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+
+    <!-- Poros, matt ablaküveg -->
+    <linearGradient id="win-glass" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#242b33" />
+      <stop offset="42%" stop-color="#3b4452" />
+      <stop offset="85%" stop-color="#272f3a" />
+      <stop offset="100%" stop-color="#181d24" />
+    </linearGradient>
+
+    <!-- Fakult, lelakott piros-sárga Bzmot fényezések -->
+    <linearGradient id="bz-roof-classic" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#2c2e30" />
+      <stop offset="50%" stop-color="#42464a" />
+      <stop offset="100%" stop-color="#252729" />
+    </linearGradient>
+    <linearGradient id="bz-red" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#8a221c" />
+      <stop offset="35%" stop-color="#ad2b23" />
+      <stop offset="85%" stop-color="#941f18" />
+      <stop offset="100%" stop-color="#69120e" />
+    </linearGradient>
+    <linearGradient id="bz-yellow" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#c79728" />
+      <stop offset="50%" stop-color="#b0811c" />
+      <stop offset="100%" stop-color="#8c6210" />
+    </linearGradient>
+
+    <!-- Elhanyagolt kék-fehér-sárga (MÁV-START) fényezések -->
+    <linearGradient id="bz-roof-modern" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#4e545c" />
+      <stop offset="50%" stop-color="#676f7a" />
+      <stop offset="100%" stop-color="#3d434a" />
+    </linearGradient>
+    <linearGradient id="bz-blue-modern" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0e366b" />
+      <stop offset="45%" stop-color="#124487" />
+      <stop offset="90%" stop-color="#0d3363" />
+      <stop offset="100%" stop-color="#072042" />
+    </linearGradient>
+    <linearGradient id="bz-door-yellow" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#c99f1c" />
+      <stop offset="50%" stop-color="#ad8410" />
+      <stop offset="100%" stop-color="#8c680a" />
+    </linearGradient>
+
+    <!-- Erős, rozsdás, elhanyagolt patina -->
+    <linearGradient id="bz-heavy-grime" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#241913" stop-opacity="0.55" />
+      <stop offset="20%" stop-color="#422e21" stop-opacity="0.25" />
+      <stop offset="65%" stop-color="#000000" stop-opacity="0.1" />
+      <stop offset="85%" stop-color="#3d2a1d" stop-opacity="0.4" />
+      <stop offset="100%" stop-color="#1f140e" stop-opacity="0.75" />
+    </linearGradient>
+
+    <!-- Utastéri ablak belső részletekkel -->
+    <g id="bz-window">
+      <rect x="0" y="0" width="46" height="27" rx="4" fill="url(#win-glass)" stroke="#8c9299" stroke-width="1.5" />
+      <rect x="6" y="17" width="8" height="9" rx="1.5" fill="#1c222b" opacity="0.7" />
+      <rect x="32" y="17" width="8" height="9" rx="1.5" fill="#1c222b" opacity="0.7" />
+      <line x1="23" y1="1" x2="23" y2="26" stroke="#2c343d" stroke-width="1.1" opacity="0.6" />
+      <line x1="1" y1="9.5" x2="45" y2="9.5" stroke="#8c9299" stroke-width="1.4" />
+      <line x1="1" y1="10.8" x2="45" y2="10.8" stroke="#17191c" stroke-width="0.8" />
+      <line x1="6" y1="13" x2="15" y2="24" stroke="#ffffff" stroke-width="1" opacity="0.08" />
+    </g>
+
+    <!-- Rozsdás, kopott futómű -->
+    <g id="bz-axle">
+      <circle cx="0" cy="14" r="14.2" fill="#171a1c" stroke="#0a0b0d" stroke-width="1.6" />
+      <circle cx="0" cy="14" r="12.2" fill="none" stroke="#4a5056" stroke-width="1" />
+      <circle cx="0" cy="14" r="9.6" fill="#32373d" />
+      <g fill="#171a1c">
+        <circle cx="-6" cy="14" r="1.1" /><circle cx="6" cy="14" r="1.1" />
+        <circle cx="0" cy="8" r="1.1" /><circle cx="0" cy="20" r="1.1" />
+      </g>
+      <!-- Rozsdás fékpofák -->
+      <rect x="-16.5" y="9" width="3" height="9.5" rx="0.6" fill="#592b1a" />
+      <rect x="13.5" y="9" width="3" height="9.5" rx="0.6" fill="#592b1a" />
+      <line x1="-15" y1="18" x2="15" y2="18" stroke="#32363b" stroke-width="1.3" />
+      <!-- Koszos ágyvezeték -->
+      <path d="M -27,0 L 27,0 L 22,11 L -22,11 Z" fill="#25282b" stroke="#121417" stroke-width="0.9" />
+      <rect x="-23" y="1.5" width="46" height="2.2" fill="#3d4247" />
+      <line x1="-22" y1="12" x2="-15" y2="2" stroke="#523222" stroke-width="1.8" />
+      <!-- Rozsdás tekercsrugók -->
+      <g fill="#473125" stroke="#1a120e" stroke-width="0.7">
+        <rect x="-19" y="3" width="8.5" height="9.5" rx="1" />
+        <rect x="10.5" y="3" width="8.5" height="9.5" rx="1" />
+      </g>
+      <!-- Koszos csapágyház fedél rozsdapöttyökkel -->
+      <rect x="-7.5" y="6.5" width="15" height="12.5" rx="1.8" fill="#2b2e30" stroke="#121417" stroke-width="0.9" />
+      <circle cx="0" cy="14" r="4.2" fill="#42474a" stroke="#1c1e21" stroke-width="0.7" />
+      <circle cx="0" cy="14" r="1.7" fill="#6c737a" />
+    </g>
+
+    <g id="buffer-right">
+      <rect x="0" y="-3.2" width="10" height="6.4" fill="#2b2e30" />
+      <rect x="2" y="-4.2" width="3.5" height="8.4" fill="#1c1e21" />
+      <rect x="10" y="-6.5" width="3.2" height="13" rx="0.8" fill="#121417" />
+    </g>
+    <g id="buffer-left">
+      <rect x="-10" y="-3.2" width="10" height="6.4" fill="#2b2e30" />
+      <rect x="-5.5" y="-4.2" width="3.5" height="8.4" fill="#1c1e21" />
+      <rect x="-13.2" y="-6.5" width="3.2" height="13" rx="0.8" fill="#121417" />
+    </g>
+  </defs>
+
+  <!-- ===================================================================== -->
+  <!-- 2. JÁRMŰ (HÁTUL - BAL OLDAL): LELAKOTT KÉK-FEHÉR Bzx VAGON             -->
+  <!-- ===================================================================== -->
+  <g id="bzx-modern" transform="translate(26, 36)">
+    <!-- Szürke alváz szoknya olajfoltokkal -->
+    <rect x="0" y="96" width="536" height="11" rx="1" fill="#42474c" stroke="#1c1e21" stroke-width="1" />
+    <rect x="165" y="107" width="88" height="13" rx="1.5" fill="#32363b" stroke="#121417" stroke-width="0.8" />
+    <rect x="264" y="107" width="56" height="11" rx="1.5" fill="#292c2e" />
+    <rect x="330" y="107" width="42" height="8.5" rx="4" fill="#4a4f54" />
+    <!-- Olajcsík az alváz alatt -->
+    <ellipse cx="210" cy="120" rx="35" ry="3" fill="#120e0a" opacity="0.75" />
+
+    <use href="#bz-axle" x="115" y="107" />
+    <use href="#bz-axle" x="421" y="107" />
+
+    <use href="#buffer-left" x="0" y="102" />
+    <path d="M -5,105 Q -9,117 -2,119" fill="none" stroke="#121417" stroke-width="2" />
+
+    <!-- Rozsdásodó tető -->
+    <path d="M 2,14 Q 6,0 24,0 L 512,0 Q 530,0 534,14 Z" fill="url(#bz-roof-modern)" />
+    <path d="M 50,0 L 120,4 L 210,0 L 340,3 L 480,1" fill="#422c1d" opacity="0.6" /> <!-- Rozsdafoltok a tetőn -->
+    <rect x="145" y="-3" width="16" height="3" rx="1" fill="#2b2e30" />
+    <rect x="260" y="-3" width="16" height="3" rx="1" fill="#2b2e30" />
+    <rect x="375" y="-3" width="16" height="3" rx="1" fill="#2b2e30" />
+
+    <!-- Kocsiszekrény -->
+    <rect x="0" y="14" width="536" height="82" rx="2" fill="url(#bz-blue-modern)" />
+    <rect x="44" y="18" width="448" height="36" fill="#12151a" />
+    <rect x="0" y="84" width="536" height="12" fill="#c7c5be" />
+    <rect x="0" y="14" width="44" height="82" fill="#c7c5be" />
+    <rect x="492" y="14" width="44" height="82" fill="#c7c5be" />
+    <rect x="14" y="16" width="28" height="68" rx="1" fill="url(#bz-blue-modern)" />
+    <rect x="494" y="16" width="28" height="68" rx="1" fill="url(#bz-blue-modern)" />
+    <rect x="0" y="14" width="11" height="70" fill="#42474c" />
+    <rect x="525" y="14" width="11" height="70" fill="#42474c" />
+
+    <!-- Erős elhanyagolt patina (rozsdás foltok, lefolyások) -->
+    <rect x="0" y="14" width="536" height="82" fill="url(#bz-heavy-grime)" />
+    <path d="M 115,14 L 125,75 L 122,85" fill="none" stroke="#523222" stroke-width="4" opacity="0.7" /> <!-- Rozsdás lefolyás -->
+    <path d="M 385,14 L 375,80 L 378,90" fill="none" stroke="#523222" stroke-width="3.5" opacity="0.65" />
+
+    <rect x="18" y="21" width="20" height="28" rx="2.5" fill="url(#win-glass)" stroke="#8c9299" stroke-width="1.2" />
+    <rect x="498" y="21" width="20" height="28" rx="2.5" fill="url(#win-glass)" stroke="#8c9299" stroke-width="1.2" />
+
+    <!-- Kopott sárga ajtók -->
+    <g>
+      <rect x="46" y="19" width="38" height="77" rx="1.5" fill="url(#bz-door-yellow)" stroke="#69530a" stroke-width="1" />
+      <rect x="57" y="24" width="16" height="26" rx="2.5" fill="url(#win-glass)" stroke="#222" stroke-width="1" />
+      <rect x="50" y="62" width="4" height="8" rx="0.8" fill="#42474c" />
+      <rect x="48" y="96" width="34" height="6" fill="#1c1e21" />
+    </g>
+    <g>
+      <rect x="452" y="19" width="38" height="77" rx="1.5" fill="url(#bz-door-yellow)" stroke="#69530a" stroke-width="1" />
+      <rect x="463" y="24" width="16" height="26" rx="2.5" fill="url(#win-glass)" stroke="#222" stroke-width="1" />
+      <rect x="482" y="62" width="4" height="8" rx="0.8" fill="#42474c" />
+      <rect x="454" y="96" width="34" height="6" fill="#1c1e21" />
+    </g>
+
+    <use href="#bz-window" x="96" y="22" />
+    <use href="#bz-window" x="155" y="22" />
+    <use href="#bz-window" x="214" y="22" />
+    <use href="#bz-window" x="273" y="22" />
+    <use href="#bz-window" x="332" y="22" />
+    <use href="#bz-window" x="391" y="22" />
+
+    <rect x="19" y="53" width="18" height="26" rx="1" fill="none" stroke="#e0e0e0" stroke-width="1" />
+    <text x="28" y="64" text-anchor="middle" fill="#e0e0e0" font-family="Arial, sans-serif" font-size="10" font-weight="bold">2</text>
+    <rect x="499" y="53" width="18" height="26" rx="1" fill="none" stroke="#e0e0e0" stroke-width="1" />
+    <text x="508" y="64" text-anchor="middle" fill="#e0e0e0" font-family="Arial, sans-serif" font-size="10" font-weight="bold">2</text>
+
+    <circle cx="2" cy="78" r="3.6" fill="#ff2424" filter="url(#glow-taillight)" />
+  </g>
+
+  <!-- ===================================================================== -->
+  <!-- KAPCSOLÁS                                                             -->
+  <!-- ===================================================================== -->
+  <g id="bz-coupling" transform="translate(562, 138)">
+    <rect x="0" y="-3.2" width="9" height="6.4" fill="#2b2e30" />
+    <rect x="9" y="-6.5" width="2.8" height="13" rx="0.8" fill="#121417" />
+    <rect x="12" y="-6.5" width="2.8" height="13" rx="0.8" fill="#121417" />
+    <rect x="14.8" y="-3.2" width="9" height="6.4" fill="#2b2e30" />
+    <path d="M 1,1 L 7,1 L 9,2.8 L 15,2.8 L 17,1 L 23,1" fill="none" stroke="#121417" stroke-width="2" />
+    <rect x="9.5" y="1" width="5" height="3.5" rx="0.8" fill="#1c1e21" />
+    <path d="M 2,5 Q 12,17 22,5" fill="none" stroke="#0a0b0d" stroke-width="2" />
+    <path d="M 4,6 Q 12,21 20,6" fill="none" stroke="#1c1e21" stroke-width="1.3" />
+  </g>
+
+  <!-- ===================================================================== -->
+  <!-- 1. JÁRMŰ (ELÖL - JOBB OLDAL): LELAKOTT PIROS-SÁRGA Bzmot 268          -->
+  <!-- ===================================================================== -->
+  <g id="bzmot-classic" transform="translate(586, 36)">
+    <!-- Szürke szoknya olaj- és rozsdafoltokkal -->
+    <rect x="0" y="96" width="536" height="11" rx="1" fill="#42474c" stroke="#1c1e21" stroke-width="1" />
+    <rect x="235" y="107" width="115" height="14" rx="6" fill="#595f66" stroke="#1c1e21" stroke-width="1" />
+    <rect x="165" y="107" width="64" height="13" rx="1.5" fill="#32363b" stroke="#121417" stroke-width="0.9" />
+    <rect x="356" y="107" width="44" height="12" rx="1.5" fill="#292c2e" />
+    <!-- Olajcsöpögés a tartály alatt -->
+    <ellipse cx="290" cy="120" rx="45" ry="3.5" fill="#120e0a" opacity="0.8" />
+
+    <use href="#bz-axle" x="115" y="107" />
+    <use href="#bz-axle" x="421" y="107" />
+    <line x1="382" y1="115" x2="412" y2="120" stroke="#1c1e21" stroke-width="2.4" />
+    <circle cx="421" cy="121" r="6.2" fill="#25282b" stroke="#0a0b0d" stroke-width="1" />
+
+    <use href="#buffer-right" x="536" y="102" />
+    <path d="M 536,103 L 542,103 Q 544,106 540,107" fill="none" stroke="#121417" stroke-width="2" />
+    <path d="M 532,106 Q 540,118 534,121" fill="none" stroke="#0a0b0d" stroke-width="2" />
+
+    <!-- Rozsdás, kormos tető -->
+    <path d="M 2,14 Q 6,0 24,0 L 512,0 Q 530,0 534,14 Z" fill="url(#bz-roof-classic)" />
+    <ellipse cx="268" cy="6" rx="95" ry="5.5" fill="#0d0c0c" opacity="0.85" /> <!-- Erős korom -->
+    <path d="M 80,0 L 150,5 L 260,1 L 390,4 L 470,2" fill="#422c1d" opacity="0.65" />
+    <rect x="242" y="-3" width="52" height="3.2" rx="1" fill="#1c1e21" />
+    <rect x="145" y="-3" width="16" height="3" rx="1" fill="#252729" />
+    <rect x="375" y="-3" width="16" height="3" rx="1" fill="#252729" />
+
+    <!-- Kocsiszekrény -->
+    <rect x="0" y="14" width="536" height="82" rx="2" fill="url(#bz-red)" />
+    <polygon points="0,14 48,14 96,54 440,54 488,14 536,14 536,84 0,84" fill="url(#bz-yellow)" />
+    <rect x="0" y="54" width="14" height="26" fill="url(#bz-red)" />
+    <rect x="522" y="54" width="14" height="26" fill="url(#bz-red)" />
+
+    <!-- Erős elhanyagolt patina (rozsdafoltok, lefolyások az ablakok alatt) -->
+    <rect x="0" y="14" width="536" height="82" fill="url(#bz-heavy-grime)" />
+    <path d="M 96,49 L 102,88 L 98,96" fill="none" stroke="#523222" stroke-width="3.5" opacity="0.75" />
+    <path d="M 214,49 L 210,85 L 215,92" fill="none" stroke="#523222" stroke-width="4" opacity="0.7" />
+    <path d="M 432,49 L 438,82 L 434,94" fill="none" stroke="#523222" stroke-width="3" opacity="0.65" />
+
+    <rect x="18" y="20" width="22" height="30" rx="2.5" fill="url(#win-glass)" stroke="#1c1e21" stroke-width="1.3" />
+    <rect x="496" y="20" width="22" height="30" rx="2.5" fill="url(#win-glass)" stroke="#1c1e21" stroke-width="1.3" />
+    <rect x="0.5" y="20" width="10" height="29" rx="1" fill="url(#win-glass)" stroke="#1c1e21" stroke-width="1" />
+    <rect x="525.5" y="20" width="10" height="29" rx="1" fill="url(#win-glass)" stroke="#1c1e21" stroke-width="1" />
+    <rect x="519" y="23" width="4" height="13" rx="0.8" fill="#121417" />
+
+    <!-- Kopott ajtók -->
+    <g>
+      <rect x="48" y="19" width="38" height="77" rx="1.5" fill="url(#bz-red)" stroke="#42100d" stroke-width="1" />
+      <polygon points="48,54 86,54 86,84 48,84" fill="url(#bz-yellow)" />
+      <rect x="59" y="24" width="16" height="26" rx="2.5" fill="url(#win-glass)" stroke="#8c9299" stroke-width="1.2" />
+      <rect x="50" y="96" width="34" height="6" fill="#1c1e21" />
+    </g>
+    <g>
+      <rect x="450" y="19" width="38" height="77" rx="1.5" fill="url(#bz-red)" stroke="#42100d" stroke-width="1" />
+      <polygon points="450,54 488,54 488,84 450,84" fill="url(#bz-yellow)" />
+      <rect x="461" y="24" width="16" height="26" rx="2.5" fill="url(#win-glass)" stroke="#8c9299" stroke-width="1.2" />
+      <rect x="452" y="96" width="34" height="6" fill="#1c1e21" />
+    </g>
+
+    <use href="#bz-window" x="96" y="22" />
+    <use href="#bz-window" x="155" y="22" />
+    <use href="#bz-window" x="214" y="22" />
+    <use href="#bz-window" x="273" y="22" />
+    <use href="#bz-window" x="332" y="22" />
+    <use href="#bz-window" x="391" y="22" />
+
+    <rect x="195" y="60" width="24" height="16" rx="1" fill="#8f6314" stroke="#4a3207" stroke-width="0.8" />
+
+    <rect x="20" y="54" width="18" height="25" rx="1" fill="none" stroke="#121417" stroke-width="1" />
+    <text x="29" y="64.5" text-anchor="middle" fill="#121417" font-family="Arial, sans-serif" font-size="10" font-weight="bold">2</text>
+    <rect x="498" y="54" width="18" height="25" rx="1" fill="none" stroke="#121417" stroke-width="1" />
+    <text x="507" y="64.5" text-anchor="middle" fill="#121417" font-family="Arial, sans-serif" font-size="10" font-weight="bold">2</text>
+
+    <text x="268" y="65" text-anchor="middle" fill="#121417" font-family="Arial, sans-serif" font-size="6.5" font-weight="bold">MÁV</text>
+    <text x="268" y="72.5" text-anchor="middle" fill="#121417" font-family="Arial, sans-serif" font-size="6.2" font-weight="bold">Bzmot 268</text>
+
+    <circle cx="534" cy="72" r="3.8" fill="#fffbe0" filter="url(#glow-headlight)" />
+    <circle cx="533" cy="12" r="2.8" fill="#fff7c2" filter="url(#glow-headlight)" />
+  </g>
+</svg>

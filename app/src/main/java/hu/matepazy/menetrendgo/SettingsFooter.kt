@@ -68,7 +68,7 @@ internal const val KnowledgeBaseUrl = "https://menetrendgo.hu/tudasbazis"
 }
 
 /**
- * A website footer vehicle (menetrendgo-web `public/vehicles`, 124 units tall): artwork width in SVG units,
+ * A website footer vehicle (menetrendgo-web `public/vehicles`, normalized to 124 units tall): proportional artwork width,
  * speed in vehicle heights per second, and the whole-body motion of its SVG. Trains bob by [bob] units every
  * [period] seconds; buses ([rockX] set) rock about their rear axle at (rockX, 108). [puffs] are exhaust x positions.
  */
@@ -79,9 +79,13 @@ internal enum class FooterVehicle(
     // Website order: trains and buses alternate where the count allows.
     Flirt(R.drawable.footer_flirt, 1500f, 8f, 1.4f, .46f),
     Inovell(R.drawable.footer_inovell, 430f, 6f, .7f, .9f, rockX = 132f),
-    Szili(R.drawable.footer_szili, 1588f, 8f, 1.3f, .5f),
+    Szili(R.drawable.footer_szili, (2255f / 193f * 124f), 8f, 1.3f, .5f),
     Econell(R.drawable.footer_econell, 430f, 6f, .7f, .85f, rockX = 120f),
-    Desiro(R.drawable.footer_desiro, 1140f, 8f, 1.2f, .44f, puffs = listOf(424f, 708f));
+    Desiro(R.drawable.footer_desiro, (2280f / 269f * 124f), 8f, 1.2f, .44f,
+        puffs = listOf(460.5f / 269f * 124f, 1819.5f / 269f * 124f)),
+    Szergej(R.drawable.footer_szergej, (2345f / 185f * 124f), 8f, 1.3f, .5f),
+    Bzmot(R.drawable.footer_bzmot, (1160f / 172f * 124f), 8f, 1.2f, .48f),
+    Szivarvany(R.drawable.footer_szivarvany, (3785f / 199f * 124f), 8f, 1.3f, .5f);
 
     val aspect get() = units / 124f
     val bus get() = !rockX.isNaN()
@@ -91,7 +95,7 @@ private val ExhaustColor = Color(0xFF9AA3AB)
 
 /**
  * Port of the menetrendgo.hu footer without its captions: the FLIRT, Inovell 12, Szili, Econell 12
- * and Desiro take turns driving across the track, trailing speed lines. With animations off, a bus
+ * Desiro, Szergej, Bzmot and the rainbow consist take turns driving across the track, trailing speed lines. With animations off, a bus
  * waits at the stop.
  */
 @Composable private fun FooterScene() {

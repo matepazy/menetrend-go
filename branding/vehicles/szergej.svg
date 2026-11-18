@@ -1,0 +1,720 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2345 185" width="2345" height="185">
+  <defs>
+    <!-- Fények és árnyékok -->
+    <filter id="glow-headlight" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="4" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+    <filter id="glow-taillight" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="3.5" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+
+    <!-- Ablaküveg gradiens és visszatükröződés -->
+    <linearGradient id="win-glass" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#11151c" />
+      <stop offset="42%" stop-color="#293240" />
+      <stop offset="85%" stop-color="#171c24" />
+      <stop offset="100%" stop-color="#0d1014" />
+    </linearGradient>
+
+    <!-- Koszos, rozsdás tető gradiensek a kocsikhoz -->
+    <linearGradient id="roof-rust-heavy" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#4a372c" />
+      <stop offset="35%" stop-color="#6e5140" />
+      <stop offset="75%" stop-color="#87766a" />
+      <stop offset="100%" stop-color="#524b47" />
+    </linearGradient>
+    <linearGradient id="roof-soot-dark" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#171616" />
+      <stop offset="50%" stop-color="#36312f" />
+      <stop offset="100%" stop-color="#5c534e" />
+    </linearGradient>
+
+    <!-- M62 Szergej gradiensek (fakult vörös-narancs + mély korom + domború tetőív) -->
+    <linearGradient id="m62-roof-dome" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#241917" />
+      <stop offset="32%" stop-color="#632b21" />
+      <stop offset="72%" stop-color="#ad4634" />
+      <stop offset="100%" stop-color="#782c1f" />
+    </linearGradient>
+    <linearGradient id="m62-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#a6402e" />
+      <stop offset="22%" stop-color="#c9543c" />
+      <stop offset="74%" stop-color="#b5442e" />
+      <stop offset="100%" stop-color="#822c1c" />
+    </linearGradient>
+    <linearGradient id="m62-soot-overlay" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#111010" stop-opacity="0.93" />
+      <stop offset="42%" stop-color="#26201f" stop-opacity="0.6" />
+      <stop offset="80%" stop-color="#3b312d" stop-opacity="0.18" />
+      <stop offset="100%" stop-color="#000000" stop-opacity="0" />
+    </linearGradient>
+    <linearGradient id="m62-yellow-nose" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ebd073" />
+      <stop offset="55%" stop-color="#d1ab49" />
+      <stop offset="100%" stop-color="#8f732b" />
+    </linearGradient>
+    <linearGradient id="m62-frame-grey" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#9c9fa1" />
+      <stop offset="48%" stop-color="#75797d" />
+      <stop offset="100%" stop-color="#3b3e40" />
+    </linearGradient>
+
+    <!-- Kocsik fényezései -->
+    <linearGradient id="coach-allblue" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1a487a" />
+      <stop offset="50%" stop-color="#225891" />
+      <stop offset="88%" stop-color="#18426e" />
+      <stop offset="100%" stop-color="#102d4d" />
+    </linearGradient>
+    <linearGradient id="coach-bluestripe" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#236499" />
+      <stop offset="55%" stop-color="#2b71ab" />
+      <stop offset="55.1%" stop-color="#dedbd0" />
+      <stop offset="78%" stop-color="#ccc7b4" />
+      <stop offset="78.1%" stop-color="#1c5380" />
+      <stop offset="100%" stop-color="#133a5c" />
+    </linearGradient>
+    <linearGradient id="coach-redstripe" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1d6087" />
+      <stop offset="58%" stop-color="#25709c" />
+      <stop offset="58.1%" stop-color="#c94930" />
+      <stop offset="76%" stop-color="#ad3923" />
+      <stop offset="76.1%" stop-color="#174e6e" />
+      <stop offset="100%" stop-color="#0f354d" />
+    </linearGradient>
+
+    <!-- Kosz és rozsdafolt átmenet az oldalfalakra -->
+    <linearGradient id="side-grime" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3d2d23" stop-opacity="0.34" />
+      <stop offset="22%" stop-color="#000000" stop-opacity="0" />
+      <stop offset="72%" stop-color="#38302a" stop-opacity="0.1" />
+      <stop offset="100%" stop-color="#211b17" stop-opacity="0.52" />
+    </linearGradient>
+
+    <!-- Osztott vasúti kocsi ablak sablon -->
+    <g id="coach-win-split">
+      <rect x="0" y="0" width="32" height="25" rx="2.5" fill="url(#win-glass)" stroke="#9da4ab" stroke-width="1.3" />
+      <line x1="0" y1="9" x2="32" y2="9" stroke="#8b9299" stroke-width="1.2" />
+      <line x1="4" y1="12" x2="11" y2="22" stroke="#ffffff" stroke-width="1" opacity="0.12" />
+    </g>
+
+    <!-- Keskenyebb WC/előszoba ablak sablon -->
+    <g id="coach-win-narrow">
+      <rect x="0" y="0" width="20" height="25" rx="2.5" fill="url(#win-glass)" stroke="#9da4ab" stroke-width="1.3" />
+      <line x1="0" y1="9" x2="20" y2="9" stroke="#8b9299" stroke-width="1.2" />
+    </g>
+
+    <!-- Kerék részletes aggyal, féktuskókkal és abronccsal -->
+    <g id="wheel">
+      <circle cx="0" cy="0" r="11.5" fill="#1e2124" stroke="#0d0f11" stroke-width="1.5" />
+      <circle cx="0" cy="0" r="9.8" fill="none" stroke="#6c737a" stroke-width="0.9" />
+      <circle cx="0" cy="0" r="7.5" fill="#43484f" />
+      <!-- Hűtőbordák / furatok a keréktárcsán -->
+      <circle cx="-4.5" cy="0" r="0.9" fill="#23272b" />
+      <circle cx="4.5" cy="0" r="0.9" fill="#23272b" />
+      <circle cx="0" cy="-4.5" r="0.9" fill="#23272b" />
+      <circle cx="0" cy="4.5" r="0.9" fill="#23272b" />
+      <circle cx="0" cy="0" r="3.5" fill="#1b1e20" stroke="#6d737a" stroke-width="0.7" />
+      <circle cx="0" cy="0" r="1.4" fill="#9299a1" />
+    </g>
+
+    <!-- 2-tengelyes személykocsi forgóváz -->
+    <g id="coach-bogie">
+      <use href="#wheel" x="-26" y="11" />
+      <use href="#wheel" x="26" y="11" />
+      <path d="M -38,3 L 38,3 L 34,11 L -34,11 Z" fill="#2e3236" stroke="#181a1c" stroke-width="1" />
+      <rect x="-14" y="2" width="28" height="9" rx="2" fill="#464b52" stroke="#222529" stroke-width="0.8" />
+      <line x1="-10" y1="10" x2="-4" y2="3" stroke="#7c828a" stroke-width="1.6" />
+      <line x1="10" y1="10" x2="4" y2="3" stroke="#7c828a" stroke-width="1.6" />
+      <g fill="#5c4c42" stroke="#241e1a" stroke-width="0.6">
+        <rect x="-30" y="4" width="7" height="7" rx="1" />
+        <rect x="23" y="4" width="7" height="7" rx="1" />
+      </g>
+      <rect x="-29" y="8" width="6" height="6" rx="1" fill="#52575e" />
+      <rect x="23" y="8" width="6" height="6" rx="1" fill="#52575e" />
+    </g>
+
+    <!-- Szuperrészletes 3-tengelyes Co'Co' M62 Szergej forgóváz -->
+    <g id="m62-bogie">
+      <use href="#wheel" x="-42" y="12" />
+      <use href="#wheel" x="0" y="12" />
+      <use href="#wheel" x="42" y="12" />
+      <!-- Féktuskók mindhárom keréknél -->
+      <g fill="#232527">
+        <rect x="-54" y="8" width="2.5" height="7" rx="0.5" />
+        <rect x="-31.5" y="8" width="2.5" height="7" rx="0.5" />
+        <rect x="-12.5" y="8" width="2.5" height="7" rx="0.5" />
+        <rect x="10" y="8" width="2.5" height="7" rx="0.5" />
+        <rect x="29" y="8" width="2.5" height="7" rx="0.5" />
+        <rect x="51.5" y="8" width="2.5" height="7" rx="0.5" />
+      </g>
+      <!-- Öntött acél forgóvázkeret -->
+      <path d="M -58,0 L 58,0 L 53,11 L -53,11 Z" fill="#6b7073" stroke="#1e2022" stroke-width="1.1" />
+      <rect x="-54" y="2" width="108" height="3" fill="#8b9094" />
+      <!-- Forgócsap- és himba-kivezetések -->
+      <rect x="-25" y="-2" width="10" height="3" fill="#3a3d40" />
+      <rect x="15" y="-2" width="10" height="3" fill="#3a3d40" />
+      <!-- 3 tengelycsapágy-ház csavarokkal -->
+      <g>
+        <rect x="-48" y="4" width="12" height="10" rx="1.5" fill="#323538" stroke="#17191a" stroke-width="0.8" />
+        <circle cx="-42" cy="9" r="2.6" fill="#525659" />
+        <circle cx="-45.5" cy="6" r="0.7" fill="#9ea3a8" /><circle cx="-38.5" cy="6" r="0.7" fill="#9ea3a8" />
+        <circle cx="-45.5" cy="12" r="0.7" fill="#9ea3a8" /><circle cx="-38.5" cy="12" r="0.7" fill="#9ea3a8" />
+      </g>
+      <g>
+        <rect x="-6" y="4" width="12" height="10" rx="1.5" fill="#323538" stroke="#17191a" stroke-width="0.8" />
+        <circle cx="0" cy="9" r="2.6" fill="#525659" />
+        <circle cx="-3.5" cy="6" r="0.7" fill="#9ea3a8" /><circle cx="3.5" cy="6" r="0.7" fill="#9ea3a8" />
+        <circle cx="-3.5" cy="12" r="0.7" fill="#9ea3a8" /><circle cx="3.5" cy="12" r="0.7" fill="#9ea3a8" />
+      </g>
+      <g>
+        <rect x="36" y="4" width="12" height="10" rx="1.5" fill="#323538" stroke="#17191a" stroke-width="0.8" />
+        <circle cx="42" cy="9" r="2.6" fill="#525659" />
+        <circle cx="38.5" cy="6" r="0.7" fill="#9ea3a8" /><circle cx="45.5" cy="6" r="0.7" fill="#9ea3a8" />
+        <circle cx="38.5" cy="12" r="0.7" fill="#9ea3a8" /><circle cx="45.5" cy="12" r="0.7" fill="#9ea3a8" />
+      </g>
+      <!-- Tekercsrugók sűrű menetekkel -->
+      <g fill="#47413c" stroke="#1d1a18" stroke-width="0.6">
+        <rect x="-33" y="3.5" width="7.5" height="7.5" rx="1" />
+        <rect x="-17" y="3.5" width="7.5" height="7.5" rx="1" />
+        <rect x="9.5" y="3.5" width="7.5" height="7.5" rx="1" />
+        <rect x="25.5" y="3.5" width="7.5" height="7.5" rx="1" />
+      </g>
+      <g stroke="#1a1715" stroke-width="0.6">
+        <line x1="-33" y1="6" x2="-25.5" y2="6" /><line x1="-33" y1="8.5" x2="-25.5" y2="8.5" />
+        <line x1="-17" y1="6" x2="-9.5" y2="6" /><line x1="-17" y1="8.5" x2="-9.5" y2="8.5" />
+        <line x1="9.5" y1="6" x2="17" y2="6" /><line x1="9.5" y1="8.5" x2="17" y2="8.5" />
+        <line x1="25.5" y1="6" x2="33" y2="6" /><line x1="25.5" y1="8.5" x2="33" y2="8.5" />
+      </g>
+      <!-- Fékhengerek, rudazat, olajfoltok és homokoló csövek -->
+      <circle cx="-21" cy="7.5" r="3.8" fill="#292c2e" stroke="#7d8285" stroke-width="0.8" />
+      <circle cx="21" cy="7.5" r="3.8" fill="#292c2e" stroke="#7d8285" stroke-width="0.8" />
+      <line x1="-52" y1="6" x2="52" y2="6" stroke="#969b9e" stroke-width="1.3" />
+      <line x1="-52" y1="8.5" x2="52" y2="8.5" stroke="#2a2d30" stroke-width="1" />
+      <line x1="-34" y1="9" x2="-31" y2="18" stroke="#222426" stroke-width="1.3" />
+      <line x1="34" y1="9" x2="31" y2="18" stroke="#222426" stroke-width="1.3" />
+    </g>
+
+    <!-- Ütköző (jobb / bal) -->
+    <g id="buffer-right">
+      <rect x="0" y="-3.5" width="11" height="7" fill="#3a3d40" />
+      <rect x="2" y="-4.5" width="4" height="9" fill="#27292b" />
+      <rect x="11" y="-7" width="3.5" height="14" rx="1" fill="#1f2124" />
+    </g>
+    <g id="buffer-left">
+      <rect x="-11" y="-3.5" width="11" height="7" fill="#3a3d40" />
+      <rect x="-6" y="-4.5" width="4" height="9" fill="#27292b" />
+      <rect x="-14.5" y="-7" width="3.5" height="14" rx="1" fill="#1f2124" />
+    </g>
+
+    <!-- Gumihurka átjáró kocsik között + féktömlők -->
+    <g id="gangway">
+      <rect x="-6" y="0" width="12" height="90" fill="#232527" />
+      <line x1="-2.5" y1="0" x2="-2.5" y2="90" stroke="#111214" stroke-width="1.3" />
+      <line x1="2.5" y1="0" x2="2.5" y2="90" stroke="#111214" stroke-width="1.3" />
+      <rect x="-9" y="88" width="18" height="4" fill="#17181a" />
+      <path d="M -8,92 Q 0,104 8,92" fill="none" stroke="#181a1c" stroke-width="1.8" />
+    </g>
+  </defs>
+
+  <!-- ===================================================================== -->
+  <!-- 3. KOCSI (LEGHÁTSÓ - BAL OLDAL): Piros csíkos gyorsvonati kocsi       -->
+  <!-- ===================================================================== -->
+  <g id="coach-3" transform="translate(30, 56)">
+    <rect x="18" y="99" width="524" height="8" fill="#1b1e21" />
+    <rect x="165" y="102" width="85" height="12" rx="1.5" fill="#2a2e33" stroke="#16181a" stroke-width="0.8" />
+    <rect x="260" y="102" width="62" height="11" rx="1.5" fill="#24282c" />
+    <rect x="332" y="102" width="75" height="12" rx="1.5" fill="#2d3136" stroke="#16181a" stroke-width="0.8" />
+    <use href="#coach-bogie" x="88" y="105" />
+    <use href="#coach-bogie" x="472" y="105" />
+    <use href="#buffer-left" x="0" y="99" />
+    <path d="M -6,102 Q -10,113 -3,115" fill="none" stroke="#1c1e21" stroke-width="2" />
+
+    <path d="M 4,15 Q 7,0 28,0 L 532,0 Q 553,0 556,15 Z" fill="url(#roof-rust-heavy)" />
+    <line x1="24" y1="14" x2="536" y2="14" stroke="#362c26" stroke-width="1" />
+    <g fill="#38302b">
+      <rect x="75" y="-3.5" width="15" height="3.5" rx="1" />
+      <rect x="175" y="-3.5" width="15" height="3.5" rx="1" />
+      <rect x="275" y="-3.5" width="15" height="3.5" rx="1" />
+      <rect x="375" y="-3.5" width="15" height="3.5" rx="1" />
+      <rect x="475" y="-3.5" width="15" height="3.5" rx="1" />
+    </g>
+
+    <rect x="0" y="15" width="560" height="84" rx="2" fill="url(#coach-redstripe)" />
+    <rect x="0" y="15" width="560" height="84" fill="url(#side-grime)" />
+
+    <ellipse cx="115" cy="19" rx="36" ry="5" fill="#4f3527" opacity="0.45" />
+    <ellipse cx="365" cy="18" rx="48" ry="6" fill="#4f3527" opacity="0.4" />
+    <rect x="220" y="91" width="95" height="6" fill="#3b2c23" opacity="0.45" />
+
+    <g>
+      <rect x="8" y="21" width="21" height="75" rx="1.5" fill="#1a5273" stroke="#0e3147" stroke-width="1" />
+      <rect x="12" y="27" width="13" height="23" rx="1.5" fill="url(#win-glass)" stroke="#8c9296" stroke-width="1" />
+      <rect x="24" y="61" width="3" height="1.5" fill="#c7ccd1" />
+      <rect x="10" y="96" width="17" height="5" fill="#232629" />
+      <line x1="32" y1="45" x2="32" y2="82" stroke="#d4b857" stroke-width="1.4" />
+    </g>
+    <g>
+      <rect x="531" y="21" width="21" height="75" rx="1.5" fill="#1a5273" stroke="#0e3147" stroke-width="1" />
+      <rect x="535" y="27" width="13" height="23" rx="1.5" fill="url(#win-glass)" stroke="#8c9296" stroke-width="1" />
+      <rect x="533" y="61" width="3" height="1.5" fill="#c7ccd1" />
+      <rect x="533" y="96" width="17" height="5" fill="#232629" />
+      <line x1="528" y1="45" x2="528" y2="82" stroke="#d4b857" stroke-width="1.4" />
+    </g>
+
+    <use href="#coach-win-narrow" x="39" y="27" />
+    <use href="#coach-win-split" x="68" y="27" />
+    <use href="#coach-win-split" x="108" y="27" />
+    <use href="#coach-win-split" x="148" y="27" />
+    <use href="#coach-win-split" x="188" y="27" />
+    <use href="#coach-win-split" x="228" y="27" />
+    <use href="#coach-win-split" x="268" y="27" />
+    <use href="#coach-win-split" x="308" y="27" />
+    <use href="#coach-win-split" x="348" y="27" />
+    <use href="#coach-win-split" x="388" y="27" />
+    <use href="#coach-win-split" x="428" y="27" />
+    <use href="#coach-win-split" x="468" y="27" />
+    <use href="#coach-win-narrow" x="504" y="27" />
+
+    <text x="61" y="36" fill="#e6e4dc" font-family="Arial, sans-serif" font-size="8" font-weight="bold">2</text>
+    <text x="500" y="36" fill="#e6e4dc" font-family="Arial, sans-serif" font-size="8" font-weight="bold">2</text>
+    <rect x="92" y="69" width="10" height="5" rx="1" fill="#e6e4dc" opacity="0.85" />
+    <rect x="458" y="69" width="10" height="5" rx="1" fill="#e6e4dc" opacity="0.85" />
+    <rect x="236" y="84" width="76" height="3.2" fill="#e6e4dc" opacity="0.78" />
+    <rect x="255" y="89" width="38" height="2.2" fill="#e6e4dc" opacity="0.6" />
+
+    <circle cx="2" cy="87" r="3.8" fill="#ff2424" filter="url(#glow-taillight)" />
+    <circle cx="2" cy="87" r="1.6" fill="#ffd6d6" />
+  </g>
+
+  <!-- Gumihurka 3. és 2. kocsi között -->
+  <use href="#gangway" x="596" y="66" />
+
+  <!-- ===================================================================== -->
+  <!-- 2. KOCSI (KÖZÉPSŐ): Fehér csíkos By/Bhv rozsdás tetővel               -->
+  <!-- ===================================================================== -->
+  <g id="coach-2" transform="translate(602, 56)">
+    <rect x="18" y="99" width="524" height="8" fill="#1b1e21" />
+    <rect x="180" y="102" width="90" height="12" rx="1.5" fill="#2c3034" />
+    <rect x="285" y="102" width="85" height="12" rx="1.5" fill="#25292d" />
+    <use href="#coach-bogie" x="88" y="105" />
+    <use href="#coach-bogie" x="472" y="105" />
+
+    <path d="M 4,15 Q 7,0 28,0 L 532,0 Q 553,0 556,15 Z" fill="url(#roof-rust-heavy)" />
+    <path d="M 45,2 L 515,2 L 502,10 L 58,10 Z" fill="#6b442d" opacity="0.48" />
+    <line x1="24" y1="14" x2="536" y2="14" stroke="#362c26" stroke-width="1" />
+
+    <rect x="0" y="15" width="560" height="84" rx="2" fill="url(#coach-bluestripe)" />
+    <rect x="0" y="15" width="560" height="84" fill="url(#side-grime)" />
+
+    <g>
+      <rect x="136" y="21" width="34" height="77" rx="1.5" fill="#dedad0" stroke="#75726a" stroke-width="1" />
+      <line x1="153" y1="21" x2="153" y2="98" stroke="#636059" stroke-width="1.3" />
+      <rect x="140" y="27" width="10" height="24" rx="1.5" fill="url(#win-glass)" />
+      <rect x="156" y="27" width="10" height="24" rx="1.5" fill="url(#win-glass)" />
+      <rect x="138" y="98" width="30" height="6" fill="#26292b" />
+      <line x1="132" y1="45" x2="132" y2="82" stroke="#d4b857" stroke-width="1.5" />
+      <line x1="174" y1="45" x2="174" y2="82" stroke="#d4b857" stroke-width="1.5" />
+    </g>
+
+    <g>
+      <rect x="390" y="21" width="34" height="77" rx="1.5" fill="#dedad0" stroke="#75726a" stroke-width="1" />
+      <line x1="407" y1="21" x2="407" y2="98" stroke="#636059" stroke-width="1.3" />
+      <rect x="394" y="27" width="10" height="24" rx="1.5" fill="url(#win-glass)" />
+      <rect x="410" y="27" width="10" height="24" rx="1.5" fill="url(#win-glass)" />
+      <rect x="392" y="98" width="30" height="6" fill="#26292b" />
+      <line x1="386" y1="45" x2="386" y2="82" stroke="#d4b857" stroke-width="1.5" />
+      <line x1="428" y1="45" x2="428" y2="82" stroke="#d4b857" stroke-width="1.5" />
+    </g>
+
+    <use href="#coach-win-narrow" x="14" y="27" />
+    <use href="#coach-win-split" x="44" y="27" />
+    <use href="#coach-win-split" x="86" y="27" />
+
+    <use href="#coach-win-split" x="184" y="27" />
+    <use href="#coach-win-split" x="224" y="27" />
+    <use href="#coach-win-split" x="264" y="27" />
+    <use href="#coach-win-split" x="304" y="27" />
+    <use href="#coach-win-split" x="344" y="27" />
+
+    <use href="#coach-win-split" x="442" y="27" />
+    <use href="#coach-win-split" x="484" y="27" />
+    <use href="#coach-win-narrow" x="526" y="27" />
+
+    <rect x="64" y="69" width="38" height="4.5" rx="1" fill="#c79e38" opacity="0.85" />
+    <rect x="242" y="85" width="64" height="3.2" fill="#e6e4dc" opacity="0.75" />
+    <rect x="122" y="28" width="6" height="14" rx="0.8" fill="#e6e4dc" opacity="0.8" />
+    <rect x="378" y="28" width="6" height="14" rx="0.8" fill="#e6e4dc" opacity="0.8" />
+  </g>
+
+  <!-- Gumihurka 2. és 1. kocsi között -->
+  <use href="#gangway" x="1168" y="66" />
+
+  <!-- ===================================================================== -->
+  <!-- 1. KOCSI (MOZDONY MÖGÖTT): „Telikék” Bhv kormos tetővel               -->
+  <!-- ===================================================================== -->
+  <g id="coach-1" transform="translate(1174, 56)">
+    <rect x="18" y="99" width="524" height="8" fill="#1b1e21" />
+    <rect x="185" y="102" width="180" height="12" rx="1.5" fill="#25282b" />
+    <use href="#coach-bogie" x="88" y="105" />
+    <use href="#coach-bogie" x="472" y="105" />
+
+    <path d="M 4,15 Q 7,0 28,0 L 532,0 Q 553,0 556,15 Z" fill="url(#roof-soot-dark)" />
+    <ellipse cx="420" cy="6" rx="125" ry="5.5" fill="#111010" opacity="0.7" />
+    <line x1="24" y1="14" x2="536" y2="14" stroke="#242120" stroke-width="1" />
+
+    <rect x="0" y="15" width="560" height="84" rx="2" fill="url(#coach-allblue)" />
+    <rect x="0" y="15" width="560" height="84" fill="url(#side-grime)" />
+
+    <rect x="8" y="21" width="19" height="75" rx="1.5" fill="#9ea3a8" stroke="#45494d" stroke-width="1" />
+    <rect x="12" y="27" width="11" height="23" rx="1.5" fill="url(#win-glass)" />
+    <rect x="533" y="21" width="19" height="75" rx="1.5" fill="#9ea3a8" stroke="#45494d" stroke-width="1" />
+    <rect x="537" y="27" width="11" height="23" rx="1.5" fill="url(#win-glass)" />
+
+    <g>
+      <path d="M 260,21 L 300,21 L 300,104 L 260,104 Z" fill="#a2a7ad" stroke="#43474a" stroke-width="1" />
+      <line x1="280" y1="21" x2="280" y2="104" stroke="#3b3e42" stroke-width="1.4" />
+      <rect x="265" y="27" width="11" height="25" rx="1.5" fill="url(#win-glass)" />
+      <rect x="284" y="27" width="11" height="25" rx="1.5" fill="url(#win-glass)" />
+      <rect x="262" y="99" width="36" height="6" fill="#232629" />
+      <line x1="256" y1="45" x2="256" y2="84" stroke="#d4b857" stroke-width="1.5" />
+      <line x1="304" y1="45" x2="304" y2="84" stroke="#d4b857" stroke-width="1.5" />
+    </g>
+
+    <use href="#coach-win-split" x="38" y="27" />
+    <use href="#coach-win-split" x="81" y="27" />
+    <use href="#coach-win-split" x="124" y="27" />
+    <use href="#coach-win-split" x="167" y="27" />
+    <use href="#coach-win-split" x="210" y="27" />
+
+    <use href="#coach-win-split" x="318" y="27" />
+    <use href="#coach-win-split" x="361" y="27" />
+    <use href="#coach-win-split" x="404" y="27" />
+    <use href="#coach-win-split" x="447" y="27" />
+    <use href="#coach-win-split" x="490" y="27" />
+
+    <rect x="492" y="64" width="26" height="10" rx="1" fill="#e6e4dc" stroke="#525659" stroke-width="0.8" />
+    <rect x="172" y="82" width="58" height="4" fill="#e6e4dc" opacity="0.78" />
+    <text x="482" y="36" fill="#e6e4dc" font-family="Arial, sans-serif" font-size="8" font-weight="bold">2</text>
+  </g>
+
+  <!-- ===================================================================== -->
+  <!-- REÁLIS KAPCSOLAT A MOZDONY ÉS AZ 1. KOCSI KÖZÖTT                      -->
+  <!-- ===================================================================== -->
+  <g id="loco-coach-coupling" transform="translate(1734, 66)">
+    <!-- Kocsi behúzott homlokátjáró gumihurkája és átjáróhídja -->
+    <rect x="0" y="2" width="5" height="84" fill="#222426" />
+    <line x1="2.5" y1="2" x2="2.5" y2="86" stroke="#111214" stroke-width="1" />
+    <rect x="0" y="84" width="8" height="3.5" fill="#17181a" />
+    <line x1="-1.5" y1="30" x2="-1.5" y2="78" stroke="#9ea3a8" stroke-width="1.2" />
+
+    <!-- Összeérő ütközők, csavarkapocs és összekapcsolt féktömlők (y=89) -->
+    <g transform="translate(0, 89)">
+      <rect x="0" y="-3.5" width="9" height="7" fill="#3a3d40" />
+      <rect x="9" y="-7" width="2.8" height="14" rx="0.8" fill="#1c1e21" />
+      <rect x="12" y="-7" width="2.8" height="14" rx="0.8" fill="#1c1e21" />
+      <rect x="14.8" y="-3.5" width="9" height="7" fill="#3a3d40" />
+
+      <path d="M 1,1 L 7,1 L 9,3 L 15,3 L 17,1 L 23,1" fill="none" stroke="#17191c" stroke-width="2.2" />
+      <rect x="9.5" y="1" width="5" height="3.8" rx="0.8" fill="#2d3033" />
+      <line x1="12" y1="4.8" x2="12" y2="10" stroke="#1b1d20" stroke-width="1.5" />
+      <circle cx="12" cy="10.5" r="1.4" fill="#2d3033" />
+
+      <path d="M 2,5 Q 12,18 22,5" fill="none" stroke="#141618" stroke-width="2.2" />
+      <rect x="10" y="10" width="4" height="3" rx="0.5" fill="#3a3d40" />
+      <path d="M 3,6 Q 12,22 21,6" fill="none" stroke="#222529" stroke-width="1.4" />
+    </g>
+  </g>
+
+  <!-- ===================================================================== -->
+  <!-- VONTATÓJÁRMŰ (ELÖL - JOBB OLDAL): RÉSZLETGAZDAG M62 071 „SZERGEJ”     -->
+  <!-- ===================================================================== -->
+  <g id="loco-m62" transform="translate(1757, 30)">
+    <!-- Főkeret (alváz) szegecsekkel, emelési pontokkal és homokoló-fedelekkel -->
+    <rect x="0" y="114" width="530" height="10" fill="#26292c" />
+    <line x1="0" y1="116" x2="530" y2="116" stroke="#62666a" stroke-width="1.2" />
+    <line x1="0" y1="122" x2="530" y2="122" stroke="#17191a" stroke-width="1" />
+    <!-- Emelési pontok és sárga figyelmeztető jelek a főkereten -->
+    <g fill="#cfa948">
+      <rect x="52" y="115.5" width="6" height="3.5" rx="0.5" />
+      <rect x="180" y="115.5" width="6" height="3.5" rx="0.5" />
+      <rect x="344" y="115.5" width="6" height="3.5" rx="0.5" />
+      <rect x="472" y="115.5" width="6" height="3.5" rx="0.5" />
+    </g>
+    <!-- Homokoló-betöltő fedelek a főkeret oldalán -->
+    <g fill="#45484a" stroke="#1c1e20" stroke-width="0.6">
+      <rect x="78" y="115" width="7" height="5" rx="0.6" />
+      <rect x="155" y="115" width="7" height="5" rx="0.6" />
+      <rect x="368" y="115" width="7" height="5" rx="0.6" />
+      <rect x="445" y="115" width="7" height="5" rx="0.6" />
+    </g>
+
+    <!-- Középső nagy üzemanyagtartály + akkumulátor láda + szerszámos rekesz -->
+    <rect x="195" y="122" width="140" height="25" rx="2" fill="#464a4e" stroke="#1b1d1f" stroke-width="1.2" />
+    <!-- Tartály-rögzítő acélpántok -->
+    <line x1="214" y1="122" x2="214" y2="147" stroke="#222527" stroke-width="1.4" />
+    <line x1="316" y1="122" x2="316" y2="147" stroke="#222527" stroke-width="1.4" />
+    <!-- Jellegzetes világosszürke, bordázott ajtajú akkumulátorláda középen -->
+    <rect x="230" y="123" width="70" height="23" rx="1.2" fill="#75797d" stroke="#26282b" stroke-width="1" />
+    <line x1="234" y1="128" x2="296" y2="128" stroke="#36393b" stroke-width="1" />
+    <line x1="234" y1="133" x2="296" y2="133" stroke="#36393b" stroke-width="1" />
+    <line x1="234" y1="138" x2="296" y2="138" stroke="#36393b" stroke-width="1" />
+    <line x1="265" y1="123" x2="265" y2="146" stroke="#26282b" stroke-width="1.1" />
+    <!-- Zárak az akkumulátorláda ajtaján -->
+    <rect x="259" y="132" width="3" height="4" fill="#232629" />
+    <rect x="268" y="132" width="3" height="4" fill="#232629" />
+    <!-- Betöltőcsonk, szintjelző üvegcső és leeresztő csap -->
+    <rect x="202" y="125" width="9" height="5" rx="1" fill="#2b2e30" />
+    <rect x="220" y="124" width="3" height="20" fill="#1d1f21" />
+    <line x1="221.5" y1="131" x2="221.5" y2="143" stroke="#8c6d46" stroke-width="1.1" />
+    <circle cx="324" cy="141" r="2.2" fill="#8f3624" />
+    <!-- Olajfolyás nyomok az üzemanyagtartályon -->
+    <ellipse cx="206" cy="138" rx="6" ry="8" fill="#1c1917" opacity="0.45" />
+
+    <!-- Főlégtartályok a főkeret alatt rögzítőpántokkal és levegőcsövekkel -->
+    <g>
+      <rect x="66" y="117" width="46" height="7.5" rx="3.7" fill="#787c80" stroke="#2a2d30" stroke-width="0.8" />
+      <line x1="77" y1="117" x2="77" y2="124.5" stroke="#232629" stroke-width="1.1" />
+      <line x1="101" y1="117" x2="101" y2="124.5" stroke="#232629" stroke-width="1.1" />
+
+      <rect x="126" y="117" width="46" height="7.5" rx="3.7" fill="#787c80" stroke="#2a2d30" stroke-width="0.8" />
+      <line x1="137" y1="117" x2="137" y2="124.5" stroke="#232629" stroke-width="1.1" />
+      <line x1="161" y1="117" x2="161" y2="124.5" stroke="#232629" stroke-width="1.1" />
+
+      <rect x="358" y="117" width="46" height="7.5" rx="3.7" fill="#787c80" stroke="#2a2d30" stroke-width="0.8" />
+      <line x1="369" y1="117" x2="369" y2="124.5" stroke="#232629" stroke-width="1.1" />
+      <line x1="393" y1="117" x2="393" y2="124.5" stroke="#232629" stroke-width="1.1" />
+
+      <rect x="418" y="117" width="46" height="7.5" rx="3.7" fill="#787c80" stroke="#2a2d30" stroke-width="0.8" />
+      <line x1="429" y1="117" x2="429" y2="124.5" stroke="#232629" stroke-width="1.1" />
+      <line x1="453" y1="117" x2="453" y2="124.5" stroke="#232629" stroke-width="1.1" />
+    </g>
+
+    <!-- Két 3-tengelyes Co'Co' forgóváz -->
+    <use href="#m62-bogie" x="120" y="125" />
+    <use href="#m62-bogie" x="410" y="125" />
+    <!-- Lánchajtásos sebességmérő-jeladó a jobb szélső tengelyen -->
+    <line x1="452" y1="137" x2="461" y2="126" stroke="#858a8e" stroke-width="1.4" />
+    <circle cx="461" cy="126" r="2.2" fill="#323538" />
+
+    <!-- Pályakotrók a két függőleges vég alatt -->
+    <polygon points="0,114 34,114 34,144 14,144 0,128" fill="url(#m62-frame-grey)" stroke="#202224" stroke-width="1.1" />
+    <polygon points="496,114 530,114 530,128 516,144 496,144" fill="url(#m62-frame-grey)" stroke="#202224" stroke-width="1.1" />
+    <!-- Pályakotró merevítő borda -->
+    <line x1="2" y1="124" x2="34" y2="124" stroke="#45484a" stroke-width="1" />
+    <line x1="496" y1="124" x2="528" y2="124" stroke="#45484a" stroke-width="1" />
+
+    <!-- Vezetőállás-fellépő létrák a pályakotró mögött (sárga csúszásgátló peremmel) -->
+    <g stroke="#4f5357" stroke-width="1.3">
+      <line x1="36" y1="114" x2="36" y2="142" />
+      <line x1="46" y1="114" x2="46" y2="142" />
+      <line x1="36" y1="123" x2="46" y2="123" stroke="#cfa948" />
+      <line x1="36" y1="132" x2="46" y2="132" stroke="#cfa948" />
+      <line x1="36" y1="141" x2="46" y2="141" stroke="#cfa948" />
+
+      <line x1="484" y1="114" x2="484" y2="142" />
+      <line x1="494" y1="114" x2="494" y2="142" />
+      <line x1="484" y1="123" x2="494" y2="123" stroke="#cfa948" />
+      <line x1="484" y1="132" x2="494" y2="132" stroke="#cfa948" />
+      <line x1="484" y1="141" x2="494" y2="141" stroke="#cfa948" />
+    </g>
+
+    <!-- Első ütköző, vonóhorog és lelógó féktömlők a jobb oldali függőleges homlokfalon -->
+    <use href="#buffer-right" x="530" y="120" />
+    <path d="M 530,121 L 537,121 Q 539,125 535,126" fill="none" stroke="#1c1e21" stroke-width="2.2" />
+    <path d="M 526,124 Q 535,137 528,140" fill="none" stroke="#141618" stroke-width="2.1" />
+    <path d="M 524,125 Q 531,139 524,141" fill="none" stroke="#24272b" stroke-width="1.5" />
+
+    <!-- Tetőfelépítmény: kipufogó-hangtompító dobok, hővédők, tetőszellőzők, kürt, antenna -->
+    <rect x="145" y="2" width="155" height="8" rx="2.5" fill="#1e1d1d" />
+    <!-- Kipufogó-nyílások és hővédő burkolat -->
+    <rect x="165" y="-1" width="26" height="4.5" rx="1" fill="#111010" />
+    <rect x="200" y="-1" width="26" height="4.5" rx="1" fill="#111010" />
+    <line x1="150" y1="4.5" x2="295" y2="4.5" stroke="#403c3b" stroke-width="0.9" />
+    <!-- Hűtőventilátor kürtő -->
+    <rect x="318" y="2.5" width="94" height="7.5" rx="2" fill="#262424" />
+    <line x1="322" y1="4.5" x2="408" y2="4.5" stroke="#474342" stroke-width="0.8" />
+    <!-- Tetőszellőző gombák és emelőfülek -->
+    <rect x="92" y="3.5" width="14" height="3" rx="1" fill="#2b2929" />
+    <rect x="118" y="3.5" width="14" height="3" rx="1" fill="#2b2929" />
+    <path d="M 80,6 L 82,2 L 86,2 L 88,6" fill="none" stroke="#2b2929" stroke-width="1" />
+    <path d="M 420,6 L 422,2 L 426,2 L 428,6" fill="none" stroke="#2b2929" stroke-width="1" />
+    <!-- Légkürt és rádióantenna -->
+    <path d="M 438,7 L 438,3 L 453,2 L 453,5 L 440,5" fill="#2b2a2a" />
+    <line x1="466" y1="8" x2="466" y2="-10" stroke="#232222" stroke-width="1.2" />
+    <circle cx="466" cy="-10" r="1" fill="#232222" />
+
+    <!-- NYÚJTOTT M62 SZEKRÉNY TELJESEN FÜGGŐLEGES, EGYENES KÉT VÉGGEL (x=0 és x=530) -->
+    <path d="M 0,18
+             C 8,7 26,6 52,6
+             L 478,6
+             C 504,6 522,7 530,18
+             L 530,114
+             L 0,114 Z" fill="url(#m62-body)" stroke="#4a1d14" stroke-width="1.2" />
+
+    <!-- Domború tetőív és esőcsatorna-perem -->
+    <path d="M 0,18 C 8,7 26,6 52,6 L 478,6 C 504,6 522,7 530,18 L 530,21 L 0,21 Z" fill="url(#m62-roof-dome)" />
+    <line x1="0" y1="21" x2="530" y2="21" stroke="#3d1710" stroke-width="1.1" />
+
+    <!-- Szerelőpanel-osztások (függőleges illesztési hézagok a mozdonyszekrényen) -->
+    <g stroke="#591f14" stroke-width="0.9" opacity="0.7">
+      <line x1="116" y1="21" x2="116" y2="114" />
+      <line x1="218" y1="21" x2="218" y2="114" />
+      <line x1="292" y1="21" x2="292" y2="114" />
+      <line x1="412" y1="21" x2="412" y2="114" />
+    </g>
+
+    <!-- Felső fényszóróházak a két függőleges homlokfal tetején -->
+    <rect x="0" y="10" width="14" height="11" rx="1" fill="#362420" stroke="#1f1412" stroke-width="0.8" />
+    <rect x="516" y="10" width="14" height="11" rx="1" fill="#362420" stroke="#1f1412" stroke-width="0.8" />
+
+    <!-- Sárga homlokfali figyelmeztető mezők a két függőleges végen -->
+    <rect x="0.5" y="56" width="24" height="45" fill="url(#m62-yellow-nose)" />
+    <rect x="505.5" y="56" width="24" height="45" fill="url(#m62-yellow-nose)" />
+    <!-- Homlokfali díszlécek -->
+    <line x1="0" y1="56" x2="24.5" y2="56" stroke="#e0dcd1" stroke-width="1.3" />
+    <line x1="505.5" y1="56" x2="530" y2="56" stroke="#e0dcd1" stroke-width="1.3" />
+    <line x1="0" y1="101" x2="24.5" y2="101" stroke="#692619" stroke-width="1.1" />
+    <line x1="505.5" y1="101" x2="530" y2="101" stroke="#692619" stroke-width="1.1" />
+
+    <!-- Jellegzetes M62 vízszintes oldalfali bordázat (nyújtva a géptér teljes hosszán) -->
+    <g stroke="#662417" stroke-width="1.2" opacity="0.82">
+      <line x1="76" y1="64" x2="454" y2="64" />
+      <line x1="76" y1="69.5" x2="454" y2="69.5" />
+      <line x1="76" y1="75" x2="454" y2="75" />
+      <line x1="76" y1="80.5" x2="454" y2="80.5" />
+      <line x1="76" y1="86" x2="454" y2="86" />
+      <line x1="76" y1="91.5" x2="454" y2="91.5" />
+      <line x1="76" y1="97" x2="454" y2="97" />
+    </g>
+
+    <!-- Erőteljes korom- és rozsdaréteg a tetőn és felső részen -->
+    <path d="M 0,18 C 8,7 26,6 52,6 L 478,6 C 504,6 522,7 530,18 L 530,49 L 0,49 Z" fill="url(#m62-soot-overlay)" />
+    <ellipse cx="225" cy="15" rx="135" ry="12" fill="#121111" opacity="0.74" />
+    <ellipse cx="368" cy="21" rx="80" ry="14" fill="#171616" opacity="0.56" />
+    <!-- Függőleges eső- és koromlefolyások a tetőperemről -->
+    <g fill="#1c1817" opacity="0.32">
+      <rect x="138" y="21" width="3" height="26" rx="1.5" />
+      <rect x="195" y="21" width="4" height="32" rx="2" />
+      <rect x="268" y="21" width="3.5" height="28" rx="1.5" />
+      <rect x="342" y="21" width="5" height="36" rx="2" />
+      <rect x="396" y="21" width="3" height="24" rx="1.5" />
+    </g>
+    <!-- Fakult festékfoltok, rozsdapöttyök és olaj/kosz lerakódás az alján -->
+    <rect x="115" y="51" width="115" height="11" rx="3" fill="#de826c" opacity="0.24" />
+    <rect x="305" y="77" width="95" height="10" rx="3" fill="#d9755f" opacity="0.18" />
+    <rect x="275" y="102" width="165" height="10" fill="#2e2420" opacity="0.52" />
+    <rect x="90" y="104" width="110" height="8" fill="#29201c" opacity="0.45" />
+
+    <!-- Vezetőállás ajtók zsanérokkal, süllyesztett kilinccsel és lehúzható ablakkal -->
+    <g>
+      <rect x="56" y="25" width="17" height="84" rx="1.2" fill="#9c3c2b" stroke="#471b13" stroke-width="1" />
+      <rect x="59.5" y="29" width="10" height="22" rx="1.2" fill="url(#win-glass)" stroke="#333" stroke-width="0.9" />
+      <rect x="69.5" y="64" width="2.5" height="1.5" fill="#c7b299" />
+      <!-- Zsanérok -->
+      <rect x="55" y="34" width="2" height="4" fill="#3b1811" />
+      <rect x="55" y="68" width="2" height="4" fill="#3b1811" />
+      <rect x="55" y="98" width="2" height="4" fill="#3b1811" />
+    </g>
+    <g>
+      <rect x="457" y="25" width="17" height="84" rx="1.2" fill="#9c3c2b" stroke="#471b13" stroke-width="1" />
+      <rect x="460.5" y="29" width="10" height="22" rx="1.2" fill="url(#win-glass)" stroke="#333" stroke-width="0.9" />
+      <rect x="457.5" y="64" width="2.5" height="1.5" fill="#c7b299" />
+      <!-- Zsanérok -->
+      <rect x="473" y="34" width="2" height="4" fill="#3b1811" />
+      <rect x="473" y="68" width="2" height="4" fill="#3b1811" />
+      <rect x="473" y="98" width="2" height="4" fill="#3b1811" />
+    </g>
+
+    <!-- Vezetőállás oldalablakok és homlokszélvédők a függőleges végeken -->
+    <!-- Hátsó (bal) vezetőállás -->
+    <rect x="24" y="27" width="24" height="22" rx="1.8" fill="url(#win-glass)" stroke="#36393b" stroke-width="1.1" />
+    <line x1="34" y1="27" x2="34" y2="49" stroke="#5a5e61" stroke-width="1" />
+    <rect x="0.5" y="26" width="14" height="24" rx="1" fill="url(#win-glass)" stroke="#292b2d" stroke-width="1" />
+    <!-- Első (jobb) vezetőállás -->
+    <rect x="482" y="27" width="24" height="22" rx="1.8" fill="url(#win-glass)" stroke="#36393b" stroke-width="1.1" />
+    <line x1="496" y1="27" x2="496" y2="49" stroke="#5a5e61" stroke-width="1" />
+    <rect x="515.5" y="26" width="14" height="24" rx="1" fill="url(#win-glass)" stroke="#292b2d" stroke-width="1" />
+    <!-- Napellenző, ablaktörlő kar és visszapillantó tükör -->
+    <line x1="515" y1="28" x2="529" y2="28" stroke="#181a1c" stroke-width="1.5" />
+    <line x1="524" y1="27" x2="524" y2="46" stroke="#181a1c" stroke-width="1.3" />
+    <rect x="509" y="29" width="3.5" height="11" rx="0.7" fill="#1f2124" />
+
+    <!-- Géptér oldalablakok (6 db nyújtott ablak, belső motorblokk-sziluettekkel) -->
+    <g stroke="#3a3d40" stroke-width="1.4">
+      <rect x="86" y="29" width="26" height="20" rx="3" fill="url(#win-glass)" />
+      <rect x="120" y="29" width="26" height="20" rx="3" fill="url(#win-glass)" />
+      <rect x="154" y="29" width="26" height="20" rx="3" fill="url(#win-glass)" />
+      <rect x="188" y="29" width="26" height="20" rx="3" fill="url(#win-glass)" />
+      <rect x="222" y="29" width="26" height="20" rx="3" fill="url(#win-glass)" />
+      <rect x="256" y="29" width="26" height="20" rx="3" fill="url(#win-glass)" />
+    </g>
+    <!-- Belső 14D40 dízelmotor-sziluettek és csillogások a géptér ablakokban -->
+    <g fill="#384047" opacity="0.45">
+      <rect x="90" y="37" width="18" height="10" rx="1" />
+      <rect x="124" y="36" width="18" height="11" rx="1" />
+      <rect x="158" y="35" width="18" height="12" rx="1" />
+      <rect x="192" y="35" width="18" height="12" rx="1" />
+      <rect x="226" y="36" width="18" height="11" rx="1" />
+      <rect x="260" y="38" width="18" height="9" rx="1" />
+    </g>
+
+    <!-- Jellegzetes nagy lamellás hűtőszekrény (nyújtott kivitelben) -->
+    <rect x="300" y="27" width="108" height="47" rx="1.8" fill="#211e1d" stroke="#121111" stroke-width="1.3" />
+    <line x1="354" y1="27" x2="354" y2="74" stroke="#121111" stroke-width="1.8" />
+    <g stroke="#544e4c" stroke-width="1.2">
+      <line x1="303" y1="32" x2="405" y2="32" />
+      <line x1="303" y1="37" x2="405" y2="37" />
+      <line x1="303" y1="42" x2="405" y2="42" />
+      <line x1="303" y1="47" x2="405" y2="47" />
+      <line x1="303" y1="52" x2="405" y2="52" />
+      <line x1="303" y1="57" x2="405" y2="57" />
+      <line x1="303" y1="62" x2="405" y2="62" />
+      <line x1="303" y1="67" x2="405" y2="67" />
+    </g>
+    <!-- Kisebb oldalsó szellőzőrácsok belső lamellákkal -->
+    <rect x="418" y="29" width="24" height="21" rx="1.2" fill="#292625" stroke="#181616" stroke-width="1" />
+    <line x1="420" y1="34" x2="440" y2="34" stroke="#4f4947" stroke-width="1" />
+    <line x1="420" y1="39" x2="440" y2="39" stroke="#4f4947" stroke-width="1" />
+    <line x1="420" y1="44" x2="440" y2="44" stroke="#4f4947" stroke-width="1" />
+
+    <rect x="222" y="75" width="38" height="17" rx="1.2" fill="#292625" stroke="#181616" stroke-width="1" />
+    <line x1="224" y1="80" x2="258" y2="80" stroke="#4f4947" stroke-width="1" />
+    <line x1="224" y1="85" x2="258" y2="85" stroke="#4f4947" stroke-width="1" />
+
+    <!-- Oldalsó pályaszámtábla: M62 071 + gyári/revíziós feliratok -->
+    <rect x="160" y="53" width="52" height="9.5" rx="0.8" fill="#212224" stroke="#9e9b95" stroke-width="0.7" />
+    <text x="186" y="60" text-anchor="middle" fill="#f2f0eb" font-family="Arial, sans-serif" font-size="7.2" font-weight="bold">M62 071</text>
+    <!-- Kis műszaki adat-táblácska a pályaszám alatt (1. kép szerint) -->
+    <rect x="180" y="66" width="12" height="5" rx="0.5" fill="#c7b299" opacity="0.8" />
+    <!-- Revíziós és fékfeliratok a szekrény alján -->
+    <rect x="92" y="103" width="22" height="2.5" fill="#e6e4dc" opacity="0.65" />
+    <rect x="415" y="103" width="26" height="2.5" fill="#e6e4dc" opacity="0.65" />
+
+    <!-- Homlokfali tábla vörös csillaggal és MÁV felirattal elöl -->
+    <rect x="510" y="63" width="18" height="8.5" rx="0.7" fill="#212224" />
+    <circle cx="513.5" cy="67.2" r="2.1" fill="#c93628" />
+    <rect x="514" y="75" width="10" height="6.5" rx="0.4" fill="#6e5c33" />
+    <!-- Homlokfali kapaszkodó az orron -->
+    <line x1="507" y1="90" x2="529" y2="90" stroke="#d4cfc3" stroke-width="1.2" />
+
+    <!-- Kapaszkodók az ajtóknál -->
+    <line x1="53" y1="33" x2="53" y2="94" stroke="#c7b299" stroke-width="1.4" />
+    <line x1="76" y1="33" x2="76" y2="94" stroke="#c7b299" stroke-width="1.4" />
+    <line x1="454" y1="33" x2="454" y2="94" stroke="#c7b299" stroke-width="1.4" />
+    <line x1="477" y1="33" x2="477" y2="94" stroke="#c7b299" stroke-width="1.4" />
+
+    <!-- Világító homlokfényszórók elöl (jobb oldalon) -->
+    <circle cx="529" cy="107" r="3.8" fill="#fffbe0" filter="url(#glow-headlight)" />
+    <circle cx="529" cy="107" r="1.7" fill="#ffffff" />
+    <circle cx="529" cy="15" r="2.8" fill="#fff7c2" filter="url(#glow-headlight)" />
+  </g>
+</svg>
