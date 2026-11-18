@@ -71,6 +71,8 @@ fun MapSheetScaffold(
     val isOpen by rememberUpdatedState(open)
     val scope = rememberCoroutineScope()
     var summaryPx by remember { mutableIntStateOf(0) }
+    // Whether the sheet has reached a visible rest since it last opened.
+    var shown by remember { mutableStateOf(open) }
     val density = LocalDensity.current
     val flingThreshold = with(density) { 125.dp.toPx() }
     val motion = remember { spring<Float>(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessMediumLow) }
@@ -105,10 +107,9 @@ fun MapSheetScaffold(
     LaunchedEffect(open) { animateTo(if (open) MapSheetValue.Half else MapSheetValue.Hidden) }
     LaunchedEffect(state) {
         // The sheet starts hidden; only reaching hidden after it was shown is a user dismissal.
-        var shown = false
         snapshotFlow { state.settledValue }.collect {
             if (it != MapSheetValue.Hidden) shown = true
-            else if (shown) { shown = false; if (isOpen) dismiss() }
+            else if (shown) { if (isOpen) dismiss(); shown = false }
         }
     }
 
@@ -143,11 +144,13 @@ fun MapSheetScaffold(
         val expanded = open && progress > .98f
         BackHandler(open) { scope.launch { animateTo(if (progress > .5f) MapSheetValue.Half else MapSheetValue.Hidden) } }
 
-        // The settled rest, not the moving offset, so camera fits run once per change.
+        // The settled rest, not the moving offset, so camera fits run once per change. While the
+        // sheet rises from hidden it reports the half rest it is heading to, so the first fit of a
+        // newly opened vehicle already keeps its route clear of the default sheet.
         val settledHeight = when {
             !open -> 0.dp
             state.settledValue == MapSheetValue.Peek -> peekHeight
-            state.settledValue == MapSheetValue.Hidden -> 0.dp
+            state.settledValue == MapSheetValue.Hidden -> if (shown) 0.dp else halfHeight
             else -> halfHeight
         }
         content(settledHeight)

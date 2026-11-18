@@ -26,7 +26,7 @@ android {
         minSdk = 28
         targetSdk = 36
         versionCode = 1
-        versionName = "v1.5.0"
+        versionName = "v1.5.1-beta1"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         manifestPlaceholders["MAPS_API_KEY"] = mapsApiKey
         buildConfigField("boolean", "MAPS_API_KEY_CONFIGURED", mapsApiKey.isNotEmpty().toString())
