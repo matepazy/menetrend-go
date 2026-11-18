@@ -64,6 +64,14 @@ internal fun parseVehiclePosition(v: JSONObject): Vehicle? {
         v.optDouble("speed").takeIf {it.isFinite() && it>=0})
 }
 
+/** Keeps words like "Vörösvári út" together: a line may only break after ",", ";", "/" or a dash. */
+internal fun breakAtSymbols(name: String): String=buildString(name.length) {
+    name.forEachIndexed {i,c ->
+        val prev=name.substring(0,i).trimEnd().lastOrNull()
+        append(if(c==' ' && prev!=null && prev !in ",;/-–") ' ' else c)
+    }
+}
+
 /** Provider timestamps are Unix seconds, independent of when the map was fetched. */
 internal fun vehiclePositionAge(updatedSeconds: Long?, nowSeconds: Long): String {
     if(updatedSeconds==null || updatedSeconds<=0) return "A pozíció frissítési ideje ismeretlen"

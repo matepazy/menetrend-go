@@ -198,8 +198,8 @@ internal fun vehicleStopPlatform(platform: String, mode: String): String = when(
                     showModeIcon=false)
                 Icon(Icons.AutoMirrored.Outlined.ArrowForward,"Irány",Modifier.size(20.dp),
                     tint=MaterialTheme.colorScheme.onSurfaceVariant)
-                Text(if(stops.isNotEmpty()) stops.last().name else vehicle.headsign,Modifier.weight(1f),
-                    style=MaterialTheme.typography.titleMedium,fontWeight=FontWeight.Bold,
+                Text(breakAtSymbols(if(stops.isNotEmpty()) stops.last().name else vehicle.headsign),Modifier.weight(1f),
+                    style=MaterialTheme.typography.titleSmall,fontWeight=FontWeight.Bold,
                     maxLines=2,overflow=TextOverflow.Ellipsis)
                 IconButton(onClick=dismiss) {Icon(Icons.Outlined.Close,"Jármű részleteinek bezárása")}
             }

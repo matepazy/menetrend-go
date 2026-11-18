@@ -84,4 +84,11 @@ class VehiclePositionsTest {
         assertNull(parseVehiclePosition(position().put("trip", JSONObject.NULL)))
         assertNull(parseVehiclePosition(position().put("lat", JSONObject.NULL)))
     }
+
+    @Test fun destinationNamesBreakOnlyAtSymbols() {
+        val nb=' '
+        assertEquals("Budapest, Bécsi${nb}út$nb/ Vörösvári${nb}út",breakAtSymbols("Budapest, Bécsi út / Vörösvári út"))
+        assertEquals("Szob$nb- Vác${nb}vasútállomás",breakAtSymbols("Szob - Vác vasútállomás"))
+        assertEquals("Keleti",breakAtSymbols("Keleti"))
+    }
 }
