@@ -236,7 +236,7 @@ private class RouteMarkBounds { var box by mutableStateOf<Rect?>(null); var a by
                 Spacer(Modifier.height(16.dp))
                 Row(Modifier.fillMaxWidth(), horizontalArrangement=Arrangement.spacedBy(12.dp), verticalAlignment=Alignment.CenterVertically) {
                     FilledTonalIconButton(onClick={closePicker();searchOptions=true},shape=CircleShape,
-                        modifier=Modifier.size(58.dp).semantics {
+                        modifier=Modifier.size(58.dp).glassHighlight(CircleShape,pillGlassTone()).semantics {
                             stateDescription=if(vm.searchConditionCount == 0) "Nincs aktív feltétel" else "${vm.searchConditionCount} aktív feltétel"
                         }) {
                         BadgedBox(badge={if(vm.searchConditionCount > 0) Badge {Text(vm.searchConditionCount.toString())}}) {
@@ -482,7 +482,7 @@ private class SwipeAction(val icon: ImageVector, val description: String, val co
 
 @Composable private fun JourneyPickerControl(label: String, value: String, icon: ImageVector,
     modifier: Modifier, onClick: () -> Unit) {
-    Surface(onClick=onClick,shape=RoundedCornerShape(20.dp),color=MaterialTheme.colorScheme.surfaceContainerLow,modifier=modifier) {
+    GlassSurface(onClick=onClick,shape=RoundedCornerShape(20.dp),color=MaterialTheme.colorScheme.surfaceContainerLow,modifier=modifier) {
         Row(Modifier.padding(12.dp).heightIn(min=40.dp),verticalAlignment=Alignment.CenterVertically) {
             Icon(icon,null,Modifier.size(20.dp),tint=MaterialTheme.colorScheme.primary)
             Spacer(Modifier.width(8.dp))

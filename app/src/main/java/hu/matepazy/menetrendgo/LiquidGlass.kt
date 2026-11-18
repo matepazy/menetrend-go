@@ -68,6 +68,16 @@ internal fun Modifier.liquidGlass(shape: Shape, fill: Color, tone: GlassTone) = 
     }
 }
 
+/** The top highlight alone, over a Material control that paints its own container (buttons, tonal icons). */
+internal fun Modifier.glassHighlight(shape: Shape, tone: GlassTone) = drawWithCache {
+    fun outline(s: Size) = Path().apply { addOutline(shape.createOutline(s, layoutDirection, this@drawWithCache)) }
+    onDrawWithContent { drawContent(); drawTopHighlight(::outline, tone, Offset.Zero, size) }
+}
+
+/** Light caught by a filled primary button: softer than on milky surfaces, so the royal blue stays solid. */
+@Composable @ReadOnlyComposable internal fun buttonGlassTone(): GlassTone =
+    GlassTone(Color.White.copy(alpha = if (dark(MaterialTheme.colorScheme.surface)) .22f else .38f))
+
 /**
  * A solid Material [Surface] in the glass material. Content colour, clipping, ripple and semantics stay
  * Material's; only the container painting changes.
