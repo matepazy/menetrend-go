@@ -451,8 +451,8 @@ private class SwipeAction(val icon: ImageVector, val description: String, val co
     val shape = RoundedCornerShape(28.dp)
     val density = LocalDensity.current
     val reveal = with(density) { 72.dp.toPx() * actions.size }
-    // Past either rest the row turns rubbery: resistance grows towards these limits instead of hitting a wall.
-    val overOpen = with(density) { 40.dp.toPx() };val overClosed = with(density) { 20.dp.toPx() }
+    // Past the open rest the row turns rubbery: resistance grows towards this limit instead of hitting a wall.
+    val overOpen = with(density) { 40.dp.toPx() }
     val offset = remember { androidx.compose.animation.core.Animatable(0f) }
     val scope = rememberCoroutineScope()
     var closing by remember { mutableStateOf(false) }
@@ -487,11 +487,10 @@ private class SwipeAction(val icon: ImageVector, val description: String, val co
         Box(Modifier.offset { androidx.compose.ui.unit.IntOffset(offset.value.toInt(),0) }
             .draggable(rememberDraggableState { d -> scope.launch {
                 val x = offset.value
-                val over = if(x < -reveal) -reveal - x else if(x > 0f) x else 0f
-                val limit = if(x < -reveal) overOpen else overClosed
-                val outward = (x <= -reveal && d < 0f) || (x >= 0f && d > 0f)
-                val k = if(outward) (1f - over / limit).coerceIn(0f,1f).let { it * it } else 1f
-                offset.snapTo((x + d * k).coerceIn(-reveal - overOpen,overClosed))
+                // Only the open side is rubbery; a closed row does not move left to right at all.
+                val over = if(x < -reveal) -reveal - x else 0f
+                val k = if(x <= -reveal && d < 0f) (1f - over / overOpen).coerceIn(0f,1f).let { it * it } else 1f
+                offset.snapTo((x + d * k).coerceIn(-reveal - overOpen,0f))
             } },Orientation.Horizontal,
                 onDragStopped={ v -> scope.launch {
                     // Aim where the fling would carry the row, not where the finger let go.
