@@ -121,9 +121,9 @@ private val ExhaustColor = Color(0xFF9AA3AB)
             if (!motion) { vehicle = FooterVehicle.Inovell; x = (width - heightPx * vehicle.aspect) / 2; return@LaunchedEffect }
             x = Float.NaN
             delay(350)
-            var turn = 0
+            var last: FooterVehicle? = null
             while (true) {
-                vehicle = FooterVehicle.entries[turn++ % FooterVehicle.entries.size]
+                vehicle = (FooterVehicle.entries - setOfNotNull(last)).random().also { last = it }
                 val w = heightPx * vehicle.aspect
                 val pps = vehicle.speed * heightPx
                 val start = withFrameNanos { it }
