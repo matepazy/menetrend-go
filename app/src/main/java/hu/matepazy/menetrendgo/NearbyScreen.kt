@@ -102,7 +102,7 @@ import kotlinx.coroutines.withContext
     var selectedVehicle by vm::mapVehicle
     // On the live map a selected vehicle is isolated, with its complete trip drawn and fitted.
     val focusId=selectedVehicle?.id?.takeIf {!routeOnly}
-    val onSelect by rememberUpdatedState<(Vehicle) -> Unit>({vehicle -> vm.loadTrip(vehicle.id,java.time.LocalDate.now(Budapest).toString());selectedVehicle=vehicle})
+    val onSelect by rememberUpdatedState<(Vehicle) -> Unit>({ vehicle -> vm.selectMapVehicle(vehicle) })
     var mapTypesOpen by rememberSaveable {mutableStateOf(false)}
     var searchQuery by rememberSaveable {mutableStateOf("")}
     var searchVehicleId by rememberSaveable {mutableStateOf<String?>(null)}
@@ -389,7 +389,12 @@ import kotlinx.coroutines.withContext
             }
         }
         if(mapTypesOpen) MapTypeDrawer(vm) {mapTypesOpen=false}
-        selectedStop?.let {StopBoardDrawer(it, dismiss={selectedStop=null})}
+        selectedStop?.let { station ->
+            StopBoardDrawer(station, dismiss = { selectedStop = null }, liveVehicles = vm.vehicles, showVehicleOnMap = { vehicle, day ->
+                selectedStop = null
+                vm.selectMapVehicle(vehicle, day)
+            })
+        }
         SnackbarHost(snackbars,Modifier.align(Alignment.BottomCenter).padding(bottom=LocalBottomOverlayInset.current+12.dp))
     }
 }

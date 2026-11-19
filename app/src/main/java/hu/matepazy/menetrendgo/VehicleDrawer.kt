@@ -18,6 +18,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowForward
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Commute
+import androidx.compose.material.icons.outlined.Map
 import androidx.compose.material.icons.outlined.Badge
 import androidx.compose.material.icons.outlined.Update
 import androidx.compose.material.icons.outlined.Speed
@@ -132,13 +133,16 @@ internal fun vehicleStopPlatform(platform: String, mode: String): String = when(
 
 /** Live-map selection content: loads and refreshes the trip while the map sheet shows it. */
 @Composable fun ColumnScope.MapVehicleSheetContent(vm: AppState, vehicle: Vehicle, dismiss: () -> Unit) {
-    var day by remember(vehicle.id) {mutableStateOf(LocalDate.now(Budapest).toString())}
+    val serviceDay = vm.mapVehicleServiceDay
+    var day by remember(vehicle.id, serviceDay) {
+        mutableStateOf(serviceDay ?: LocalDate.now(Budapest).toString())
+    }
     var now by remember {mutableLongStateOf(System.currentTimeMillis())}
     val lifecycle=LocalLifecycleOwner.current.lifecycle
-    LaunchedEffect(vehicle.id,lifecycle,vm.mapRefreshSeconds) {
+    LaunchedEffect(vehicle.id,serviceDay,lifecycle,vm.mapRefreshSeconds) {
         lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
             while(vehicle.hasMavTrip) {
-                day=LocalDate.now(Budapest).toString()
+                day=serviceDay ?: LocalDate.now(Budapest).toString()
                 vm.loadTrip(vehicle.id,day)
                 delay(vm.mapRefreshSeconds * 1_000L)
             }
@@ -158,9 +162,10 @@ internal fun vehicleStopPlatform(platform: String, mode: String): String = when(
     error: String?,
     retry: () -> Unit,
     dismiss: () -> Unit,
+    showOnMap: (() -> Unit)? = null,
 ) {
     AppExpandableBottomSheet(onDismissRequest=dismiss,initialHeightFraction=.78f) {
-        VehicleDrawerContent(vehicle, detail, day, now, error, retry, dismiss)
+        VehicleDrawerContent(vehicle, detail, day, now, error, retry, dismiss, showOnMap)
     }
 }
 
@@ -173,6 +178,7 @@ internal fun vehicleStopPlatform(platform: String, mode: String): String = when(
     error: String?,
     retry: () -> Unit,
     dismiss: () -> Unit,
+    showOnMap: (() -> Unit)? = null,
 ) {
     val stops=remember(detail,day) {detail?.let {vehicleStops(it,day)}.orEmpty()}
     val upcoming=upcomingVehicleStops(stops,now,detail,vehicle)
@@ -201,7 +207,12 @@ internal fun vehicleStopPlatform(platform: String, mode: String): String = when(
                 Text(breakAtSymbols(if(stops.isNotEmpty()) stops.last().name else vehicle.headsign),Modifier.weight(1f),
                     style=MaterialTheme.typography.titleSmall,fontWeight=FontWeight.Bold,
                     maxLines=2,overflow=TextOverflow.Ellipsis)
-                IconButton(onClick=dismiss) {Icon(Icons.Outlined.Close,"Jármű részleteinek bezárása")}
+                Row(horizontalArrangement = Arrangement.spacedBy(AppLayout.CompactGap)) {
+                    showOnMap?.let { action ->
+                        IconButton(onClick = action) { Icon(Icons.Outlined.Map, "Jármű mutatása a térképen") }
+                    }
+                    IconButton(onClick=dismiss) {Icon(Icons.Outlined.Close,"Jármű részleteinek bezárása")}
+                }
             }
             upcoming.firstOrNull()?.let {next ->
                 val time=vehicleDelayTime(next)

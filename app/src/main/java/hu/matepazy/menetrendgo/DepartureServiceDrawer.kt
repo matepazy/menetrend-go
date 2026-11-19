@@ -26,6 +26,8 @@ import org.json.JSONObject
     departure: StopDeparture,
     dismiss: () -> Unit,
     fetch: (suspend (String, String) -> JSONObject)? = null,
+    showOnMap: ((Vehicle) -> Unit)? = null,
+    liveVehicles: List<Vehicle> = emptyList(),
 ) {
     val client = remember { MavClient() }
     val lifecycle = LocalLifecycleOwner.current.lifecycle
@@ -57,20 +59,32 @@ import org.json.JSONObject
     val stops = remember(detail, departure.serviceDay) {
         detail?.let { vehicleStops(it, departure.serviceDay) }.orEmpty()
     }
-    val live = !departure.cancelled && stops.any { it.realtime }
-    val vehicle = remember(departure, detail) {
-        val position = detail?.array("vehiclePositions")?.singleOrNull()
-        Vehicle(departure.tripId, departure.leg.route, departure.headsign, departure.leg.mode, 0.0, 0.0,
-            routeColor = departure.leg.routeColor, category = departure.leg.category,
-            routeLongName = departure.leg.routeLongName, routeLogo = departure.leg.routeLogo,
-            agencyName = departure.leg.agencyName,
-            model = position?.optString("vehicleModel")?.takeUnless { it == "null" }.orEmpty(),
-            registration = position?.optString("licensePlate")?.takeUnless { it == "null" }.orEmpty(),
-            vehicleId = position?.optString("vehicleId")?.takeUnless { it == "null" }.orEmpty(),
-            positionUpdatedSeconds = position?.optLong("lastUpdated")?.takeIf { it > 0 })
+    val position = remember(detail) { detail?.array("vehiclePositions")?.singleOrNull() }
+    val trackedVehicle = remember(detail, departure.tripId, liveVehicles) {
+        detail?.let { trip ->
+            position?.let { parseVehiclePosition(it, trip) }?.takeIf { it.id == departure.tripId }?.let { tracked ->
+                liveVehicles.firstOrNull {
+                    tracked.vehicleId.isNotBlank() && it.id == tracked.id && it.vehicleId == tracked.vehicleId
+                } ?: tracked
+            }
+        }
     }
+    val live = !departure.cancelled && (departure.time.realtime || trackedVehicle != null || stops.any { it.realtime })
     if (live) {
-        VehicleDrawer(vehicle, detail, departure.serviceDay, now, error, { refresh++ }, dismiss)
+        val vehicle = trackedVehicle ?: remember(departure, position) {
+            Vehicle(departure.tripId, departure.leg.route, departure.headsign, departure.leg.mode, 0.0, 0.0,
+                routeColor = departure.leg.routeColor, category = departure.leg.category,
+                routeLongName = departure.leg.routeLongName, routeLogo = departure.leg.routeLogo,
+                agencyName = departure.leg.agencyName,
+                model = position?.optString("vehicleModel")?.takeUnless { it == "null" }.orEmpty(),
+                registration = position?.optString("licensePlate")?.takeUnless { it == "null" }.orEmpty(),
+                vehicleId = position?.optString("vehicleId")?.takeUnless { it == "null" }.orEmpty(),
+                positionUpdatedSeconds = position?.optLong("lastUpdated")?.takeIf { it > 0 })
+        }
+        val mapAction: (() -> Unit)? = if (trackedVehicle != null && showOnMap != null) {
+            { showOnMap(trackedVehicle) }
+        } else null
+        VehicleDrawer(vehicle, detail, departure.serviceDay, now, error, { refresh++ }, dismiss, showOnMap = mapAction)
         return
     }
     AppBottomSheet(onDismissRequest = dismiss) {

@@ -178,6 +178,14 @@ class AppState(app: Application) : AndroidViewModel(app) {
     var searchGeneration by mutableIntStateOf(0); private set
     var trackedJourney by mutableStateOf<Journey?>(null)
     var mapVehicle by mutableStateOf<Vehicle?>(null)
+    var mapVehicleServiceDay by mutableStateOf<String?>(null)
+        private set
+
+    internal fun selectMapVehicle(vehicle: Vehicle, serviceDay: String? = null) {
+        mapVehicleServiceDay = serviceDay
+        loadTrip(vehicle.id, serviceDay ?: java.time.LocalDate.now(Budapest).toString())
+        mapVehicle = vehicle
+    }
     private var searchJob: Job? = null
     private var detailJob: Job? = null
     private var detailKey = ""

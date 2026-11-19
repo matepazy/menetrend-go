@@ -9,15 +9,18 @@ import android.net.Uri
 import android.os.Bundle
 import android.widget.RemoteViews
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.*
 import org.json.JSONObject
 
@@ -256,7 +259,19 @@ class StopBoardWidgetActivity : ComponentActivity() {
         val isBoard = intent.action == "board" && station != null
         setContent { MenetrendTheme(savedTheme(this)) {
             Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-                if (isBoard) StopBoardDrawer(station!!, dismiss={ finish() })
+                if (isBoard) {
+                    val vm: AppState = viewModel()
+                    var mapOpen by rememberSaveable { mutableStateOf(false) }
+                    if (mapOpen) {
+                        BackHandler(enabled = vm.mapVehicle == null) { mapOpen = false }
+                        NearbyScreen(vm)
+                    } else {
+                        StopBoardDrawer(station!!, dismiss = { finish() }, liveVehicles = vm.vehicles, showVehicleOnMap = { vehicle, day ->
+                            vm.selectMapVehicle(vehicle, day)
+                            mapOpen = true
+                        })
+                    }
+                }
                 else WidgetStationPicker { selected ->
                     StopBoardWidget.save(this, id, selected)
                     StopBoardWidget.render(this, id)

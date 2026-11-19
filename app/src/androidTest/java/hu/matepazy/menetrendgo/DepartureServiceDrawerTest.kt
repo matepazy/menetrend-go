@@ -35,11 +35,14 @@ class DepartureServiceDrawerTest {
         var boardDismissed = false
         var live = false
         var fail = false
+        var hasPosition = false
+        var mappedVehicle: Pair<Vehicle, String>? = null
         var dark by mutableStateOf(false)
         val requests = mutableListOf<String>()
         compose.setContent { MenetrendTheme(if (dark) "dark" else "light") {
             CompositionLocalProvider(LocalDensity provides Density(LocalDensity.current.density, if (dark) 1.3f else 1f)) {
-            StopBoardDrawer(station, { boardDismissed = true }, fetch = { listOf(departure) }, fetchTrip = { id, day ->
+            StopBoardDrawer(station, { boardDismissed = true }, fetch = { listOf(departure) },
+                showVehicleOnMap = { vehicle, day -> mappedVehicle = vehicle to day }, fetchTrip = { id, day ->
                 requests += "$id|$day"
                 if (fail) error("Teszt kapcsolati hiba")
                 val serviceDate = LocalDate.now(Budapest)
@@ -47,6 +50,7 @@ class DepartureServiceDrawerTest {
                 val seconds = (now / 1000 - midnight + 600).toInt()
                 JSONObject().put("gtfsId", id).put("vehiclePositions", JSONArray().put(JSONObject()
                     .put("vehicleId", "test:vehicle").put("vehicleModel", "FLIRT").put("licensePlate", "415-001")
+                    .apply { if (hasPosition) put("lat", 47.5).put("lon", 19.05) }
                     .put("lastUpdated", now / 1000)))
                     .put("stoptimes", JSONArray().put(JSONObject()
                     .put("serviceDay", midnight).put("scheduledArrival", seconds).put("scheduledDeparture", seconds)
@@ -68,6 +72,7 @@ class DepartureServiceDrawerTest {
         }
         open()
         compose.onNodeWithText("Tervezett menetrend · 2026-10-31").assertIsDisplayed()
+        compose.onNodeWithContentDescription("Jármű mutatása a térképen").assertDoesNotExist()
         compose.onNodeWithText("Menetrendi megálló").assertIsDisplayed()
         capture("departure-service-scheduled-phone")
         compose.onNodeWithContentDescription("Járat részleteinek bezárása").performClick()
@@ -76,7 +81,8 @@ class DepartureServiceDrawerTest {
         open()
         compose.waitUntil(5000) { compose.onAllNodesWithContentDescription("Jármű részleteinek bezárása").fetchSemanticsNodes().isNotEmpty() }
         compose.onNodeWithText("Élő követés · következő megállók").assertDoesNotExist()
-        compose.onNodeWithText("Menetrendi megálló → Menetrendi megálló").assertIsDisplayed()
+        compose.onNodeWithText("Menetrendi\u00a0megálló").assertIsDisplayed()
+        compose.onNodeWithContentDescription("Jármű mutatása a térképen").assertDoesNotExist()
         compose.onNodeWithText("1 perc késés").assertIsDisplayed()
         compose.onNodeWithText("FLIRT").assertHasClickAction()
         compose.onNodeWithText("415-001").assertIsDisplayed()
@@ -92,7 +98,7 @@ class DepartureServiceDrawerTest {
         compose.onNodeWithText("Újrapróbálás").performClick()
         compose.waitUntil(5000) { compose.onAllNodesWithContentDescription("Jármű részleteinek bezárása").fetchSemanticsNodes().isNotEmpty() }
         compose.onNodeWithText("Menetrendi megálló").assertIsDisplayed()
-        compose.onNodeWithText("Menetrendi megálló → Menetrendi megálló").performTouchInput { swipeDown(startY = centerY, endY = centerY + 1100f) }
+        compose.onNodeWithText("Menetrendi\u00a0megálló").performTouchInput { swipeDown(startY = centerY, endY = centerY + 1100f) }
         compose.waitForIdle()
         // Dismiss using the handle area if the first drag was consumed by content.
         if (compose.onAllNodesWithContentDescription("Jármű részleteinek bezárása").fetchSemanticsNodes().isNotEmpty()) {
@@ -100,6 +106,23 @@ class DepartureServiceDrawerTest {
         }
         compose.waitUntil(5000) { compose.onAllNodesWithContentDescription("Jármű részleteinek bezárása").fetchSemanticsNodes().isEmpty() }
         assertBoard()
-        compose.runOnIdle { assertTrue(requests.all { it == "test:trip|2026-10-31" }) }
+        compose.runOnIdle { hasPosition = true }
+        open()
+        val map = compose.onNodeWithContentDescription("Jármű mutatása a térképen")
+        val close = compose.onNodeWithContentDescription("Jármű részleteinek bezárása")
+        map.assertIsDisplayed()
+        assertTrue(map.fetchSemanticsNode().boundsInRoot.right < close.fetchSemanticsNode().boundsInRoot.left)
+        capture("departure-service-map-action")
+        map.performClick()
+        assertBoard()
+        compose.runOnIdle {
+            val (vehicle, day) = requireNotNull(mappedVehicle)
+            assertEquals(departure.tripId, vehicle.id)
+            assertEquals("test:vehicle", vehicle.vehicleId)
+            assertEquals(47.5, vehicle.lat, 0.0)
+            assertEquals(19.05, vehicle.lon, 0.0)
+            assertEquals(departure.serviceDay, day)
+            assertTrue(requests.all { it == "test:trip|2026-10-31" })
+        }
     }
 }

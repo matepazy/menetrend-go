@@ -27,7 +27,9 @@ import kotlinx.coroutines.delay
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable fun StopBoardDrawer(station: Station, dismiss: () -> Unit,
     fetch: (suspend (String) -> List<StopDeparture>)? = null,
-    fetchTrip: (suspend (String, String) -> org.json.JSONObject)? = null) {
+    fetchTrip: (suspend (String, String) -> org.json.JSONObject)? = null,
+    liveVehicles: List<Vehicle> = emptyList(),
+    showVehicleOnMap: ((Vehicle, String) -> Unit)? = null) {
     val context = LocalContext.current
     val dark = LocalAppDarkTheme.current
     val colorContext = remember(context, dark) {
@@ -122,6 +124,13 @@ import kotlinx.coroutines.delay
         }
     }
     selectedDeparture?.let { departure ->
-        DepartureServiceDrawer(departure, dismiss = { selectedDeparture = null }, fetch = fetchTrip)
+        DepartureServiceDrawer(departure, dismiss = { selectedDeparture = null }, fetch = fetchTrip,
+            liveVehicles = liveVehicles,
+            showOnMap = showVehicleOnMap?.let { show ->
+                { vehicle ->
+                    selectedDeparture = null
+                    show(vehicle, departure.serviceDay)
+                }
+            })
     }
 }
