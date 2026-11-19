@@ -67,6 +67,13 @@ class AppState(app: Application) : AndroidViewModel(app) {
         savedEnabled = enabled
         prefs.edit().putBoolean("saved_enabled", enabled).apply()
     }
+    // Navigation bar look, edited from the bar's long-press menu or Megjelenés.
+    var navLiquid by mutableStateOf(prefs.getBoolean("nav_liquid", true)); private set
+    fun chooseNavLiquid(enabled: Boolean) { navLiquid = enabled; prefs.edit().putBoolean("nav_liquid", enabled).apply() }
+    var navLabels by mutableStateOf(prefs.getBoolean("nav_labels", true)); private set
+    fun chooseNavLabels(enabled: Boolean) { navLabels = enabled; prefs.edit().putBoolean("nav_labels", enabled).apply() }
+    /** A Settings sub-page to open next time Settings composes (a SettingsPage name), then cleared. */
+    var settingsRequest by mutableStateOf<String?>(null)
     val activeExtraFeatureCount get() = listOf(savedEnabled, journeyTrackingBetaEnabled, passesEnabled).count { it }
     val extraFeaturesSummary get() = if (activeExtraFeatureCount == 0) "Nincs aktív kiegészítő funkció"
         else "$activeExtraFeatureCount funkció bekapcsolva"

@@ -41,6 +41,8 @@ private enum class SettingsPage(val title: String) {
 
 @Composable fun SettingsScreen(vm: AppState) {
     var route by rememberSaveable { mutableStateOf(SettingsPage.Home.name) }
+    // The navigation long-press menu can ask for a sub-page (Kiegészítő funkciók).
+    vm.settingsRequest?.let { request -> route = request; SideEffect { vm.settingsRequest = null } }
     val page = SettingsPage.entries.firstOrNull { it.name == route } ?: SettingsPage.Home
     val context = LocalContext.current
     val owner = LocalLifecycleOwner.current
@@ -201,6 +203,8 @@ private enum class SettingsPage(val title: String) {
                         }
                     }
                     item { SettingsNote("A Rendszer szerint beállítás az Android világos vagy sötét megjelenését követi. Az OLED sötét mód tiszta fekete hátteret használ.") }
+                    item { SettingsGroup { NavigationSwitches(vm, heading = true) } }
+                    item { SettingsNote("A navigációs sávot hosszan nyomva is szerkesztheted.") }
                 }
                 SettingsPage.Notifications -> {
                     if (vm.passesEnabled) item {

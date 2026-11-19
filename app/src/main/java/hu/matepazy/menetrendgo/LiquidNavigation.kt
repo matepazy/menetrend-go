@@ -103,7 +103,10 @@ private const val DragTrailLag = .095f
     onSelect: (Int) -> Unit,
     modifier: Modifier = Modifier,
     onMotion: (Boolean) -> Unit = {},
+    liquid: Boolean = true,
+    labels: Boolean = true,
 ) {
+    val currentLiquid by rememberUpdatedState(liquid)
     val gap = with(LocalDensity.current) { 4.dp.toPx() }
     val corner = with(LocalDensity.current) { 26.dp.toPx() }
     var width by remember { mutableFloatStateOf(0f) }
@@ -130,6 +133,8 @@ private const val DragTrailLag = .095f
         snapshotFlow { target }.filterNotNull().collectLatest { (l, r) ->
             val movingRight = l + r > left.value + right.value
             val (lv, rv) = release.also { release = 0f to 0f }
+            // Without the liquid motion the pill jumps straight to its destination.
+            if (!currentLiquid) { left.snapTo(l); right.snapTo(r); return@collectLatest }
             coroutineScope {
                 launch { left.animateTo(l, if (movingRight) TrailEdge else LeadEdge, lv) }
                 launch { right.animateTo(r, if (movingRight) LeadEdge else TrailEdge, rv) }
@@ -193,7 +198,8 @@ private const val DragTrailLag = .095f
             drawGlassPill(pill, Offset(l, (size.height - h) / 2), Size(w, h), min(corner, h / 2), pillTone,
                 max(pillGlint(right.value - left.value, slot), held))
         }
-        .pointerInput(count) {
+        .pointerInput(count, liquid) {
+            if (!liquid) return@pointerInput
             val tracker = VelocityTracker()
             var grab = 0f
             var detent = 0
@@ -243,9 +249,13 @@ private const val DragTrailLag = .095f
                 .selectable(selected = index == selectedPos, interactionSource = press, indication = null, role = Role.Tab, onClick = { currentSelect(index) })
                 .padding(horizontal = 2.dp, vertical = 8.dp).heightIn(min = if (largeFont) 64.dp else 48.dp),
                 horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-                Icon(icon, null, Modifier.size(24.dp), tint = tint)
-                Spacer(Modifier.height(5.dp))
-                Text(label, style = MaterialTheme.typography.labelMedium, textAlign = TextAlign.Center, maxLines = 2, color = tint)
+                // Without labels the icon carries the item alone, so it grows and gains weight.
+                if (labels) Icon(icon, null, Modifier.size(24.dp), tint = tint)
+                else HeavyIcon(icon, label, 28.dp, tint)
+                if (labels) {
+                    Spacer(Modifier.height(5.dp))
+                    Text(label, style = MaterialTheme.typography.labelMedium, textAlign = TextAlign.Center, maxLines = 2, color = tint)
+                }
             }
         }
     }

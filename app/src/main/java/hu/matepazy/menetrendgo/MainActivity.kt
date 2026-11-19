@@ -320,18 +320,23 @@ private fun featherMask(top: Boolean, endY: Float=Float.POSITIVE_INFINITY)=
     val destinations = listOf(0 to "Tervezés", 1 to "Térkép") + (if (vm.savedEnabled) listOf(4 to "Mentett") else emptyList()) +
         (if (vm.passesEnabled) listOf(2 to "Bérletek") else emptyList()) + (3 to "Beállítások")
     val icons = listOf(Icons.Outlined.Search,Icons.Outlined.Map,Icons.Outlined.CreditCard,Icons.Outlined.Settings,Icons.Outlined.BookmarkBorder)
+    val navItems=destinations.map { (index,label) -> label to icons[index] }
+    fun openExtras() { returning=false; vm.settingsRequest="Extras"; tab=3; page="search"; selected=null }
     // Map Back previews need the destination's navigation and measured insets too.
     @Composable fun NavigationFrame(mapScreen: Boolean, content: @Composable () -> Unit) {
     BoxWithConstraints(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         val wide = maxWidth >= 700.dp
         val largeFont=LocalDensity.current.fontScale>1.15f
         Row(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing.only(if(wide || mapScreen) WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom else WindowInsetsSides.Horizontal))) {
-            if(wide && !mapScreen) NavigationRail(modifier=Modifier.windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top)),containerColor=MaterialTheme.colorScheme.surface) {
+            if(wide && !mapScreen) NavigationLongPressHost(vm,navItems,::openExtras) {
+              NavigationRail(modifier=Modifier.windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top)),containerColor=MaterialTheme.colorScheme.surface) {
                 Spacer(Modifier.height(30.dp))
                 @OptIn(ExperimentalMaterial3Api::class)
                 CompositionLocalProvider(LocalRippleConfiguration provides null) {
-                    destinations.forEach { (index,label) -> NavigationRailItem(selected=tab==index,onClick={returning=false;tab=index;page="search";selected=null},icon={Icon(icons[index],null)},label={Text(label)}) }
+                    destinations.forEach { (index,label) -> NavigationRailItem(selected=tab==index,onClick={returning=false;tab=index;page="search";selected=null},
+                        icon={if(vm.navLabels) Icon(icons[index],null) else HeavyIcon(icons[index],label,28.dp,LocalContentColor.current)},label=if(vm.navLabels) {{Text(label)}} else null) }
                 }
+              }
             }
             Scaffold(containerColor=Color.Transparent,contentWindowInsets=WindowInsets(0),
                 bottomBar={ if(!wide && !mapScreen) {
@@ -341,10 +346,12 @@ private fun featherMask(top: Boolean, endY: Float=Float.POSITIVE_INFINITY)=
                         exit=slideOutVertically(tween(AppMotion.Dismiss)) {it}+fadeOut(tween(AppMotion.Dismiss))) {
                     GlassSurface(Modifier.navigationBarsPadding().padding(horizontal=AppLayout.PageGutter,vertical=6.dp),shape=MaterialTheme.shapes.large,
                         level=GlassLevel.Floating) {
-                        LiquidNavigationBar(destinations.map { (index,label) -> label to icons[index] },
+                        NavigationLongPressHost(vm,navItems,::openExtras) {
+                        LiquidNavigationBar(navItems,
                             selected=destinations.indexOfFirst { it.first==tab },largeFont=largeFont,
                             onSelect={ pos -> returning=false;tab=destinations[pos].first;page="search";selected=null },
-                            onMotion={ navInMotion=it })
+                            onMotion={ navInMotion=it },liquid=vm.navLiquid,labels=vm.navLabels)
+                        }
                     }
                     }
                 } }
