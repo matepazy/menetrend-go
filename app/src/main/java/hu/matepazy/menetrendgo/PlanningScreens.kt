@@ -906,6 +906,8 @@ internal const val DeparturePaginationKey = "later-departures"
 @Composable fun ResultsScreen(vm: AppState, navigation: ResultsNavigationState, back: () -> Unit,
     refreshDepartures: Boolean = true, select: (Journey) -> Unit) {
     var saveSearch by rememberSaveable {mutableStateOf(false)}
+    var returnSwaps by rememberSaveable {mutableIntStateOf(0)}
+    val returnRotation by animateFloatAsState(returnSwaps*180f,tween(AppMotion.Reveal,easing=AppMotion.State),label="Return journey")
     val from=vm.resultFrom
     val to=vm.resultTo
     val saved=vm.savedSearches.firstOrNull {it.from.id==from?.id && it.to.id==to?.id}
@@ -956,6 +958,9 @@ internal const val DeparturePaginationKey = "later-departures"
     }
     LazyColumn(Modifier.fillMaxSize(),state=listState,contentPadding=screenContentPadding(),verticalArrangement=Arrangement.spacedBy(AppLayout.ItemGap)) {
         item { PageTitle("Indulások", "${from?.name.orEmpty()} → ${to?.name.orEmpty()}",back) {
+            FilledTonalIconButton(onClick={returnSwaps++;vm.searchReturn()},enabled=from!=null && to!=null) {
+                Icon(Icons.Outlined.SwapHoriz,"Visszaút: indulás és érkezés felcserélése",Modifier.graphicsLayer {rotationZ=returnRotation})
+            }
             FilledTonalIconButton(onClick={saveSearch=true},enabled=canSaveRoute(from,to)) {
                 Icon(if(saved==null) Icons.Outlined.BookmarkAdd else Icons.Outlined.BookmarkAdded,
                     if(saved==null) "Keresés mentése" else "Mentett keresés szerkesztése")

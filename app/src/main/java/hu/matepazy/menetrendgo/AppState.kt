@@ -275,6 +275,13 @@ class AppState(app: Application) : AndroidViewModel(app) {
         passes = passes.filterNot { it.id == pass.id }; savePasses()
     }
     private fun savePasses() { prefs.edit().putString("passes", JSONArray(passes.map { it.json() }).toString()).apply() }
+    /** Return journey: swaps the shown endpoints (planner included) and re-runs the search at the same time and mode. */
+    fun searchReturn() {
+        val current = activeSearch ?: return
+        from = current.to; to = current.from; arriveBy = current.arrive
+        if (!useNow) dateTime = current.time
+        search()
+    }
     fun retrySearch() = search(failedSearchMore, failedSearchEarlier)
     fun loadEarlier() {
         if (!searching && canLoadEarlier) {
