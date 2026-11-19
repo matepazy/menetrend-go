@@ -288,7 +288,7 @@ private fun featherMask(top: Boolean, endY: Float=Float.POSITIVE_INFINITY)=
     LaunchedEffect(owner, tab, page, tripId, tripDay, vm.mapRefreshSeconds) {
         owner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
             // Maps own their polling in TransportMap, including embedded map views.
-            if(page == "trip" || tab == 0 && page == "journey") {
+            if(page == "trip" || (tab == 0 || tab == 4) && page == "journey") {
                 while(true) {
                     vm.refreshVehicles()
                     if(page == "trip" && tripId.isNotEmpty()) vm.loadTrip(tripId,tripDay)
@@ -313,10 +313,13 @@ private fun featherMask(top: Boolean, endY: Float=Float.POSITIVE_INFINITY)=
     LaunchedEffect(vm.passesEnabled) {
         if (!vm.passesEnabled && tab == 2) { tab = 0; page = "search"; selected = null }
     }
+    LaunchedEffect(vm.savedEnabled) {
+        if (!vm.savedEnabled && tab == 4) { tab = 0; page = "search"; selected = null }
+    }
     // Keep stable destination IDs when the optional pass tab is hidden.
-    val destinations = listOf(0 to "Tervezés", 1 to "Térkép") +
+    val destinations = listOf(0 to "Tervezés", 1 to "Térkép") + (if (vm.savedEnabled) listOf(4 to "Mentett") else emptyList()) +
         (if (vm.passesEnabled) listOf(2 to "Bérletek") else emptyList()) + (3 to "Beállítások")
-    val icons = listOf(Icons.Outlined.Search,Icons.Outlined.Map,Icons.Outlined.CreditCard,Icons.Outlined.Settings)
+    val icons = listOf(Icons.Outlined.Search,Icons.Outlined.Map,Icons.Outlined.CreditCard,Icons.Outlined.Settings,Icons.Outlined.BookmarkBorder)
     // Map Back previews need the destination's navigation and measured insets too.
     @Composable fun NavigationFrame(mapScreen: Boolean, content: @Composable () -> Unit) {
     BoxWithConstraints(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
@@ -367,6 +370,7 @@ private fun featherMask(top: Boolean, endY: Float=Float.POSITIVE_INFINITY)=
                                 page=="trip" && selected!=null -> JourneyScreen(vm,selected!!,{},onTrip={},onMap={},refreshTransfers=false)
                                 page=="trip" && tab==1 -> NearbyScreen(vm)
                                 page=="journey" && journeyReturnPage=="results" -> ResultsScreen(vm,resultsNavigation,{},refreshDepartures=false) {}
+                                page=="journey" && tab==4 -> SavedScreen(vm,{},onJourney={})
                                 else -> SearchScreen(vm) {}
                             }
     }
@@ -383,10 +387,12 @@ private fun featherMask(top: Boolean, endY: Float=Float.POSITIVE_INFINITY)=
                             page=="routeMap" && selected!=null -> JourneyMapScreen(vm,selected!!,::back)
                             page == "trip" -> TripScreen(vm, tripId, tripDay, ::back) { returning=false;vm.mapVehicle=null;page="vehicleMap" }
                             tab==0 && page=="results" -> ResultsScreen(vm,resultsNavigation,::back) { returning=false;selected=it;journeyReturnPage="results";page="journey" }
-                            tab==0 && page=="journey" && selected!=null -> JourneyScreen(vm,selected!!,::back,
+                            (tab==0 || tab==4) && page=="journey" && selected!=null -> JourneyScreen(vm,selected!!,::back,
                                 onTrip={ leg -> returning=false;tripId=leg.tripId; tripDay=Instant.ofEpochMilli(leg.start).atZone(Budapest).toLocalDate().toString(); vm.loadTrip(tripId,tripDay); page="trip" },
                                 onMap={ returning=false;vm.mapVehicle=null;page="routeMap" })
                             tab==0 -> SearchScreen(vm,onTracking={selected=it;tab=0;journeyReturnPage="search";page="journey"}) { returning=false;vm.search();page="results" }
+                            tab==4 && vm.savedEnabled -> SavedScreen(vm,onSearch={ returning=false;tab=0;vm.search();page="results" },onPlan={ returning=false;tab=0;page="search" }) {
+                                returning=false;selected=it;journeyReturnPage="search";page="journey" }
                             tab==1 -> NearbyScreen(vm)
                             tab==2 && vm.passesEnabled -> PassesScreen(vm)
                             else -> SettingsScreen(vm)

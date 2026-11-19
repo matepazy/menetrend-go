@@ -23,15 +23,7 @@ internal data class TrackingSession(
     val leg get() = journey.legs[legIndex]
     val controlToken get() = "$startedAt|${journey.trackingKey}|$legIndex"
     val nextLegIndex get() = journey.legs.indices.firstOrNull { it > legIndex && !journey.legs[it].walking }
-    fun json() = JSONObject().put("legs", JSONArray(journey.legs.map { leg ->
-        JSONObject().put("mode", leg.mode).put("startTime", leg.start).put("endTime", leg.end)
-            .put("from", leg.from.json()).put("to", leg.to.json())
-            .put("route", JSONObject().put("shortName", leg.route).put("color", leg.routeColor))
-            .put("trip", JSONObject().put("gtfsId", leg.tripId).put("tripHeadsign", leg.headsign))
-            .put("intermediateStops", JSONArray(leg.intermediate.map { it.json() }))
-            .put("legGeometry", JSONObject().put("points", leg.geometry))
-            .put("realTime", leg.realTime).put("arrivalDelay", leg.arrivalDelay).put("departureDelay", leg.departureDelay)
-    })).put("duration", journey.duration).put("legIndex", legIndex).put("warningMinutes", warningMinutes)
+    fun json() = itineraryJson(journey).put("legIndex", legIndex).put("warningMinutes", warningMinutes)
         .put("alerted", alerted).put("awaitingBoarding", awaitingBoarding).put("progress", progress)
         .put("startedAt", startedAt).put("progressAt", progressAt)
 

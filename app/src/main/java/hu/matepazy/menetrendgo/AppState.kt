@@ -61,7 +61,13 @@ class AppState(app: Application) : AndroidViewModel(app) {
             else PassNotifications.cancel(getApplication(), pass)
         }
     }
-    val activeExtraFeatureCount get() = listOf(journeyTrackingBetaEnabled, passesEnabled).count { it }
+    // Saved journeys are an extra that starts enabled; turning it off only hides the tab and save button.
+    var savedEnabled by mutableStateOf(prefs.getBoolean("saved_enabled", true)); private set
+    fun chooseSavedEnabled(enabled: Boolean) {
+        savedEnabled = enabled
+        prefs.edit().putBoolean("saved_enabled", enabled).apply()
+    }
+    val activeExtraFeatureCount get() = listOf(savedEnabled, journeyTrackingBetaEnabled, passesEnabled).count { it }
     val extraFeaturesSummary get() = if (activeExtraFeatureCount == 0) "Nincs aktív kiegészítő funkció"
         else "$activeExtraFeatureCount funkció bekapcsolva"
     var developerSettingsUnlocked by mutableStateOf(prefs.getBoolean("developer_settings_unlocked", false)); private set
@@ -112,6 +118,9 @@ class AppState(app: Application) : AndroidViewModel(app) {
     var passes by mutableStateOf(readArray("passes").mapNotNull { runCatching { Pass.parse(it) }.getOrNull() }); private set
     var savedSearches by mutableStateOf(readArray("saved_searches").mapNotNull {
         runCatching { SavedSearch.parse(it) }.getOrNull()
+    }.distinctBy { it.key }); private set
+    var savedJourneys by mutableStateOf(readArray("saved_journeys").mapNotNull {
+        runCatching { SavedJourney.parse(it) }.getOrNull()
     }.distinctBy { it.key }); private set
     var showSavedSearches by mutableStateOf(prefs.getBoolean("show_saved_searches", false)); private set
     var from by mutableStateOf<Station?>(null)
@@ -261,6 +270,25 @@ class AppState(app: Application) : AndroidViewModel(app) {
     }
     private fun persistSavedSearches() {
         prefs.edit().putString("saved_searches", JSONArray(savedSearches.map { it.json() }).toString()).apply()
+    }
+    fun savedJourney(journey: Journey) = journey.key.let { key -> savedJourneys.firstOrNull { it.key == key } }
+    /** Saving is one tap and idempotent; names and notes are added afterwards. */
+    fun saveJourney(journey: Journey) {
+        if (journey.legs.isEmpty() || savedJourney(journey) != null) return
+        savedJourneys = savedJourneys + SavedJourney.of(journey)
+        persistSavedJourneys()
+    }
+    fun updateSavedJourney(key: String, name: String, note: String) {
+        savedJourneys = savedJourneys.map { if (it.key != key) it else it.copy(
+            name = name.trim().take(SavedJourney.MAX_NAME_LENGTH), note = note.trim().take(SavedJourney.MAX_NOTE_LENGTH)) }
+        persistSavedJourneys()
+    }
+    fun removeSavedJourney(key: String) {
+        savedJourneys = savedJourneys.filterNot { it.key == key }
+        persistSavedJourneys()
+    }
+    private fun persistSavedJourneys() {
+        prefs.edit().putString("saved_journeys", JSONArray(savedJourneys.map { it.json() }).toString()).apply()
     }
     fun useSavedSearch(saved: SavedSearch) {
         from = saved.from; to = saved.to; useNow = true; arriveBy = false

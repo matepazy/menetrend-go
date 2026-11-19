@@ -283,14 +283,14 @@ private class RouteMarkBounds { var box by mutableStateOf<Rect?>(null); var a by
 }
 
 /** Right-to-left swipe parks the row on a red delete action; a tap on the trash icon deletes, a tap on the row closes it. */
-private class SwipeHost {
+internal class SwipeHost {
     var closeOpen: (() -> Unit)? = null
     var deleteBounds: androidx.compose.ui.geometry.Rect? = null
     var origin = Offset.Zero
     var tabTop = Float.NEGATIVE_INFINITY
 }
 
-@Composable private fun SavedSearchRow(vm: AppState, saved: SavedSearch, swipeHost: SwipeHost, onSearch: () -> Unit, onEdit: (SavedSearch) -> Unit) {
+@Composable internal fun SavedSearchRow(vm: AppState, saved: SavedSearch, swipeHost: SwipeHost, onSearch: () -> Unit, onEdit: (SavedSearch) -> Unit) {
     SwipeActionsRow(listOf(
         SwipeAction(Icons.Outlined.Edit,"${saved.name} szerkesztése",MaterialTheme.colorScheme.primary,MaterialTheme.colorScheme.onPrimary) {onEdit(saved)},
         SwipeAction(Icons.Outlined.Delete,"${saved.name} törlése",MaterialTheme.colorScheme.error,MaterialTheme.colorScheme.onError) {vm.removeSavedSearch(saved)}),
@@ -325,7 +325,7 @@ private class SwipeHost {
 }
 
 /** Any touch that starts outside the open row's delete button springs the open row back; the touch itself still reaches its target. */
-private fun Modifier.swipeHostDismiss(host: SwipeHost) = onGloballyPositioned { host.origin = it.positionInWindow() }.pointerInput(host) {
+internal fun Modifier.swipeHostDismiss(host: SwipeHost) = onGloballyPositioned { host.origin = it.positionInWindow() }.pointerInput(host) {
     awaitPointerEventScope {
         while(true) {
             val event = awaitPointerEvent(androidx.compose.ui.input.pointer.PointerEventPass.Initial)
@@ -439,14 +439,14 @@ private fun Modifier.swipeBetweenTabs(host: SwipeHost, pager: CollectionPager, c
     }
 }
 
-private class SwipeAction(val icon: ImageVector, val description: String, val container: Color, val content: Color, val onClick: () -> Unit)
+internal class SwipeAction(val icon: ImageVector, val description: String, val container: Color, val content: Color, val onClick: () -> Unit)
 
 @Composable private fun SwipeToDeleteRow(label: String, onDelete: () -> Unit, host: SwipeHost, modifier: Modifier = Modifier,
     content: @Composable (open: Boolean, close: () -> Unit) -> Unit) = SwipeActionsRow(
     listOf(SwipeAction(Icons.Outlined.Delete,"$label törlése",MaterialTheme.colorScheme.error,MaterialTheme.colorScheme.onError,onDelete)),host,modifier,content)
 
 /** Actions are listed left to right once revealed; the last one sits at the trailing edge. */
-@Composable private fun SwipeActionsRow(actions: List<SwipeAction>, host: SwipeHost, modifier: Modifier = Modifier,
+@Composable internal fun SwipeActionsRow(actions: List<SwipeAction>, host: SwipeHost, modifier: Modifier = Modifier,
     content: @Composable (open: Boolean, close: () -> Unit) -> Unit) {
     val shape = RoundedCornerShape(28.dp)
     val density = LocalDensity.current
@@ -1173,6 +1173,8 @@ internal fun sameJourneyStop(first: Station, second: Station): Boolean =
     LaunchedEffect(vm.journeyTrackingBetaEnabled) { if (!vm.journeyTrackingBetaEnabled) trackingLeg = null }
     var menuOpen by remember(journey.key) { mutableStateOf(false) }
     var rawOpen by remember(journey.key) { mutableStateOf(false) }
+    val savedJourney=vm.savedJourney(journey)
+    var editSaved by rememberSaveable(journey.key) { mutableStateOf(false) }
     val journeyVehicles=routeVehicles(journey,vm.vehicles,System.currentTimeMillis()).associateBy {it.id}
     JourneyRefreshLayout(refreshKey=journey, onRefresh={
         refreshJourney()
@@ -1180,6 +1182,12 @@ internal fun sameJourneyStop(first: Station, second: Station): Boolean =
     }) { refreshError ->
     LazyColumn(Modifier.fillMaxSize(),contentPadding=screenContentPadding(),verticalArrangement=Arrangement.spacedBy(AppLayout.ItemGap)) {
         item {PageTitle("Utazás részletei", dayLabel(journey.start).takeIf {it.isNotBlank()},back) {
+            // First tap saves at once; once saved, the same control opens the name and note drawer.
+            if(vm.savedEnabled) FilledTonalIconButton(onClick={if(savedJourney==null) vm.saveJourney(journey) else editSaved=true},
+                modifier=Modifier.semantics {stateDescription=if(savedJourney==null) "Nincs mentve" else "Mentve"}) {
+                Icon(if(savedJourney==null) Icons.Outlined.BookmarkAdd else Icons.Outlined.BookmarkAdded,
+                    if(savedJourney==null) "Utazás mentése" else "Mentett utazás: név és megjegyzés")
+            }
             if(vm.showRawGraphQl) Box {
                 IconButton(onClick={menuOpen=true}) {Icon(Icons.Outlined.MoreVert,"További lehetőségek")}
                 DropdownMenu(expanded=menuOpen,onDismissRequest={menuOpen=false}) {
@@ -1338,6 +1346,9 @@ internal fun sameJourneyStop(first: Station, second: Station): Boolean =
     }
     if (vm.journeyTrackingBetaEnabled) trackingLeg?.let { index -> JourneyTrackingSheet(journey, index) { trackingLeg = null } }
     if(vm.showRawGraphQl && rawOpen) RawGraphQlSheet(journey.rawGraphQl) {rawOpen=false}
+    if(editSaved && savedJourney!=null) SavedJourneyEditor(savedJourney,
+        onSave={name,note -> vm.updateSavedJourney(savedJourney.key,name,note);editSaved=false},
+        onDismiss={editSaved=false},onDelete={vm.removeSavedJourney(savedJourney.key);editSaved=false})
 }
 
 @Composable internal fun JourneyIntermediateStops(leg: Leg, times: List<ServiceTime?>) {

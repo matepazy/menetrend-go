@@ -111,6 +111,21 @@ private enum class SettingsPage(val title: String) {
                     item {
                         SettingsGroup {
                             Row(
+                                Modifier.fillMaxWidth().toggleable(vm.savedEnabled, role = Role.Switch, onValueChange = vm::chooseSavedEnabled).padding(AppLayout.PanelPadding),
+                                verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(AppLayout.ItemGap)
+                            ) {
+                                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(AppLayout.CompactGap)) {
+                                    Text("Mentett utazások", style = MaterialTheme.typography.titleMedium)
+                                    Text("Adott napi járatok mentése névvel és megjegyzéssel. Bekapcsolva megjelenik a Mentett menüpont, és az utazás részleteinél könyvjelzővel menthetsz. Kikapcsolva a mentett utazásaid megmaradnak.",
+                                        style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                }
+                                Switch(checked = vm.savedEnabled, onCheckedChange = null)
+                            }
+                        }
+                    }
+                    item {
+                        SettingsGroup {
+                            Row(
                                 Modifier.fillMaxWidth().toggleable(vm.journeyTrackingBetaEnabled, role = Role.Switch, onValueChange = vm::chooseJourneyTrackingBeta).padding(AppLayout.PanelPadding),
                                 verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)
                             ) {

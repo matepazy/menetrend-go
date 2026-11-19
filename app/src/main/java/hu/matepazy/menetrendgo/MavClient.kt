@@ -87,7 +87,7 @@ class MavClient {
             }
             // Keep the original envelope before route/name normalization mutates the JSON.
             // Each result retains its own search batch, including paginated departures.
-            Journey.parse(itinerary).copy(rawGraphQl=rawResponse,fetchedAt=System.currentTimeMillis(),
+            Journey.parse(itinerary).copy(rawGraphQl=rawResponse,fetchedAt=System.currentTimeMillis(),itineraryJson=itinerary.toString(),
                 providerFilters=filters.filter { it.providerSearchCode != null }.toSet())
         }.filter {it.legs.isNotEmpty()}.sortedBy {it.start}
     }
