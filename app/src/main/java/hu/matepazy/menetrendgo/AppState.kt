@@ -31,6 +31,7 @@ class AppState(app: Application) : AndroidViewModel(app) {
         }
     }
     private val stationSearch=StationSearch(app, mav::stations)
+    private val placeSearch=PlaceSearch()
     var theme by mutableStateOf(prefs.getString("theme", "system").orEmpty()); private set
     var passReminders by mutableStateOf(PassNotifications.enabledReminders(app)); private set
     fun choosePassReminder(reminder: PassReminder, enabled: Boolean) {
@@ -220,6 +221,7 @@ class AppState(app: Application) : AndroidViewModel(app) {
 
     suspend fun cachedStations(query: String) = stationSearch.cached(query)
     suspend fun stations(query: String) = stationSearch.search(query)
+    suspend fun places(query: String) = placeSearch.search(query)
     fun selectStation(station: Station) { if(station.id.isNotBlank()) viewModelScope.launch { stationSearch.selected(station) } }
     fun chooseTheme(value: String) {
         theme = value

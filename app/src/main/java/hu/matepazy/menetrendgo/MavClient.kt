@@ -174,8 +174,9 @@ object MavQueries {
     // Preserve provider identity: a MetaStation (CITY*) denotes all of a city's
     // stations. Its coordinates are only a display point, not a routing endpoint.
     // This is the same name::id format used by the MÁVPlusz planner.
+    // OpenStreetMap places and the current location are plain coordinates.
     private fun endpoint(key: String,station: Station): String =
-        if(station.id.isNotBlank()) "${key}Place:${quote("${station.name}::${station.id}")}"
+        if(station.id.isNotBlank() && !station.isPlace) "${key}Place:${quote("${station.name}::${station.id}")}"
         else "$key:${point(station.lat,station.lon)}"
 
     fun plan(from: Station,to: Station,time: LocalDateTime,arrive: Boolean, filters: Set<SearchFilter> = emptySet(), vehicles: Set<SearchVehicle> = emptySet()): String =

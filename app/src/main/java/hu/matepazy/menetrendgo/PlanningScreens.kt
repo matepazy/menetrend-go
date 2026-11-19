@@ -86,8 +86,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.platform.LocalDensity
@@ -548,7 +550,31 @@ internal class SwipeAction(val icon: ImageVector, val description: String, val c
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
+/** OpenStreetMap places use neutral outline icons so they never read as provider stops. */
+@Composable private fun PlaceSuggestionRow(place: Station, rowHeight: Dp, onClick: () -> Unit) {
+    val (icon,kind)=when(place.placeKind()) {
+        PlaceKind.Address -> Icons.Outlined.Home to "Cím"
+        PlaceKind.Street -> Icons.Outlined.Signpost to "Utca"
+        PlaceKind.Area -> Icons.Outlined.Map to "Településrész"
+        PlaceKind.Named -> Icons.Outlined.PinDrop to "Hely"
+    }
+    Surface(onClick=onClick,color=MaterialTheme.colorScheme.surface) {
+        Row(Modifier.fillMaxWidth().height(rowHeight).padding(horizontal=16.dp),verticalAlignment=Alignment.CenterVertically) {
+            Box(Modifier.size(28.dp),contentAlignment=Alignment.Center) {
+                Icon(icon,kind,Modifier.size(22.dp),tint=MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            Spacer(Modifier.width(12.dp))
+            Column(Modifier.weight(1f)) {
+                Text(place.name,style=MaterialTheme.typography.bodyLarge,maxLines=1,overflow=TextOverflow.Ellipsis)
+                if(place.detail.isNotBlank()) Text(place.detail,style=MaterialTheme.typography.bodySmall,
+                    color=MaterialTheme.colorScheme.onSurfaceVariant,maxLines=1,overflow=TextOverflow.Ellipsis)
+            }
+            Icon(Icons.Outlined.ChevronRight,null,Modifier.padding(start=8.dp).size(20.dp),tint=MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class,ExperimentalFoundationApi::class)
 @Composable private fun StationAutocomplete(vm: AppState, label: String, value: Station?, mark: @Composable () -> Unit,
     onDismiss: () -> Unit, onSelected: (Station) -> Unit, onClear: () -> Unit, allowCurrentLocation: Boolean = false) {
     var input by rememberSaveable(label,stateSaver=TextFieldValue.Saver) {
@@ -575,10 +601,14 @@ internal class SwipeAction(val icon: ImageVector, val description: String, val c
     var results by remember { mutableStateOf<List<Station>>(emptyList()) }
     var loading by remember { mutableStateOf(false) }
     var error by remember {mutableStateOf<String?>(null)}
+    var places by remember {mutableStateOf<List<Station>>(emptyList())}
+    var placesSearched by remember {mutableStateOf(false)}
+    var placesLoading by remember {mutableStateOf(false)}
+    var placeError by remember {mutableStateOf<String?>(null)}
     val listState=key(query) {rememberLazyListState()}
     LaunchedEffect(Unit) {requester.requestFocus();revealSuggestions=true}
     LaunchedEffect(query) {
-        results=emptyList();error=null
+        results=emptyList();error=null;places=emptyList();placesSearched=false;placeError=null;placesLoading=false
         if(query.length>=2) {
             loading=true
             try {
@@ -589,6 +619,14 @@ internal class SwipeAction(val icon: ImageVector, val description: String, val c
             catch(e: CancellationException){throw e}
             catch(e: Exception){error=if(results.isEmpty()) e.message ?: "A megállók nem tölthetők be. Próbáld újra." else "Mentett találatok · a frissítés nem sikerült."}
             finally {loading=false}
+            // Stops always lead; OpenStreetMap places only fill in when no stop name carries every typed word.
+            if(query.length>=3 && stopMatchIsWeak(query,results)) {
+                placesLoading=true
+                try {places=vm.places(query)}
+                catch(e: CancellationException){throw e}
+                catch(e: Exception){placeError=e.message ?: "A helyek nem tölthetők be. Próbáld újra."}
+                finally {placesLoading=false;placesSearched=true}
+            }
         } else loading=false
     }
     Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(28.dp)).background(MaterialTheme.colorScheme.surface)
@@ -628,14 +666,22 @@ internal class SwipeAction(val icon: ImageVector, val description: String, val c
             // The system permission prompt may hide the IME; keep the picker alive.
             keyboardWasVisible=false
         })
-        if(loading) VehicleProgress(Modifier.fillMaxWidth().padding(top=8.dp))
-        if(error!=null) Text(error!!,color=if(results.isEmpty()) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
+        if(loading || placesLoading) VehicleProgress(Modifier.fillMaxWidth().padding(top=8.dp))
+        if(error!=null) Text(error!!,color=if(results.isEmpty() && places.isEmpty()) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
             style=MaterialTheme.typography.bodySmall,modifier=Modifier.padding(vertical=8.dp))
-        if(!loading && query.length>=2 && results.isEmpty() && error==null) Text("Nincs ilyen megálló. Próbálj másik nevet.",Modifier.padding(vertical=12.dp))
+        // A place lookup failing beside a working stop list is secondary; offline, the stop error already explains it.
+        if(placeError!=null && error==null) Text(placeError!!,color=if(results.isEmpty()) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
+            style=MaterialTheme.typography.bodySmall,modifier=Modifier.padding(horizontal=16.dp,vertical=8.dp))
+        if(!loading && !placesLoading && query.length>=2 && results.isEmpty() && places.isEmpty() && error==null && placeError==null)
+            Text(if(placesSearched) "Nincs ilyen megálló vagy hely. Próbálj másik nevet." else "Nincs ilyen megálló. Próbálj másik nevet.",Modifier.padding(vertical=12.dp))
         if(query.length<2) Text("Írj be legalább két karaktert.",Modifier.padding(vertical=12.dp),style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)
-        if(results.isNotEmpty()) {
+        if(results.isNotEmpty() || places.isNotEmpty()) {
             val rowHeight=with(LocalDensity.current) {MaterialTheme.typography.bodyLarge.lineHeight.toDp()*2+16.dp}.coerceAtLeast(56.dp)
-            LazyColumn(Modifier.fillMaxWidth().height(rowHeight*minOf(4,results.size)),state=listState) {
+            val headerHeight=40.dp
+            // At most four rows' height, so the panel stays above the keyboard; the place header scrolls with the rows.
+            val rows=results.size+places.size
+            val listHeight=if(rows<4) rowHeight*rows+(if(places.isNotEmpty()) headerHeight else 0.dp) else rowHeight*4
+            LazyColumn(Modifier.fillMaxWidth().height(listHeight),state=listState) {
                 items(results,key={it.id}) {station ->
                     Surface(onClick={onSelected(station)},color=MaterialTheme.colorScheme.surface) {
                         Row(Modifier.fillMaxWidth().height(rowHeight).padding(horizontal=16.dp),verticalAlignment=Alignment.CenterVertically) {
@@ -646,6 +692,21 @@ internal class SwipeAction(val icon: ImageVector, val description: String, val c
                                 maxLines=2,overflow=TextOverflow.Ellipsis)
                             Icon(Icons.Outlined.ChevronRight,null,Modifier.padding(start=8.dp).size(20.dp),tint=MaterialTheme.colorScheme.onSurfaceVariant)
                         }
+                    }
+                }
+                if(places.isNotEmpty()) {
+                    // Sticky, so the OpenStreetMap (ODbL) attribution stays visible whenever places are on screen.
+                    stickyHeader(key="places-header") {
+                        Row(Modifier.fillMaxWidth().height(headerHeight).background(MaterialTheme.colorScheme.surface)
+                            .padding(horizontal=16.dp).padding(bottom=6.dp),verticalAlignment=Alignment.Bottom) {
+                            Text("Helyek",Modifier.weight(1f).semantics {heading()},
+                                style=MaterialTheme.typography.labelLarge,color=MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text("© OpenStreetMap-közreműködők",Modifier.semantics {contentDescription="Helyadatok: OpenStreetMap-közreműködők"},
+                                style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant,maxLines=1)
+                        }
+                    }
+                    items(places,key={"place:"+it.id}) {place ->
+                        PlaceSuggestionRow(place,rowHeight) {onSelected(place)}
                     }
                 }
             }
