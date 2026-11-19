@@ -61,8 +61,10 @@ fun vehicleStops(detail: JSONObject, day: String): List<VehicleStop> = detail.ar
     val departure=if(realtime) seconds("realtimeDeparture") ?: seconds("scheduledDeparture") ?: arrival
         else seconds("scheduledDeparture") ?: scheduled
     val station=stop.optJSONObject("stop")
-    VehicleStop(station?.optString("name").orEmpty(),vehicleStopTime(serviceDate,scheduled),
-        vehicleStopTime(serviceDate,arrival),vehicleStopTime(serviceDate,departure),
+    fun millis(value: Long) = if (detail.optBoolean("usesUnixStopTimes")) value * 1_000
+        else vehicleStopTime(serviceDate, value)
+    VehicleStop(station?.optString("name").orEmpty(),millis(scheduled),
+        millis(arrival),millis(departure),
         realtime,station?.optString("platformCode").orEmpty(),station?.optString("gtfsId").orEmpty())
 }
 
@@ -86,14 +88,22 @@ internal data class VehicleStopProgress(val index: Int, val atStop: Boolean)
 /** A timetable estimate alone is not evidence of a physical vehicle position. */
 internal fun vehicleStopProgress(stops: List<VehicleStop>, detail: JSONObject?, vehicle: Vehicle): VehicleStopProgress? {
     val positions=detail?.array("vehiclePositions").orEmpty()
-    val position=positions.firstOrNull {vehicle.vehicleId.isNotBlank() && it.optString("vehicleId")==vehicle.vehicleId}
-        ?: positions.singleOrNull()?.takeIf {vehicle.vehicleId.isBlank()}
+    val utasTimes=detail?.optBoolean("usesUnixStopTimes")==true
+    val vehicleId=if(utasTimes) vehicle.utasTrip?.vehicleId.orEmpty() else vehicle.vehicleId
+    val position=positions.firstOrNull {vehicleId.isNotBlank() && it.optString("vehicleId")==vehicleId}
+        ?: positions.singleOrNull()?.takeIf {!utasTimes && vehicleId.isBlank()}
     val relationship=position?.optJSONObject("stopRelationship") ?: return null
     val status=relationship.optString("status")
     if(status !in listOf("IN_TRANSIT_TO","INCOMING_AT","STOPPED_AT")) return null
     val id=relationship.optJSONObject("stop")?.optString("gtfsId").orEmpty()
     val candidates=stops.indices.filter {id.isNotBlank() && stops[it].id==id}
     val rawTimes=detail?.array("stoptimes").orEmpty()
+    val sequence=relationship.optInt("stopSequence",-1)
+    if(utasTimes && sequence>=0 && rawTimes.size==stops.size) {
+        candidates.singleOrNull {rawTimes[it].optInt("stopSequence",-1)==sequence}?.let {
+            return VehicleStopProgress(it,status=="STOPPED_AT")
+        }
+    }
     val arrival=relationship.optLong("arrivalTime",-1)
     val index=if(candidates.size>1 && arrival>=0 && rawTimes.size==stops.size)
         candidates.minByOrNull {kotlin.math.abs(rawTimes[it].optLong("realtimeArrival",rawTimes[it].optLong("scheduledArrival"))-arrival)}
@@ -134,23 +144,23 @@ internal fun vehicleStopPlatform(platform: String, mode: String): String = when(
 /** Live-map selection content: loads and refreshes the trip while the map sheet shows it. */
 @Composable fun ColumnScope.MapVehicleSheetContent(vm: AppState, vehicle: Vehicle, dismiss: () -> Unit) {
     val serviceDay = vm.mapVehicleServiceDay
-    var day by remember(vehicle.id, serviceDay) {
-        mutableStateOf(serviceDay ?: LocalDate.now(Budapest).toString())
+    var day by remember(vehicle.id, vehicle.utasTrip, serviceDay) {
+        mutableStateOf(mapTimetableDay(vehicle, serviceDay))
     }
     var now by remember {mutableLongStateOf(System.currentTimeMillis())}
     val lifecycle=LocalLifecycleOwner.current.lifecycle
-    LaunchedEffect(vehicle.id,serviceDay,lifecycle,vm.mapRefreshSeconds) {
+    LaunchedEffect(vehicle.id,vehicle.sources,vehicle.utasTrip,serviceDay,lifecycle,vm.mapRefreshSeconds) {
         lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-            while(vehicle.hasMavTrip) {
-                day=serviceDay ?: LocalDate.now(Budapest).toString()
-                vm.loadTrip(vehicle.id,day)
+            while(vehicle.hasTimetable) {
+                day=mapTimetableDay(vehicle,serviceDay)
+                vm.loadMapTimetable(vehicle,day)
                 delay(vm.mapRefreshSeconds * 1_000L)
             }
         }
     }
     LaunchedEffect(Unit) {while(true) {now=System.currentTimeMillis();delay(15_000)}}
-    val detail=vm.detail?.takeIf {it.optString("gtfsId")==vehicle.id}
-    VehicleDrawerContent(vehicle, detail, day, now, vm.detailError, {vm.loadTrip(vehicle.id,day)}, dismiss)
+    val detail=vm.mapVehicleDetail(vehicle,day)
+    VehicleDrawerContent(vehicle, detail, day, now, vm.detailError, {vm.loadMapTimetable(vehicle,day)}, dismiss)
 }
 
 /** Modal presentation for independently loaded stop-board departures. */
@@ -247,11 +257,11 @@ internal fun vehicleStopPlatform(platform: String, mode: String): String = when(
             }
             }
             // The toggle row's 48dp target already carries whitespace above its label.
-            val leadsWithToggle=vehicle.hasMavTrip && detail!=null && !empty && nextIndex>0
+            val leadsWithToggle=detail!=null && !empty && nextIndex>0
             Spacer(Modifier.height(if(leadsWithToggle) AppLayout.LabelGap else AppLayout.ItemGap))
             // A failed refresh keeps the stops already shown; only a first load without data shows the full error.
             when {
-                !vehicle.hasMavTrip -> Text("Ehhez a járműhöz csak élő pozíció érhető el, menetrend nem.",
+                !vehicle.hasTimetable -> Text("Ehhez a járműhöz nincs elérhető menetrend.",
                     modifier=Modifier.padding(bottom=24.dp),style=MaterialTheme.typography.bodyMedium,
                     color=MaterialTheme.colorScheme.onSurfaceVariant)
                 detail==null && error!=null -> InfoPanel("A megállók nem tölthetők be",error,retry)

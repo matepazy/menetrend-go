@@ -164,7 +164,7 @@ private enum class SettingsPage(val title: String) {
                             }
                         }
                     }
-                    item { SettingsNote("Az adatforrás a térkép élő járműveire vonatkozik. Az útvonaltervezés, az indulások és a járatok menetrendje mindkét módban a MÁVPlusz adataiból származik. Aggregált módban ugyanazt a járművet a rendszámáról, a vonatszámáról vagy a vonalról és a helyzetéről ismerjük fel, a jármű típusát és adatait pedig abból a forrásból vesszük, amelyik ismeri. A csak utas.hu által jelentett járműveknél menetrend nem érhető el.") }
+                    item { SettingsNote("Az adatforrás az élő térkép járműveire és menetrendjeire vonatkozik. Aggregált módban az utas.hu-n megjelenő járművek menetrendje az utas.hu-ról is betölthető. Az útvonaltervezés és a megállóhelyi indulások adatait a MÁVPlusz adja.") }
                 }
                 SettingsPage.Appearance -> {
                     item {

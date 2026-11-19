@@ -4,6 +4,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 import org.junit.Assert.*
 import org.junit.Test
+import java.time.LocalDate
 
 class VehicleAggregationTest {
     @Test fun aggregatedIsDefaultButExplicitSingleRemainsSelectable() {
@@ -38,7 +39,9 @@ class VehicleAggregationTest {
         assertEquals("F6AC00", v.routeColor)
         assertEquals(14.0, v.heading!!, 0.0)
         assertEquals(1_794_848_690L, v.positionUpdatedSeconds)
-        assertTrue("timetable opens through MÁVPlusz", v.hasMavTrip)
+        assertEquals(v.id, v.mavTripId)
+        assertEquals("hkir_8070_154-4", v.utasTrip?.id)
+        assertEquals(LocalDate.of(2026, 11, 16), v.utasTrip?.serviceDate)
         assertNull("utas.hu speed units are unknown, never guessed", v.speedMetersPerSecond)
     }
 
@@ -66,6 +69,16 @@ class VehicleAggregationTest {
         assertNull("Miskolc uses another id space", utasOtpTripId("mvk_2715989"))
         assertNull(utasOtpTripId(""))
         assertNull(utasOtpTripId("BKK_"))
+    }
+
+    @Test fun untranslatedTripsKeepTheirOriginalLookup() {
+        val body = JSONObject(fixture.toString()).apply {
+            getJSONObject("data").getJSONArray("list").getJSONObject(0).put("tripId", "mvk_2715989")
+        }
+        val vehicle = parseUtasVehicles(body).single()
+        assertTrue(vehicle.hasTimetable)
+        assertNull(vehicle.mavTripId)
+        assertEquals("mvk_2715989", vehicle.utasTrip?.id)
     }
 
     @Test fun vehicleTypeBeatsRouteTypeAndTramsUseRouteNumber() {
@@ -96,11 +109,12 @@ class VehicleAggregationTest {
 
     @Test fun samePlateMergesAndTypeComesFromWhicheverSourceHasIt() {
         val m = mav("1:coach", "COACH", 47.161, 18.401, name = "8070", route = "8070", plate = "LKC-088")
-        val u = utas("hkir_LKC088", "COACH", 47.1615, 18.4018, route = "8070", plate = "LKC088", model = "Credo EC 12")
+        val u = parseUtasVehicles(fixture).single().copy(lat = 47.1615, lon = 18.4018)
         val out = mergeVehicleSources(listOf(m), listOf(u), now)
         val v = out.single()
         assertEquals("MÁV identity kept so the timetable still opens", "1:coach", v.id)
-        assertTrue(v.hasMavTrip)
+        assertEquals("1:coach", v.mavTripId)
+        assertEquals(u.utasTrip, v.utasTrip)
         assertEquals("Credo EC 12", v.model)
         assertEquals("LKC-088", v.registration)
         assertEquals(VehicleSources.MAV or VehicleSources.UTAS, v.sources)

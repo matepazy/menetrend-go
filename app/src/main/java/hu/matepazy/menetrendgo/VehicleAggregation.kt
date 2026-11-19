@@ -73,6 +73,7 @@ internal fun absorbVehicle(mav: Vehicle, utas: Vehicle): Vehicle {
         agencyName = pick(mav.agencyName, utas.agencyName),
         routeLogo = mav.routeLogo ?: utas.routeLogo,
         sources = mav.sources or utas.sources,
+        utasTrip = utas.utasTrip,
     )
 }
 

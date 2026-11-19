@@ -7,8 +7,9 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.*
 import org.json.*
-import java.time.LocalDateTime
 import java.time.Instant
+import java.time.LocalDate
+import java.time.LocalDateTime
 
 class AppState(app: Application) : AndroidViewModel(app) {
     private val prefs = app.getSharedPreferences("menetrendgo", 0)
@@ -183,9 +184,15 @@ class AppState(app: Application) : AndroidViewModel(app) {
 
     internal fun selectMapVehicle(vehicle: Vehicle, serviceDay: String? = null) {
         mapVehicleServiceDay = serviceDay
-        loadTrip(vehicle.id, serviceDay ?: java.time.LocalDate.now(Budapest).toString())
+        loadMapTimetable(vehicle, mapTimetableDay(vehicle, serviceDay))
         mapVehicle = vehicle
     }
+    internal fun mapVehicleDetail(vehicle: Vehicle, day: String = mapTimetableDay(vehicle, mapVehicleServiceDay)): JSONObject? =
+        detail.takeIf { detailKey == mapTimetableKey(vehicle, day) }
+
+    private fun mapTimetableKey(vehicle: Vehicle, day: String) =
+        "map|${vehicle.id}|$day|${vehicle.sources}|${vehicle.utasTrip}"
+
     private var searchJob: Job? = null
     private var detailJob: Job? = null
     private var detailKey = ""
@@ -412,20 +419,66 @@ class AppState(app: Application) : AndroidViewModel(app) {
         return result
     }
     fun loadTrip(id: String, day: String) {
+        loadDetail("$id|$day") {
+            check(id.isNotBlank()) { "Ehhez a szakaszhoz nincs járatazonosító." }
+            mav.trip(id, day, refreshSeconds = mapRefreshSeconds)
+        }
+    }
+
+    internal fun loadMapTimetable(vehicle: Vehicle, day: String) {
+        if (!vehicle.hasTimetable) return
+        loadDetail(mapTimetableKey(vehicle, day)) {
+            val utasTrip = vehicle.utasTrip
+            val fromMav: (suspend () -> JSONObject)? = vehicle.mavTripId?.let { id ->
+                suspend {
+                    val result = mav.trip(id, day, refreshSeconds = mapRefreshSeconds)
+                    check(vehicleStops(result, day).isNotEmpty()) { "Ehhez a járathoz nincs megállóadat." }
+                    result
+                }
+            }
+            val fromUtas: (suspend () -> JSONObject)? = utasTrip?.takeIf {
+                it.serviceDate == null || it.serviceDate.toString() == day
+            }?.let { trip ->
+                suspend { utas.trip(trip.id, LocalDate.parse(day), mapRefreshSeconds) }
+            }
+            if (vehicle.sources and VehicleSources.MAV != 0) {
+                loadVehicleTimetable(fromMav, fromUtas)
+            } else {
+                loadVehicleTimetable(fromUtas, fromMav)
+            }
+        }
+    }
+
+    private fun loadDetail(key: String, load: suspend () -> JSONObject) {
+        if (detailKey == key && detailJob?.isActive == true) return
         detailJob?.cancel()
-        val key="$id|$day"
         if(detailKey!=key) detail=null
         detailKey=key
         detailError = null
-        if (id.isBlank()) { detailError = "Ehhez a szakaszhoz nincs járatazonosító."; return }
-        // utas.hu-only vehicles have no MÁVPlusz trip to query; the drawer shows live data only.
-        if (id.startsWith("utas:")) return
         detailJob = viewModelScope.launch {
             detailLoading = true
-            try { detail = mav.trip(id,day,refreshSeconds=mapRefreshSeconds) }
+            try { detail = load() }
             catch (e: CancellationException) { throw e }
-            catch (e: Exception) { detailError = e.message }
-            finally { detailLoading = false }
+            catch (e: Exception) { detailError = e.message ?: "A menetrend most nem érhető el." }
+            finally { if (detailKey == key) detailLoading = false }
         }
+    }
+}
+
+internal fun mapTimetableDay(vehicle: Vehicle, serviceDay: String?) =
+    serviceDay ?: (vehicle.utasTrip?.serviceDate ?: LocalDate.now(Budapest)).toString()
+
+internal suspend fun loadVehicleTimetable(
+    primary: (suspend () -> JSONObject)?,
+    fallback: (suspend () -> JSONObject)?,
+): JSONObject {
+    if (primary == null) return checkNotNull(fallback) { "Ehhez a járathoz nincs részletes menetrend." }()
+    try {
+        return primary()
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: Exception) {
+        if (fallback == null) throw e
+        return fallback()
     }
 }

@@ -36,9 +36,10 @@ data class Vehicle(val id: String, val name: String, val headsign: String, val m
     val heading: Double? = null, val model: String = "", val registration: String = "", val uicCode: String = "",
     val routeShortName: String = "", val vehicleId: String = "", val agencyName: String = "", val routeLogo: RouteLogo? = null,
     val positionUpdatedSeconds: Long? = null, val speedMetersPerSecond: Double? = null,
-    val sources: Int = VehicleSources.MAV) {
-    /** Opens a MÁVPlusz timetable: MÁV vehicles and utas.hu vehicles whose trip id was translated. */
-    val hasMavTrip: Boolean get() = !id.startsWith("utas:")
+    val sources: Int = VehicleSources.MAV, val utasTrip: UtasTripRef? = null) {
+    val mavTripId: String? get() = id.takeUnless { it.isBlank() || it.startsWith("utas:") }
+        ?: utasTrip?.id?.let(::utasOtpTripId)
+    val hasTimetable: Boolean get() = mavTripId != null || utasTrip != null
     val modelAndRegistration: String get() {
         val modelName=model.trim()
         val plate=registration.trim()
@@ -53,6 +54,7 @@ data class Vehicle(val id: String, val name: String, val headsign: String, val m
         return Leg(mode, 0, 0, point, point, name, id, true, 0, emptyList(), "", routeColor, category, headsign, routeLongName, routeLogo=routeLogo)
     }
 }
+data class UtasTripRef(val id: String, val serviceDate: LocalDate?, val vehicleId: String)
 data class Leg(val mode: String, val start: Long, val end: Long, val from: Station, val to: Station,
     val route: String, val tripId: String, val realTime: Boolean, val departureDelay: Int,
     val intermediate: List<Station>, val geometry: String,

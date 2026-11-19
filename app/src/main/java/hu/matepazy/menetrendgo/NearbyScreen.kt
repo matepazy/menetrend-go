@@ -208,12 +208,13 @@ import kotlinx.coroutines.withContext
         catch(e: kotlinx.coroutines.CancellationException) {throw e}
         catch(_: Exception) { /* The trip's stops still outline the route. */ }
     }
-    val focusStops=remember(vm.detail,focusId) {
-        vm.detail?.takeIf {focusId!=null && it.optString("gtfsId")==focusId}?.array("stoptimes").orEmpty().mapNotNull {time ->
+    val focusVehicle=visibleVehicles.firstOrNull {it.id==focusId}
+    val focusDetail=focusVehicle?.let {vm.mapVehicleDetail(it)}
+    val focusStops=remember(focusDetail) {
+        focusDetail?.array("stoptimes").orEmpty().mapNotNull {time ->
             time.optJSONObject("stop")?.takeIf {it.has("lat") && it.has("lon")}?.let {JSONObject().put("lat",it.getDouble("lat")).put("lon",it.getDouble("lon"))}
         }
     }
-    val focusVehicle=visibleVehicles.firstOrNull {it.id==focusId}
     // Return to the earlier view only when the rider chose the vehicle on this map instance.
     val restoreView=remember(focusId,googleMap) {ready}
     LaunchedEffect(ready,focusId,focusPath,focusStops,bottomInset) {

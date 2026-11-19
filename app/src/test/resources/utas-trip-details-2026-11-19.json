@@ -1,0 +1,369 @@
+{
+  "currentTime": 1795108369955,
+  "code": 200,
+  "data": {
+    "entry": {
+      "tripId": "hkir_8086_684-5",
+      "serviceDate": "20261119",
+      "vehicle": {
+        "vehicleId": "hkir_AOIF467",
+        "stopId": "hkir_665964_2",
+        "stopSequence": 46,
+        "status": "IN_TRANSIT_TO",
+        "lastUpdateTime": 1795108328
+      },
+      "stopTimes": [
+        {
+          "stopId": "hkir_665412_1",
+          "stopSequence": 2,
+          "departureTime": 1795106100,
+          "predictedDepartureTime": 1795106314,
+          "predictionScheduled": false
+        },
+        {
+          "stopId": "hkir_665411_2",
+          "stopSequence": 4,
+          "arrivalTime": 1795106160,
+          "departureTime": 1795106160,
+          "predictedArrivalTime": 1795106362,
+          "predictedDepartureTime": 1795106394,
+          "predictionScheduled": false
+        },
+        {
+          "stopId": "hkir_665409_2",
+          "stopSequence": 6,
+          "arrivalTime": 1795106220,
+          "departureTime": 1795106220,
+          "predictedArrivalTime": 1795106453,
+          "predictedDepartureTime": 1795106453,
+          "predictionScheduled": false
+        },
+        {
+          "stopId": "hkir_665410_2",
+          "stopSequence": 8,
+          "arrivalTime": 1795106280,
+          "departureTime": 1795106280,
+          "predictedArrivalTime": 1795106477,
+          "predictedDepartureTime": 1795106477,
+          "predictionScheduled": false
+        },
+        {
+          "stopId": "hkir_665408_3",
+          "stopSequence": 10,
+          "arrivalTime": 1795106340,
+          "departureTime": 1795106340,
+          "predictedArrivalTime": 1795106566,
+          "predictedDepartureTime": 1795106599,
+          "predictionScheduled": false
+        },
+        {
+          "stopId": "hkir_665064_1",
+          "stopSequence": 12,
+          "arrivalTime": 1795106520,
+          "departureTime": 1795106520,
+          "predictedArrivalTime": 1795106786,
+          "predictedDepartureTime": 1795106786,
+          "predictionScheduled": false
+        },
+        {
+          "stopId": "hkir_665065_1",
+          "stopSequence": 14,
+          "arrivalTime": 1795106580,
+          "departureTime": 1795106580,
+          "predictedArrivalTime": 1795106815,
+          "predictedDepartureTime": 1795106815,
+          "predictionScheduled": false
+        },
+        {
+          "stopId": "hkir_665064_2",
+          "stopSequence": 16,
+          "arrivalTime": 1795106640,
+          "departureTime": 1795106640,
+          "predictedArrivalTime": 1795106901,
+          "predictedDepartureTime": 1795106901,
+          "predictionScheduled": false
+        },
+        {
+          "stopId": "hkir_665408_2",
+          "stopSequence": 18,
+          "arrivalTime": 1795106880,
+          "departureTime": 1795106880,
+          "predictedArrivalTime": 1795107087,
+          "predictedDepartureTime": 1795107087,
+          "predictionScheduled": false
+        },
+        {
+          "stopId": "hkir_665456_2",
+          "stopSequence": 20,
+          "arrivalTime": 1795107060,
+          "departureTime": 1795107060,
+          "predictedArrivalTime": 1795107314,
+          "predictedDepartureTime": 1795107314,
+          "predictionScheduled": false
+        },
+        {
+          "stopId": "hkir_665461_2",
+          "stopSequence": 22,
+          "arrivalTime": 1795107120,
+          "departureTime": 1795107120,
+          "predictedArrivalTime": 1795107354,
+          "predictedDepartureTime": 1795107362,
+          "predictionScheduled": false
+        },
+        {
+          "stopId": "hkir_665405_2",
+          "stopSequence": 24,
+          "arrivalTime": 1795107180,
+          "departureTime": 1795107180,
+          "predictedArrivalTime": 1795107428,
+          "predictedDepartureTime": 1795107428,
+          "predictionScheduled": false
+        },
+        {
+          "stopId": "hkir_665407_2",
+          "stopSequence": 26,
+          "arrivalTime": 1795107240,
+          "departureTime": 1795107240,
+          "predictedArrivalTime": 1795107469,
+          "predictedDepartureTime": 1795107469,
+          "predictionScheduled": false
+        },
+        {
+          "stopId": "hkir_665402_2",
+          "stopSequence": 28,
+          "arrivalTime": 1795107360,
+          "departureTime": 1795107360,
+          "predictedArrivalTime": 1795107563,
+          "predictedDepartureTime": 1795107592,
+          "predictionScheduled": false
+        },
+        {
+          "stopId": "hkir_665400_2",
+          "stopSequence": 30,
+          "arrivalTime": 1795107480,
+          "departureTime": 1795107480,
+          "predictedArrivalTime": 1795107634,
+          "predictedDepartureTime": 1795107634,
+          "predictionScheduled": false
+        },
+        {
+          "stopId": "hkir_665404_2",
+          "stopSequence": 32,
+          "arrivalTime": 1795107540,
+          "departureTime": 1795107540,
+          "predictedArrivalTime": 1795107689,
+          "predictedDepartureTime": 1795107716,
+          "predictionScheduled": false
+        },
+        {
+          "stopId": "hkir_665406_2",
+          "stopSequence": 34,
+          "arrivalTime": 1795107600,
+          "departureTime": 1795107600,
+          "predictedArrivalTime": 1795107753,
+          "predictedDepartureTime": 1795107753,
+          "predictionScheduled": false
+        },
+        {
+          "stopId": "hkir_665571_2",
+          "stopSequence": 36,
+          "arrivalTime": 1795107660,
+          "departureTime": 1795107660,
+          "predictedArrivalTime": 1795107838,
+          "predictedDepartureTime": 1795107838,
+          "predictionScheduled": false
+        },
+        {
+          "stopId": "hkir_665399_2",
+          "stopSequence": 38,
+          "arrivalTime": 1795107840,
+          "departureTime": 1795107840,
+          "predictedArrivalTime": 1795107921,
+          "predictedDepartureTime": 1795107921,
+          "predictionScheduled": false
+        },
+        {
+          "stopId": "hkir_666282_2",
+          "stopSequence": 40,
+          "arrivalTime": 1795107960,
+          "departureTime": 1795107960,
+          "predictedArrivalTime": 1795108017,
+          "predictedDepartureTime": 1795108035,
+          "predictionScheduled": false
+        },
+        {
+          "stopId": "hkir_665975_2",
+          "stopSequence": 42,
+          "arrivalTime": 1795108020,
+          "departureTime": 1795108020,
+          "predictedArrivalTime": 1795108200,
+          "predictedDepartureTime": 1795108200,
+          "predictionScheduled": false
+        },
+        {
+          "stopId": "hkir_666046_2",
+          "stopSequence": 44,
+          "arrivalTime": 1795108200,
+          "departureTime": 1795108200,
+          "predictedArrivalTime": 1795108305,
+          "predictedDepartureTime": 1795108305,
+          "predictionScheduled": false
+        },
+        {
+          "stopId": "hkir_665964_2",
+          "stopSequence": 46,
+          "arrivalTime": 1795108380,
+          "departureTime": 1795108380,
+          "predictedArrivalTime": 1795108481,
+          "predictedDepartureTime": 1795108481,
+          "predictionScheduled": false
+        },
+        {
+          "stopId": "hkir_666068_2",
+          "stopSequence": 48,
+          "arrivalTime": 1795108500,
+          "departureTime": 1795108500,
+          "predictedArrivalTime": 1795108601,
+          "predictedDepartureTime": 1795108601,
+          "predictionScheduled": false
+        },
+        {
+          "stopId": "hkir_665908_99",
+          "stopSequence": 50,
+          "arrivalTime": 1795108680,
+          "predictedArrivalTime": 1795108781,
+          "predictionScheduled": false
+        }
+      ]
+    },
+    "references": {
+      "stops": {
+        "hkir_665412_1": {
+          "name": "Isztimér, tűzoltószertár",
+          "lat": 47.281999,
+          "lon": 18.191145
+        },
+        "hkir_665411_2": {
+          "name": "Isztimér, templom",
+          "lat": 47.279426,
+          "lon": 18.194903
+        },
+        "hkir_665409_2": {
+          "name": "Isztimér, Köztársaság utca 20.",
+          "lat": 47.276225,
+          "lon": 18.200848
+        },
+        "hkir_665410_2": {
+          "name": "Isztimér, óvoda",
+          "lat": 47.274755,
+          "lon": 18.203884
+        },
+        "hkir_665408_3": {
+          "name": "Guttamási, bakonykúti elágazás",
+          "lat": 47.267787,
+          "lon": 18.218488
+        },
+        "hkir_665064_1": {
+          "name": "Bakonykúti, Jókai utca",
+          "lat": 47.247528,
+          "lon": 18.199699
+        },
+        "hkir_665065_1": {
+          "name": "Bakonykúti, Szabadság utca",
+          "lat": 47.245148,
+          "lon": 18.196949
+        },
+        "hkir_665064_2": {
+          "name": "Bakonykúti, Jókai utca",
+          "lat": 47.247523,
+          "lon": 18.199708
+        },
+        "hkir_665408_2": {
+          "name": "Guttamási, bakonykúti elágazás",
+          "lat": 47.268021,
+          "lon": 18.219535
+        },
+        "hkir_665456_2": {
+          "name": "Kincsesbánya, laktanya",
+          "lat": 47.258235,
+          "lon": 18.254933
+        },
+        "hkir_665461_2": {
+          "name": "Kincsesbányai elágazás",
+          "lat": 47.256788,
+          "lon": 18.261737
+        },
+        "hkir_665405_2": {
+          "name": "Iszkaszentgyörgy, Nyugat-Somosmáli",
+          "lat": 47.251729,
+          "lon": 18.271504
+        },
+        "hkir_665407_2": {
+          "name": "Iszkaszentgyörgy, Sándormajor",
+          "lat": 47.247527,
+          "lon": 18.277315
+        },
+        "hkir_665402_2": {
+          "name": "Iszkaszentgyörgy, kastély",
+          "lat": 47.240825,
+          "lon": 18.294058
+        },
+        "hkir_665400_2": {
+          "name": "Iszkaszentgyörgy, Gyógyszertár",
+          "lat": 47.242819,
+          "lon": 18.29971
+        },
+        "hkir_665404_2": {
+          "name": "Iszkaszentgyörgy, mohai elágazás",
+          "lat": 47.242324,
+          "lon": 18.306687
+        },
+        "hkir_665406_2": {
+          "name": "Iszkaszentgyörgy, Petőfi utca 62.",
+          "lat": 47.240439,
+          "lon": 18.312033
+        },
+        "hkir_665571_2": {
+          "name": "Moha, bejárati út",
+          "lat": 47.234094,
+          "lon": 18.32742
+        },
+        "hkir_665399_2": {
+          "name": "Iszkaszentgyörgy, Aligvári szőlőhegy",
+          "lat": 47.226774,
+          "lon": 18.342656
+        },
+        "hkir_666282_2": {
+          "name": "Székesfehérvár, Árva utca",
+          "lat": 47.215678,
+          "lon": 18.353651
+        },
+        "hkir_665975_2": {
+          "name": "Székesfehérvár, iszkaszentgyörgyi elágazás",
+          "lat": 47.211433,
+          "lon": 18.359851
+        },
+        "hkir_666046_2": {
+          "name": "Székesfehérvár, Régi Csóri út",
+          "lat": 47.206285,
+          "lon": 18.381869
+        },
+        "hkir_665964_2": {
+          "name": "Székesfehérvár, Hosszú temető",
+          "lat": 47.199155,
+          "lon": 18.394726
+        },
+        "hkir_666068_2": {
+          "name": "Székesfehérvár, Szent Gellért utca",
+          "lat": 47.195744,
+          "lon": 18.399929
+        },
+        "hkir_665908_99": {
+          "name": "Székesfehérvár, autóbusz-állomás",
+          "lat": 47.188536,
+          "lon": 18.409479
+        }
+      }
+    }
+  }
+}
