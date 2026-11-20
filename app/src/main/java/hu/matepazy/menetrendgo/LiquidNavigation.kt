@@ -29,8 +29,10 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterNotNull
@@ -63,6 +65,20 @@ internal object LiquidIndicator {
         val basis = min(slot, pillRight - pillLeft)
         return if (basis <= 0f) 0f else (overlap / basis).coerceIn(0f, 1f)
     }
+}
+
+/**
+ * Fits the navigation labels on one line: every label shares the scale the widest one needs, so the
+ * row stays even and no word is split mid-letter. Below [MinSp] the bar drops to icons only.
+ */
+internal object NavLabelFit {
+    const val MinSp = 10f
+    /** Shared text scale (at most 1) that fits the widest of [widths] into [available] pixels. */
+    fun scale(available: Float, widths: List<Float>): Float {
+        val widest = widths.maxOrNull() ?: return 1f
+        return if (widest <= 0f || available <= 0f) 1f else min(1f, available / widest)
+    }
+    fun fits(baseSp: Float, scale: Float) = baseSp * scale >= MinSp - .01f
 }
 
 /**
@@ -122,6 +138,14 @@ private const val DragTrailLag = .095f
     var release by remember { mutableStateOf(0f to 0f) }
     var target by remember { mutableStateOf<Pair<Float, Float>?>(null) }
     val selectedPos = selected.coerceIn(0, (count - 1).coerceAtLeast(0))
+    val labelStyle = MaterialTheme.typography.labelMedium
+    val measurer = rememberTextMeasurer()
+    val labelWidths = remember(items, labelStyle, measurer) { items.map { measurer.measure(it.first, labelStyle, softWrap = false, maxLines = 1).size.width.toFloat() } }
+    // Each item has 2dp of side padding inside its slot (1px spare for rounding); until the row is measured, keep full size.
+    val labelScale = if (width <= 0f) 1f else NavLabelFit.scale(slot - with(LocalDensity.current) { 4.dp.toPx() } - 1f, labelWidths)
+    val baseSp = labelStyle.fontSize.takeIf { it.isSp }?.value ?: 12f
+    val showLabels = labels && NavLabelFit.fits(baseSp, labelScale)
+    val fittedStyle = labelStyle.copy(fontSize = (baseSp * labelScale).sp, letterSpacing = if (labelStyle.letterSpacing.isSp) labelStyle.letterSpacing * labelScale else labelStyle.letterSpacing)
 
     LaunchedEffect(selectedPos, slot) {
         if (slot <= 0f) return@LaunchedEffect
@@ -250,11 +274,11 @@ private const val DragTrailLag = .095f
                 .padding(horizontal = 2.dp, vertical = 8.dp).heightIn(min = if (largeFont) 64.dp else 48.dp),
                 horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
                 // Without labels the icon carries the item alone, so it grows and gains weight.
-                if (labels) Icon(icon, null, Modifier.size(24.dp), tint = tint)
+                if (showLabels) Icon(icon, null, Modifier.size(24.dp), tint = tint)
                 else HeavyIcon(icon, label, 28.dp, tint)
-                if (labels) {
+                if (showLabels) {
                     Spacer(Modifier.height(5.dp))
-                    Text(label, style = MaterialTheme.typography.labelMedium, textAlign = TextAlign.Center, maxLines = 2, color = tint)
+                    Text(label, style = fittedStyle, textAlign = TextAlign.Center, maxLines = 1, softWrap = false, color = tint)
                 }
             }
         }
