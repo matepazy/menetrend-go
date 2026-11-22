@@ -27,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
@@ -137,6 +138,64 @@ internal fun ServiceHeading(
                     )
                 }
                 Text(destination, Modifier.weight(1f, fill = false), style = destinationStyle)
+            }
+        }
+    }
+}
+
+/** Below this share of the width left beside the badge, the destination moves to its own line instead of a narrow column. */
+private const val MinDestinationShare = .4f
+
+/** Journey-leg heading: badge, direction triangle and destination on one row. A long destination wraps with a
+ *  hanging indent under its own first word; a wide badge pushes the destination beneath it. The badge is centred
+ *  on the destination's first line. */
+@Composable
+internal fun JourneyServiceHeading(
+    leg: Leg,
+    destination: String,
+    modifier: Modifier = Modifier,
+    destinationStyle: TextStyle = MaterialTheme.typography.bodyMedium
+) {
+    val lineHeight = with(LocalDensity.current) { destinationStyle.lineHeight.toDp() }
+    Layout(
+        content = {
+            LiveRouteBadge(leg)
+            if (destination.isNotBlank()) Row(
+                Modifier.semantics(mergeDescendants = true) {},
+                horizontalArrangement = Arrangement.spacedBy(AppLayout.LabelGap),
+                verticalAlignment = Alignment.Top
+            ) {
+                Box(Modifier.height(lineHeight), contentAlignment = Alignment.Center) {
+                    Icon(painterResource(R.drawable.ic_service_direction), "Irány",
+                        Modifier.size(14.dp), tint = MaterialTheme.colorScheme.onSurface)
+                }
+                Text(destination, Modifier.weight(1f, fill = false), style = destinationStyle)
+            }
+        },
+        modifier = modifier
+    ) { measurables, constraints ->
+        val loose = constraints.copy(minWidth = 0, minHeight = 0)
+        val badge = measurables[0].measure(loose)
+        val text = measurables.getOrNull(1)
+        val width = constraints.maxWidth
+        if (text == null) return@Layout layout(badge.width, badge.height) { badge.place(0, 0) }
+        val gap = AppLayout.CompactGap.roundToPx()
+        val side = width - badge.width - gap
+        if (side >= width * MinDestinationShare) {
+            val dest = text.measure(loose.copy(maxWidth = side))
+            val firstLine = lineHeight.roundToPx()
+            val badgeY = ((firstLine - badge.height) / 2).coerceAtLeast(0)
+            val destY = ((badge.height - firstLine) / 2).coerceAtLeast(0)
+            layout(width, maxOf(badgeY + badge.height, destY + dest.height)) {
+                badge.place(0, badgeY)
+                dest.place(badge.width + gap, destY)
+            }
+        } else {
+            val dest = text.measure(loose)
+            val top = badge.height + AppLayout.LabelGap.roundToPx()
+            layout(width, top + dest.height) {
+                badge.place(0, 0)
+                dest.place(0, top)
             }
         }
     }

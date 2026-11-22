@@ -1296,17 +1296,8 @@ internal fun sameJourneyStop(first: Station, second: Station): Boolean =
                                     Text("${(leg.end-leg.start+59_999)/60_000} perc gyaloglás",style=MaterialTheme.typography.bodyMedium)
                                 }
                             } else {
-                                RouteBadge(leg,contentPadding=if(leg.routeLogo!=null) PaddingValues(vertical=AppLayout.LabelGap)
-                                    else PaddingValues(horizontal=12.dp,vertical=5.dp),shape=MaterialTheme.shapes.extraSmall)
-                                if(leg.headsign.isNotBlank()) Row(
-                                    Modifier.fillMaxWidth().padding(top=AppLayout.LabelGap,bottom=AppLayout.RelatedGap).semantics(mergeDescendants=true) {},
-                                    horizontalArrangement=Arrangement.spacedBy(AppLayout.CompactGap),verticalAlignment=Alignment.Top) {
-                                    Box(Modifier.width(20.dp).height(with(LocalDensity.current) {MaterialTheme.typography.bodyMedium.lineHeight.toDp()}),
-                                        contentAlignment=Alignment.Center) {
-                                        Icon(painterResource(R.drawable.ic_service_direction),"Irány",Modifier.size(14.dp),tint=MaterialTheme.colorScheme.onSurface)
-                                    }
-                                    Text(leg.headsign,Modifier.weight(1f),style=MaterialTheme.typography.bodyMedium)
-                                }
+                                JourneyServiceHeading(leg,leg.headsign,
+                                    Modifier.fillMaxWidth().padding(bottom=if(leg.headsign.isNotBlank()) AppLayout.RelatedGap else 0.dp))
                                 val mapVehicle=journeyVehicles[leg.tripId]
                                 val tripVehicle=legTimes[index]?.vehicle
                                 val vehicle=tripVehicle?.takeIf {it.model.isNotBlank()}
