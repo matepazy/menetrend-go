@@ -37,16 +37,24 @@ class StopBoardUiTest {
         var large by mutableStateOf(false)
         var dismissed = false
         val now = System.currentTimeMillis()
-        fun departure(id: String, realtime: Boolean, cancelled: Boolean) = StopDeparture(id, "Székesfehérvár",
-            ServiceTime(now+600000, now+660000, realtime), "2", cancelled,
-            Leg("RAIL", now+660000, now+700000, station, station, "S30", id, realtime, 60, emptyList(), ""))
+        val liveTime = now + 30_000L
+        val scheduledTime = now + 10 * 60_000L
+        val cancelledTime = now + 12 * 60_000L
+        fun departure(id: String, time: ServiceTime, cancelled: Boolean = false) = StopDeparture(
+            id, "Székesfehérvár", time, "2", cancelled,
+            Leg("RAIL", time.estimate, time.estimate + 60_000L, station, station, "S30", id,
+                time.realtime, ((time.estimate - time.scheduled) / 1000).toInt(), emptyList(), ""))
         compose.setContent {
             MenetrendTheme(if (dark) "dark" else "light") {
                 CompositionLocalProvider(LocalDensity provides Density(LocalDensity.current.density, if (large) 1.3f else 1f)) {
                     StopBoardDrawer(station, { dismissed = true }, fetch = {
                         attempts++
                         if (attempts == 1) error("Teszt kapcsolati hiba")
-                        listOf(departure("live", true, false), departure("scheduled", false, false), departure("cancelled", true, true))
+                        listOf(
+                            departure("live", ServiceTime(liveTime - 60_000L, liveTime, true)),
+                            departure("scheduled", ServiceTime(scheduledTime, scheduledTime, false)),
+                            departure("cancelled", ServiceTime(cancelledTime, cancelledTime + 60_000L, true), cancelled = true)
+                        )
                     })
                 }
             }
@@ -54,15 +62,18 @@ class StopBoardUiTest {
         compose.waitUntil(5000) { compose.onAllNodesWithText("Újrapróbálás").fetchSemanticsNodes().isNotEmpty() }
         compose.onNodeWithText("Újrapróbálás").performClick()
         compose.waitUntil(5000) { compose.onAllNodesWithText("Kimarad").fetchSemanticsNodes().isNotEmpty() }
-        compose.onAllNodesWithText("11 perc").assertCountEquals(2)
+        compose.onNodeWithText("Most").assertIsDisplayed()
         compose.onNodeWithText("Valós idejű adat").assertDoesNotExist()
         compose.onNodeWithText("Menetrend szerint").assertDoesNotExist()
-        compose.onNodeWithText(timeLabel(now+600000)).assertDoesNotExist()
-        compose.onNodeWithText(timeLabel(now+660000)).assertDoesNotExist()
+        compose.onNodeWithText(timeLabel(liveTime)).assertIsDisplayed()
+        compose.onNodeWithText(timeLabel(scheduledTime)).assertIsDisplayed()
+        compose.onNodeWithText(timeLabel(cancelledTime)).assertIsDisplayed()
+        compose.onNodeWithText(timeLabel(cancelledTime + 60_000L)).assertDoesNotExist()
         compose.onNodeWithText("Kimarad").assertExists()
         compose.onNodeWithText("Widget a kezdőképernyőre").assertHasClickAction()
         compose.runOnIdle { dark = true; large = true }
         compose.onNodeWithText("Budapest-Déli").assertIsDisplayed()
+        compose.onNodeWithText(timeLabel(liveTime)).assertIsDisplayed()
         compose.onNodeWithContentDescription("Indulási tábla bezárása").performClick()
         compose.runOnIdle { assertTrue(dismissed); assertEquals(2, attempts) }
     }

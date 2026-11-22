@@ -111,10 +111,9 @@ import kotlinx.coroutines.delay
                                 modifier = Modifier.semantics { stateDescription = departureStateDescription(departure) },
                                 style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold,
                                 color = Color(colorContext.getColor(departureColorResource(departure.time, departure.cancelled))))
-                            departureClockTime(departure.time.estimate, now, departure.cancelled)?.let { clock ->
-                                Text(clock, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Normal,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            }
+                            val departureTime = if (departure.cancelled) departure.time.scheduled else departure.time.estimate
+                            Text(timeLabel(departureTime), style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
                 }
