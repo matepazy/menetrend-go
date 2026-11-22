@@ -196,7 +196,7 @@ fun savedJourneyWhen(saved: SavedJourney) =
             verticalArrangement = Arrangement.spacedBy(16.dp)) {
             Text("Mentett utazás", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text("${saved.origin} → ${saved.destination}", style = MaterialTheme.typography.bodyLarge)
+                DirectionText("${saved.origin} → ${saved.destination}", style = MaterialTheme.typography.bodyLarge)
                 Text("${savedJourneyWhen(saved)}, menetrend szerint", style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
@@ -222,7 +222,7 @@ fun savedJourneyWhen(saved: SavedJourney) =
     if (confirmDelete) AlertDialog(onDismissRequest = { confirmDelete = false },
         modifier = Modifier.glassHighlight(AlertDialogDefaults.shape, glassTone(GlassLevel.Floating)),
         title = { Text("Eltávolítod a mentett utazást?") },
-        text = { Text(if (saved.note.isBlank()) saved.title else "${saved.title}\nA megjegyzés is törlődik.") },
+        text = { DirectionText(if (saved.note.isBlank()) saved.title else "${saved.title}\nA megjegyzés is törlődik.") },
         confirmButton = { TextButton(onClick = onDelete) { Text("Eltávolítás") } },
         dismissButton = { TextButton(onClick = { confirmDelete = false }) { Text("Mégse") } })
 }

@@ -209,21 +209,21 @@ private val MapRoad = Color(0xFFFFFFFF)
                 }
                 Icon(Icons.Outlined.Refresh, null, Modifier.size(22.dp), tint = scheme.onSurfaceVariant)
             }
-            WidgetRow(R.drawable.ic_mode_rail, "Z30", "Budapest-Déli", "2. vágány / állás", "4 perc")
-            WidgetRow(R.drawable.ic_mode_local_bus, "32", "Vasútállomás", "", "11 perc")
+            WidgetRow("Z30", "Budapest-Déli", "2. vágány / állás", "4 perc")
+            WidgetRow("32", "Vasútállomás", "", "11 perc")
         }
     }
 }
 
-@Composable private fun WidgetRow(icon: Int, service: String, destination: String, detail: String, countdown: String) {
+@Composable private fun WidgetRow(service: String, destination: String, detail: String, countdown: String) {
     val scheme = MaterialTheme.colorScheme
     Row(Modifier.fillMaxWidth().background(scheme.surface, RoundedCornerShape(24.dp)).padding(14.dp), verticalAlignment = Alignment.Top) {
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Image(painterResource(icon), null, Modifier.size(20.dp))
-                Text(service, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+            Text(service, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                Icon(painterResource(R.drawable.ic_service_direction), null, Modifier.size(14.dp), tint = scheme.onSurface)
+                Text(destination, fontSize = 14.sp, fontWeight = FontWeight.Bold)
             }
-            Text(destination, fontSize = 14.sp)
             if (detail.isNotEmpty()) Text(detail, fontSize = 12.sp, color = scheme.onSurfaceVariant)
         }
         Text(countdown, fontSize = 18.sp, fontWeight = FontWeight.Bold)

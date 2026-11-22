@@ -303,7 +303,7 @@ internal class SwipeHost {
                 Spacer(Modifier.width(16.dp))
                 Column(Modifier.weight(1f),verticalArrangement=Arrangement.spacedBy(4.dp)) {
                     Text(saved.name,style=MaterialTheme.typography.titleMedium,fontWeight=FontWeight.SemiBold)
-                    Text("${saved.from.name} → ${saved.to.name}",style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)
+                    DirectionText("${saved.from.name} → ${saved.to.name}",style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 if(!open) IconButton(onClick={onEdit(saved)}) {Icon(Icons.Outlined.Edit,"${saved.name} szerkesztése")}
                 else Spacer(Modifier.height(48.dp))
@@ -803,8 +803,8 @@ private fun serviceIcon(leg: Leg): ImageVector = when(leg.mode) {
 
 private fun serviceType(leg: Leg): String = hungarianServiceName(leg.category, leg.mode)
 
-@Composable fun RouteBadge(leg: Leg, contentPadding: PaddingValues = PaddingValues(start=6.dp,end=12.dp,top=5.dp,bottom=5.dp),
-    shape: androidx.compose.ui.graphics.Shape = CircleShape, showModeIcon: Boolean = true) {
+@Composable fun RouteBadge(leg: Leg, contentPadding: PaddingValues = PaddingValues(horizontal=12.dp,vertical=5.dp),
+    shape: androidx.compose.ui.graphics.Shape = CircleShape) {
     val logo=leg.routeLogo
     val color=if(logo!=null) Color.Transparent else serviceColor(leg)
     val foreground=if(logo!=null) MaterialTheme.colorScheme.onSurface else if(color.luminance()>.179f) Color.Black else Color.White
@@ -813,9 +813,6 @@ private fun serviceType(leg: Leg): String = hungarianServiceName(leg.category, l
         Row(Modifier.padding(contentPadding),verticalAlignment=Alignment.CenterVertically) {
             if(logo!=null) {
                 RouteLogoIcon(logo)
-                Spacer(Modifier.width(7.dp))
-            } else if(showModeIcon) {
-                Icon(serviceIcon(leg),null,Modifier.padding(5.dp).size(18.dp),tint=foreground)
                 Spacer(Modifier.width(7.dp))
             }
             Text(if(leg.walking) "Gyalog" else leg.route,modifier=Modifier.weight(1f,fill=false),
@@ -1299,16 +1296,14 @@ internal fun sameJourneyStop(first: Station, second: Station): Boolean =
                                     Text("${(leg.end-leg.start+59_999)/60_000} perc gyaloglás",style=MaterialTheme.typography.bodyMedium)
                                 }
                             } else {
-                                val showModeIcon = leg.mode !in listOf("BUS", "COACH", "RAIL_REPLACEMENT_BUS")
                                 RouteBadge(leg,contentPadding=if(leg.routeLogo!=null) PaddingValues(vertical=AppLayout.LabelGap)
-                                    else PaddingValues(start=if(showModeIcon) 6.dp else 12.dp,end=12.dp,top=5.dp,bottom=5.dp),
-                                    shape=MaterialTheme.shapes.extraSmall,showModeIcon=showModeIcon)
+                                    else PaddingValues(horizontal=12.dp,vertical=5.dp),shape=MaterialTheme.shapes.extraSmall)
                                 if(leg.headsign.isNotBlank()) Row(
                                     Modifier.fillMaxWidth().padding(top=AppLayout.LabelGap,bottom=AppLayout.RelatedGap).semantics(mergeDescendants=true) {},
                                     horizontalArrangement=Arrangement.spacedBy(AppLayout.CompactGap),verticalAlignment=Alignment.Top) {
                                     Box(Modifier.width(20.dp).height(with(LocalDensity.current) {MaterialTheme.typography.bodyMedium.lineHeight.toDp()}),
                                         contentAlignment=Alignment.Center) {
-                                        Icon(Icons.AutoMirrored.Outlined.ArrowForward,"Irány",Modifier.size(20.dp),tint=MaterialTheme.colorScheme.onSurfaceVariant)
+                                        Icon(painterResource(R.drawable.ic_service_direction),"Irány",Modifier.size(14.dp),tint=MaterialTheme.colorScheme.onSurface)
                                     }
                                     Text(leg.headsign,Modifier.weight(1f),style=MaterialTheme.typography.bodyMedium)
                                 }
@@ -1398,7 +1393,7 @@ internal fun sameJourneyStop(first: Station, second: Station): Boolean =
                 GlassSurface(shape=MaterialTheme.shapes.large) {
                     Column(Modifier.fillMaxWidth().padding(AppLayout.PanelPadding),verticalArrangement=Arrangement.spacedBy(AppLayout.ItemGap)) {
                         RouteBadge(leg)
-                        Text("${leg.from.name} → ${leg.to.name}",style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
+                        DirectionText("${leg.from.name} → ${leg.to.name}",style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
                         MavServices(leg.services)
                     }
                 }

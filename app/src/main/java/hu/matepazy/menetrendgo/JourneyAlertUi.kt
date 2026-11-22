@@ -62,7 +62,7 @@ private fun JourneyAlertDrawer(leg: Leg, dismiss: () -> Unit) {
                 Box(Modifier.weight(1f)) { RouteBadge(leg) }
                 IconButton(onClick = dismiss) { Icon(Icons.Outlined.Close, "Közlemény bezárása") }
             }
-            Text("${leg.from.name} → ${leg.to.name}", Modifier.padding(top = AppLayout.CompactGap),
+            DirectionText("${leg.from.name} → ${leg.to.name}", Modifier.padding(top = AppLayout.CompactGap),
                 style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             leg.alerts.forEachIndexed {index,alert ->
                 if(index>0) HorizontalDivider(Modifier.padding(top=AppLayout.SheetPadding))

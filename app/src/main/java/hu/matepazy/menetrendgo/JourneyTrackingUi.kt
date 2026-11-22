@@ -148,7 +148,7 @@ internal fun JourneyTrackingSheet(journey: Journey, selectedLegIndex: Int, onDis
                     modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
                 if (active.awaitingBoarding && tracking.running) {
                     active.nextLegIndex?.let { next ->
-                        Text("Következő: ${active.journey.legs[next].route} → ${active.journey.legs[next].to.name}", style = MaterialTheme.typography.bodyMedium)
+                        DirectionText("Következő: ${active.journey.legs[next].route} → ${active.journey.legs[next].to.name}", style = MaterialTheme.typography.bodyMedium)
                         Button(onClick = {
                             JourneyTracking.board(context, active); onDismiss()
                         }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).glassHighlight(CircleShape, buttonGlassTone())) { Text("Felszálltam a következő járatra") }
@@ -161,7 +161,7 @@ internal fun JourneyTrackingSheet(journey: Journey, selectedLegIndex: Int, onDis
                 }
             } else if (tracking.session != null) {
                 val existing = tracking.session!!.leg
-                Text("Már aktív a jelzés: ${existing.route} → ${existing.to.name}. Új jelzés előtt állítsd le a jelenlegit.",
+                DirectionText("Már aktív a jelzés: ${existing.route} → ${existing.to.name}. Új jelzés előtt állítsd le a jelenlegit.",
                     style = MaterialTheme.typography.bodyMedium)
                 GlassButton(onClick = { JourneyTracking.stop(context) }, modifier = Modifier.heightIn(min = 48.dp)) { Text("Aktív jelzés leállítása") }
             } else {
@@ -195,7 +195,7 @@ internal fun ActiveJourneyTracking(onOpen: (Journey) -> Unit) {
                 verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(AppLayout.RelatedGap)) {
                 Icon(Icons.Outlined.NotificationsActive, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(AppLayout.LabelGap)) {
-                    Text("${session.leg.route} → ${session.leg.to.name}", style = MaterialTheme.typography.bodyMedium)
+                    DirectionText("${session.leg.route} → ${session.leg.to.name}", style = MaterialTheme.typography.bodyMedium)
                     Text(if (tracking.running) "Leszállási jelzés aktív" else "Leszállási jelzés szünetel",
                         style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }

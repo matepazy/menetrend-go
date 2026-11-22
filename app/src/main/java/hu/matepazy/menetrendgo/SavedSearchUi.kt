@@ -46,7 +46,7 @@ fun SavedSearchEditor(from: Station, to: Station, existing: SavedSearch?,
             Text(if (existing == null) "Keresés mentése" else "Mentett keresés szerkesztése",
                 style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text("${from.name} → ${to.name}", style = MaterialTheme.typography.bodyLarge)
+                DirectionText("${from.name} → ${to.name}", style = MaterialTheme.typography.bodyLarge)
                 Text("Csak az útvonalat mentjük. Új kereséskor az aktuális időpontot használjuk.",
                     style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }

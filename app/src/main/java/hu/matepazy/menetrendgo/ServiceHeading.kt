@@ -5,7 +5,17 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.text.InlineTextContent
+import androidx.compose.foundation.text.appendInlineContent
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.LocalTextStyle
+import androidx.compose.ui.graphics.takeOrElse
+import androidx.compose.ui.text.Placeholder
+import androidx.compose.ui.text.PlaceholderVerticalAlign
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.unit.em
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -65,6 +75,36 @@ private fun LiveRouteBadge(leg: Leg) {
             overflow = TextOverflow.Ellipsis
         )
     }
+}
+
+private const val DirectionSeparator = " → "
+
+/** Text whose " → " separators render as the app's filled direction triangle (as in service headings and the widget);
+ *  screen readers hear a dash instead of "right arrow". */
+@Composable
+internal fun DirectionText(
+    text: String,
+    modifier: Modifier = Modifier,
+    style: TextStyle = LocalTextStyle.current,
+    color: Color = Color.Unspecified,
+    maxLines: Int = Int.MAX_VALUE,
+    overflow: TextOverflow = TextOverflow.Clip
+) {
+    val parts = text.split(DirectionSeparator)
+    if (parts.size == 1) {
+        Text(text, modifier, color = color, style = style, maxLines = maxLines, overflow = overflow); return
+    }
+    val tint = color.takeOrElse { style.color.takeOrElse { LocalContentColor.current } }
+    val annotated = buildAnnotatedString {
+        parts.forEachIndexed { index, part ->
+            if (index > 0) { append(' '); appendInlineContent("direction", "–"); append(' ') }
+            append(part)
+        }
+    }
+    val inline = mapOf("direction" to InlineTextContent(Placeholder(.8.em, .8.em, PlaceholderVerticalAlign.TextCenter)) {
+        Icon(painterResource(R.drawable.ic_service_direction), null, Modifier.fillMaxSize(), tint = tint)
+    })
+    Text(annotated, modifier, color = color, style = style, maxLines = maxLines, overflow = overflow, inlineContent = inline)
 }
 
 @Composable
