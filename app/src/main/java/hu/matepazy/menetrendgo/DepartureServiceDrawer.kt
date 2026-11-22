@@ -75,7 +75,7 @@ import org.json.JSONObject
             Vehicle(departure.tripId, departure.leg.route, departure.headsign, departure.leg.mode, 0.0, 0.0,
                 routeColor = departure.leg.routeColor, category = departure.leg.category,
                 routeLongName = departure.leg.routeLongName, routeLogo = departure.leg.routeLogo,
-                agencyName = departure.leg.agencyName,
+                agencyName = departure.leg.agencyName, routeShortName = departure.leg.routeShortName,
                 model = position?.optString("vehicleModel")?.takeUnless { it == "null" }.orEmpty(),
                 registration = position?.optString("licensePlate")?.takeUnless { it == "null" }.orEmpty(),
                 vehicleId = position?.optString("vehicleId")?.takeUnless { it == "null" }.orEmpty(),
@@ -90,11 +90,9 @@ import org.json.JSONObject
     AppBottomSheet(onDismissRequest = dismiss) {
         Column(Modifier.fillMaxWidth().fillMaxHeight(.85f).padding(horizontal = AppLayout.SheetPadding)) {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                Box(Modifier.weight(1f)) { RouteBadge(departure.leg) }
+                ServiceHeading(departure.leg, departure.headsign, Modifier.weight(1f))
                 IconButton(onClick = dismiss) { Icon(Icons.Outlined.Close, "Járat részleteinek bezárása") }
             }
-            Text(departure.headsign, style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = AppLayout.CompactGap))
             Text(when {
                 departure.cancelled -> "Kimaradó járat · tervezett menetrend"
                 detail == null -> "Járatadatok betöltése"

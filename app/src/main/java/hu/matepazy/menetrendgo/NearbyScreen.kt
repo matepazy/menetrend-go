@@ -189,7 +189,7 @@ import kotlinx.coroutines.withContext
     LaunchedEffect(ready,visibleVehicles,journey) {
         if(ready) {
             val array=withContext(Dispatchers.Default) { JSONArray(visibleVehicles.map { vehicle ->
-                JSONObject().put("id",vehicle.id).put("name",vehicle.name).put("headsign",vehicle.headsign)
+                JSONObject().put("id",vehicle.id).put("name",vehicle.displayRoute).put("headsign",vehicle.headsign)
                     .put("lat",vehicle.lat).put("lon",vehicle.lon).put("mode",vehicle.mode)
                     .put("heading",vehicle.heading ?: JSONObject.NULL)
                     .put("color",serviceColorHex(vehicle.badgeLeg()))
@@ -362,7 +362,7 @@ import kotlinx.coroutines.withContext
                 onClearSelection={searchVehicleId=null;searchVehicleName=null},
                 onVehicle={vehicle ->
                     searchVehicleId=vehicle.id
-                    searchVehicleName=vehicle.name
+                    searchVehicleName=vehicle.displayRoute
                     mapSurface?.call("centerOn",vehicle.lat,vehicle.lon)
                     onSelect(vehicle)
                 },

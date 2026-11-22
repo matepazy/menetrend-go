@@ -4,6 +4,17 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class ServiceNamesTest {
+    @Test fun busBadgePrefersPublicRouteAndRetainsRawTripLabel() {
+        val bus = Vehicle("trip", "1845/113", "Kincsesbánya, Petőfi utca", "BUS", 0.0, 0.0)
+        assertEquals("1845", bus.displayRoute)
+        assertEquals("1845/113", bus.name)
+        assertEquals("100E", bus.copy(routeShortName = "100E").displayRoute)
+        assertEquals("1845", bus.copy(mode = "COACH").displayRoute)
+        assertEquals("1845", bus.copy(mode = "RAIL_REPLACEMENT_BUS").displayRoute)
+        assertEquals("918 BAKONY InterCity", bus.copy(mode = "RAIL", name = "918 BAKONY InterCity",
+            routeShortName = "IC").displayRoute)
+    }
+
     @Test fun nullProviderCategoryUsesTransportMode() {
         listOf("null", " NULL ", "").forEach { category ->
             assertEquals("Autóbusz", hungarianServiceName(category, "BUS"))

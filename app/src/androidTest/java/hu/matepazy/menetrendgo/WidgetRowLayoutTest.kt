@@ -45,8 +45,8 @@ class WidgetRowLayoutTest {
         for (index in 0 until list.childCount) {
             val card = list.getChildAt(index)
             val logo = card.findViewById<android.widget.ImageView>(R.id.widget_logo)
-            val destination = card.findViewById<View>(R.id.widget_destination)
-            assertEquals("Official logo and destination share their leading edge", leadingEdge(destination), leadingEdge(logo))
+            val direction = card.findViewById<View>(R.id.widget_direction)
+            assertEquals("The direction row starts at the route mark's leading edge", leadingEdge(direction), leadingEdge(logo))
             assertEquals(android.widget.ImageView.ScaleType.FIT_START, logo.scaleType)
             val clock = card.findViewById<android.widget.TextView>(R.id.widget_departure_time)
             val countdown = card.findViewById<android.widget.TextView>(R.id.widget_countdown)

@@ -193,11 +193,11 @@ import kotlinx.coroutines.withContext
                                     modifier = Modifier.padding(horizontal = 12.dp)) { Text("Újrapróbálás") }
                             }
                             items(matches, key = { "vehicle:${it.id}" }) { vehicle ->
-                                SearchResult(vehicle.name,
-                                    listOf(vehicle.headsign, vehicle.modelAndRegistration).filter { it.isNotBlank() }.joinToString(" · "),
+                                SearchResult(vehicle.displayRoute, vehicle.modelAndRegistration,
                                     modifier = Modifier.animateItem(fadeInSpec = tween(AppMotion.Feedback),
                                         placementSpec = tween(AppMotion.Reveal, easing = AppMotion.Arrival), fadeOutSpec = tween(AppMotion.Dismiss)),
                                     icon = { StationSearchIcon(Station(vehicle.id, vehicle.name, vehicle.lat, vehicle.lon, modes = listOf(vehicle.mode)), decorative = true) },
+                                    titleContent = { ServiceHeading(vehicle.badgeLeg(), vehicle.headsign) },
                                     select = { close(); onVehicle(vehicle) })
                             }
                             if (stops.isNotEmpty() || loading || failed) item(key = "stops-heading") {
@@ -271,7 +271,9 @@ internal fun mapSearchStops(stations: List<Station>): List<Station> = stations.f
 }
 
 @Composable private fun SearchResult(title: String, subtitle: String = "", modifier: Modifier = Modifier,
-    icon: @Composable () -> Unit, select: () -> Unit) {
+    icon: @Composable () -> Unit,
+    titleContent: @Composable () -> Unit = { Text(title, style = MaterialTheme.typography.bodyLarge) },
+    select: () -> Unit) {
     Surface(onClick = select, modifier = modifier, color = MaterialTheme.colorScheme.surface) {
         Row(Modifier.fillMaxWidth().heightIn(min = 56.dp)
             .padding(horizontal = AppLayout.ItemGap, vertical = AppLayout.RelatedGap),
@@ -279,7 +281,7 @@ internal fun mapSearchStops(stations: List<Station>): List<Station> = stations.f
             icon()
             Spacer(Modifier.width(AppLayout.RelatedGap))
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(AppLayout.LabelGap)) {
-                Text(title, style = MaterialTheme.typography.bodyLarge)
+                titleContent()
                 if (subtitle.isNotEmpty()) Text(subtitle, style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant)
             }

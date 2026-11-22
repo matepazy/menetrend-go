@@ -103,9 +103,7 @@ import kotlinx.coroutines.delay
                     ) { selectedDeparture = departure }) {
                     Row(Modifier.padding(20.dp), horizontalArrangement = Arrangement.spacedBy(16.dp), verticalAlignment = Alignment.Top) {
                         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                            RouteBadge(departure.leg, contentPadding = if (departure.leg.routeLogo != null) PaddingValues(0.dp)
-                                else PaddingValues(horizontal = 8.dp, vertical = 5.dp))
-                            Text(departure.headsign, style = MaterialTheme.typography.titleMedium)
+                            ServiceHeading(departure.leg, departure.headsign)
                             if (departure.platform.isNotBlank()) Text("Vágány / kocsiállás: ${departure.platform}", style = MaterialTheme.typography.bodySmall)
                         }
                         Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(4.dp)) {

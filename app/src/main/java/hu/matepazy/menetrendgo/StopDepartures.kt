@@ -55,6 +55,7 @@ internal fun StopDeparture.cacheJson(): JSONObject = JSONObject().put("trip", tr
     .put("serviceDay", serviceDay)
     .put("scheduled", time.scheduled).put("estimate", time.estimate).put("live", time.realtime)
     .put("platform", platform).put("cancelled", cancelled).put("route", leg.route).put("mode", leg.mode)
+    .put("routeShortName", leg.routeShortName).put("routeColor", leg.routeColor).put("category", leg.category)
     .put("logo", leg.routeLogo?.let { JSONObject().put("code", it.code).put("foreground", it.foreground).put("background", it.background) })
 
 internal fun cachedDeparture(json: JSONObject): StopDeparture {
@@ -62,7 +63,8 @@ internal fun cachedDeparture(json: JSONObject): StopDeparture {
     val station = Station("", "", 0.0, 0.0)
     val logo = json.optJSONObject("logo")?.let { RouteLogo(it.getInt("code"), it.getString("foreground"), it.getString("background")) }
     val leg = Leg(json.getString("mode"), time.estimate, time.estimate, station, station, json.getString("route"),
-        json.getString("trip"), time.realtime, 0, emptyList(), "", routeLogo = logo)
+        json.getString("trip"), time.realtime, 0, emptyList(), "", routeColor = json.optString("routeColor"),
+        category = json.optString("category"), routeLogo = logo, routeShortName = json.optString("routeShortName"))
     return StopDeparture(json.getString("trip"), json.getString("headsign"), time, json.getString("platform"), json.getBoolean("cancelled"), leg,
         json.optString("serviceDay").ifBlank { java.time.Instant.ofEpochMilli(time.scheduled).atZone(Budapest).toLocalDate().toString() })
 }
@@ -96,7 +98,8 @@ internal fun parseStopDepartures(data: JSONObject, now: Long): List<StopDepartur
         val destination = row.text("headsign").ifBlank { trip.text("tripHeadsign") }.ifBlank { "Az irány nem ismert" }
         val leg = Leg(route.optString("mode"), estimate, estimate, station, station, label, trip.optString("gtfsId"),
             live, ((estimate-scheduled)/1000).toInt(), emptyList(), "", route.optString("color"),
-            trip.optString("trainCategoryName"), destination, route.optString("longName"), routeLogo = RouteLogo.parse(route))
+            trip.optString("trainCategoryName"), destination, route.optString("longName"), routeLogo = RouteLogo.parse(route),
+            routeShortName = route.text("shortName"))
         StopDeparture(trip.optString("gtfsId"), destination, ServiceTime(scheduled, estimate, live),
             point.optString("platformCode").takeUnless { it == "null" }.orEmpty(),
             row.optString("realtimeState") == "CANCELED", leg,

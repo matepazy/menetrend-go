@@ -55,7 +55,8 @@ data class Vehicle(val id: String, val name: String, val headsign: String, val m
     }
     fun badgeLeg(): Leg {
         val point = Station("", "", lat, lon)
-        return Leg(mode, 0, 0, point, point, name, id, true, 0, emptyList(), "", routeColor, category, headsign, routeLongName, routeLogo=routeLogo)
+        return Leg(mode, 0, 0, point, point, name, id, true, 0, emptyList(), "", routeColor, category, headsign, routeLongName,
+            routeLogo=routeLogo, routeShortName=routeShortName)
     }
 }
 data class UtasTripRef(val id: String, val serviceDate: LocalDate?, val vehicleId: String)
@@ -63,7 +64,8 @@ data class Leg(val mode: String, val start: Long, val end: Long, val from: Stati
     val route: String, val tripId: String, val realTime: Boolean, val departureDelay: Int,
     val intermediate: List<Station>, val geometry: String,
     val routeColor: String = "", val category: String = "", val headsign: String = "", val routeLongName: String = "", val agencyName: String = "", val arrivalDelay: Int = 0,
-    val services: List<MavService> = emptyList(), val routeLogo: RouteLogo? = null, val alerts: List<MavAlert> = emptyList()) {
+    val services: List<MavService> = emptyList(), val routeLogo: RouteLogo? = null, val alerts: List<MavAlert> = emptyList(),
+    val routeShortName: String = "") {
     val walking get() = mode == "WALK"
     val departureTime get() = ServiceTime.fromEstimate(start, departureDelay, realTime && !walking)
     val arrivalTime get() = ServiceTime.fromEstimate(end, arrivalDelay, realTime && !walking)

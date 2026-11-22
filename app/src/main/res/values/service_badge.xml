@@ -1,0 +1,5 @@
+<resources>
+    <dimen name="service_badge_radius">4dp</dimen>
+    <dimen name="service_badge_horizontal_padding">8dp</dimen>
+    <dimen name="service_badge_vertical_padding">3dp</dimen>
+</resources>

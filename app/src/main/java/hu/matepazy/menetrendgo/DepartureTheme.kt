@@ -2,7 +2,9 @@ package hu.matepazy.menetrendgo
 
 import android.content.Context
 import android.content.res.Configuration
+import android.view.View
 import android.widget.RemoteViews
+import androidx.core.graphics.ColorUtils
 
 internal fun savedTheme(context: Context): String =
     context.getSharedPreferences("menetrendgo", Context.MODE_PRIVATE).getString("theme", "system") ?: "system"
@@ -36,4 +38,35 @@ internal fun RemoteViews.applyDepartureTheme(context: Context) {
         }
         R.layout.stop_board_widget_message -> setTextColor(R.id.widget_row_text, context.getColor(R.color.widget_ink))
     }
+}
+
+internal fun RemoteViews.bindWidgetService(context: Context, departure: StopDeparture) {
+    val leg = departure.leg
+    val ink = context.getColor(R.color.widget_ink)
+    val logo = leg.displayRouteLogo?.let { routeLogoBitmap(context, it) }
+    val fill = serviceColorValue(leg) ?: context.getColor(R.color.widget_muted)
+    val inline = leg.mode.isBusService && departure.headsign.isNotBlank()
+    val labelColor = if (logo != null) ink
+        else if (ColorUtils.calculateLuminance(fill) > .179) android.graphics.Color.BLACK
+        else android.graphics.Color.WHITE
+    val horizontal = context.resources.getDimensionPixelSize(R.dimen.service_badge_horizontal_padding)
+    val vertical = context.resources.getDimensionPixelSize(R.dimen.service_badge_vertical_padding)
+
+    setTextViewText(R.id.widget_service, leg.displayRoute)
+    setTextColor(R.id.widget_service, labelColor)
+    setViewVisibility(R.id.widget_logo, if (logo == null) View.GONE else View.VISIBLE)
+    setViewVisibility(R.id.widget_badge_fill, if (logo == null) View.VISIBLE else View.GONE)
+    if (logo != null) {
+        setImageViewBitmap(R.id.widget_logo, logo)
+    } else {
+        setViewPadding(R.id.widget_service, horizontal, vertical, horizontal, vertical)
+        setInt(R.id.widget_badge_fill, "setColorFilter", fill)
+    }
+    setViewVisibility(R.id.widget_inline_direction, if (inline) View.VISIBLE else View.GONE)
+    setViewVisibility(R.id.widget_inline_destination, if (inline) View.VISIBLE else View.GONE)
+    setViewVisibility(R.id.widget_direction_row, if (inline || departure.headsign.isBlank()) View.GONE else View.VISIBLE)
+    setInt(R.id.widget_direction, "setColorFilter", ink)
+    setInt(R.id.widget_inline_direction, "setColorFilter", ink)
+    setTextColor(R.id.widget_inline_destination, ink)
+    setTextViewText(if (inline) R.id.widget_inline_destination else R.id.widget_destination, departure.headsign)
 }

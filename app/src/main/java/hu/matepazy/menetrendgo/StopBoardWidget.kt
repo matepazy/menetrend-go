@@ -154,8 +154,7 @@ class StopBoardWidget : AppWidgetProvider() {
             }
             val candidates = rows.map { departure ->
                 val row = RemoteViews(context.packageName, R.layout.stop_board_widget_row).apply { applyDepartureTheme(themeContext) }
-                row.setTextViewText(R.id.widget_service, departure.leg.route)
-                row.setTextViewText(R.id.widget_destination, departure.headsign)
+                row.bindWidgetService(themeContext, departure)
                 row.setTextViewText(R.id.widget_detail, if (departure.platform.isBlank()) "" else "${departure.platform}. vágány / állás")
                 row.setViewVisibility(R.id.widget_detail, if (departure.platform.isBlank()) android.view.View.GONE else android.view.View.VISIBLE)
                 row.setTextViewText(R.id.widget_countdown, if (departure.cancelled) "Kimarad" else departureCountdown(departure.time.estimate, now))
@@ -164,17 +163,6 @@ class StopBoardWidget : AppWidgetProvider() {
                 row.setViewVisibility(R.id.widget_departure_time, if (clock == null) android.view.View.GONE else android.view.View.VISIBLE)
                 row.setTextColor(R.id.widget_countdown, themeContext.getColor(departureColorResource(departure.time, departure.cancelled)))
                 row.setContentDescription(R.id.widget_countdown, (if (departure.cancelled) "Kimarad" else departureCountdown(departure.time.estimate, now)) + ", " + departureStateDescription(departure))
-                val bitmap = departure.leg.routeLogo?.let { routeLogoBitmap(context, it) }
-                if (bitmap != null) row.setImageViewBitmap(R.id.widget_logo, bitmap)
-                else row.setImageViewResource(R.id.widget_logo, when (departure.leg.mode) {
-                    "BUS" -> R.drawable.ic_mode_local_bus
-                    "COACH" -> R.drawable.ic_mode_coach
-                    "SUBURBAN_RAILWAY" -> R.drawable.ic_mode_hev
-                    "TRAMTRAIN" -> R.drawable.ic_mode_tramtrain
-                    "RAIL_REPLACEMENT_BUS" -> R.drawable.ic_mode_replacement_bus
-                    else -> R.drawable.ic_mode_rail
-                })
-                row.setContentDescription(R.id.widget_logo, null)
                 row
             }
             val fitted = fittingWidgetRows(context, views, candidates, width, height)

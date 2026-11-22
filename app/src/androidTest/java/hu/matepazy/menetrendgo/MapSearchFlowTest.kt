@@ -25,7 +25,8 @@ class MapSearchFlowTest {
     private var selectedVehicle by mutableStateOf<Vehicle?>(null)
 
     private fun show(search: suspend (String) -> List<Station> = { listOf(station) },
-                     cached: suspend (String) -> List<Station> = { emptyList() }, theme: String = "light") {
+                     cached: suspend (String) -> List<Station> = { emptyList() }, theme: String = "light",
+                     resultVehicle: Vehicle = vehicle) {
         compose.setContent {
             var query by remember { mutableStateOf("") }
             var focused by remember { mutableStateOf(false) }
@@ -33,9 +34,9 @@ class MapSearchFlowTest {
                 StationFocusOverlay {
                     Box(Modifier.fillMaxSize().safeDrawingPadding().imePadding()) {
                         MapSearch(query, { query = it }, false, {}, focused = focused,
-                            onFocusChange = { focused = it }, vehicles = listOf(vehicle),
+                            onFocusChange = { focused = it }, vehicles = listOf(resultVehicle),
                             searchStops = search, cachedStops = cached,
-                            selectedVehicleName = selectedVehicle?.name,
+                            selectedVehicleName = selectedVehicle?.displayRoute,
                             onClearSelection = { selectedVehicle = null },
                             onVehicle = { vehiclePicks++; selectedVehicle = it }, onStop = { stopPicks++; pickedStop = it })
                     }
@@ -60,10 +61,11 @@ class MapSearchFlowTest {
     @Test fun typingDoesNotSelectAndVehicleSelectionClosesSearch() {
         show()
         type("IC70")
-        waitFor("IC 70")
+        val result = compose.onNodeWithContentDescription("Vonat IC 70")
+        compose.waitUntil(5000) { compose.onAllNodesWithContentDescription("Vonat IC 70").fetchSemanticsNodes().isNotEmpty() }
         assertEquals(0, vehiclePicks)
         assertEquals(0, stopPicks)
-        compose.onNodeWithText("IC 70").performClick()
+        result.performClick()
         assertEquals(1, vehiclePicks)
         compose.onNodeWithText("IC 70").assertIsDisplayed()
         compose.onNodeWithContentDescription("Keresés törlése").assertIsDisplayed()
@@ -75,6 +77,20 @@ class MapSearchFlowTest {
         compose.onNodeWithContentDescription("Keresés törlése").performClick()
         compose.runOnIdle { assertNull(selectedVehicle) }
         compose.onNodeWithContentDescription("Keresés a térképen").assertIsDisplayed()
+    }
+
+    @Test fun busSearchResultShowsPublicNumberAndStillMatchesTheFullTripLabel() {
+        val bus = vehicle.copy(name = "8092/113", mode = "COACH", routeColor = "F5A800",
+            headsign = "Kincsesbánya, Petőfi utca", model = "", routeShortName = "8092")
+        show(search = { emptyList() }, resultVehicle = bus)
+        type(bus.name)
+        val result = compose.onNodeWithContentDescription("Autóbusz 8092")
+        compose.waitUntil(5000) { compose.onAllNodesWithContentDescription("Autóbusz 8092").fetchSemanticsNodes().isNotEmpty() }
+        result.assertIsDisplayed()
+        capture("service-bus-search")
+        result.performClick()
+        compose.onNodeWithText("8092").assertIsDisplayed()
+        compose.runOnIdle { assertEquals(bus, selectedVehicle) }
     }
 
     @Test fun repeatedExpansionAndDismissalRestoreAnEmptyFocusedEditor() {

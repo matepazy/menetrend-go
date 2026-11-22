@@ -15,7 +15,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.ArrowForward
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Commute
 import androidx.compose.material.icons.outlined.Map
@@ -210,26 +209,10 @@ internal fun vehicleStopPlatform(platform: String, mode: String): String = when(
             Column(if(reportSummary!=null) Modifier.onSizeChanged {reportSummary(it.height)} else Modifier) {
             Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(AppLayout.CompactGap),
                 verticalAlignment=Alignment.Top) {
-                // The destination stays beside the badge while it fits on one line; otherwise it moves
-                // as a whole under the badge instead of breaking mid-word in a squeezed column.
-                FlowRow(Modifier.weight(1f).heightIn(min=48.dp),
-                    horizontalArrangement=Arrangement.spacedBy(AppLayout.CompactGap),
-                    verticalArrangement=Arrangement.spacedBy(AppLayout.CompactGap,Alignment.CenterVertically),
-                    itemVerticalAlignment=Alignment.CenterVertically) {
-                    RouteBadge(vehicle.badgeLeg(),contentPadding=if(vehicle.routeLogo!=null) PaddingValues(0.dp) else PaddingValues(horizontal=14.dp,vertical=6.dp),
-                        showModeIcon=false)
-                    Row(horizontalArrangement=Arrangement.spacedBy(AppLayout.CompactGap),verticalAlignment=Alignment.Top) {
-                        // The arrow sits on the first line when a long destination takes two.
-                        Box(Modifier.height(with(LocalDensity.current) {MaterialTheme.typography.titleSmall.lineHeight.toDp()}),
-                            contentAlignment=Alignment.Center) {
-                            Icon(Icons.AutoMirrored.Outlined.ArrowForward,"Irány",Modifier.size(20.dp),
-                                tint=MaterialTheme.colorScheme.onSurfaceVariant)
-                        }
-                        Text(breakAtSymbols(if(stops.isNotEmpty()) stops.last().name else vehicle.headsign),Modifier.weight(1f,fill=false),
-                            style=MaterialTheme.typography.titleSmall,fontWeight=FontWeight.Bold,
-                            maxLines=2,overflow=TextOverflow.Ellipsis)
-                    }
-                }
+                ServiceHeading(
+                    vehicle.badgeLeg(), breakAtSymbols(stops.lastOrNull()?.name ?: vehicle.headsign),
+                    Modifier.weight(1f).heightIn(min = 48.dp)
+                )
                 Row(horizontalArrangement = Arrangement.spacedBy(AppLayout.CompactGap)) {
                     showOnMap?.let { action ->
                         IconButton(onClick = action) { Icon(Icons.Outlined.Map, "Jármű mutatása a térképen") }

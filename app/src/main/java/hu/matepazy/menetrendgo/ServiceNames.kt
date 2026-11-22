@@ -2,6 +2,28 @@ package hu.matepazy.menetrendgo
 
 import java.util.Locale
 
+internal val String.isBusService: Boolean
+    get() = this == "BUS" || this == "COACH" || this == "RAIL_REPLACEMENT_BUS"
+
+/** Keep the provider trip label for matching and storage. Use the public line in the UI. */
+internal val Leg.displayRoute: String
+    get() = when {
+        walking -> "Gyalog"
+        mode.isBusService -> busDisplayRoute(routeShortName, route)
+        else -> route
+    }
+
+internal val Leg.displayRouteLogo: RouteLogo?
+    get() = routeLogo.takeUnless { mode.isBusService }
+
+internal val Vehicle.displayRoute: String
+    get() = if (mode.isBusService) busDisplayRoute(routeShortName, name) else name
+
+private fun busDisplayRoute(publicRoute: String, tripLabel: String): String =
+    publicRoute.takeIf { it.isNotBlank() && '<' !in it }.orEmpty()
+        .ifBlank { tripLabel.takeUnless { '<' in it }.orEmpty() }
+        .substringBefore('/').trim().ifEmpty { "Járat" }
+
 /** Trip numbers and named trains may embed the English category in the label. */
 fun hungarianServiceLabel(label: String): String {
     var result=label
