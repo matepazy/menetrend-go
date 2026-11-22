@@ -64,7 +64,7 @@ internal fun GoogleTransportMap(
     val available=remember {GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(context)==ConnectionResult.SUCCESS}
     if (!BuildConfig.MAPS_API_KEY_CONFIGURED || !available) {
         Box(modifier) {
-            Surface(Modifier.align(Alignment.Center).padding(24.dp),shape=MaterialTheme.shapes.large) {
+            GlassSurface(Modifier.align(Alignment.Center).padding(24.dp),shape=MaterialTheme.shapes.large,level=GlassLevel.Floating) {
                 Text(if (!BuildConfig.MAPS_API_KEY_CONFIGURED) "A Google térkép még nincs beállítva. Add meg az API-kulcsot a fordításhoz, vagy válassz másik térképtípust."
                     else "A Google térképhez Google Play-szolgáltatások szükségesek. Válassz másik térképtípust.",Modifier.padding(20.dp))
             }

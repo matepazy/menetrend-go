@@ -1,5 +1,6 @@
 package hu.matepazy.menetrendgo
 
+import androidx.compose.foundation.shape.CircleShape
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -150,19 +151,19 @@ internal fun JourneyTrackingSheet(journey: Journey, selectedLegIndex: Int, onDis
                         Text("Következő: ${active.journey.legs[next].route} → ${active.journey.legs[next].to.name}", style = MaterialTheme.typography.bodyMedium)
                         Button(onClick = {
                             JourneyTracking.board(context, active); onDismiss()
-                        }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Felszálltam a következő járatra") }
+                        }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).glassHighlight(CircleShape, buttonGlassTone())) { Text("Felszálltam a következő járatra") }
                     }
                 }
                 if (!tracking.running) Button(onClick = { requestStart() }, enabled = !starting,
-                    modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text(if (starting) "Indítás…" else "Jelzés folytatása") }
-                OutlinedButton(onClick = { JourneyTracking.stop(context); onDismiss() }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
+                    modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).glassHighlight(CircleShape, buttonGlassTone(!starting))) { Text(if (starting) "Indítás…" else "Jelzés folytatása") }
+                GlassButton(onClick = { JourneyTracking.stop(context); onDismiss() }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
                     Text("Jelzés leállítása")
                 }
             } else if (tracking.session != null) {
                 val existing = tracking.session!!.leg
                 Text("Már aktív a jelzés: ${existing.route} → ${existing.to.name}. Új jelzés előtt állítsd le a jelenlegit.",
                     style = MaterialTheme.typography.bodyMedium)
-                OutlinedButton(onClick = { JourneyTracking.stop(context) }, modifier = Modifier.heightIn(min = 48.dp)) { Text("Aktív jelzés leállítása") }
+                GlassButton(onClick = { JourneyTracking.stop(context) }, modifier = Modifier.heightIn(min = 48.dp)) { Text("Aktív jelzés leállítása") }
             } else {
                 Text("Jelzés a megálló közelében", style = MaterialTheme.typography.titleMedium)
                 Text("A térképen ${destinationAlertRadius(leg.mode).toInt()} méteres kört jelölünk a leszállóhely körül. Az előző megálló kisebb, szaggatott köre védi a korai jelzéstől. A nagy körön belül akkor figyelmeztetünk, ha már elhagytad az előző megálló körét a leszállóhely felé.",
@@ -170,7 +171,7 @@ internal fun JourneyTrackingSheet(journey: Journey, selectedLegIndex: Int, onDis
                 Text("Felszállás után indítsd el. Az utazást élő értesítésben követheted. A leszállóhely közelében a telefon külön rezgéssel jelez, lezárt képernyőnél is. A rezgést a telefon rezgési és Ne zavarjanak beállításai befolyásolhatják. Gyenge helyjelnél a jelzés késhet vagy elmaradhat.",
                     style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Button(onClick = { requestStart() }, enabled = !starting,
-                    modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text(if (starting) "Indítás…" else "Jelzés indítása") }
+                    modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).glassHighlight(CircleShape, buttonGlassTone(!starting))) { Text(if (starting) "Indítás…" else "Jelzés indítása") }
             }
             error?.let {
                 Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyMedium,

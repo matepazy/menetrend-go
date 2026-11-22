@@ -143,7 +143,7 @@ internal val Counties=listOf("Baranya","Bács-Kiskun","Békés","Borsod-Abaúj-Z
         }
     }
     if(add) PassEditor(editing,onDismiss={add=false}) {pass -> vm.addPass(pass);add=false;requestNotifications()}
-    if(remove!=null) AlertDialog(onDismissRequest={remove=null},shape=RoundedCornerShape(32.dp),title={Text("Törlöd a bérletet?")},text={Text("A hozzá tartozó emlékeztetők is megszűnnek.")},confirmButton={TextButton(onClick={vm.removePass(remove!!);remove=null}){Text("Törlés")}},dismissButton={TextButton(onClick={remove=null}){Text("Mégse")}})
+    if(remove!=null) AlertDialog(onDismissRequest={remove=null},shape=RoundedCornerShape(32.dp),modifier=Modifier.glassHighlight(RoundedCornerShape(32.dp),glassTone(GlassLevel.Floating)),title={Text("Törlöd a bérletet?")},text={Text("A hozzá tartozó emlékeztetők is megszűnnek.")},confirmButton={TextButton(onClick={vm.removePass(remove!!);remove=null}){Text("Törlés")}},dismissButton={TextButton(onClick={remove=null}){Text("Mégse")}})
 }
 
 @Composable internal fun PassSummaryCard(pass: Pass, today: LocalDate, edit: () -> Unit, remove: () -> Unit) {
@@ -168,7 +168,7 @@ internal val Counties=listOf("Baranya","Bács-Kiskun","Békés","Borsod-Abaúj-Z
             }
             Box {
                 IconButton(onClick={menuOpen=true}) {Icon(Icons.Outlined.MoreVert,"${pass.name} műveletei")}
-                DropdownMenu(expanded=menuOpen,onDismissRequest={menuOpen=false}) {
+                DropdownMenu(expanded=menuOpen,onDismissRequest={menuOpen=false},modifier=Modifier.glassHighlight(MenuDefaults.shape,glassTone(GlassLevel.Floating))) {
                     DropdownMenuItem(text={Text("Szerkesztés")},leadingIcon={Icon(Icons.Outlined.Edit,null)},onClick={menuOpen=false;edit()})
                     DropdownMenuItem(text={Text("Törlés")},leadingIcon={Icon(Icons.Outlined.DeleteOutline,null)},onClick={menuOpen=false;remove()})
                 }

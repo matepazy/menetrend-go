@@ -114,7 +114,7 @@ private fun Set<String>.toggle(id: String) = if (id in this) this - id else this
 
 @Composable
 private fun OperatorChip(label: String, count: Int, selected: Boolean, onClick: () -> Unit) {
-    FilterChip(selected = selected, onClick = onClick, shape = CircleShape,
+    GlassFilterChip(selected = selected, onClick = onClick, shape = CircleShape,
         label = { Text("$label  $count", style = MaterialTheme.typography.labelLarge) },
         modifier = Modifier.heightIn(min = 40.dp).semantics { contentDescription = "$label, $count közlemény" })
 }

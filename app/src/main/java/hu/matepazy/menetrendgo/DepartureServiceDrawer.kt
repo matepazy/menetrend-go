@@ -113,8 +113,7 @@ import org.json.JSONObject
                     Text("Nincs elérhető megállóadat.")
                 }
                 itemsIndexed(stops) { _, stop ->
-                    Surface(shape = MaterialTheme.shapes.medium,
-                        color = MaterialTheme.colorScheme.surface) {
+                    GlassSurface(shape = MaterialTheme.shapes.medium) {
                         Row(Modifier.fillMaxWidth().padding(AppLayout.ItemGap),
                             horizontalArrangement = Arrangement.spacedBy(AppLayout.RelatedGap)) {
                             Column(Modifier.width(with(LocalDensity.current) { 72.sp.toDp() })) {

@@ -1,5 +1,6 @@
 package hu.matepazy.menetrendgo
 
+import androidx.compose.foundation.shape.CircleShape
 import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.RectF
@@ -140,7 +141,7 @@ import androidx.compose.ui.unit.dp
                             verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             filters.forEach { filter ->
                                 val checked = filter in selected
-                                FilterChip(selected = checked,
+                                GlassFilterChip(selected = checked,
                                     onClick = { choose(filter, !checked) },
                                     label = { Text(filter.title) },
                                     leadingIcon = { SearchFilterIcon(filter) },
@@ -168,7 +169,7 @@ import androidx.compose.ui.unit.dp
             }
             Row(Modifier.fillMaxWidth().padding(AppLayout.SheetPadding), horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
                 TextButton(onClick = reset, enabled = selected.isNotEmpty() || vehicles.isNotEmpty()) { Text("Alaphelyzet") }
-                Button(onClick = dismiss, modifier = Modifier.weight(1f).heightIn(min = 52.dp)) { Text("Kész") }
+                Button(onClick = dismiss, modifier = Modifier.weight(1f).heightIn(min = 52.dp).glassHighlight(CircleShape, buttonGlassTone())) { Text("Kész") }
             }
         }
     }
@@ -199,7 +200,7 @@ import androidx.compose.ui.unit.dp
                 SearchVehicle.entries.forEach { vehicle ->
                     val checked = vehicles.isEmpty() || vehicle in vehicles
                     val enabled = !checked || vehicles.size != 1
-                    Surface(shape = RoundedCornerShape(24.dp), color = MaterialTheme.colorScheme.surface) {
+                    GlassSurface(shape = RoundedCornerShape(24.dp)) {
                         Row(Modifier.fillMaxWidth().toggleable(checked, enabled = enabled, role = Role.Switch,
                             onValueChange = { toggleVehicle(vehicle) }).heightIn(min = 56.dp)
                             .padding(horizontal = 16.dp, vertical = 8.dp),
@@ -216,7 +217,7 @@ import androidx.compose.ui.unit.dp
             Row(Modifier.fillMaxWidth().padding(AppLayout.SheetPadding),
                 horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
                 TextButton(onClick = allVehicles, enabled = vehicles.isNotEmpty()) { Text("Mindegyik") }
-                Button(onClick = dismiss, modifier = Modifier.weight(1f).heightIn(min = 52.dp)) { Text("Kész") }
+                Button(onClick = dismiss, modifier = Modifier.weight(1f).heightIn(min = 52.dp).glassHighlight(CircleShape, buttonGlassTone())) { Text("Kész") }
             }
         }
     }

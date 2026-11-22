@@ -114,7 +114,7 @@ import java.time.Instant
                 "Az Indulások könyvjelzőjével. Később egy koppintással az aktuális indulásokat kapod.")
         }
         Spacer(Modifier.height(AppLayout.SectionGap))
-        OutlinedButton(onClick = onPlan, shape = CircleShape, modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp)) {
+        GlassButton(onClick = onPlan, modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp)) {
             Icon(Icons.Outlined.Search, null, Modifier.size(20.dp)); Spacer(Modifier.width(AppLayout.CompactGap)); Text("Útvonal tervezése")
         }
     }
@@ -220,6 +220,7 @@ fun savedJourneyWhen(saved: SavedJourney) =
         }
     }
     if (confirmDelete) AlertDialog(onDismissRequest = { confirmDelete = false },
+        modifier = Modifier.glassHighlight(AlertDialogDefaults.shape, glassTone(GlassLevel.Floating)),
         title = { Text("Eltávolítod a mentett utazást?") },
         text = { Text(if (saved.note.isBlank()) saved.title else "${saved.title}\nA megjegyzés is törlődik.") },
         confirmButton = { TextButton(onClick = onDelete) { Text("Eltávolítás") } },

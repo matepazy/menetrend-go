@@ -191,7 +191,7 @@ import kotlinx.coroutines.withContext
     Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min).padding(bottom = AppLayout.CompactGap),
         horizontalArrangement = Arrangement.spacedBy(AppLayout.CompactGap)) {
         figures.forEach { figure ->
-            Surface(Modifier.weight(1f).fillMaxHeight(), shape = MaterialTheme.shapes.extraSmall,
+            GlassSurface(Modifier.weight(1f).fillMaxHeight(), shape = MaterialTheme.shapes.extraSmall,
                 color = MaterialTheme.colorScheme.surfaceContainerHigh) {
                 Column(Modifier.padding(AppLayout.RelatedGap).semantics(mergeDescendants = true) {},
                     verticalArrangement = Arrangement.spacedBy(AppLayout.LabelGap)) {
@@ -281,7 +281,7 @@ private fun specIcon(label: String, value: String, mode: String): ImageVector {
                 .clickable(role = Role.Button, onClickLabel = "Fotó nagyítása") { onEnlarge(loaded, origin) }) {
                 Image(loaded, "$title · ${photo.caption}", Modifier.fillMaxSize(), contentScale = ContentScale.Fit)
                 FilledTonalIconButton(onClick = { onEnlarge(loaded, origin) },
-                    modifier = Modifier.align(Alignment.BottomEnd).padding(8.dp).graphicsLayer { alpha = control }) {
+                    modifier = Modifier.align(Alignment.BottomEnd).padding(8.dp).graphicsLayer { alpha = control }.glassHighlight(CircleShape, controlGlassTone())) {
                     Icon(Icons.Outlined.OpenInFull, "Fotó nagyítása")
                 }
             }

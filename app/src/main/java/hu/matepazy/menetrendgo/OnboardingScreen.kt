@@ -59,7 +59,8 @@ private val stops = listOf(
             }
             TextButton(onFinish, Modifier.align(Alignment.TopEnd).statusBarsPadding().padding(8.dp).heightIn(min = 48.dp)) { Text("Kihagyás") }
         }
-        Surface(Modifier.fillMaxWidth(), shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp), color = MaterialTheme.colorScheme.surface) {
+        Surface(Modifier.fillMaxWidth().glassEdge(RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp), glassTone(GlassLevel.Floating)),
+            shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp), color = MaterialTheme.colorScheme.surface) {
             Box(contentAlignment = Alignment.TopCenter) {
                 Column(Modifier.widthIn(max = 560.dp).fillMaxWidth()
                     .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom))
@@ -77,7 +78,7 @@ private val stops = listOf(
                     }
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(AppLayout.CompactGap)) {
                         if (step > 0) TextButton({ step-- }, Modifier.heightIn(min = 56.dp), enabled = !departing) { Text("Vissza") }
-                        Button({ if (last) departing = true else step++ }, Modifier.weight(1f).heightIn(min = 56.dp), enabled = !departing, shape = CircleShape) {
+                        Button({ if (last) departing = true else step++ }, Modifier.weight(1f).heightIn(min = 56.dp).glassHighlight(CircleShape, buttonGlassTone(!departing)), enabled = !departing, shape = CircleShape) {
                             Text(when { step == 0 -> "Beszállás!"; last -> "Indulás!"; else -> "Tovább" }, style = MaterialTheme.typography.titleMedium)
                         }
                     }

@@ -48,10 +48,10 @@ internal fun passDate(date: LocalDate): String = date.format(PassDateFormat)
                 LiquidSegmentedBar(types.map { it.second to null }, types.indexOfFirst { it.first == type }, { type = types[it].first },
                     container = MaterialTheme.colorScheme.surfaceContainerHighest)
                 if(type=="county") Box {
-                    OutlinedButton(onClick={countyOpen=true},shape=RoundedCornerShape(24.dp),modifier=Modifier.fillMaxWidth().heightIn(min=56.dp)) {
+                    GlassButton(onClick={countyOpen=true},shape=RoundedCornerShape(24.dp),container=MaterialTheme.colorScheme.surfaceContainerHighest,modifier=Modifier.fillMaxWidth().heightIn(min=56.dp)) {
                         Text("$county megye",Modifier.weight(1f));Icon(Icons.Outlined.ExpandMore,"Megye kiválasztása")
                     }
-                    DropdownMenu(expanded=countyOpen,onDismissRequest={countyOpen=false},modifier=Modifier.heightIn(max=300.dp)) {Counties.forEach {name->DropdownMenuItem(text={Text(name)},onClick={county=name;countyOpen=false})}}
+                    DropdownMenu(expanded=countyOpen,onDismissRequest={countyOpen=false},modifier=Modifier.heightIn(max=300.dp).glassHighlight(MenuDefaults.shape,glassTone(GlassLevel.Floating))) {Counties.forEach {name->DropdownMenuItem(text={Text(name)},onClick={county=name;countyOpen=false})}}
                 }
                 if(type=="local") {
                     OutlinedTextField(value=city,onValueChange={city=it},label={Text("Település")},placeholder={Text("Például Székesfehérvár")},singleLine=true,shape=RoundedCornerShape(24.dp),modifier=Modifier.fillMaxWidth())
@@ -85,7 +85,7 @@ internal fun passDate(date: LocalDate): String = date.format(PassDateFormat)
 }
 
 @Composable private fun PassDateButton(label: String, date: LocalDate, onClick: () -> Unit) {
-    OutlinedButton(onClick=onClick,shape=RoundedCornerShape(24.dp),contentPadding=PaddingValues(horizontal=20.dp,vertical=12.dp),modifier=Modifier.fillMaxWidth().heightIn(min=72.dp)) {
+    GlassButton(onClick=onClick,shape=RoundedCornerShape(24.dp),container=MaterialTheme.colorScheme.surfaceContainerHighest,contentPadding=PaddingValues(horizontal=20.dp,vertical=12.dp),modifier=Modifier.fillMaxWidth().heightIn(min=72.dp)) {
         Column(Modifier.weight(1f),verticalArrangement=Arrangement.spacedBy(4.dp)) {
             Text(label,style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
             Text(passDate(date),style=MaterialTheme.typography.titleMedium,fontWeight=FontWeight.SemiBold)

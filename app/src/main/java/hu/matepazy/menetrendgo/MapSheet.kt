@@ -192,14 +192,16 @@ fun MapSheetScaffold(
             }
         } }
         val sheetHeight = maxHeight - topGap
+        val sheetShape = MaterialTheme.shapes.extraLarge.copy(bottomStart = CornerSize(0.dp), bottomEnd = CornerSize(0.dp))
         Surface(
             Modifier.align(Alignment.TopCenter).widthIn(max = BottomSheetDefaults.SheetMaxWidth).fillMaxWidth()
                 .height(sheetHeight)
                 .offset { IntOffset(0, (state.offset.takeUnless { it.isNaN() } ?: layoutPx).roundToInt()) }
                 .nestedScroll(nestedScroll)
                 .draggable(rememberDraggableState { state.dispatchRawDelta(it) }, Orientation.Vertical,
-                    onDragStopped = { settle(it) }),
-            shape = MaterialTheme.shapes.extraLarge.copy(bottomStart = CornerSize(0.dp), bottomEnd = CornerSize(0.dp)),
+                    onDragStopped = { settle(it) })
+                .glassEdge(sheetShape, glassTone(GlassLevel.Floating)),
+            shape = sheetShape,
             color = BottomSheetDefaults.ContainerColor,
             shadowElevation = BottomSheetDefaults.Elevation,
         ) {

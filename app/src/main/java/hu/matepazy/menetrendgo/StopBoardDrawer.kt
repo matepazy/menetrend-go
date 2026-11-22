@@ -1,5 +1,6 @@
 package hu.matepazy.menetrendgo
 
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -82,7 +83,7 @@ import kotlinx.coroutines.delay
                     }
                     IconButton(onClick = { refresh++ }, enabled = !loading) { Icon(Icons.Outlined.Refresh, "Indulások frissítése") }
                 }
-                FilledTonalButton(onClick = { pinMessage = StopBoardWidget.requestPin(context, station) }, modifier = Modifier.fillMaxWidth()) {
+                FilledTonalButton(onClick = { pinMessage = StopBoardWidget.requestPin(context, station) }, modifier = Modifier.fillMaxWidth().glassHighlight(CircleShape, controlGlassTone())) {
                     Icon(Icons.Outlined.Widgets, null); Spacer(Modifier.width(8.dp)); Text("Widget a kezdőképernyőre")
                 }
                 pinMessage?.let { Text(it, style = MaterialTheme.typography.bodySmall) }

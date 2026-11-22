@@ -14,8 +14,10 @@ import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.luminance
@@ -48,6 +50,8 @@ fun AppBottomSheet(
     containerColor: Color = BottomSheetDefaults.ContainerColor,
     content: @Composable ColumnScope.() -> Unit,
 ) {
+    val sheetShape = shape.copy(bottomStart = CornerSize(0.dp), bottomEnd = CornerSize(0.dp))
+    val edge = glassTone(GlassLevel.Floating)
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
         modifier = Modifier.windowInsetsPadding(
@@ -57,8 +61,10 @@ fun AppBottomSheet(
         sheetGesturesEnabled = sheetGesturesEnabled,
         // Sheets meet the bottom edge, including behind the navigation bar. Only
         // the top corners should round, even when a caller supplies a card shape.
-        shape = shape.copy(bottomStart = CornerSize(0.dp), bottomEnd = CornerSize(0.dp)),
+        shape = sheetShape,
         containerColor = containerColor,
+        // Material offsets the sheet itself, so its glass edge rides on the full-width handle strip.
+        dragHandle = { GlassDragHandle(sheetShape, edge) },
         contentWindowInsets = { WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom) },
         content = content,
     )
@@ -122,6 +128,8 @@ fun AppExpandableBottomSheet(
             BoxWithConstraints(Modifier.fillMaxSize().windowInsetsPadding(
                 WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal)
             ).padding(top = AppLayout.RelatedGap)) {
+                val sheetShape = MaterialTheme.shapes.extraLarge.copy(bottomStart = CornerSize(0.dp), bottomEnd = CornerSize(0.dp))
+                val edge = glassTone(GlassLevel.Floating)
                 val bottomInset = with(LocalDensity.current) { WindowInsets.safeDrawing.getBottom(this).toDp() }
                 // The old cap applied to content below the 48dp Material drag handle,
                 // with the bottom safe area added outside that content.
@@ -149,9 +157,9 @@ fun AppExpandableBottomSheet(
                     },
                     scaffoldState = rememberBottomSheetScaffoldState(bottomSheetState = state),
                     sheetPeekHeight = (maxHeight - fixedHeight) * initialHeightFraction + fixedHeight,
-                    sheetShape = MaterialTheme.shapes.extraLarge.copy(bottomStart = CornerSize(0.dp), bottomEnd = CornerSize(0.dp)),
+                    sheetShape = sheetShape,
                     sheetDragHandle = {
-                        Box(preserveContentProportions) { BottomSheetDefaults.DragHandle() }
+                        GlassDragHandle(sheetShape, edge, preserveContentProportions)
                     },
                     containerColor = Color.Transparent,
                     sheetContent = {
@@ -162,5 +170,13 @@ fun AppExpandableBottomSheet(
                 ) {}
             }
         }
+    }
+}
+
+/** The native drag handle on a full-width strip that carries the sheet's top glass highlight. */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable private fun GlassDragHandle(shape: Shape, tone: GlassTone, modifier: Modifier = Modifier) {
+    Box(Modifier.fillMaxWidth().glassEdge(shape, tone).then(modifier), contentAlignment = Alignment.Center) {
+        BottomSheetDefaults.DragHandle()
     }
 }

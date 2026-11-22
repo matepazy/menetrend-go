@@ -1,5 +1,6 @@
 package hu.matepazy.menetrendgo
 
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.Image
@@ -93,7 +94,7 @@ import androidx.compose.ui.unit.dp
                         else "HTTPS XYZ csempék. A {s} és {r} helyőrző is használható.") })
                 Text("A csempéket közvetlenül a megadott szolgáltatótól töltjük be. Az URL-t ezen az eszközön mentjük.",
                     style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Button(onClick = { apply() }, modifier = Modifier.fillMaxWidth()) { Text("Saját térkép használata") }
+                Button(onClick = { apply() }, modifier = Modifier.fillMaxWidth().glassHighlight(CircleShape, buttonGlassTone())) { Text("Saját térkép használata") }
             }
             MapStopsToggle(vm)
             val enabledFilters = MapVehicleFilter.entries.filter { it in vm.vehicleFilters }
@@ -145,7 +146,7 @@ import androidx.compose.ui.unit.dp
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 MapVehicleFilter.entries.forEach { filter ->
                     val checked = filter in vm.vehicleFilters
-                    Surface(shape = RoundedCornerShape(24.dp), color = MaterialTheme.colorScheme.surface) {
+                    GlassSurface(shape = RoundedCornerShape(24.dp)) {
                         Row(Modifier.fillMaxWidth().toggleable(checked, role = Role.Switch,
                             onValueChange = { vm.chooseVehicleFilter(filter, it) }).heightIn(min = 72.dp).padding(16.dp),
                             verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -163,7 +164,7 @@ import androidx.compose.ui.unit.dp
 }
 
 @Composable private fun MapStopsToggle(vm: AppState) {
-    Surface(shape = RoundedCornerShape(24.dp), color = MaterialTheme.colorScheme.surface) {
+    GlassSurface(shape = RoundedCornerShape(24.dp)) {
         Row(Modifier.fillMaxWidth().toggleable(vm.showMapStops, role = Role.Switch,
             onValueChange = vm::chooseMapStops).heightIn(min = 72.dp).padding(16.dp),
             verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {

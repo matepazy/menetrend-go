@@ -57,8 +57,8 @@ internal const val KnowledgeBaseUrl = "https://menetrendgo.hu/tudasbazis"
             Text("Független, nem hivatalos alkalmazás, nem áll kapcsolatban a MÁV-val. A menetrendi és járműadatok a MÁVPlusz rendszeréből származnak, hiányozhatnak vagy késhetnek.",
                 style = MaterialTheme.typography.bodyMedium, color = colors.onSurfaceVariant)
         }
-        OutlinedButton(onClick = { unavailable = !openInAppBrowser(context, KnowledgeBaseUrl, dark, colors.surface) },
-            shape = CircleShape, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
+        GlassButton(onClick = { unavailable = !openInAppBrowser(context, KnowledgeBaseUrl, dark, colors.surface) },
+            container = colors.surface, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
             Icon(Icons.AutoMirrored.Outlined.HelpOutline, null, Modifier.size(18.dp))
             Spacer(Modifier.width(AppLayout.CompactGap))
             Text("Kérdésed van?")

@@ -81,14 +81,15 @@ private fun Modifier.fitHeight(max: Dp) = layout { measurable, constraints ->
 }
 
 @Composable private fun MockPanel(modifier: Modifier = Modifier, shape: Dp = 32.dp, color: Color = MaterialTheme.colorScheme.surface, content: @Composable ColumnScope.() -> Unit) {
-    Surface(modifier.widthIn(max = 380.dp).fillMaxWidth(), shape = RoundedCornerShape(shape), color = color, shadowElevation = 6.dp) {
+    Surface(modifier.widthIn(max = 380.dp).fillMaxWidth().glassHighlight(RoundedCornerShape(shape), glassToneOn(color, GlassLevel.Floating)),
+        shape = RoundedCornerShape(shape), color = color, shadowElevation = 6.dp) {
         Column(content = content)
     }
 }
 
 @Composable private fun WelcomeMock() {
     Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        Surface(shape = RoundedCornerShape(36.dp), color = Color(0xFF2864D9), shadowElevation = 6.dp) {
+        Surface(Modifier.glassHighlight(RoundedCornerShape(36.dp), buttonGlassTone()), shape = RoundedCornerShape(36.dp), color = Color(0xFF2864D9), shadowElevation = 6.dp) {
             Image(painterResource(R.drawable.ic_launcher_foreground), null, Modifier.size(120.dp))
         }
         Text("MenetrendGO", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)

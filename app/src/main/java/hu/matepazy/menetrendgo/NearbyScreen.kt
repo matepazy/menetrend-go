@@ -375,15 +375,15 @@ import kotlinx.coroutines.withContext
             if(!routeOnly && (center==null || !locationVisible)) FilledTonalIconButton(onClick={
                 if(allowed) {recenter=true;if(center==null) locationMessage="Várakozás a helymeghatározásra. Ellenőrizd, hogy be van-e kapcsolva."}
                 if(!preciseAllowed) permission.launch(locationPermissions)
-            },modifier=Modifier.align(Alignment.BottomEnd).padding(end=14.dp,bottom=LocalBottomOverlayInset.current+52.dp).size(54.dp)) {
+            },modifier=Modifier.align(Alignment.BottomEnd).padding(end=14.dp,bottom=LocalBottomOverlayInset.current+52.dp).size(54.dp).glassHighlight(androidx.compose.foundation.shape.CircleShape,controlGlassTone())) {
                 Icon(Icons.Outlined.MyLocation,"Saját helyzet mutatása")
             }
-        if(routeOnly) FilledTonalIconButton(onClick=back,modifier=Modifier.align(Alignment.TopStart).padding(top=topInset).padding(12.dp).size(48.dp)) {
+        if(routeOnly) FilledTonalIconButton(onClick=back,modifier=Modifier.align(Alignment.TopStart).padding(top=topInset).padding(12.dp).size(48.dp).glassHighlight(androidx.compose.foundation.shape.CircleShape,controlGlassTone())) {
             Icon(Icons.AutoMirrored.Outlined.ArrowBack,if(focusedId!=null) "Vissza a járat menetrendjéhez" else "Vissza az utazás részleteihez")
         }
-        if(routeOnly && focusedId!=null && visibleVehicles.isEmpty()) Surface(
+        if(routeOnly && focusedId!=null && visibleVehicles.isEmpty()) GlassSurface(
             modifier=Modifier.align(Alignment.BottomCenter).padding(16.dp),shape=androidx.compose.foundation.shape.RoundedCornerShape(24.dp),
-            color=MaterialTheme.colorScheme.surface) {
+            level=GlassLevel.Floating) {
             Column(Modifier.padding(16.dp),verticalArrangement=Arrangement.spacedBy(8.dp)) {
                 if(vm.vehiclesLoading) VehicleProgress(Modifier.fillMaxWidth())
                 Text(if(vm.vehiclesLoading) "Járműpozíció betöltése…" else "Ehhez a járathoz most nincs élő járműpozíció.",style=MaterialTheme.typography.bodyMedium)
@@ -396,6 +396,8 @@ import kotlinx.coroutines.withContext
                 vm.selectMapVehicle(vehicle, day)
             })
         }
-        SnackbarHost(snackbars,Modifier.align(Alignment.BottomCenter).padding(bottom=LocalBottomOverlayInset.current+12.dp))
+        SnackbarHost(snackbars,Modifier.align(Alignment.BottomCenter).padding(bottom=LocalBottomOverlayInset.current+12.dp)) {
+            Snackbar(it,Modifier.glassHighlight(SnackbarDefaults.shape,glassToneOn(SnackbarDefaults.color,GlassLevel.Floating)))
+        }
     }
 }

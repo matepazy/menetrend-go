@@ -17,8 +17,8 @@ internal fun ProviderAlertLink(url: String, modifier: Modifier = Modifier) {
     val toolbar = MaterialTheme.colorScheme.surface
     val dark = LocalAppDarkTheme.current
     var unavailable by remember(url) { mutableStateOf(false) }
-    OutlinedButton(onClick = { unavailable = !openInAppBrowser(context, url, dark, toolbar) },
-        shape = CircleShape, modifier = modifier.fillMaxWidth().heightIn(min = 48.dp)) {
+    GlassButton(onClick = { unavailable = !openInAppBrowser(context, url, dark, toolbar) },
+        modifier = modifier.fillMaxWidth().heightIn(min = 48.dp)) {
         Text("Részletek a szolgáltatónál")
         Spacer(Modifier.width(AppLayout.CompactGap))
         Icon(Icons.Outlined.Language, null, Modifier.size(18.dp))
@@ -27,6 +27,7 @@ internal fun ProviderAlertLink(url: String, modifier: Modifier = Modifier) {
 }
 
 @Composable internal fun BrowserUnavailableDialog(text: String, onDismiss: () -> Unit) = AlertDialog(
+    modifier = Modifier.glassHighlight(AlertDialogDefaults.shape, glassTone(GlassLevel.Floating)),
     onDismissRequest = onDismiss,
     title = { Text("A hivatkozás nem nyitható meg") },
     text = { Text(text) },
