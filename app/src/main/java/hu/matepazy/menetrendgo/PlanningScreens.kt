@@ -80,6 +80,7 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipRect
+import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.text.style.TextAlign
@@ -455,13 +456,18 @@ internal class SwipeAction(val icon: ImageVector, val description: String, val c
     val reveal = with(density) { 72.dp.toPx() * actions.size }
     // Past the open rest the row turns rubbery: resistance grows towards this limit instead of hitting a wall.
     val overOpen = with(density) { 40.dp.toPx() }
-    val offset = remember { androidx.compose.animation.core.Animatable(0f) }
+    // The rest position is a hard right edge: no spring, fling or bounce ever carries the card past it to the right.
+    val offset = remember { androidx.compose.animation.core.Animatable(0f).apply { updateBounds(upperBound=0f) } }
     val scope = rememberCoroutineScope()
     var closing by remember { mutableStateOf(false) }
-    // Releases carry the finger's velocity into an underdamped spring, so the row lands, overshoots a little and settles.
-    val settle = remember { spring<Float>(dampingRatio=.62f,stiffness=380f) }
+    // Opening carries the finger's velocity into an underdamped spring, so the row lands, overshoots a little and settles;
+    // closing is critically damped so it glides into place instead of slamming into the rest edge.
+    val settleOpen = remember { spring<Float>(dampingRatio=.62f,stiffness=380f) }
+    val settleClosed = remember { spring<Float>(Spring.DampingRatioNoBouncy,520f) }
     // Stays "open" for a beat after closing so the tap that dismissed the row cannot also start its search.
-    val close: () -> Unit = { scope.launch { closing = true;offset.animateTo(0f,spring(.78f,520f));delay(250);closing = false } }
+    val close: () -> Unit = { scope.launch { closing = true;offset.animateTo(0f,settleClosed);delay(250);closing = false } }
+    val stripGap = with(density) { 6.dp.toPx() }
+    val stripRadius = with(density) { 28.dp.toPx() }
     val open = offset.value < 0f
     LaunchedEffect(open) {
         if(open) host.closeOpen?.takeIf { it !== close }?.invoke()
@@ -471,13 +477,25 @@ internal class SwipeAction(val icon: ImageVector, val description: String, val c
     Box(modifier.fillMaxWidth().clip(shape)) {
         if(offset.value < 0f) Row(Modifier.matchParentSize().onGloballyPositioned {
             val b = it.boundsInWindow();host.deleteBounds = androidx.compose.ui.geometry.Rect(b.right - reveal,b.top,b.right,b.bottom)
-        }.background(actions.first().container),horizontalArrangement=Arrangement.End) {
-            // The first action's colour fills the whole row so it shows behind the card's rounded corners.
+        }.drawWithContent {
+            // Only the strip the card has uncovered is painted, as its own rounded pill a small gap from the card, so no
+            // action colour shows through the translucent card or around its rounded corners.
+            val left = size.width + offset.value + stripGap
+            if(left < size.width) {
+                val strip = Path().apply { addRoundRect(androidx.compose.ui.geometry.RoundRect(left,0f,size.width,size.height,
+                    androidx.compose.ui.geometry.CornerRadius(stripRadius))) }
+                clipPath(strip) {
+                    drawRect(actions.first().container)
+                    this@drawWithContent.drawContent()
+                }
+            }
+        },horizontalArrangement=Arrangement.End) {
             actions.forEachIndexed { i, a ->
                 // Icons swell in as their slot opens (the outermost first) and bulge a touch further when overdragged.
                 val slotStart = (actions.size - 1 - i).toFloat() / actions.size
                 Box(Modifier.width(72.dp).fillMaxHeight().background(a.container),contentAlignment=Alignment.Center) {
-                    IconButton(onClick={ close();a.onClick() },Modifier.fillMaxSize().graphicsLayer {
+                    // The strip's gap trims the leading slot, so its icon shifts by the same amount to stay centred in what shows.
+                    IconButton(onClick={ close();a.onClick() },Modifier.padding(start=if(i == 0) 6.dp else 0.dp).fillMaxSize().graphicsLayer {
                         val f = -offset.value / reveal
                         val grow = ((f - slotStart) * actions.size).coerceIn(0f,1f)
                         val s = .55f + .45f * grow + .12f * (f - 1f).coerceIn(0f,1f) * reveal / overOpen
@@ -497,7 +515,7 @@ internal class SwipeAction(val icon: ImageVector, val description: String, val c
                 onDragStopped={ v -> scope.launch {
                     // Aim where the fling would carry the row, not where the finger let go.
                     val target = if(offset.value + v * .12f < -reveal / 2) -reveal else 0f
-                    offset.animateTo(target,settle,v)
+                    offset.animateTo(target,if(target < 0f) settleOpen else settleClosed,v)
                 } })) {
             content(open || closing,close)
         }
