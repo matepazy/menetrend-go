@@ -49,6 +49,8 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.semantics.dismiss
@@ -296,7 +298,7 @@ internal class SwipeHost {
 @Composable internal fun SavedSearchRow(vm: AppState, saved: SavedSearch, swipeHost: SwipeHost, onSearch: () -> Unit, onEdit: (SavedSearch) -> Unit) {
     SwipeActionsRow(listOf(
         SwipeAction(Icons.Outlined.Edit,"${saved.name} szerkesztése",MaterialTheme.colorScheme.primary,MaterialTheme.colorScheme.onPrimary) {onEdit(saved)},
-        SwipeAction(Icons.Outlined.Delete,"${saved.name} törlése",MaterialTheme.colorScheme.error,MaterialTheme.colorScheme.onError) {vm.removeSavedSearch(saved)}),
+        SwipeAction(Icons.Outlined.Delete,"${saved.name} törlése",MaterialTheme.colorScheme.error,MaterialTheme.colorScheme.onError,true) {vm.removeSavedSearch(saved)}),
         swipeHost) { open,close ->
         GlassSurface(onClick={if(open) close() else {vm.useSavedSearch(saved);onSearch()}},shape=RoundedCornerShape(28.dp),color=MaterialTheme.colorScheme.surface) {
             Row(Modifier.fillMaxWidth().padding(start=AppLayout.PanelPadding,top=12.dp,bottom=12.dp,end=8.dp),verticalAlignment=Alignment.CenterVertically) {
@@ -442,11 +444,13 @@ private fun Modifier.swipeBetweenTabs(host: SwipeHost, pager: CollectionPager, c
     }
 }
 
-internal class SwipeAction(val icon: ImageVector, val description: String, val container: Color, val content: Color, val onClick: () -> Unit)
+/** [removes] marks an action that deletes the row: the row plays its exit before [onClick] drops it from the list. */
+internal class SwipeAction(val icon: ImageVector, val description: String, val container: Color, val content: Color,
+    val removes: Boolean = false, val onClick: () -> Unit)
 
 @Composable private fun SwipeToDeleteRow(label: String, onDelete: () -> Unit, host: SwipeHost, modifier: Modifier = Modifier,
     content: @Composable (open: Boolean, close: () -> Unit) -> Unit) = SwipeActionsRow(
-    listOf(SwipeAction(Icons.Outlined.Delete,"$label törlése",MaterialTheme.colorScheme.error,MaterialTheme.colorScheme.onError,onDelete)),host,modifier,content)
+    listOf(SwipeAction(Icons.Outlined.Delete,"$label törlése",MaterialTheme.colorScheme.error,MaterialTheme.colorScheme.onError,true,onDelete)),host,modifier,content)
 
 /** Actions are listed left to right once revealed; the last one sits at the trailing edge. */
 @Composable internal fun SwipeActionsRow(actions: List<SwipeAction>, host: SwipeHost, modifier: Modifier = Modifier,
@@ -468,13 +472,27 @@ internal class SwipeAction(val icon: ImageVector, val description: String, val c
     val close: () -> Unit = { scope.launch { closing = true;offset.animateTo(0f,settleClosed);delay(250);closing = false } }
     val stripGap = with(density) { 6.dp.toPx() }
     val stripRadius = with(density) { 28.dp.toPx() }
+    // Deleting: the card slides out to the left while the action's pill widens into the whole row, then the row folds
+    // shut towards its middle and fades, so the rows below close the gap instead of jumping.
+    var removing by remember { mutableStateOf<SwipeAction?>(null) }
+    val presence = remember { androidx.compose.animation.core.Animatable(1f) }
+    var rowWidth by remember { mutableStateOf(0f) }
+    val remove: (SwipeAction) -> Unit = { a -> if(removing == null) { removing = a;scope.launch {
+        launch { offset.animateTo(-rowWidth - stripGap,androidx.compose.animation.core.tween(220,easing=androidx.compose.animation.core.FastOutLinearInEasing)) }
+        delay(160)
+        presence.animateTo(0f,androidx.compose.animation.core.tween(260,easing=androidx.compose.animation.core.FastOutSlowInEasing))
+        a.onClick()
+    } } }
     val open = offset.value < 0f
     LaunchedEffect(open) {
         if(open) host.closeOpen?.takeIf { it !== close }?.invoke()
         if(open) host.closeOpen = close else if(host.closeOpen === close) { host.closeOpen = null;host.deleteBounds = null }
     }
     DisposableEffect(Unit) { onDispose { if(host.closeOpen === close) { host.closeOpen = null;host.deleteBounds = null } } }
-    Box(modifier.fillMaxWidth().clip(shape)) {
+    Box(modifier.fillMaxWidth().onSizeChanged { rowWidth = it.width.toFloat() }.graphicsLayer { alpha = presence.value }.clip(shape).layout { measurable, constraints ->
+        val p = measurable.measure(constraints);val h = (p.height * presence.value).toInt()
+        layout(p.width,h) { p.place(0,(h - p.height) / 2) }
+    }) {
         if(offset.value < 0f) Row(Modifier.matchParentSize().onGloballyPositioned {
             val b = it.boundsInWindow();host.deleteBounds = androidx.compose.ui.geometry.Rect(b.right - reveal,b.top,b.right,b.bottom)
         }.drawWithContent {
@@ -485,7 +503,7 @@ internal class SwipeAction(val icon: ImageVector, val description: String, val c
                 val strip = Path().apply { addRoundRect(androidx.compose.ui.geometry.RoundRect(left,0f,size.width,size.height,
                     androidx.compose.ui.geometry.CornerRadius(stripRadius))) }
                 clipPath(strip) {
-                    drawRect(actions.first().container)
+                    drawRect((removing ?: actions.first()).container)
                     this@drawWithContent.drawContent()
                 }
             }
@@ -493,13 +511,13 @@ internal class SwipeAction(val icon: ImageVector, val description: String, val c
             actions.forEachIndexed { i, a ->
                 // Icons swell in as their slot opens (the outermost first) and bulge a touch further when overdragged.
                 val slotStart = (actions.size - 1 - i).toFloat() / actions.size
-                Box(Modifier.width(72.dp).fillMaxHeight().background(a.container),contentAlignment=Alignment.Center) {
+                Box(Modifier.width(72.dp).fillMaxHeight().background((removing ?: a).container),contentAlignment=Alignment.Center) {
                     // The strip's gap trims the leading slot, so its icon shifts by the same amount to stay centred in what shows.
-                    IconButton(onClick={ close();a.onClick() },Modifier.padding(start=if(i == 0) 6.dp else 0.dp).fillMaxSize().graphicsLayer {
+                    IconButton(onClick={ if(a.removes) remove(a) else { close();a.onClick() } },Modifier.padding(start=if(i == 0) 6.dp else 0.dp).fillMaxSize().graphicsLayer {
                         val f = -offset.value / reveal
                         val grow = ((f - slotStart) * actions.size).coerceIn(0f,1f)
-                        val s = .55f + .45f * grow + .12f * (f - 1f).coerceIn(0f,1f) * reveal / overOpen
-                        scaleX = s;scaleY = s;alpha = grow
+                        val s = .55f + .45f * grow + .12f * ((-offset.value - reveal) / overOpen).coerceIn(0f,1f)
+                        scaleX = s;scaleY = s;alpha = if(removing != null && removing !== a) 0f else grow
                     }) { Icon(a.icon,a.description,tint=a.content) }
                 }
             }
@@ -511,7 +529,7 @@ internal class SwipeAction(val icon: ImageVector, val description: String, val c
                 val over = if(x < -reveal) -reveal - x else 0f
                 val k = if(x <= -reveal && d < 0f) (1f - over / overOpen).coerceIn(0f,1f).let { it * it } else 1f
                 offset.snapTo((x + d * k).coerceIn(-reveal - overOpen,0f))
-            } },Orientation.Horizontal,
+            } },Orientation.Horizontal,enabled=removing == null,
                 onDragStopped={ v -> scope.launch {
                     // Aim where the fling would carry the row, not where the finger let go.
                     val target = if(offset.value + v * .12f < -reveal / 2) -reveal else 0f

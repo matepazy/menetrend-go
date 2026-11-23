@@ -140,8 +140,8 @@ fun savedJourneyWhen(saved: SavedJourney) =
     val journey = saved.journey
     val outline = MaterialTheme.colorScheme.outline
     SwipeActionsRow(listOf(
-        SwipeAction(Icons.Outlined.Edit, "${saved.title} szerkesztése", MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.onPrimary, onEdit),
-        SwipeAction(Icons.Outlined.Delete, "${saved.title} törlése", MaterialTheme.colorScheme.error, MaterialTheme.colorScheme.onError, onDelete)),
+        SwipeAction(Icons.Outlined.Edit, "${saved.title} szerkesztése", MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.onPrimary, onClick = onEdit),
+        SwipeAction(Icons.Outlined.Delete, "${saved.title} törlése", MaterialTheme.colorScheme.error, MaterialTheme.colorScheme.onError, true, onDelete)),
         swipeHost, modifier) { open, close ->
         GlassSurface(onClick = { if (open) close() else onOpen() }, shape = RoundedCornerShape(32.dp),
             modifier = Modifier.semantics { if (past) stateDescription = "Már lezajlott" }.drawWithContent {
