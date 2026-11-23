@@ -18,7 +18,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.em
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -67,8 +67,8 @@ private fun LiveRouteBadge(leg: Leg) {
         Text(
             text = leg.displayRoute,
             modifier = if (logo != null) Modifier else Modifier
-                .background(background, RoundedCornerShape(dimensionResource(R.dimen.service_badge_radius)))
-                .padding(horizontal = dimensionResource(R.dimen.service_badge_horizontal_padding),
+                .background(background, CircleShape)
+                .padding(horizontal = dimensionResource(R.dimen.service_badge_horizontal_padding) + 2.dp,
                     vertical = dimensionResource(R.dimen.service_badge_vertical_padding)),
             color = labelColor,
             style = MaterialTheme.typography.labelLarge,
