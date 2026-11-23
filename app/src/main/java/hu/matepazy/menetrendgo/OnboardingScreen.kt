@@ -78,7 +78,7 @@ private val stops = listOf(
                     }
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(AppLayout.CompactGap)) {
                         if (step > 0) TextButton({ step-- }, Modifier.heightIn(min = 56.dp), enabled = !departing) { Text("Vissza") }
-                        Button({ if (last) departing = true else step++ }, Modifier.weight(1f).heightIn(min = 56.dp).glassHighlight(CircleShape, buttonGlassTone(!departing)), enabled = !departing, shape = CircleShape) {
+                        Button({ if (last) departing = true else step++ }, Modifier.weight(1f).heightIn(min = 56.dp), border = glassBorder(buttonGlassTone(!departing)), enabled = !departing, shape = CircleShape) {
                             Text(when { step == 0 -> "Beszállás!"; last -> "Indulás!"; else -> "Tovább" }, style = MaterialTheme.typography.titleMedium)
                         }
                     }

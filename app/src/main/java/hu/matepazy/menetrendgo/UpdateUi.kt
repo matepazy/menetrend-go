@@ -1,6 +1,5 @@
 package hu.matepazy.menetrendgo
 
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.*
@@ -45,8 +44,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
         Text(status, color = if (updates.state is UpdateState.Error) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface, style = MaterialTheme.typography.bodyMedium)
         Spacer(Modifier.height(12.dp))
         if (updates.state == UpdateState.Checking) VehicleProgress(Modifier.fillMaxWidth())
-        Button(onClick = { updates.check() }, enabled = !updates.busy && updates.state != UpdateState.Checking && updates.state !is UpdateState.Completed, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
-            .glassHighlight(CircleShape, buttonGlassTone(!updates.busy && updates.state != UpdateState.Checking && updates.state !is UpdateState.Completed))) { Text("Frissítések keresése") }
+        Button(onClick = { updates.check() }, enabled = !updates.busy && updates.state != UpdateState.Checking && updates.state !is UpdateState.Completed, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp), border = glassBorder(buttonGlassTone(!updates.busy && updates.state != UpdateState.Checking && updates.state !is UpdateState.Completed))) { Text("Frissítések keresése") }
         (updates.state as? UpdateState.UpdateAvailable)?.let { update ->
             TextButton(onClick = { updates.select(update) }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Kiadás megtekintése") }
         }
@@ -101,7 +99,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
                 Button(onClick = {
                     showChannel = false
                     if (choice != updates.channel) updates.chooseChannel(choice)
-                }, enabled = channelEnabled, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).glassHighlight(CircleShape, buttonGlassTone(channelEnabled))) { Text("Kész") }
+                }, enabled = channelEnabled, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp), border = glassBorder(buttonGlassTone(channelEnabled))) { Text("Kész") }
             }
         }
     }
@@ -127,7 +125,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
                 Text("Visszatérés stabil verzióra", style = MaterialTheme.typography.titleMedium)
                 Text("A Stabil csatornára váltás önmagában nem cseréli le a telepített bétát. Az Elérhető verziók alatt választhatod ki a legutóbbi stabil kiadást, de az Android a régebbi verzió telepítését elutasíthatja. Az alkalmazás eltávolítása törli a helyben mentett bérleteket és beállításokat.", color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
-            Button(onClick = onConfirm, enabled = enabled, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).glassHighlight(CircleShape, buttonGlassTone(enabled))) { Text("Megértettem, engedélyezem a bétát") }
+            Button(onClick = onConfirm, enabled = enabled, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp), border = glassBorder(buttonGlassTone(enabled))) { Text("Megértettem, engedélyezem a bétát") }
             TextButton(onClick = onDismiss, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Mégse") }
         }
     }
@@ -172,13 +170,13 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
                 }
                 is UpdateState.Completed -> {
                     Text("A letöltés kész. Az Android telepítőjében erősítsd meg a frissítést. Ha telepítési engedélyt kér, engedélyezd, majd térj vissza ide.", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Button(onClick = updates::install, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).glassHighlight(CircleShape, buttonGlassTone())) { Text(if (canInstall) "Telepítés" else "Telepítési engedély") }
+                    Button(onClick = updates::install, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp), border = glassBorder(buttonGlassTone())) { Text(if (canInstall) "Telepítés" else "Telepítési engedély") }
                 }
                 else -> {
                     if (state is UpdateState.Error) Text(state.message, color = MaterialTheme.colorScheme.error)
                     if (update.isBeta && !betaConfirmed) {
                         GlassButton(onClick = { betaConfirmed = true }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Megértettem, a bétát választom") }
-                    } else Button(onClick = updates::download, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).glassHighlight(CircleShape, buttonGlassTone())) { Text(if (state is UpdateState.Error) "Letöltés újra" else "Letöltés és frissítés") }
+                    } else Button(onClick = updates::download, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp), border = glassBorder(buttonGlassTone())) { Text(if (state is UpdateState.Error) "Letöltés újra" else "Letöltés és frissítés") }
                 }
             }
             if (!updates.busy) TextButton(onClick = updates::later, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text(if (update.isVersionSwitch) "Mégse" else "Emlékeztess holnap") }

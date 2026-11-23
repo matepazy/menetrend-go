@@ -1,6 +1,5 @@
 package hu.matepazy.menetrendgo
 
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -58,7 +57,7 @@ fun SavedSearchEditor(from: Station, to: Station, existing: SavedSearch?,
             Text("Ikon", style = MaterialTheme.typography.titleMedium)
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 SavedSearchIcon.entries.forEach { option ->
-                    FilledTonalIconButton(onClick = { icon = option }, modifier = Modifier.size(48.dp).glassHighlight(CircleShape, controlGlassTone())
+                    GlassTonalIconButton(onClick = { icon = option }, modifier = Modifier.size(48.dp)
                         .semantics { selected = icon == option; role = Role.RadioButton },
                         colors = IconButtonDefaults.filledTonalIconButtonColors(
                             containerColor = if (icon == option) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainerLow,

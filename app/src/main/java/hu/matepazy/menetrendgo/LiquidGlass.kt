@@ -1,18 +1,25 @@
 package hu.matepazy.menetrendgo
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.FilledTonalIconButton
+import androidx.compose.material3.IconButtonColors
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.CornerRadius
@@ -44,6 +51,9 @@ internal enum class GlassLevel(val light: Float) { Panel(1f), Floating(1.35f) }
 
 private fun dark(surface: Color) = surface.luminance() < .4f
 
+private fun topHighlightBrush(color: Color, height: Float = Float.POSITIVE_INFINITY) =
+    Brush.verticalGradient(0f to color, .35f to color.copy(alpha = 0f), endY = height)
+
 @Composable @ReadOnlyComposable internal fun glassTone(level: GlassLevel = GlassLevel.Panel): GlassTone =
     glassToneOn(MaterialTheme.colorScheme.surface, level)
 
@@ -60,7 +70,7 @@ private fun DrawScope.drawTopHighlight(outline: (Size) -> Path, tone: GlassTone,
     val w = 1.dp.toPx()
     if (tone.highlight.alpha <= 0f || size.width <= w || size.height <= w) return
     val color = tone.highlight.copy(alpha = (tone.highlight.alpha * boost).coerceIn(0f, 1f))
-    val fade = Brush.verticalGradient(0f to color, .35f to color.copy(alpha = 0f), startY = 0f, endY = size.height)
+    val fade = topHighlightBrush(color, size.height)
     translate(origin.x + w / 2, origin.y + w / 2) { drawPath(outline(Size(size.width - w, size.height - w)), fade, style = Stroke(w)) }
 }
 
@@ -84,6 +94,10 @@ internal fun Modifier.glassHighlight(shape: Shape, tone: GlassTone) = drawWithCa
     onDrawWithContent { drawContent(); drawTopHighlight(::outline, tone, Offset.Zero, size) }
 }
 
+/** The Material border slot follows the painted shape inside the minimum touch target. */
+internal fun glassBorder(tone: GlassTone) =
+    BorderStroke(1.dp, topHighlightBrush(tone.highlight))
+
 /**
  * Light caught by tonal and outlined Material controls (buttons, icon buttons, chips): the pill's strength,
  * so pale-blue containers read like the selection pills; disabled controls keep only a trace of it.
@@ -91,6 +105,22 @@ internal fun Modifier.glassHighlight(shape: Shape, tone: GlassTone) = drawWithCa
 @Composable @ReadOnlyComposable internal fun controlGlassTone(enabled: Boolean = true): GlassTone {
     val light = pillGlassTone().highlight
     return GlassTone(if (enabled) light else light.copy(alpha = light.alpha * .38f))
+}
+
+/** Tonal icon buttons have no border slot, so draw the highlight inside their clipped container. */
+@Composable internal fun GlassTonalIconButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    tone: GlassTone = controlGlassTone(enabled),
+    colors: IconButtonColors = IconButtonDefaults.filledTonalIconButtonColors(),
+    content: @Composable () -> Unit,
+) {
+    FilledTonalIconButton(onClick, modifier, enabled, shape = CircleShape, colors = colors) {
+        Box(Modifier.fillMaxSize().glassHighlight(CircleShape, tone), contentAlignment = Alignment.Center) {
+            content()
+        }
+    }
 }
 
 /**
@@ -159,9 +189,9 @@ private fun controlTone(container: Color, enabled: Boolean): GlassTone {
     container: Color = MaterialTheme.colorScheme.surfaceContainerHigh,
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
     content: @Composable RowScope.() -> Unit,
-) = Button(onClick, modifier.glassHighlight(shape, controlTone(container, enabled)), enabled, shape,
+) = Button(onClick, modifier, enabled, shape,
     ButtonDefaults.buttonColors(containerColor = container, contentColor = MaterialTheme.colorScheme.primary),
-    elevation = null, contentPadding = contentPadding, content = content)
+    elevation = null, border = glassBorder(controlTone(container, enabled)), contentPadding = contentPadding, content = content)
 
 /**
  * A filter chip in the glass material: unselected chips are solid lifted pills, selected ones take the pale-blue
@@ -177,10 +207,9 @@ private fun controlTone(container: Color, enabled: Boolean): GlassTone {
     container: Color = MaterialTheme.colorScheme.surfaceContainerHigh,
 ) {
     val colors = MaterialTheme.colorScheme
-    FilterChip(selected, onClick, label,
-        modifier.glassHighlight(shape, if (selected) pillGlassTone() else controlTone(container, true)),
+    FilterChip(selected, onClick, label, modifier,
         leadingIcon = leadingIcon, shape = shape,
         colors = FilterChipDefaults.filterChipColors(containerColor = container, labelColor = colors.onSurface,
             selectedContainerColor = colors.primaryContainer, selectedLabelColor = colors.onPrimaryContainer),
-        border = null)
+        border = glassBorder(if (selected) pillGlassTone() else controlTone(container, true)))
 }

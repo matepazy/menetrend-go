@@ -1,6 +1,5 @@
 package hu.matepazy.menetrendgo
 
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.Image
@@ -94,7 +93,7 @@ import androidx.compose.ui.unit.dp
                         else "HTTPS XYZ csempék. A {s} és {r} helyőrző is használható.") })
                 Text("A csempéket közvetlenül a megadott szolgáltatótól töltjük be. Az URL-t ezen az eszközön mentjük.",
                     style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Button(onClick = { apply() }, modifier = Modifier.fillMaxWidth().glassHighlight(CircleShape, buttonGlassTone())) { Text("Saját térkép használata") }
+                Button(onClick = { apply() }, modifier = Modifier.fillMaxWidth(), border = glassBorder(buttonGlassTone())) { Text("Saját térkép használata") }
             }
             MapStopsToggle(vm)
             val enabledFilters = MapVehicleFilter.entries.filter { it in vm.vehicleFilters }

@@ -189,7 +189,7 @@ private class RouteMarkBounds { var box by mutableStateOf<Rect?>(null); var a by
         contentPadding=screenContentPadding(),verticalArrangement=Arrangement.spacedBy(AppLayout.ItemGap)) {
         item { Row(Modifier.fillMaxWidth().heightIn(min=48.dp),verticalAlignment=Alignment.CenterVertically) {
             Text("Hová indulunk?",style=MaterialTheme.typography.headlineMedium,fontWeight=FontWeight.Bold,modifier=Modifier.weight(1f))
-            FilledTonalIconButton(onClick={showAlerts=true},shape=CircleShape,modifier=Modifier.glassHighlight(CircleShape,controlGlassTone())) {Icon(Icons.Outlined.Campaign,"Forgalmi hírek")}
+            GlassTonalIconButton(onClick={showAlerts=true}) {Icon(Icons.Outlined.Campaign,"Forgalmi hírek")}
         } }
         item {
             Glass(Modifier.fillMaxWidth()) {
@@ -237,8 +237,8 @@ private class RouteMarkBounds { var box by mutableStateOf<Rect?>(null); var a by
                 }
                 Spacer(Modifier.height(16.dp))
                 Row(Modifier.fillMaxWidth(), horizontalArrangement=Arrangement.spacedBy(12.dp), verticalAlignment=Alignment.CenterVertically) {
-                    FilledTonalIconButton(onClick={closePicker();searchOptions=true},shape=CircleShape,
-                        modifier=Modifier.size(58.dp).glassHighlight(CircleShape,pillGlassTone()).semantics {
+                    GlassTonalIconButton(onClick={closePicker();searchOptions=true},tone=pillGlassTone(),
+                        modifier=Modifier.size(58.dp).semantics {
                             stateDescription=if(vm.searchConditionCount == 0) "Nincs aktív feltétel" else "${vm.searchConditionCount} aktív feltétel"
                         }) {
                         BadgedBox(badge={if(vm.searchConditionCount > 0) Badge {Text(vm.searchConditionCount.toString())}}) {
@@ -725,7 +725,7 @@ internal class SwipeAction(val icon: ImageVector, val description: String, val c
                 style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)
             Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(12.dp,Alignment.End)) {
                 TextButton(onClick=dismiss) {Text("Mégse")}
-                Button(onClick=onConfirm,modifier=Modifier.glassHighlight(CircleShape,buttonGlassTone()),colors=ButtonDefaults.buttonColors(containerColor=MaterialTheme.colorScheme.error,contentColor=MaterialTheme.colorScheme.onError)) {Text("Törlés")}
+                Button(onClick=onConfirm,border = glassBorder(buttonGlassTone()),colors=ButtonDefaults.buttonColors(containerColor=MaterialTheme.colorScheme.error,contentColor=MaterialTheme.colorScheme.onError)) {Text("Törlés")}
             }
         }
     }
@@ -750,7 +750,7 @@ internal class SwipeAction(val icon: ImageVector, val description: String, val c
                         vm.useNow=false
                         dismiss()
                     }
-                },enabled=dateState.selectedDateMillis!=null,modifier=Modifier.glassHighlight(CircleShape,buttonGlassTone(dateState.selectedDateMillis!=null))) {Text("Kész")}
+                },enabled=dateState.selectedDateMillis!=null,border = glassBorder(buttonGlassTone(dateState.selectedDateMillis!=null))) {Text("Kész")}
             }
         }
     }
@@ -777,7 +777,7 @@ internal class SwipeAction(val icon: ImageVector, val description: String, val c
                 Button(onClick={
                     vm.dateTime=initial.toLocalDate().atTime(timeState.hour,timeState.minute)
                     vm.useNow=false;vm.arriveBy=arrive;dismiss()
-                },modifier=Modifier.glassHighlight(CircleShape,buttonGlassTone())) {Text("Kész")}
+                },border = glassBorder(buttonGlassTone())) {Text("Kész")}
             }
         }
     }
@@ -1016,12 +1016,10 @@ internal const val DeparturePaginationKey = "later-departures"
     }
     LazyColumn(Modifier.fillMaxSize(),state=listState,contentPadding=screenContentPadding(),verticalArrangement=Arrangement.spacedBy(AppLayout.ItemGap)) {
         item { PageTitle("Indulások", "${from?.name.orEmpty()} → ${to?.name.orEmpty()}",back) {
-            FilledTonalIconButton(onClick={returnSwaps++;vm.searchReturn()},enabled=from!=null && to!=null,
-                modifier=Modifier.glassHighlight(CircleShape,controlGlassTone(from!=null && to!=null))) {
+            GlassTonalIconButton(onClick={returnSwaps++;vm.searchReturn()},enabled=from!=null && to!=null) {
                 Icon(Icons.Outlined.SwapHoriz,"Visszaút: indulás és érkezés felcserélése",Modifier.graphicsLayer {rotationZ=returnRotation})
             }
-            FilledTonalIconButton(onClick={saveSearch=true},enabled=canSaveRoute(from,to),
-                modifier=Modifier.glassHighlight(CircleShape,controlGlassTone(canSaveRoute(from,to)))) {
+            GlassTonalIconButton(onClick={saveSearch=true},enabled=canSaveRoute(from,to)) {
                 Icon(if(saved==null) Icons.Outlined.BookmarkAdd else Icons.Outlined.BookmarkAdded,
                     if(saved==null) "Keresés mentése" else "Mentett keresés szerkesztése")
             }
@@ -1243,8 +1241,8 @@ internal fun sameJourneyStop(first: Station, second: Station): Boolean =
     LazyColumn(Modifier.fillMaxSize(),contentPadding=screenContentPadding(),verticalArrangement=Arrangement.spacedBy(AppLayout.ItemGap)) {
         item {PageTitle("Utazás részletei", dayLabel(journey.start).takeIf {it.isNotBlank()},back) {
             // First tap saves at once; once saved, the same control opens the name and note drawer.
-            if(vm.savedEnabled) FilledTonalIconButton(onClick={if(savedJourney==null) vm.saveJourney(journey) else editSaved=true},
-                modifier=Modifier.glassHighlight(CircleShape,controlGlassTone()).semantics {stateDescription=if(savedJourney==null) "Nincs mentve" else "Mentve"}) {
+            if(vm.savedEnabled) GlassTonalIconButton(onClick={if(savedJourney==null) vm.saveJourney(journey) else editSaved=true},
+                modifier=Modifier.semantics {stateDescription=if(savedJourney==null) "Nincs mentve" else "Mentve"}) {
                 Icon(if(savedJourney==null) Icons.Outlined.BookmarkAdd else Icons.Outlined.BookmarkAdded,
                     if(savedJourney==null) "Utazás mentése" else "Mentett utazás: név és megjegyzés")
             }

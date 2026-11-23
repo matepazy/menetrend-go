@@ -280,8 +280,8 @@ private fun specIcon(label: String, value: String, mode: String): ImageVector {
             Box(Modifier.fillMaxSize().graphicsLayer { alpha = if (lifted) 0f else 1f }
                 .clickable(role = Role.Button, onClickLabel = "Fotó nagyítása") { onEnlarge(loaded, origin) }) {
                 Image(loaded, "$title · ${photo.caption}", Modifier.fillMaxSize(), contentScale = ContentScale.Fit)
-                FilledTonalIconButton(onClick = { onEnlarge(loaded, origin) },
-                    modifier = Modifier.align(Alignment.BottomEnd).padding(8.dp).graphicsLayer { alpha = control }.glassHighlight(CircleShape, controlGlassTone())) {
+                GlassTonalIconButton(onClick = { onEnlarge(loaded, origin) },
+                    modifier = Modifier.align(Alignment.BottomEnd).padding(8.dp).graphicsLayer { alpha = control }) {
                     Icon(Icons.Outlined.OpenInFull, "Fotó nagyítása")
                 }
             }

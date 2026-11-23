@@ -1,6 +1,5 @@
 package hu.matepazy.menetrendgo
 
-import androidx.compose.foundation.shape.CircleShape
 import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.RectF
@@ -169,7 +168,7 @@ import androidx.compose.ui.unit.dp
             }
             Row(Modifier.fillMaxWidth().padding(AppLayout.SheetPadding), horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
                 TextButton(onClick = reset, enabled = selected.isNotEmpty() || vehicles.isNotEmpty()) { Text("Alaphelyzet") }
-                Button(onClick = dismiss, modifier = Modifier.weight(1f).heightIn(min = 52.dp).glassHighlight(CircleShape, buttonGlassTone())) { Text("Kész") }
+                Button(onClick = dismiss, modifier = Modifier.weight(1f).heightIn(min = 52.dp), border = glassBorder(buttonGlassTone())) { Text("Kész") }
             }
         }
     }
@@ -217,7 +216,7 @@ import androidx.compose.ui.unit.dp
             Row(Modifier.fillMaxWidth().padding(AppLayout.SheetPadding),
                 horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
                 TextButton(onClick = allVehicles, enabled = vehicles.isNotEmpty()) { Text("Mindegyik") }
-                Button(onClick = dismiss, modifier = Modifier.weight(1f).heightIn(min = 52.dp).glassHighlight(CircleShape, buttonGlassTone())) { Text("Kész") }
+                Button(onClick = dismiss, modifier = Modifier.weight(1f).heightIn(min = 52.dp), border = glassBorder(buttonGlassTone())) { Text("Kész") }
             }
         }
     }

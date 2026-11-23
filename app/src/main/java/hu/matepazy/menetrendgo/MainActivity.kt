@@ -241,7 +241,7 @@ private fun featherMask(top: Boolean, endY: Float=Float.POSITIVE_INFINITY)=
 }
 
 @Composable fun MainButton(label: String, icon: ImageVector, enabled: Boolean = true, onClick: () -> Unit) {
-    Button(onClick=onClick,enabled=enabled,shape=CircleShape,modifier=Modifier.fillMaxWidth().heightIn(min=58.dp).glassHighlight(CircleShape,buttonGlassTone(enabled))) {
+    Button(onClick=onClick,enabled=enabled,shape=CircleShape,modifier=Modifier.fillMaxWidth().heightIn(min=58.dp), border = glassBorder(buttonGlassTone(enabled))) {
         Icon(icon,null,Modifier.size(22.dp)); Spacer(Modifier.width(10.dp)); Text(label,style=MaterialTheme.typography.titleMedium)
     }
 }

@@ -1,6 +1,5 @@
 package hu.matepazy.menetrendgo
 
-import androidx.compose.foundation.shape.CircleShape
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -151,11 +150,11 @@ internal fun JourneyTrackingSheet(journey: Journey, selectedLegIndex: Int, onDis
                         DirectionText("Következő: ${active.journey.legs[next].route} → ${active.journey.legs[next].to.name}", style = MaterialTheme.typography.bodyMedium)
                         Button(onClick = {
                             JourneyTracking.board(context, active); onDismiss()
-                        }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).glassHighlight(CircleShape, buttonGlassTone())) { Text("Felszálltam a következő járatra") }
+                        }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp), border = glassBorder(buttonGlassTone())) { Text("Felszálltam a következő járatra") }
                     }
                 }
                 if (!tracking.running) Button(onClick = { requestStart() }, enabled = !starting,
-                    modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).glassHighlight(CircleShape, buttonGlassTone(!starting))) { Text(if (starting) "Indítás…" else "Jelzés folytatása") }
+                    modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp), border = glassBorder(buttonGlassTone(!starting))) { Text(if (starting) "Indítás…" else "Jelzés folytatása") }
                 GlassButton(onClick = { JourneyTracking.stop(context); onDismiss() }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
                     Text("Jelzés leállítása")
                 }
@@ -171,7 +170,7 @@ internal fun JourneyTrackingSheet(journey: Journey, selectedLegIndex: Int, onDis
                 Text("Felszállás után indítsd el. Az utazást élő értesítésben követheted. A leszállóhely közelében a telefon külön rezgéssel jelez, lezárt képernyőnél is. A rezgést a telefon rezgési és Ne zavarjanak beállításai befolyásolhatják. Gyenge helyjelnél a jelzés késhet vagy elmaradhat.",
                     style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Button(onClick = { requestStart() }, enabled = !starting,
-                    modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).glassHighlight(CircleShape, buttonGlassTone(!starting))) { Text(if (starting) "Indítás…" else "Jelzés indítása") }
+                    modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp), border = glassBorder(buttonGlassTone(!starting))) { Text(if (starting) "Indítás…" else "Jelzés indítása") }
             }
             error?.let {
                 Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyMedium,

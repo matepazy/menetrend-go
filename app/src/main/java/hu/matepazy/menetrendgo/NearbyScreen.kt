@@ -372,13 +372,13 @@ import kotlinx.coroutines.withContext
                     scope.launch {stationSearch.selected(station)}
                 })
         }
-            if(!routeOnly && (center==null || !locationVisible)) FilledTonalIconButton(onClick={
+            if(!routeOnly && (center==null || !locationVisible)) GlassTonalIconButton(onClick={
                 if(allowed) {recenter=true;if(center==null) locationMessage="Várakozás a helymeghatározásra. Ellenőrizd, hogy be van-e kapcsolva."}
                 if(!preciseAllowed) permission.launch(locationPermissions)
-            },modifier=Modifier.align(Alignment.BottomEnd).padding(end=AppLayout.PageGutter,bottom=LocalBottomOverlayInset.current+8.dp).size(54.dp).glassHighlight(androidx.compose.foundation.shape.CircleShape,controlGlassTone())) {
+            },modifier=Modifier.align(Alignment.BottomEnd).padding(end=AppLayout.PageGutter,bottom=LocalBottomOverlayInset.current+8.dp).size(54.dp)) {
                 Icon(Icons.Outlined.MyLocation,"Saját helyzet mutatása")
             }
-        if(routeOnly) FilledTonalIconButton(onClick=back,modifier=Modifier.align(Alignment.TopStart).padding(top=topInset).padding(12.dp).size(48.dp).glassHighlight(androidx.compose.foundation.shape.CircleShape,controlGlassTone())) {
+        if(routeOnly) GlassTonalIconButton(onClick=back,modifier=Modifier.align(Alignment.TopStart).padding(top=topInset).padding(12.dp).size(48.dp)) {
             Icon(Icons.AutoMirrored.Outlined.ArrowBack,if(focusedId!=null) "Vissza a járat menetrendjéhez" else "Vissza az utazás részleteihez")
         }
         if(routeOnly && focusedId!=null && visibleVehicles.isEmpty()) GlassSurface(
