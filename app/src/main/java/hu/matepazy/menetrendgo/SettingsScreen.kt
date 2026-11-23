@@ -34,9 +34,10 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 
 private enum class SettingsPage(val title: String) {
     Home("Beállítások"), Appearance("Megjelenés"), Notifications("Értesítések"),
-    Updates("Frissítések"), DataSources("Adatforrások kezelése"), Extras("Kiegészítő funkciók"), Developer("Fejlesztői beállítások");
+    Updates("Frissítések"), DataSources("Adatforrások kezelése"), Extras("Kiegészítő funkciók"), Developer("Fejlesztői beállítások"),
+    Legal("Jogi nyilatkozatok"), OpenSource("Nyílt forráskódú licencek");
 
-    val parent: SettingsPage get() = Home
+    val parent: SettingsPage get() = if (this == OpenSource) Legal else Home
 }
 
 @Composable fun SettingsScreen(vm: AppState) {
@@ -75,6 +76,8 @@ private enum class SettingsPage(val title: String) {
     var developerUnlockTaps by rememberSaveable { mutableIntStateOf(0) }
     var legalDoc by rememberSaveable { mutableStateOf<LegalDoc?>(null) }
     legalDoc?.let { LegalDocumentDrawer(it, onDismiss = { legalDoc = null }) }
+    var notice by remember { mutableStateOf<OpenSourceNotice?>(null) }
+    notice?.let { OpenSourceNoticeDrawer(it, onDismiss = { notice = null }) }
     // Each destination owns its scroll position, including the parent in a Back preview.
     key(page) {
         val listState = rememberLazyListState()
@@ -97,7 +100,7 @@ private enum class SettingsPage(val title: String) {
                     }
                     item {
                         SettingsGroup {
-                            LegalDoc.entries.forEach { doc -> SettingsRow(doc.title, onClick = { legalDoc = doc }) }
+                            SettingsRow(SettingsPage.Legal.title, onClick = { navigate(SettingsPage.Legal) })
                         }
                     }
                     if (vm.developerSettingsUnlocked) item {
@@ -240,6 +243,22 @@ private enum class SettingsPage(val title: String) {
                         }
                     }
                     item { SettingsNote("Az Android energiatakarékossága késleltetheti az értesítéseket.") }
+                }
+                SettingsPage.Legal -> {
+                    item {
+                        SettingsGroup {
+                            LegalDoc.entries.forEach { doc -> SettingsRow(doc.title, doc.summary, onClick = { legalDoc = doc }) }
+                            SettingsRow(SettingsPage.OpenSource.title, "${openSourceNotices.size} összetevő", onClick = { navigate(SettingsPage.OpenSource) })
+                        }
+                    }
+                }
+                SettingsPage.OpenSource -> {
+                    item { SettingsNote("Az alkalmazás az alábbi nyílt forráskódú szoftvereket és adatokat használja. Koppints egy elemre a licenc szövegéért.") }
+                    item {
+                        SettingsGroup {
+                            openSourceNotices.forEach { n -> SettingsRow(n.name, "${n.license} · ${n.author}", onClick = { notice = n }) }
+                        }
+                    }
                 }
                 SettingsPage.Developer -> {
                     item {

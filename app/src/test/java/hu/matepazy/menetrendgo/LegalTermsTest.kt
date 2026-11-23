@@ -12,6 +12,13 @@ class LegalTermsTest {
             reflowLegalText(raw))
     }
 
+    @Test fun everyOpenSourceNoticeHasItsTextOrANote() {
+        openSourceNotices.forEach { n ->
+            assertTrue(n.name, n.asset != null || n.note != null)
+            n.asset?.let { assertTrue(it, File("src/main/assets/$it").isFile) }
+        }
+    }
+
     @Test fun bundledLicenseReflowsWithoutOrphanedContinuations() {
         val text = reflowLegalText(File("../LICENSE").readText())
         assertEquals("Attribution-NonCommercial-ShareAlike 4.0 International", text.lines().first())

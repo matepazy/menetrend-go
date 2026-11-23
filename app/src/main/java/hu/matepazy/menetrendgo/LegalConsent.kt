@@ -151,11 +151,6 @@ internal fun reflowLegalText(raw: String): String {
 @Composable private fun FullLicense() {
     val context = LocalContext.current
     var open by rememberSaveable { mutableStateOf(false) }
-    val text by produceState<String?>(null, open) {
-        if (open && value == null) value = withContext(Dispatchers.IO) {
-            runCatching { reflowLegalText(context.assets.open("LICENSE.txt").bufferedReader().use { it.readText() }) }.getOrDefault("")
-        }
-    }
     val dark = LocalAppDarkTheme.current
     val toolbar = MaterialTheme.colorScheme.surface
     Column(verticalArrangement = Arrangement.spacedBy(AppLayout.CompactGap)) {
@@ -169,16 +164,25 @@ internal fun reflowLegalText(raw: String): String {
                 Icon(Icons.Outlined.OpenInNew, "Licenc megnyitása a creativecommons.org oldalon")
             }
         }
-        AnimatedVisibility(open) {
-            Surface(Modifier.fillMaxWidth(), shape = MaterialTheme.shapes.medium, color = MaterialTheme.colorScheme.surfaceContainerLow) {
-                when (val t = text) {
-                    null -> LinearProgressIndicator(Modifier.fillMaxWidth().padding(AppLayout.ItemGap))
-                    "" -> Text("A licenc szövege nem tölthető be. A teljes szöveget a creativecommons.org oldalon is elolvashatod.",
-                        Modifier.padding(AppLayout.ItemGap), style = MaterialTheme.typography.bodyMedium)
-                    else -> SelectionContainer {
-                        Text(t, Modifier.padding(AppLayout.ItemGap), style = MaterialTheme.typography.bodySmall)
-                    }
-                }
+        AnimatedVisibility(open) { LegalAssetText("LICENSE.txt") }
+    }
+}
+
+/** A bundled license file, reflowed for the screen width and selectable; loaded off the main thread when first shown. */
+@Composable internal fun LegalAssetText(asset: String) {
+    val context = LocalContext.current
+    val text by produceState<String?>(null, asset) {
+        value = withContext(Dispatchers.IO) {
+            runCatching { reflowLegalText(context.assets.open(asset).bufferedReader().use { it.readText() }) }.getOrDefault("")
+        }
+    }
+    Surface(Modifier.fillMaxWidth(), shape = MaterialTheme.shapes.medium, color = MaterialTheme.colorScheme.surfaceContainerLow) {
+        when (val t = text) {
+            null -> LinearProgressIndicator(Modifier.fillMaxWidth().padding(AppLayout.ItemGap))
+            "" -> Text("A licenc szövege nem tölthető be. A projekt oldalán is elolvashatod.",
+                Modifier.padding(AppLayout.ItemGap), style = MaterialTheme.typography.bodyMedium)
+            else -> SelectionContainer {
+                Text(t, Modifier.padding(AppLayout.ItemGap), style = MaterialTheme.typography.bodySmall)
             }
         }
     }
