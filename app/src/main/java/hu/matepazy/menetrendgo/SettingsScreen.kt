@@ -73,6 +73,8 @@ private enum class SettingsPage(val title: String) {
 ) {
     val context = LocalContext.current
     var developerUnlockTaps by rememberSaveable { mutableIntStateOf(0) }
+    var legalDoc by rememberSaveable { mutableStateOf<LegalDoc?>(null) }
+    legalDoc?.let { LegalDocumentDrawer(it, onDismiss = { legalDoc = null }) }
     // Each destination owns its scroll position, including the parent in a Back preview.
     key(page) {
         val listState = rememberLazyListState()
@@ -91,6 +93,11 @@ private enum class SettingsPage(val title: String) {
                             SettingsRow("Frissítések", if (vm.updates.enabled) "Automatikus ellenőrzés bekapcsolva" else "Kézi ellenőrzés", onClick = { navigate(SettingsPage.Updates) })
                             SettingsRow("Adatforrások kezelése", vm.dataSourceMode.title, onClick = { navigate(SettingsPage.DataSources) })
                             SettingsRow("Kiegészítő funkciók", vm.extraFeaturesSummary, onClick = { navigate(SettingsPage.Extras) })
+                        }
+                    }
+                    item {
+                        SettingsGroup {
+                            LegalDoc.entries.forEach { doc -> SettingsRow(doc.title, onClick = { legalDoc = doc }) }
                         }
                     }
                     if (vm.developerSettingsUnlocked) item {

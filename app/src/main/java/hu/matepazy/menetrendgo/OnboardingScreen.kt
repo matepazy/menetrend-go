@@ -13,6 +13,8 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -22,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
@@ -40,16 +43,29 @@ private val stops = listOf(
     Stop("Élő térkép", "A vonatok és buszok valós időben mozognak. Koppints egy járműre: látod a késését, a következő megállóit és a járműtípust."),
     Stop("Indulások kéznél", "Bármely megálló indulási tábláját kiteheted widgetként a kezdőképernyőre, így az app megnyitása nélkül is látod."),
     Stop("Bérletfigyelő", "Rögzítsd a bérleteidet, és szólunk, mielőtt lejárnak. Bekapcsolás: Beállítások › Kiegészítő funkciók."),
+    // The terminus: both documents must be accepted before the train leaves.
+    Stop("Végállomás", "Indulás előtt fogadd el a licencszerződést és a felhasználási feltételeket. Koppints egy kártyára az elolvasásához."),
 )
+private val consentStep = stops.lastIndex
 
-@Composable internal fun OnboardingFlow(onFinish: () -> Unit) {
-    var step by rememberSaveable { mutableIntStateOf(0) }
+/**
+ * First run, ending in the legal consent stop. [consentOnly] shows just that stop, without Back or Kihagyás,
+ * for users who finished onboarding before the terms existed or changed. [onFinish] runs once the train departs,
+ * which is only possible with both documents accepted.
+ */
+@Composable internal fun OnboardingFlow(termsAccepted: Boolean, consentOnly: Boolean = false, onFinish: () -> Unit) {
+    var step by rememberSaveable { mutableIntStateOf(if (consentOnly) consentStep else 0) }
     var departing by remember { mutableStateOf(false) }
-    val last = step == stops.lastIndex
-    BackHandler(enabled = step > 0 && !departing) { step-- }
+    var licenseOk by rememberSaveable { mutableStateOf(termsAccepted) }
+    var termsOk by rememberSaveable { mutableStateOf(termsAccepted) }
+    var reading by rememberSaveable { mutableStateOf<LegalDoc?>(null) }
+    val last = step == consentStep
+    val station = step.coerceAtMost(onboardingStations.lastIndex)
+    val canLeave = !last || (licenseOk && termsOk)
+    BackHandler(enabled = step > 0 && !departing && !consentOnly) { step-- }
     Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         Box(Modifier.weight(1f).fillMaxWidth()) {
-            OnboardingScenery(step, departing, onFinish, Modifier.fillMaxSize())
+            OnboardingScenery(station, departing, onFinish, Modifier.fillMaxSize())
             // The feature mock floats in the sky, above the landmarks (the scene frame is 252 units, 220 wide).
             BoxWithConstraints(Modifier.fillMaxSize()) {
                 val s = minOf(maxWidth / 220f, maxHeight / 252f)
@@ -57,15 +73,15 @@ private val stops = listOf(
                 val room = (maxHeight - s * 252f + s * 92f - top - 8.dp).coerceAtLeast(120.dp)
                 OnboardingFeatureMock(step, room, Modifier.padding(top = top, start = AppLayout.SheetPadding, end = AppLayout.SheetPadding).fillMaxWidth())
             }
-            TextButton(onFinish, Modifier.align(Alignment.TopEnd).statusBarsPadding().padding(8.dp).heightIn(min = 48.dp)) { Text("Kihagyás") }
+            if (!last) TextButton({ step = consentStep }, Modifier.align(Alignment.TopEnd).statusBarsPadding().padding(8.dp).heightIn(min = 48.dp)) { Text("Kihagyás") }
         }
         Surface(Modifier.fillMaxWidth().glassEdge(RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp), glassTone(GlassLevel.Floating)),
             shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp), color = MaterialTheme.colorScheme.surface) {
             Box(contentAlignment = Alignment.TopCenter) {
-                Column(Modifier.widthIn(max = 560.dp).fillMaxWidth()
+                Column(Modifier.widthIn(max = 560.dp).fillMaxWidth().verticalScroll(rememberScrollState())
                     .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom))
                     .padding(AppLayout.SheetPadding), verticalArrangement = Arrangement.spacedBy(AppLayout.ItemGap)) {
-                    RouteStrip(step)
+                    RouteStrip(station)
                     AnimatedContent(step, transitionSpec = {
                         val dir = if (targetState > initialState) 1 else -1
                         (fadeIn(tween(AppMotion.Reveal, 120)) + slideInHorizontally(tween(AppMotion.Reveal, 120)) { it / 8 * dir }) togetherWith
@@ -73,12 +89,17 @@ private val stops = listOf(
                     }, label = "Onboarding stop") { i ->
                         Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(AppLayout.LabelGap)) {
                             Text(stops[i].title, Modifier.semantics { heading() }, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
-                            Text(stops[i].line, minLines = 3, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(stops[i].line, minLines = if (i == consentStep) 1 else 3, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            if (i == consentStep) Column(Modifier.padding(top = AppLayout.CompactGap), verticalArrangement = Arrangement.spacedBy(AppLayout.CompactGap)) {
+                                LegalConsentCard(LegalDoc.License, licenseOk, { licenseOk = it }) { reading = LegalDoc.License }
+                                LegalConsentCard(LegalDoc.Terms, termsOk, { termsOk = it }) { reading = LegalDoc.Terms }
+                            }
                         }
                     }
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(AppLayout.CompactGap)) {
-                        if (step > 0) TextButton({ step-- }, Modifier.heightIn(min = 56.dp), enabled = !departing) { Text("Vissza") }
-                        Button({ if (last) departing = true else step++ }, Modifier.weight(1f).heightIn(min = 56.dp), border = glassBorder(buttonGlassTone(!departing)), enabled = !departing, shape = CircleShape) {
+                        if (step > 0 && !consentOnly) TextButton({ step-- }, Modifier.heightIn(min = 56.dp), enabled = !departing) { Text("Vissza") }
+                        val go = !departing && canLeave
+                        Button({ if (last) departing = true else step++ }, Modifier.weight(1f).heightIn(min = 56.dp).testTag("onboarding-next"), border = glassBorder(buttonGlassTone(go)), enabled = go, shape = CircleShape) {
                             Text(when { step == 0 -> "Beszállás!"; last -> "Indulás!"; else -> "Tovább" }, style = MaterialTheme.typography.titleMedium)
                         }
                     }
@@ -87,6 +108,11 @@ private val stops = listOf(
                 }
             }
         }
+    }
+    reading?.let { doc ->
+        LegalDocumentDrawer(doc, onDismiss = { reading = null }, onAccept = {
+            if (doc == LegalDoc.License) licenseOk = true else termsOk = true
+        })
     }
 }
 

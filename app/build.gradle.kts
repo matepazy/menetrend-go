@@ -100,6 +100,22 @@ tasks.withType<Test>().configureEach {
     inputs.file(rootProject.file("research/fleet/tram-trolley-live-2026-11-16.json"))
 }
 
+// The in-app license drawer shows the repository LICENSE verbatim, so it is copied at build time and never drifts.
+abstract class LicenseAssetTask : DefaultTask() {
+    @get:InputFile abstract val license: RegularFileProperty
+    @get:OutputDirectory abstract val outputDir: DirectoryProperty
+    @TaskAction fun copy() {
+        val dir = outputDir.get().asFile.apply { deleteRecursively(); mkdirs() }
+        license.get().asFile.copyTo(File(dir, "LICENSE.txt"), overwrite = true)
+    }
+}
+val licenseAsset = tasks.register<LicenseAssetTask>("licenseAsset") {
+    license.set(rootProject.layout.projectDirectory.file("LICENSE"))
+}
+androidComponents {
+    onVariants { it.sources.assets?.addGeneratedSourceDirectory(licenseAsset, LicenseAssetTask::outputDir) }
+}
+
 tasks.register<Copy>("exportReleaseApk") {
     dependsOn("assembleRelease")
     from(layout.buildDirectory.dir("outputs/apk/release")) { include("*.apk") }

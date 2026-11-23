@@ -85,14 +85,16 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge(statusBarStyle=SystemBarStyle.auto(
             android.graphics.Color.TRANSPARENT,android.graphics.Color.TRANSPARENT))
         setContent { val state: AppState = viewModel(); MenetrendTheme(state.theme) {
-            AnimatedContent(state.onboardingDone, transitionSpec = {
+            // Terms are accepted only as the train departs, so the gate stays up through the animation.
+            val ready = state.onboardingDone && state.termsAccepted
+            AnimatedContent(ready, transitionSpec = {
                 fadeIn(tween(AppMotion.Reveal, easing = AppMotion.Arrival)) togetherWith fadeOut(tween(AppMotion.Dismiss))
             }, label = "Onboarding") { done ->
-                if (!done) OnboardingFlow(state::finishOnboarding)
+                if (!done) OnboardingFlow(state.termsAccepted, consentOnly = state.onboardingDone) { state.acceptTerms(); state.finishOnboarding() }
                 else StationFocusOverlay { MenetrendApp(state, intent.getStringExtra("tab"), trackingRequest,
                     if (intent.getBooleanExtra("tracking", false)) intent.getStringExtra("trackingSession") else null) }
             }
-            if (state.onboardingDone && !state.showDataSourceIntro && !state.showPassesFeatureIntro) UpdateHost(state.updates)
+            if (ready && !state.showDataSourceIntro && !state.showPassesFeatureIntro) UpdateHost(state.updates)
         } }
     }
 }

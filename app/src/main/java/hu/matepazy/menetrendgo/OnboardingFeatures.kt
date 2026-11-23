@@ -66,7 +66,8 @@ import kotlin.math.roundToInt
                 1 -> PlanMock()
                 2 -> VehicleMock()
                 3 -> WidgetMock()
-                else -> PassMock()
+                4 -> PassMock()
+                else -> {} // The consent stop keeps the sky clear for the taller panel.
             }
         }
     }

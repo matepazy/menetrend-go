@@ -83,6 +83,8 @@ class AppState(app: Application) : AndroidViewModel(app) {
     var onboardingDone by mutableStateOf(prefs.getBoolean("onboarding_done", false)); private set
     fun finishOnboarding() { onboardingDone = true; prefs.edit().putBoolean("onboarding_done", true).apply() }
     fun restartOnboarding() { onboardingDone = false; prefs.edit().putBoolean("onboarding_done", false).apply() }
+    var termsAccepted by mutableStateOf(prefs.getInt("terms_accepted_version", 0) >= LegalTerms.Version); private set
+    fun acceptTerms() { termsAccepted = true; prefs.edit().putInt("terms_accepted_version", LegalTerms.Version).apply() }
     var journeyTrackingBetaEnabled by mutableStateOf(JourneyTracking.enabled(app)); private set
     init { if (!journeyTrackingBetaEnabled) JourneyTracking.stop(app) }
     fun chooseJourneyTrackingBeta(enabled: Boolean) {
