@@ -248,7 +248,7 @@ private enum class SettingsPage(val title: String) {
                     item {
                         SettingsGroup {
                             LegalDoc.entries.forEach { doc -> SettingsRow(doc.title, doc.summary, onClick = { legalDoc = doc }) }
-                            SettingsRow(SettingsPage.OpenSource.title, "${openSourceNotices.size} összetevő", onClick = { navigate(SettingsPage.OpenSource) })
+                            SettingsRow(SettingsPage.OpenSource.title, "${openSourceNotices.size} csomag", onClick = { navigate(SettingsPage.OpenSource) })
                         }
                     }
                 }
