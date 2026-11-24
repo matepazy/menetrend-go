@@ -144,6 +144,7 @@ class StopBoardWidget : AppWidgetProvider() {
                 refreshing -> "Frissítés…"
                 error -> "Sikertelen frissítés${if (lastUpdate.isBlank()) "" else " · $lastUpdate"}"
                 updated == 0L -> "Indulások betöltése…"
+                rows.any { it.offline } -> "Offline menetrend · $lastUpdate"
                 else -> "Frissítve $lastUpdate"
             })
             views.removeAllViews(R.id.widget_departures)
@@ -207,7 +208,7 @@ class StopBoardWidgetJob : JobService() {
                     val station = StopBoardWidget.station(this@StopBoardWidgetJob, id) ?: return@forEach
                     StopBoardWidget.prefs(this@StopBoardWidgetJob).edit().putLong("attempt_$id", System.currentTimeMillis()).apply()
                     try {
-                        val board = client.stopDepartures(station.id)
+                        val board = client.stopDepartures(station.id, station = station)
                         if (StopBoardWidget.station(this@StopBoardWidgetJob, id)?.id != station.id) return@forEach
                         StopBoardWidget.prefs(this@StopBoardWidgetJob).edit()
                             .putString("departures_$id", org.json.JSONArray(board.take(WidgetDeparturePoolSize).map { it.cacheJson() }).toString()).remove("board_$id")
@@ -285,7 +286,7 @@ class StopBoardWidgetActivity : ComponentActivity() {
         stops = null; places = emptyList(); error = null
         if (query.trim().length < 2) return@LaunchedEffect
         delay(350); loading = true
-        try { places = client.stations(query) }
+        try { places = try { client.stations(query) } catch (e: ProviderUnavailable) { client.offlineStations(query).ifEmpty { throw e } } }
         catch (e: CancellationException) { throw e }
         catch (e: Exception) { error = e.message }
         finally { loading = false }

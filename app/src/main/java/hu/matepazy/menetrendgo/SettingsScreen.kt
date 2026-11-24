@@ -34,7 +34,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 
 private enum class SettingsPage(val title: String) {
     Home("Beállítások"), Appearance("Megjelenés"), Notifications("Értesítések"),
-    Updates("Frissítések"), DataSources("Adatforrások kezelése"), Extras("Kiegészítő funkciók"), Developer("Fejlesztői beállítások"),
+    Updates("Frissítések"), DataSources("Adatforrások kezelése"), Offline("Offline menetrendek"), Extras("Kiegészítő funkciók"), Developer("Fejlesztői beállítások"),
     Legal("Jogi nyilatkozatok"), OpenSource("Nyílt forráskódú licencek");
 
     val parent: SettingsPage get() = if (this == OpenSource) Legal else Home
@@ -78,6 +78,9 @@ private enum class SettingsPage(val title: String) {
     legalDoc?.let { LegalDocumentDrawer(it, onDismiss = { legalDoc = null }) }
     var notice by remember { mutableStateOf<OpenSourceNotice?>(null) }
     notice?.let { OpenSourceNoticeDrawer(it, onDismiss = { notice = null }) }
+    val offlineCatalog = rememberOfflineCatalog(page == SettingsPage.Offline)
+    val dark = LocalAppDarkTheme.current
+    val toolbar = MaterialTheme.colorScheme.surface
     // Each destination owns its scroll position, including the parent in a Back preview.
     key(page) {
         val listState = rememberLazyListState()
@@ -95,6 +98,7 @@ private enum class SettingsPage(val title: String) {
                             SettingsRow("Értesítések", if (!notificationsEnabled) "Kikapcsolva az Androidban" else if (vm.passesEnabled) "${vm.passReminders.size} / ${PassReminder.entries.size} emlékeztető bekapcsolva" else "Android értesítésbeállítások", onClick = { navigate(SettingsPage.Notifications) })
                             SettingsRow("Frissítések", if (vm.updates.enabled) "Automatikus ellenőrzés bekapcsolva" else "Kézi ellenőrzés", onClick = { navigate(SettingsPage.Updates) })
                             SettingsRow("Adatforrások kezelése", vm.dataSourceMode.title, onClick = { navigate(SettingsPage.DataSources) })
+                            SettingsRow("Offline menetrendek", offlineSummary(), onClick = { navigate(SettingsPage.Offline) })
                             SettingsRow("Kiegészítő funkciók", vm.extraFeaturesSummary, onClick = { navigate(SettingsPage.Extras) })
                         }
                     }
@@ -191,7 +195,10 @@ private enum class SettingsPage(val title: String) {
                             }
                         }
                     }
-                    item { SettingsNote("Az adatforrás az élő térkép járműveire és menetrendjeire vonatkozik. Aggregált módban az utas.hu-n megjelenő járművek menetrendje az utas.hu-ról is betölthető. Az útvonaltervezés és a megállóhelyi indulások adatait a MÁVPlusz adja.") }
+                    item { SettingsNote("Az adatforrás az élő térkép járműveire és menetrendjeire vonatkozik. Aggregált módban az utas.hu-n megjelenő járművek menetrendje az utas.hu-ról is betölthető. Az útvonaltervezés és a megállóhelyi indulások adatait a MÁVPlusz adja; ha nem érhető el, a letöltött offline menetrendek veszik át.") }
+                }
+                SettingsPage.Offline -> offlineScheduleItems(offlineCatalog, context) {
+                    openInAppBrowser(context, OfflineFeedCatalog.SOURCES_PAGE, dark, toolbar)
                 }
                 SettingsPage.Appearance -> {
                     item {

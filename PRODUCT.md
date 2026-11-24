@@ -38,7 +38,7 @@ Used on the move: at stops and platforms, on board, often one-handed and in vari
 - Scheduled and real-time information must stay visibly distinguishable.
 - Every data surface handles loading, empty and failed-request states; verify changes on an Android emulator.
 - User-facing copy is Hungarian.
-- No offline timetable database; an internet connection is required for data.
+- Optional offline timetables: users download Transitous GTFS feeds (Settings › Offline menetrendek), compacted on the device to a rolling 30-day window. They are used only when MÁVPlusz cannot be reached, always labelled offline and scheduled-only; live data, cancellations, services and alerts stay online-only.
 
 ## Brand Commitments
 

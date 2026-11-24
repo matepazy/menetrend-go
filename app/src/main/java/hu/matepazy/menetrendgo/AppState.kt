@@ -30,7 +30,7 @@ class AppState(app: Application) : AndroidViewModel(app) {
             }
         }
     }
-    private val stationSearch=StationSearch(app, mav::stations)
+    private val stationSearch=StationSearch(app, mav::stations, mav::offlineStations)
     private val placeSearch=PlaceSearch()
     var theme by mutableStateOf(prefs.getString("theme", "system").orEmpty()); private set
     var passReminders by mutableStateOf(PassNotifications.enabledReminders(app)); private set

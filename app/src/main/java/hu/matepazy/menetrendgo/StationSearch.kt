@@ -32,7 +32,8 @@ internal fun rankStations(query: String, stations: List<Station>, usage: Map<Str
 }
 
 /** Bounded, device-local query cache. Cached names are useful even without a connection. */
-internal class StationSearch(context: Context, private val fetch: suspend (String) -> List<Station>) {
+internal class StationSearch(context: Context, private val fetch: suspend (String) -> List<Station>,
+    private val offline: suspend (String) -> List<Station> = { emptyList() }) {
     private val prefs = context.getSharedPreferences("station_search", Context.MODE_PRIVATE)
     private val lock = Mutex()
     private val maxAge = 7L * 24 * 60 * 60 * 1000
@@ -66,7 +67,12 @@ internal class StationSearch(context: Context, private val fetch: suspend (Strin
         } }
         if (fresh != null) return@withContext lock.withLock { rankStations(query, decode(fresh), usage()) }
         // Fetch outside the lock, so typing and local selections never wait for the network.
-        val result = fetch(query)
+        // Offline stops stand in when the provider is unreachable, and are never cached as its answer.
+        val result = try { fetch(query) } catch (e: ProviderUnavailable) {
+            val local = offline(query)
+            if (local.isEmpty()) throw e
+            return@withContext lock.withLock { rankStations(query, local, usage()) }
+        }
         lock.withLock {
             val entry = JSONObject().put("query", key).put("time", System.currentTimeMillis())
                 .put("stations", JSONArray(result.map { it.json() }))

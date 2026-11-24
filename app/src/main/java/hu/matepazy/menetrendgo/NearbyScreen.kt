@@ -132,7 +132,7 @@ import kotlinx.coroutines.withContext
     val allVehicles=remember(vm.vehicles,routeOnly,vm.vehicleFilters) {
         if(routeOnly) vm.vehicles else mapLayerVehicles(vm.vehicles,vm.vehicleFilters)
     }
-    val stationSearch=remember(context,stopClient) {StationSearch(context,stopClient::stations)}
+    val stationSearch=remember(context,stopClient) {StationSearch(context,stopClient::stations,stopClient::offlineStations)}
     val visibleVehicles=remember(routeOnly,journey,focusedId,allVehicles,vm.vehicleUpdated,searchVehicleId,focusId) {
         when {
             focusId!=null -> vm.vehicles.filter {it.id==focusId}.ifEmpty {listOfNotNull(selectedVehicle)}

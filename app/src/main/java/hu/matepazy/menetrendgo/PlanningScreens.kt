@@ -1029,6 +1029,7 @@ internal const val DeparturePaginationKey = "later-departures"
         }
     }
     val results=vm.filteredJourneys.sortedBy {it.boardingLeg.start}
+    val offlineResults=results.any {it.offline}
     val firstUpcoming=results.indexOfFirst {
         val state=departurePresentation(it.boardingLeg.departureTime,now)
         state==DeparturePresentation.Upcoming || state==DeparturePresentation.DepartingNow
@@ -1043,7 +1044,7 @@ internal const val DeparturePaginationKey = "later-departures"
         if(!vm.loadingEarlier) earlierAnchor?.let { (key,offset) ->
             val resultIndex=results.indexOfFirst {it.key==key}
             if(resultIndex>=0) {
-                val headerCount=1+(if(vm.canLoadEarlier) 1 else 0)+(if(vm.searchError!=null) 1 else 0)
+                val headerCount=1+(if(vm.canLoadEarlier) 1 else 0)+(if(vm.searchError!=null) 1 else 0)+(if(offlineResults) 1 else 0)
                 val dividerCount=if(vm.earlierRequested && firstUpcoming<=resultIndex) 1 else 0
                 listState.requestScrollToItem(headerCount+resultIndex+dividerCount,offset)
             }
@@ -1070,6 +1071,9 @@ internal const val DeparturePaginationKey = "later-departures"
             }
         }
         if(vm.searchError!=null) item {InfoPanel("Nem sikerült a keresés",vm.searchError!!){rememberEarlierAnchor();vm.retrySearch()}}
+        if(offlineResults) item(key="offline") {InfoPanel("Offline menetrend",
+            "A MÁV most nem érhető el, ezért a letöltött menetrendekből terveztük az utat. Csak menetrend szerinti idők: késés, kimaradás, szolgáltatás és közlemény nem látszik.")
+            {rememberEarlierAnchor();vm.search()}}
         if(vm.searching && vm.journeys.isEmpty()) item {LoadingRows()}
         if(!vm.searching && vm.searchError==null && results.isEmpty()) item {InfoPanel("Nincs megjeleníthető indulás",
             if(vm.activeSearchFilters.isEmpty() && vm.activeSearchVehicles.isEmpty()) "Módosítsd az időpontot vagy a megállókat."
@@ -1291,6 +1295,10 @@ internal fun sameJourneyStop(first: Station, second: Station): Boolean =
         }}
         if (refreshError != null) item {
             Text(refreshError, color=MaterialTheme.colorScheme.error, style=MaterialTheme.typography.bodyMedium)
+        }
+        if (journey.offline) item {
+            Text("Offline menetrend alapján tervezve. Csak menetrend szerinti idők: késés, kimaradás, szolgáltatás és közlemény nem látszik.",
+                style=MaterialTheme.typography.bodyMedium, color=MaterialTheme.colorScheme.onSurfaceVariant)
         }
         item {
             GlassSurface(shape=RoundedCornerShape(32.dp)) {
@@ -1520,6 +1528,8 @@ internal fun sameJourneyStop(first: Station, second: Station): Boolean =
                 if(vm.detailLoading && detail==null) LoadingRows()
                 if(vm.detailError!=null) InfoPanel("A menetrend nem tölthető be",vm.detailError!!){vm.loadTrip(id,day)}
                 if(detail!=null) {
+                    if(detail.optBoolean("offline")) Text("Offline menetrend · ${detail.optString("offlineFeed")}. Csak menetrend szerinti idők.",
+                        style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)
                     if(stops.isEmpty()) Text("Nincs elérhető megállóadat.",color=MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }

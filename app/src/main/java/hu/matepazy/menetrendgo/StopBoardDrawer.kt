@@ -55,7 +55,7 @@ import kotlinx.coroutines.delay
             while (true) {
                 loading = true
                 try {
-                    departures = fetch?.invoke(station.id) ?: client.stopDepartures(station.id)
+                    departures = fetch?.invoke(station.id) ?: client.stopDepartures(station.id, station = station)
                     updated = System.currentTimeMillis()
                     error = null
                 } catch (e: CancellationException) { throw e }
@@ -77,7 +77,11 @@ import kotlinx.coroutines.delay
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                     Column(Modifier.weight(1f)) {
                         Text("Indulási tábla", style = MaterialTheme.typography.titleMedium)
-                        Text(if (updated == 0L) "Indulások betöltése" else "Frissítve ${updateAge(updated, now)}",
+                        Text(when {
+                                updated == 0L -> "Indulások betöltése"
+                                departures.any { it.offline } -> "Offline menetrend szerint · a MÁV most nem érhető el"
+                                else -> "Frissítve ${updateAge(updated, now)}"
+                            },
                             style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     IconButton(onClick = { refresh++ }, enabled = !loading) { Icon(Icons.Outlined.Refresh, "Indulások frissítése") }

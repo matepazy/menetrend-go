@@ -15,7 +15,7 @@ A MenetrendGO független projekt, nem a MÁV hivatalos alkalmazása. A menetrend
 - **Bérletek:** ország-, megye- és helyi bérletek rögzítése, szerkesztése, lejárati emlékeztetők, tájékoztató jellegű érvényességi ellenőrzés az útvonalon.
 - **Beállítások:** világos, sötét vagy rendszer szerinti megjelenés, értesítések és helyi adatok kezelése, stabil és béta alkalmazásfrissítések.
 
-Az élő járműadatok és a megnyitott járat adatai előtérben 75 másodpercenként frissülnek. A keresési találatok új kereséssel frissíthetők. A működéshez internetkapcsolat szükséges, az alkalmazás nem tartalmaz offline menetrendi adatbázist.
+Az élő járműadatok és a megnyitott járat adatai előtérben 75 másodpercenként frissülnek. A keresési találatok új kereséssel frissíthetők. A működéshez alapesetben internetkapcsolat szükséges. A Beállítások › Offline menetrendek oldalon a Transitous magyar menetrendjei (vasút, Volánbusz, városi közlekedés, hajók) letölthetők: ha a MÁVPlusz nem érhető el, az indulási táblák, a widget, a járatok megállói és az útvonaltervezés ezekből működnek tovább, kizárólag menetrend szerinti időkkel. Ugyanitt vonalanként és megállónként böngészhető a menetrend.
 
 ### Leszállási értesítés használata
 
@@ -146,6 +146,10 @@ Az ikonok újragenerálása a repó gyökeréből: `python scripts/generate_bran
 
 ## Adatkapcsolat és adatkezelés
 
+### Offline menetrendek
+
+A letölthető csomagok listája a Transitous forrásjegyzéke (`feeds/hu.json` a public-transport/transitous GitHub-repóban, naponta legfeljebb egyszer frissítve; offline a beépített másolat látszik). A letöltés a Transitous által ellenőrzött GTFS-másolatból (`api.transitous.org/gtfs/hu_<név>.gtfs.zip`) történik, ha az nem érhető el, a kiadó eredeti fájljából; hitelesítést igénylő forrás csak a Transitouson keresztül tölthető le. A csomagot a készülék dolgozza fel: a következő 30 nap (és az előző nap) járatai, a használt megállók, vonalak és szolgáltatók maradnak meg, a megállósorrendek közös mintákba kerülnek, az időpontok percre kerekítve, tömörített saját formátumban (`files/offline/*.mgtt`) tárolódnak, a letöltött eredeti fájl törlődik. A Volánbusz helyközi menetrendje így kb. 9,5 MB letöltésből kb. 2 MB lesz. A feldolgozás az Android háttérfeladat-ütemezőjében fut; az automatikus frissítés hetente, csak Wi-Fi-n és töltés közben ellenőrzi a változást. Az offline adat csak akkor jelenik meg, ha a MÁVPlusz nem válaszol, és ilyenkor minden felületen „Offline menetrend” felirat jelzi. Késés, kimaradás, szolgáltatás és közlemény offline nem ismert.
+
 ### Megállók, indulási tábla és kezdőképernyős widget
 
 A Térkép lap szűrőgombjával megnyitható **Járműszűrők** munkalapon a **Megállók és állomások** kapcsolóval állítható a megállójelölők láthatósága. A beállítás megmarad. Közelíts a térképen a megállókhoz; egy jelölőre koppintva megnyílik az adott hely indulási táblája. Az állomások peronjait egy közös állomás fogja össze, az utcai megállók saját szolgáltatói azonosítójukat tartják meg.
@@ -156,7 +160,7 @@ A **Widget a kezdőképernyőre** gomb az adott megállóhoz kér Android-widget
 
 Az alkalmazás közvetlenül, HTTPS-en éri el a MÁVPlusz OTP GraphQL- és megállókereső végpontjait. A lekérdezések és az adatok feldolgozásának felépítése a [hovamegy.hu](https://github.com/matepazy/hovamegy.hu) megoldását követi. Az alapértelmezett térkép a natív Google Maps SDK for Androidot használja. A Vasúti és Saját térkép Leafletet használ egy WebView-ban, a többi felület natív Compose.
 
-A bérletek, keresési előzmények és beállítások az eszközön maradnak. Nincs felhasználói fiók vagy analitikai SDK. A hozzávetőleges helyhozzáférés opcionális, és a térkép középre igazítására szolgál. A menetrendi kérések a kereséshez szükséges adatokat elküldik a MÁVPlusznak, a térképszolgáltatók pedig a csempekérésekből látják a megtekintett területet és a hálózati kapcsolat adatait. A frissítésellenőrzés a GitHub nyilvános API-ját hívja.
+A bérletek, keresési előzmények és beállítások az eszközön maradnak. Nincs felhasználói fiók vagy analitikai SDK. A hozzávetőleges helyhozzáférés opcionális, és a térkép középre igazítására szolgál. A menetrendi kérések a kereséshez szükséges adatokat elküldik a MÁVPlusznak, a térképszolgáltatók pedig a csempekérésekből látják a megtekintett területet és a hálózati kapcsolat adatait. A frissítésellenőrzés a GitHub nyilvános API-ját hívja. Az Offline menetrendek oldal a Transitous forrásjegyzékét a GitHubról, a menetrendcsomagokat a Transitousról (vagy a kiadótól) tölti le; ezek a kérések személyes adatot nem tartalmaznak.
 
 A bérletnyilvántartás nem jegytárca, a rögzített adatok nem igazolják az utazási jogosultságot. Az útvonalhoz jelzett bérletérvényesség tájékoztató jellegű, különösen határ menti szakaszok, helyi járatok és helyjegyköteles vonatok esetén.
 
@@ -166,5 +170,6 @@ A bérletnyilvántartás nem jegytárca, a rögzített adatok nem igazolják az 
 - [Leaflet](https://leafletjs.com/) – a beágyazott példány licence: `app/src/main/assets/leaflet-LICENSE.txt`.
 - OpenStreetMap, Esri és OpenRailwayMap – a térképen feltüntetett forrásmegjelölésekkel. A térképszolgáltatók használati feltételei a saját példányokra is vonatkoznak.
 - Megyehatárok – az adatok eredete és felhasználási feltételei: [hungary-counties-LICENSE.md](app/src/main/assets/hungary-counties-LICENSE.md).
+- [Transitous](https://transitous.org/sources/) – a letölthető offline menetrendek forrásjegyzéke és ellenőrzött GTFS-másolatai. Az egyes menetrendek licencét a kiadójuk adja meg; az alkalmazás minden csomagnál feltünteti.
 
 Hibajelentéshez add meg az alkalmazás és az Android verzióját, a reprodukálás lépéseit, menetrendi eltérésnél pedig a keresés dátumát és az érintett járatot. Ne csatolj aláírókulcsot, jelszót vagy személyes bérletadatot.

@@ -86,7 +86,9 @@ data class Leg(val mode: String, val start: Long, val end: Long, val from: Stati
 data class Journey(val duration: Int, val legs: List<Leg>, val rawGraphQl: String? = null,
     val providerFilters: Set<SearchFilter> = emptySet(), val fetchedAt: Long = 0L,
     // The provider itinerary after normalization, kept so a saved journey can be restored in full.
-    val itineraryJson: String? = null) {
+    val itineraryJson: String? = null,
+    // Planned on the device from downloaded timetables: scheduled times only, no provider services or alerts.
+    val offline: Boolean = false) {
     val minutes get() = (duration+59)/60
     val start get() = legs.first().start
     val end get() = legs.last().end

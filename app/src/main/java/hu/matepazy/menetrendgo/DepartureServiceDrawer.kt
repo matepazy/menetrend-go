@@ -96,6 +96,7 @@ import org.json.JSONObject
             Text(when {
                 departure.cancelled -> "Kimaradó járat · tervezett menetrend"
                 detail == null -> "Járatadatok betöltése"
+                detail?.optBoolean("offline") == true -> "Offline menetrend · ${departure.serviceDay}"
                 else -> "Tervezett menetrend · ${departure.serviceDay}"
             }, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(top = AppLayout.CompactGap, bottom = AppLayout.ItemGap))
@@ -106,7 +107,7 @@ import org.json.JSONObject
                     InfoPanel("A járat adatai nem tölthetők be", message) { refresh++ }
                 } }
                 if (detail != null && !departure.cancelled) item {
-                    Text("Ehhez a járathoz most nincs élő megállóadat.",
+                    Text(if (detail?.optBoolean("offline") == true) "A letöltött menetrend szerint, élő adat nélkül." else "Ehhez a járathoz most nincs élő megállóadat.",
                         style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 if (detail != null && stops.isEmpty()) item {

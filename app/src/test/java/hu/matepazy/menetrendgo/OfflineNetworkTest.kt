@@ -1,0 +1,170 @@
+package hu.matepazy.menetrendgo
+
+import org.junit.Assert.*
+import org.junit.Test
+import java.io.File
+import java.time.LocalDate
+import java.time.LocalDateTime
+
+class OfflineNetworkTest {
+    private val today = LocalDate.of(2026, 11, 24)
+    private fun feed(id: String, files: Map<String, String>) =
+        GtfsCompactor.compact(GtfsSource { files[it]?.byteInputStream() }, id, id, today)
+    private val calendar = "service_id,monday,tuesday,wednesday,thursday,friday,saturday,sunday,start_date,end_date\nS,1,1,1,1,1,1,1,20260101,20271231\n"
+
+    // A railway A–B–C and, in another feed, a bus from a stop 100 m from B to D.
+    private val rail = feed("rail", mapOf(
+        "agency.txt" to "agency_id,agency_name\nM,Vasút\n",
+        "routes.txt" to "route_id,agency_id,route_short_name,route_long_name,route_type,route_color\nR,M,,Fővonal,102,003A7E\n",
+        "calendar.txt" to calendar,
+        "stops.txt" to "stop_id,stop_name,stop_lat,stop_lon,location_type,parent_station,platform_code\n" +
+            "1:A,Aváros,47.000,19.000,1,,\n1:A_1,Aváros,47.000,19.000,0,1:A,2\n1:B,Bfalva,47.100,19.100,0,,\n1:C,Cváros,47.200,19.200,0,,\n",
+        "trips.txt" to "route_id,service_id,trip_id,trip_headsign,trip_short_name\nR,S,1:T1,Cváros,SZ 100\nR,S,1:T2,Cváros,SZ 102\nR,S,1:N,Cváros,SZ 190\n",
+        "stop_times.txt" to "trip_id,arrival_time,departure_time,stop_id,stop_sequence\n" +
+            "1:T1,08:00:00,08:00:00,1:A_1,1\n1:T1,08:30:00,08:31:00,1:B,2\n1:T1,09:00:00,09:00:00,1:C,3\n" +
+            "1:T2,10:00:00,10:00:00,1:A_1,1\n1:T2,10:30:00,10:31:00,1:B,2\n1:T2,11:00:00,11:00:00,1:C,3\n" +
+            "1:N,24:50:00,24:50:00,1:A_1,1\n1:N,25:20:00,25:20:00,1:B,2\n",
+    ))
+    private val bus = feed("bus", mapOf(
+        "routes.txt" to "route_id,route_short_name,route_long_name,route_type\nB12,12,B–D,3\n",
+        "calendar.txt" to calendar,
+        "stops.txt" to "stop_id,stop_name,stop_lat,stop_lon\nb:B,\"Bfalva, vasútállomás\",47.1009,19.100\nb:D,Dtelep,47.150,19.150\n",
+        "trips.txt" to "route_id,service_id,trip_id,trip_headsign\nB12,S,b:early,Dtelep\nB12,S,b:late,Dtelep\n",
+        // The 08:33 bus leaves before the train's passengers can reach the stop.
+        "stop_times.txt" to "trip_id,arrival_time,departure_time,stop_id,stop_sequence\n" +
+            "b:early,08:33:00,08:33:00,b:B,1\nb:early,08:50:00,08:50:00,b:D,2\nb:late,08:40:00,08:40:00,b:B,1\nb:late,09:00:00,09:00:00,b:D,2\n",
+    ))
+    private val network = OfflineNetwork(listOf(rail, bus))
+    private val a = Station("1:A", "Aváros", 47.0, 19.0)
+    private val d = Station("b:D", "Dtelep", 47.15, 19.15)
+
+    @Test fun departuresIncludeStationPlatformsAndLastNightsTrips() {
+        val board = network.departures(a, OfflineNetwork.epoch(today, 7 * 60))
+        assertEquals(listOf("1:T1", "1:T2", "1:N"), board.map { it.tripId })
+        assertTrue(board.all { it.offline && !it.time.realtime })
+        assertEquals("2", board.first().platform)
+        assertEquals("SZ 100", board.first().leg.route)
+        assertEquals("Cváros", board.first().headsign)
+        // Yesterday's 24:50 trip leaves at 00:50 today.
+        val night = network.departures(a, OfflineNetwork.epoch(today, 30))
+        assertEquals("1:N", night.first().tripId); assertEquals(today.minusDays(1).toString(), night.first().serviceDay)
+    }
+
+    @Test fun unknownIdFallsBackToTheSameNameNearby() {
+        val station = Station("OTHER:123", "Bfalva", 47.1004, 19.1)
+        assertTrue(network.departures(station, OfflineNetwork.epoch(today, 7 * 60)).isNotEmpty())
+        assertThrows(OfflineNotCovered::class.java) { network.departures(Station("x", "Sehol", 46.0, 18.0), 0L) }
+    }
+
+    @Test fun plansAcrossFeedsWithAWalkingTransfer() {
+        val journeys = network.plan(a, d, LocalDateTime.of(today, java.time.LocalTime.of(7, 50)), arriveBy = false)
+        val first = journeys.first()
+        assertTrue(first.offline)
+        assertEquals(listOf("RAIL", "WALK", "BUS"), first.legs.map { it.mode })
+        assertEquals("1:T1", first.legs[0].tripId); assertEquals("b:late", first.legs[2].tripId)
+        assertEquals(OfflineNetwork.epoch(today, 8 * 60), first.start)
+        assertEquals(OfflineNetwork.epoch(today, 9 * 60), first.end)
+        assertEquals(1, first.changes)
+        assertTrue(first.legs.zipWithNext().all { (x, y) -> x.end <= y.start })
+    }
+
+    @Test fun arriveBySearchKeepsTheLatestJourneyInTime() {
+        val journeys = network.plan(a, d, LocalDateTime.of(today, java.time.LocalTime.of(9, 10)), arriveBy = true)
+        assertTrue(journeys.isNotEmpty())
+        assertTrue(journeys.all { it.end <= OfflineNetwork.epoch(today, 9 * 60 + 10) })
+        assertEquals(OfflineNetwork.epoch(today, 8 * 60), journeys.last().start)
+    }
+
+    @Test fun tripJsonMatchesTheProviderShape() {
+        val trip = network.trip("1:T1", today.toString())!!
+        assertTrue(trip.getBoolean("offline"))
+        val times = trip.getJSONArray("stoptimes")
+        assertEquals(3, times.length())
+        val second = times.getJSONObject(1)
+        assertEquals(8 * 3600 + 31 * 60, second.getInt("scheduledDeparture"))
+        assertFalse(second.getBoolean("realtime"))
+        assertEquals("1:B", second.getJSONObject("stop").getString("gtfsId"))
+        assertEquals("003A7E", trip.getJSONObject("route").getString("color"))
+        assertNull(network.trip("missing", today.toString()))
+    }
+
+    @Test fun routeTimetablesListDirectionsAndDepartures() {
+        val route = network.routes("12").first()
+        assertEquals("12", route.label); assertEquals("BUS", route.mode)
+        val direction = network.directions(route.ref).single()
+        assertEquals("Dtelep", direction.headsign)
+        val times = network.routeDepartures(route.ref, direction.headsign, "b:B", today)
+        assertEquals(listOf("b:early", "b:late"), times.map { it.tripId })
+    }
+
+    @Test fun catalogGroupsNamesAndUrls() {
+        val feeds = OfflineFeedCatalog.parse(File("src/main/assets/offline/hu-feeds.json").readText())
+        assertTrue(feeds.size > 50)
+        assertEquals("mav", feeds.first().id)
+        val gyongyos = feeds.single { it.id == "volan-gyongyos" }
+        assertEquals("Gyöngyös helyi járatai (Volánbusz)", gyongyos.name)
+        assertEquals("Szeged helyi járatai (Volánbusz)", feeds.single { it.id == "volan-szeged" }.name)
+        assertEquals(OfflineFeedGroup.Coach, feeds.single { it.id == "volan-helykozi" }.group)
+        assertEquals(OfflineFeedGroup.Other, feeds.single { it.id == "bkk-funicular" }.group)
+        assertEquals("https://api.transitous.org/gtfs/hu_Kecskem%C3%A9t.gtfs.zip", feeds.single { it.id == "Kecskemét" }.url)
+        assertNull("authenticated sources are only fetched through Transitous", feeds.single { it.id == "mav-gyermekvasut" }.originalUrl)
+        assertEquals("Kecskemét helyi járatai", feeds.single { it.id == "Kecskemét" }.name)
+    }
+
+    /** Opt-in: OFFLINE_GTFS_SAMPLE=mav.zip;volan.zip;dkv.zip plans Budapest-Keleti → Debrecen, Szalók utca on real data. */
+    @Test fun realNetworkPlanningSpeed() {
+        val paths = System.getenv("OFFLINE_GTFS_SAMPLE")?.split(File.pathSeparator) ?: return
+        val now = LocalDate.now(Budapest)
+        val real = OfflineNetwork(paths.mapIndexed { i, p -> GtfsCompactor.compact(File(p), "f$i", "f$i", now) })
+        val from = Station("1:005510017", "Budapest-Keleti", 47.50028, 19.084167)
+        val to = Station("debrecen:SP531", "Debrecen, Szalók utca", 47.5496, 21.6605)
+        var started = System.nanoTime()
+        val journeys = real.plan(from, to, LocalDateTime.of(now.plusDays(1), java.time.LocalTime.of(7, 0)), false)
+        println("OFFLINE plan (first, incl. footpaths): ${(System.nanoTime() - started) / 1_000_000} ms, ${journeys.size} journeys")
+        started = System.nanoTime()
+        real.plan(from, to, LocalDateTime.of(now.plusDays(1), java.time.LocalTime.of(12, 0)), false)
+        println("OFFLINE plan (warm): ${(System.nanoTime() - started) / 1_000_000} ms")
+        journeys.forEach { j -> println("OFFLINE  " + j.legs.joinToString(" | ") { "${it.mode} ${it.route} ${timeLabel(it.start)} ${it.from.name} -> ${timeLabel(it.end)} ${it.to.name}" }) }
+        started = System.nanoTime()
+        val board = real.departures(from, OfflineNetwork.epoch(now.plusDays(1), 8 * 60))
+        println("OFFLINE board: ${(System.nanoTime() - started) / 1_000_000} ms, ${board.size} rows, first ${board.firstOrNull()?.leg?.route}")
+        assertTrue(journeys.isNotEmpty())
+    }
+
+    @Test fun unsortedStopTimesAreGroupedOnASecondPass() {
+        val interleaved = feed("x", mapOf(
+            "routes.txt" to "route_id,route_type\nR,3\n", "calendar.txt" to calendar,
+            "stops.txt" to "stop_id,stop_name,stop_lat,stop_lon\nP,P,47,19\nQ,Q,47.01,19\n",
+            "trips.txt" to "route_id,service_id,trip_id\nR,S,t1\nR,S,t2\n",
+            "stop_times.txt" to "trip_id,arrival_time,departure_time,stop_id,stop_sequence\n" +
+                "t1,08:00:00,08:00:00,P,1\nt2,09:00:00,09:00:00,P,1\nt1,08:10:00,08:10:00,Q,2\nt2,09:10:00,09:10:00,Q,2\n",
+        ))
+        assertEquals(2, interleaved.tripCount)
+        assertEquals(8 * 60 + 10, interleaved.arrival(interleaved.tripIndex.getValue("t1"), 1))
+    }
+}
+
+class OfflineStopSearchTest {
+    @Test fun platformsFoldIntoTheirStationAndAccentsDoNotMatter() {
+        val table = SampleGtfs.timetable()
+        val found = OfflineNetwork(listOf(table)).searchStops("avaros")
+        assertEquals(listOf("A"), found.map { it.id })
+        assertEquals("Station", found.single().type)
+        assertTrue("RAIL" in found.single().modes)
+        assertTrue(OfflineNetwork(listOf(table)).searchStops("cvaros vasut").single().name.startsWith("Cváros"))
+    }
+}
+
+class OfflineJourneyFilterTest {
+    private fun journey(start: Long, end: Long, rides: Int, id: String): Journey {
+        val st = Station("", "", 0.0, 0.0)
+        val legs = (0 until rides).map { Leg("BUS", start + it, end, st, st, id, "$id$it", false, 0, emptyList(), "") }
+        return Journey(((end - start) / 1000).toInt(), legs)
+    }
+    @Test fun earlierFeedersToTheSameArrivalAreDropped() {
+        val network = OfflineNetwork(emptyList())
+        val kept = network.dominantJourneys(listOf(
+            journey(1000, 9000, 3, "a"), journey(2000, 9000, 3, "b"), journey(3000, 9000, 3, "c"), journey(4000, 12000, 1, "direct")))
+        assertEquals(listOf("c", "direct"), kept.map { it.legs.first().route })
+    }
+}

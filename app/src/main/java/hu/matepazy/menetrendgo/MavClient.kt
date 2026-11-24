@@ -35,15 +35,17 @@ class MavClient {
                 connection.setRequestProperty("Content-Type","application/json; charset=utf-8")
                 connection.outputStream.use {it.write(JSONObject().put("query",query).toString().toByteArray(Charsets.UTF_8))}
             }
-            check(connection.responseCode in 200..299) {"A MÁV adatai most nem érhetők el (${connection.responseCode}). Próbáld újra."}
+            if(connection.responseCode !in 200..299) throw ProviderUnavailable("A MÁV adatai most nem érhetők el (${connection.responseCode}). Próbáld újra.")
             val raw=connection.inputStream.bufferedReader().use {it.readText()}
             val body=JSONObject(raw)
             onRawResponse?.invoke(raw)
             if(query==null) return body
-            check(!body.has("errors") && body.optJSONObject("data")!=null) {"A MÁV hiányos választ adott. Próbáld újra."}
+            if(body.has("errors") || body.optJSONObject("data")==null) throw ProviderUnavailable("A MÁV hiányos választ adott. Próbáld újra.")
             return body.getJSONObject("data")
         } catch(e: java.io.IOException) {
-            throw IllegalStateException("Nem sikerült kapcsolódni a MÁV-hoz. Ellenőrizd az internetkapcsolatot.",e)
+            throw ProviderUnavailable("Nem sikerült kapcsolódni a MÁV-hoz. Ellenőrizd az internetkapcsolatot.",e)
+        } catch(e: org.json.JSONException) {
+            throw ProviderUnavailable("A MÁV hiányos választ adott. Próbáld újra.",e)
         } finally {connection.disconnect()}
     }
     suspend fun nearbyStops(lat: Double, lon: Double, radius: Int): List<Station> = withContext(Dispatchers.IO) {
@@ -61,11 +63,16 @@ class MavClient {
             }
         }
     }
-    suspend fun stopDepartures(id: String, now: Long = System.currentTimeMillis()): List<StopDeparture> = withContext(Dispatchers.IO) {
-        parseStopDepartures(request("/index/graphql", MavQueries.stopDepartures(id, now)), now)
-    }
+    /** Falls back to the downloaded offline timetable when MÁVPlusz cannot be reached; [station] lets the
+     * offline lookup match by name when the provider id is unknown there. */
+    suspend fun stopDepartures(id: String, now: Long = System.currentTimeMillis(), station: Station? = null): List<StopDeparture> =
+        withOfflineFallback({ net -> net.departures(station?.takeIf { it.id == id } ?: Station(id, "", 0.0, 0.0), now) }) {
+            parseStopDepartures(request("/index/graphql", MavQueries.stopDepartures(id, now)), now)
+        }
+    /** Stops by name from the downloaded timetables, for when [stations] cannot reach the provider. */
+    suspend fun offlineStations(query: String): List<Station> =
+        OfflineSchedules.network()?.let { net -> withContext(Dispatchers.Default) { net.searchStops(query) } }.orEmpty()
     suspend fun stations(query: String): List<Station> = withContext(Dispatchers.IO) {
-        require(query.trim().length in 2..100)
         request("/geocode/stations?q="+URLEncoder.encode(query.trim(),"UTF-8")+"&limit=10").array("features").mapNotNull {feature->
             val coords=feature.optJSONObject("geometry")?.optJSONArray("coordinates")
             val properties=feature.optJSONObject("properties")
@@ -74,7 +81,9 @@ class MavClient {
                 properties?.optString("type").orEmpty(),if(modes==null) emptyList() else (0 until modes.length()).map {modes.getString(it)})
         }.distinctBy {it.id}
     }
-    suspend fun plan(from: Station,to: Station,time: LocalDateTime,arrive: Boolean, filters: Set<SearchFilter> = emptySet(), vehicles: Set<SearchVehicle> = emptySet()): List<Journey> = withContext(Dispatchers.IO) {
+    suspend fun plan(from: Station,to: Station,time: LocalDateTime,arrive: Boolean, filters: Set<SearchFilter> = emptySet(), vehicles: Set<SearchVehicle> = emptySet()): List<Journey> =
+        withOfflineFallback({ net -> net.plan(from,to,time,arrive) }) { onlinePlan(from,to,time,arrive,filters,vehicles) }
+    private suspend fun onlinePlan(from: Station,to: Station,time: LocalDateTime,arrive: Boolean, filters: Set<SearchFilter>, vehicles: Set<SearchVehicle>): List<Journey> = withContext(Dispatchers.IO) {
         var rawResponse: String? = null
         val data=request("/index/graphql",MavQueries.plan(from,to,time,arrive,filters,vehicles)) {rawResponse=it}
         data.optJSONObject("plan")?.array("itineraries").orEmpty().map {itinerary->
@@ -102,7 +111,9 @@ class MavClient {
             }
         }
     }
-    suspend fun trip(id: String,day: String,forceRefresh: Boolean = false,refreshSeconds: Int = 75): JSONObject = withContext(Dispatchers.IO) {
+    suspend fun trip(id: String,day: String,forceRefresh: Boolean = false,refreshSeconds: Int = 75): JSONObject =
+        withOfflineFallback({ net -> net.trip(id, day) ?: throw OfflineNotCovered() }) { onlineTrip(id, day, forceRefresh, refreshSeconds) }
+    private suspend fun onlineTrip(id: String,day: String,forceRefresh: Boolean,refreshSeconds: Int): JSONObject = withContext(Dispatchers.IO) {
         require(id.length in 1..250);LocalDate.parse(day)
         tripLock.withLock {
             val key="$id|$day";val now=System.currentTimeMillis()/1000
@@ -132,6 +143,14 @@ class MavClient {
             (NetworkAlert.parseAll(data,now) to now).also {networkAlertCache=it}
         }
     }
+    /** Run [online]; when the provider is unreachable and offline timetables cover the request, answer from them instead. */
+    private suspend fun <T> withOfflineFallback(offline: (OfflineNetwork) -> T, online: suspend () -> T): T = try {
+        online()
+    } catch(e: ProviderUnavailable) {
+        val network = OfflineSchedules.network() ?: throw e
+        try { withContext(Dispatchers.Default) { offline(network) } } catch(_: OfflineNotCovered) { throw e }
+    }
+
     private fun normalizeRoute(route: JSONObject?,fallback: String?) {
         if(route?.optString("shortName")?.contains("MNR2007")==true)
             route.put("logoShortName",route.optString("shortName"))
@@ -139,6 +158,9 @@ class MavClient {
         route?.put("shortName",hungarianServiceLabel(route.optString("shortName")))
     }
 }
+
+/** MÁVPlusz could not be reached or answered unusably; the request itself may be fine. */
+class ProviderUnavailable(message: String, cause: Throwable? = null) : IllegalStateException(message, cause)
 
 /** Pure query builders: validate coordinates and escape every string literal. */
 object MavQueries {

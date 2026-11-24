@@ -4,7 +4,9 @@ import org.json.JSONObject
 
 data class StopDeparture(val tripId: String, val headsign: String, val time: ServiceTime,
     val platform: String, val cancelled: Boolean, val leg: Leg,
-    val serviceDay: String = java.time.Instant.ofEpochMilli(time.scheduled).atZone(Budapest).toLocalDate().toString()) {
+    val serviceDay: String = java.time.Instant.ofEpochMilli(time.scheduled).atZone(Budapest).toLocalDate().toString(),
+    /** From a downloaded offline timetable, not the provider: always scheduled. */
+    val offline: Boolean = false) {
     val key get() = "$tripId:${time.scheduled}"
 }
 
@@ -35,6 +37,7 @@ internal fun departureColorResource(time: ServiceTime, cancelled: Boolean = fals
 
 internal fun departureStateDescription(departure: StopDeparture): String = when {
     departure.cancelled -> "Kimarad"
+    departure.offline -> "Offline menetrend szerinti adat"
     !departure.time.realtime -> "Menetrend szerinti adat"
     departure.time.estimate > departure.time.scheduled -> "Élő adat, ${(departure.time.estimate - departure.time.scheduled + 59_999) / 60_000} perc késés"
     else -> "Élő adat"
@@ -54,7 +57,7 @@ internal fun updateAge(updated: Long, now: Long): String {
 internal fun StopDeparture.cacheJson(): JSONObject = JSONObject().put("trip", tripId).put("headsign", headsign)
     .put("serviceDay", serviceDay)
     .put("scheduled", time.scheduled).put("estimate", time.estimate).put("live", time.realtime)
-    .put("platform", platform).put("cancelled", cancelled).put("route", leg.route).put("mode", leg.mode)
+    .put("platform", platform).put("cancelled", cancelled).put("route", leg.route).put("mode", leg.mode).put("offline", offline)
     .put("routeShortName", leg.routeShortName).put("routeColor", leg.routeColor).put("category", leg.category)
     .put("logo", leg.routeLogo?.let { JSONObject().put("code", it.code).put("foreground", it.foreground).put("background", it.background) })
 
@@ -66,7 +69,8 @@ internal fun cachedDeparture(json: JSONObject): StopDeparture {
         json.getString("trip"), time.realtime, 0, emptyList(), "", routeColor = json.optString("routeColor"),
         category = json.optString("category"), routeLogo = logo, routeShortName = json.optString("routeShortName"))
     return StopDeparture(json.getString("trip"), json.getString("headsign"), time, json.getString("platform"), json.getBoolean("cancelled"), leg,
-        json.optString("serviceDay").ifBlank { java.time.Instant.ofEpochMilli(time.scheduled).atZone(Budapest).toLocalDate().toString() })
+        json.optString("serviceDay").ifBlank { java.time.Instant.ofEpochMilli(time.scheduled).atZone(Budapest).toLocalDate().toString() },
+        offline = json.optBoolean("offline"))
 }
 
 internal fun parseMapStops(data: JSONObject): List<Station> =
