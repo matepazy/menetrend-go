@@ -46,10 +46,21 @@ class OfflineTimetable(
     fun canAlight(pattern: Int, index: Int) = patternStopFlags[patternStopStart[pattern] + index].toInt() and 2 == 0 && index > 0
     fun arrival(trip: Int, index: Int) = times[tripTimes[trip] + index * 2].toInt()
     fun departure(trip: Int, index: Int) = times[tripTimes[trip] + index * 2 + 1].toInt()
+    /** Trips within a pattern are sorted by departure at every stop. */
+    internal fun firstDeparture(from: Int, to: Int, stopIndex: Int, minute: Long): Int {
+        var low = from
+        var high = to
+        while (low < high) {
+            val middle = (low + high) ushr 1
+            if (departure(middle, stopIndex) < minute) low = middle + 1 else high = middle
+        }
+        return low
+    }
     /** Whether the trip runs on [day]; false outside the downloaded window. */
-    fun runsOn(trip: Int, day: LocalDate): Boolean {
+    fun runsOn(trip: Int, day: LocalDate): Boolean = tripDays[trip] and serviceDayMask(day) != 0L
+    internal fun serviceDayMask(day: LocalDate): Long {
         val bit = day.toEpochDay() - firstDay.toEpochDay()
-        return bit in 0 until dayCount && tripDays[trip] ushr bit.toInt() and 1L == 1L
+        return if (bit in 0 until dayCount) 1L shl bit.toInt() else 0L
     }
     fun mode(route: Int) = gtfsMode(routeType[route])
     fun lat(stop: Int) = stopLat[stop] / 1e6
@@ -61,6 +72,20 @@ class OfflineTimetable(
     }
     val stopIndex: Map<String, Int> by lazy { HashMap<String, Int>(stopCount * 2).also { m -> for (s in 0 until stopCount) m[strings[stopId[s]]] = s } }
     val tripIndex: Map<String, Int> by lazy { HashMap<String, Int>(tripCount * 2).also { m -> for (t in 0 until tripCount) m[strings[tripId[t]]] = t } }
+    val normalizedStopNames: Array<String> by lazy {
+        val byName = HashMap<Int, String>()
+        Array(stopCount) { stop ->
+            val name = stopName[stop]
+            byName.getOrPut(name) { OfflineNetwork.normalizedName(text(name)) }
+        }
+    }
+    internal val patternServiceDays: LongArray by lazy {
+        LongArray(patternCount) { pattern ->
+            var days = 0L
+            for (trip in patternTripStart[pattern] until patternTripStart[pattern + 1]) days = days or tripDays[trip]
+            days
+        }
+    }
     /** CSR index of (pattern, position) pairs serving each stop. */
     private val stopRefs: Pair<IntArray, IntArray> by lazy {
         val start = IntArray(stopCount + 1)
@@ -110,8 +135,10 @@ class OfflineTimetable(
         private const val MAGIC = 0x4D47_5454 // "MGTT"
         const val VERSION = 1
 
-        fun read(input: InputStream): OfflineTimetable {
-            val data = DataInputStream(BufferedInputStream(InflaterInputStream(input), 1 shl 16))
+        fun read(input: InputStream): OfflineTimetable =
+            TimetableInput(TimetableBuffer(input)).use(::readTimetable)
+
+        private fun readTimetable(data: TimetableInput): OfflineTimetable {
             check(data.readInt() == MAGIC && data.readInt() == VERSION) { "Ismeretlen offline menetrendfájl." }
             val feedId = data.readUTF(); val feedName = data.readUTF()
             val firstDay = LocalDate.ofEpochDay(data.readLong()); val dayCount = data.readInt()
@@ -148,10 +175,10 @@ class OfflineTimetable(
             while (v and 0x7F.inv() != 0) { writeByte(v and 0x7F or 0x80); v = v ushr 7 }
             writeByte(v)
         }
-        private fun DataInputStream.varint(): Int {
+        private fun TimetableInput.varint(): Int {
             var shift = 0; var result = 0
             while (true) {
-                val b = readUnsignedByte()
+                val b = varintByte()
                 result = result or (b and 0x7F shl shift)
                 if (b and 0x80 == 0) return result
                 shift += 7
@@ -161,9 +188,22 @@ class OfflineTimetable(
             varint(values.size); var previous = 0
             values.forEach { v -> varint(zigzag(if (delta) v - previous else v)); previous = v }
         }
-        private fun DataInputStream.ints(delta: Boolean = false): IntArray {
+        private fun TimetableInput.ints(delta: Boolean = false): IntArray {
             var previous = 0
             return IntArray(varint()) { val v = unzigzag(varint()); (if (delta) previous + v else v).also { previous = it } }
+        }
+
+        private class TimetableInput(private val buffer: TimetableBuffer) : DataInputStream(buffer) {
+            fun varintByte(): Int = buffer.varintByte()
+        }
+
+        /** A reader belongs to one decode. Consume buffered bytes directly in the varint loop. */
+        private class TimetableBuffer(input: InputStream) :
+            BufferedInputStream(InflaterInputStream(BufferedInputStream(input, 1 shl 16)), 1 shl 16) {
+            fun varintByte(): Int {
+                if (pos < count) return buf[pos++].toInt() and 0xff
+                return read().also { if (it < 0) throw EOFException() }
+            }
         }
     }
 }

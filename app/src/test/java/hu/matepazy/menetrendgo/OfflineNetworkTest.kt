@@ -50,6 +50,34 @@ class OfflineNetworkTest {
         assertEquals("1:N", night.first().tripId); assertEquals(today.minusDays(1).toString(), night.first().serviceDay)
     }
 
+    @Test fun departureWindowIncludesItsEdgesAndLimitsUniqueTrips() {
+        val duplicateFeeds = OfflineNetwork(listOf(rail, rail))
+        val now = OfflineNetwork.epoch(today, 8 * 60 + 1)
+        assertEquals(listOf("1:T1", "1:T2"),
+            duplicateFeeds.departures(a, now, limit = 2, horizonMinutes = 119).map { it.tripId })
+        assertEquals(listOf("1:T1"),
+            duplicateFeeds.departures(a, now, limit = 2, horizonMinutes = 118).map { it.tripId })
+    }
+
+    @Test fun departureWindowUsesActualTimeWhenClocksGoForward() {
+        val day = LocalDate.of(2027, 3, 28)
+        val clockChange = GtfsCompactor.compact(GtfsSource { file ->
+            when (file) {
+                "routes.txt" -> "route_id,route_type\nR,3\n"
+                "calendar.txt" -> calendar
+                "stops.txt" -> "stop_id,stop_name,stop_lat,stop_lon\nA,Aváros,47,19\nB,Bfalva,47.1,19.1\n"
+                "trips.txt" -> "route_id,service_id,trip_id\nR,S,gap\nR,S,after\n"
+                "stop_times.txt" -> "trip_id,arrival_time,departure_time,stop_id,stop_sequence\n" +
+                    "gap,02:50:00,02:50:00,A,1\ngap,03:00:00,03:00:00,B,2\n" +
+                    "after,03:10:00,03:10:00,A,1\nafter,03:20:00,03:20:00,B,2\n"
+                else -> null
+            }?.byteInputStream()
+        }, "clock", "clock", day)
+        val net = OfflineNetwork(listOf(clockChange))
+        val now = OfflineNetwork.epoch(day, 3 * 60)
+        assertEquals(listOf("after", "gap"), net.departures(a.copy(id = "A"), now, horizonMinutes = 60).map { it.tripId })
+    }
+
     @Test fun unknownIdFallsBackToTheSameNameNearby() {
         val station = Station("OTHER:123", "Bfalva", 47.1004, 19.1)
         assertTrue(network.departures(station, OfflineNetwork.epoch(today, 7 * 60)).isNotEmpty())
@@ -166,20 +194,35 @@ class OfflineNetworkTest {
     @Test fun realNetworkPlanningSpeed() {
         val paths = System.getenv("OFFLINE_GTFS_SAMPLE")?.split(File.pathSeparator)?.takeIf { it.size >= 3 } ?: return
         val now = LocalDate.now(Budapest)
-        val real = OfflineNetwork(paths.mapIndexed { i, p -> GtfsCompactor.compact(File(p), "f$i", "f$i", now) })
+        val tables = paths.mapIndexed { i, p -> GtfsCompactor.compact(File(p), "f$i", "f$i", now) }
+        val downloads = tables.map { table -> java.io.ByteArrayOutputStream().also(table::write).toByteArray() }
+        fun <T> measure(label: String, block: () -> T): T {
+            val started = System.nanoTime()
+            return block().also { println("OFFLINE $label: ${(System.nanoTime() - started) / 1_000_000.0} ms") }
+        }
         val from = Station("1:005510017", "Budapest-Keleti", 47.50028, 19.084167)
         val to = Station("debrecen:SP531", "Debrecen, Szalók utca", 47.5496, 21.6605)
-        var started = System.nanoTime()
-        val journeys = real.plan(from, to, LocalDateTime.of(now.plusDays(1), java.time.LocalTime.of(7, 0)), false)
-        println("OFFLINE plan (first, incl. footpaths): ${(System.nanoTime() - started) / 1_000_000} ms, ${journeys.size} journeys")
-        started = System.nanoTime()
-        real.plan(from, to, LocalDateTime.of(now.plusDays(1), java.time.LocalTime.of(12, 0)), false)
-        println("OFFLINE plan (warm): ${(System.nanoTime() - started) / 1_000_000} ms")
-        journeys.forEach { j -> println("OFFLINE  " + j.legs.joinToString(" | ") { "${it.mode} ${it.route} ${timeLabel(it.start)} ${it.from.name} -> ${timeLabel(it.end)} ${it.to.name}" }) }
-        started = System.nanoTime()
-        val board = real.departures(from, OfflineNetwork.epoch(now.plusDays(1), 8 * 60))
-        println("OFFLINE board: ${(System.nanoTime() - started) / 1_000_000} ms, ${board.size} rows, first ${board.firstOrNull()?.leg?.route}")
+        val date = now.plusDays(1)
+        val start = date.atTime(7, 0)
+        val deadline = date.atTime(12, 0)
+        val boardTime = OfflineNetwork.epoch(date, 8 * 60)
+        val real = measure("load") { OfflineNetwork(downloads.map { it.inputStream().use(OfflineTimetable::read) }) }
+        fun plan(time: LocalDateTime, arriveBy: Boolean) =
+            real.plan(from, to, time, arriveBy).map { it.copy(fetchedAt = 0) }
+        val journeys = measure("plan (first)") { plan(start, false) }
+        val board = measure("board (first)") { real.departures(from, boardTime) }
+        val stops = measure("stop search (first)") { real.searchStops("debre") }
+        val arriveBy = measure("arrive by (first)") { plan(deadline, true) }
+        repeat(5) {
+            assertEquals(journeys, measure("plan (repeat)") { plan(start, false) })
+            assertEquals(arriveBy, measure("arrive by (repeat)") { plan(deadline, true) })
+            assertEquals(board, measure("board (repeat)") { real.departures(from, boardTime) })
+            assertEquals(stops, measure("stop search (repeat)") { real.searchStops("debre") })
+        }
         assertTrue(journeys.isNotEmpty())
+        assertTrue(arriveBy.isNotEmpty())
+        assertTrue(board.isNotEmpty())
+        assertTrue(stops.isNotEmpty())
     }
 
     @Test fun unsortedStopTimesAreGroupedOnASecondPass() {
