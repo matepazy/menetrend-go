@@ -17,6 +17,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -42,6 +44,7 @@ private val stops = listOf(
     Stop("Tervezz!", "Add meg, honnan hová és mikor utazol. A találatoknál látod az átszállásokat és a késéseket, a kereséseidet pedig elmentheted."),
     Stop("Élő térkép", "A vonatok és buszok valós időben mozognak. Koppints egy járműre: látod a késését, a következő megállóit és a járműtípust."),
     Stop("Indulások kéznél", "Bármely megálló indulási tábláját kiteheted widgetként a kezdőképernyőre, így az app megnyitása nélkül is látod."),
+    Stop("Offline menetrendek", "Tölts le menetrendeket a Beállításokban, hogy internet nélkül is tervezhess és megnézhesd az indulásokat. Az élő késésekhez internet kell."),
     Stop("Bérletfigyelő", "Rögzítsd a bérleteidet, és szólunk, mielőtt lejárnak. Bekapcsolás: Beállítások › Kiegészítő funkciók."),
     // The terminus: both documents must be accepted before the train leaves.
     Stop("Végállomás", "Indulás előtt fogadd el a licencszerződést és a felhasználási feltételeket. Koppints egy kártyára az elolvasásához."),
@@ -53,7 +56,12 @@ private val consentStep = stops.lastIndex
  * for users who finished onboarding before the terms existed or changed. [onFinish] runs once the train departs,
  * which is only possible with both documents accepted.
  */
-@Composable internal fun OnboardingFlow(termsAccepted: Boolean, consentOnly: Boolean = false, onFinish: () -> Unit) {
+@Composable internal fun OnboardingFlow(
+    termsAccepted: Boolean,
+    consentOnly: Boolean = false,
+    onReplayDismiss: (() -> Unit)? = null,
+    onFinish: () -> Unit,
+) {
     var step by rememberSaveable { mutableIntStateOf(if (consentOnly) consentStep else 0) }
     var departing by remember { mutableStateOf(false) }
     var licenseOk by rememberSaveable { mutableStateOf(termsAccepted) }
@@ -73,7 +81,11 @@ private val consentStep = stops.lastIndex
                 val room = (maxHeight - s * 252f + s * 92f - top - 8.dp).coerceAtLeast(120.dp)
                 OnboardingFeatureMock(step, room, Modifier.padding(top = top, start = AppLayout.SheetPadding, end = AppLayout.SheetPadding).fillMaxWidth())
             }
-            if (!last) TextButton({ step = consentStep }, Modifier.align(Alignment.TopEnd).statusBarsPadding().padding(8.dp).heightIn(min = 48.dp)) { Text("Kihagyás") }
+            Row(Modifier.align(Alignment.TopEnd).windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal))
+                .padding(8.dp), horizontalArrangement = Arrangement.spacedBy(AppLayout.CompactGap)) {
+                if (!last) TextButton({ step = consentStep }, Modifier.heightIn(min = 48.dp)) { Text("Kihagyás") }
+                if (onReplayDismiss != null) IconButton(onClick = onReplayDismiss) { Icon(Icons.Outlined.Close, "Újrajátszás bezárása") }
+            }
         }
         Surface(Modifier.fillMaxWidth().glassEdge(RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp), glassTone(GlassLevel.Floating)),
             shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp), color = MaterialTheme.colorScheme.surface) {

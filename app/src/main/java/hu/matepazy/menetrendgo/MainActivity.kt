@@ -94,9 +94,12 @@ class MainActivity : ComponentActivity() {
             }, label = "Onboarding") { done ->
                 if (!done) OnboardingFlow(state.termsAccepted, consentOnly = state.onboardingDone) { state.acceptTerms(); state.finishOnboarding() }
                 else StationFocusOverlay { MenetrendApp(state, intent.getStringExtra("tab"), trackingRequest,
-                    if (intent.getBooleanExtra("tracking", false)) intent.getStringExtra("trackingSession") else null) }
+                    if (intent.getBooleanExtra("tracking", false)) intent.getStringExtra("trackingSession") else null,
+                    onDismissOfflineSchedulesIntro = if (state.showOfflineSchedulesIntro) state::dismissOfflineSchedulesIntro else null) }
             }
-            if (ready && !state.showDataSourceIntro && !state.showPassesFeatureIntro) UpdateHost(state.updates)
+            if (ready && !state.showOfflineSchedulesIntro && !state.showDataSourceIntro && !state.showPassesFeatureIntro) {
+                UpdateHost(state.updates)
+            }
         } }
     }
 }
@@ -264,7 +267,13 @@ private fun featherMask(top: Boolean, endY: Float=Float.POSITIVE_INFINITY)=
     }
 }
 
-@Composable fun MenetrendApp(vm: AppState, initialTab: String?, trackingRequest: Int = 0, trackingSession: String? = null) {
+@Composable fun MenetrendApp(
+    vm: AppState,
+    initialTab: String?,
+    trackingRequest: Int = 0,
+    trackingSession: String? = null,
+    onDismissOfflineSchedulesIntro: (() -> Unit)? = null,
+) {
     var tab by rememberSaveable { mutableIntStateOf(if(initialTab == "passes" && vm.passesEnabled) 2 else 0) }
     var page by rememberSaveable { mutableStateOf("search") }
     var selected by vm::selectedJourney
@@ -428,7 +437,10 @@ private fun featherMask(top: Boolean, endY: Float=Float.POSITIVE_INFINITY)=
         }
     }
     }
-    if (vm.showDataSourceIntro) {
+    if (onDismissOfflineSchedulesIntro != null) {
+        OfflineSchedulesIntro(onDismissOfflineSchedulesIntro)
+        LaunchedEffect(vm) { vm.markOfflineSchedulesIntroPresented() }
+    } else if (vm.showDataSourceIntro) {
         DataSourceIntroSheet(vm::dismissDataSourceIntro) {
             vm.chooseDataSourceMode(DataSourceMode.Single)
             vm.dismissDataSourceIntro()

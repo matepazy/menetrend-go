@@ -40,6 +40,11 @@ private enum class SettingsPage(val title: String) {
     val parent: SettingsPage get() = if (this == OpenSource) Legal else Home
 }
 
+private enum class Replay(val title: String, val summary: String) {
+    Onboarding("Onboarding", "Az üdvözlő utazás az alkalmazás funkcióin át"),
+    OfflineSchedules("Offline menetrendek", "A frissítés bemutatója"),
+}
+
 @Composable fun SettingsScreen(vm: AppState) {
     var route by rememberSaveable { mutableStateOf(SettingsPage.Home.name) }
     // The navigation long-press menu can ask for a sub-page (Kiegészítő funkciók).
@@ -78,6 +83,22 @@ private enum class SettingsPage(val title: String) {
     legalDoc?.let { LegalDocumentDrawer(it, onDismiss = { legalDoc = null }) }
     var notice by remember { mutableStateOf<OpenSourceNotice?>(null) }
     notice?.let { OpenSourceNoticeDrawer(it, onDismiss = { notice = null }) }
+    var replayMenu by rememberSaveable { mutableStateOf(false) }
+    var replay by rememberSaveable { mutableStateOf<Replay?>(null) }
+    if (page == SettingsPage.Developer) {
+        if (replayMenu) ReplayDrawer(onDismiss = { replayMenu = false }) {
+            replayMenu = false
+            replay = it
+        }
+        val closeReplay = { replay = null }
+        when (replay) {
+            Replay.Onboarding -> IntroWindow(onDismiss = closeReplay) {
+                OnboardingFlow(vm.termsAccepted, onReplayDismiss = closeReplay, onFinish = closeReplay)
+            }
+            Replay.OfflineSchedules -> OfflineSchedulesIntro(closeReplay)
+            null -> Unit
+        }
+    }
     val offlineCatalog = rememberOfflineCatalog(page == SettingsPage.Offline)
     val dark = LocalAppDarkTheme.current
     val toolbar = MaterialTheme.colorScheme.surface
@@ -296,8 +317,25 @@ private enum class SettingsPage(val title: String) {
                             }
                         }
                     }
-                    item { SettingsGroup { SettingsRow("Onboarding újrakezdése", "Újra megjelenik az üdvözlőképernyő és a bemutató.", onClick = vm::restartOnboarding) } }
+                    item { SettingsGroup { SettingsRow("Újrajátszás", onClick = { replayMenu = true }) } }
                     item { SettingsNote("OTP GraphQL · HTTPS. Az adatfeldolgozás és a gyorsítótár ezen az eszközön fut. Nincs külön MenetrendGO-kiszolgáló.") }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable private fun ReplayDrawer(onDismiss: () -> Unit, onReplay: (Replay) -> Unit) {
+    AppBottomSheet(onDismissRequest = onDismiss, containerColor = MaterialTheme.colorScheme.surface) {
+        LazyColumn(contentPadding = PaddingValues(start = AppLayout.SheetPadding, end = AppLayout.SheetPadding,
+            bottom = AppLayout.SheetPadding), verticalArrangement = Arrangement.spacedBy(AppLayout.ItemGap)) {
+            item { PageTitle("Újrajátszás") }
+            item {
+                SettingsGroup {
+                    Replay.entries.forEach { replay ->
+                        SettingsRow(replay.title, replay.summary, onClick = { onReplay(replay) })
+                    }
                 }
             }
         }

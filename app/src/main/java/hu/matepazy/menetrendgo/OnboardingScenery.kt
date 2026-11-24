@@ -164,7 +164,8 @@ private val cloud = svg("M0 0 C0 -6 6 -9 11 -6 C13 -12 23 -13 26 -6 C31 -8 36 -4
 internal class OnboardingStation(val name: String, val x: Float)
 internal val onboardingStations = listOf(
     OnboardingStation("Budapest-Déli", 160f), OnboardingStation("Kelenföld", 470f),
-    OnboardingStation("Velence", 780f), OnboardingStation("Agárd", 1080f), OnboardingStation("Székesfehérvár", 1480f),
+    OnboardingStation("Velence", 780f), OnboardingStation("Agárd", 1080f),
+    OnboardingStation("Dinnyés", 1270f), OnboardingStation("Székesfehérvár", 1480f),
 )
 
 private const val BudapestCentre = 200f

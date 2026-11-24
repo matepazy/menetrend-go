@@ -11,14 +11,16 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 
+private const val OfflineSchedulesIntroPending = "offline_schedules_intro_v154_pending"
+
 class AppState(app: Application) : AndroidViewModel(app) {
     private val prefs = app.getSharedPreferences("menetrendgo", 0)
     // Run before other preference initializers can make a fresh installation look existing.
-    private val initialDataSourceMode = initializeDataSourcePreferences(prefs,
-        prefs.all.isNotEmpty() || runCatching {
-            val info = app.packageManager.getPackageInfo(app.packageName, 0)
-            info.lastUpdateTime > info.firstInstallTime
-        }.getOrDefault(false))
+    private val existingInstallation = prefs.all.isNotEmpty() || runCatching {
+        val info = app.packageManager.getPackageInfo(app.packageName, 0)
+        info.lastUpdateTime > info.firstInstallTime
+    }.getOrDefault(false)
+    private val initialDataSourceMode = initializeDataSourcePreferences(prefs, existingInstallation)
     val updates = UpdateController(app, viewModelScope)
     private val mav=MavClient()
     private val utas=UtasClient()
@@ -79,12 +81,26 @@ class AppState(app: Application) : AndroidViewModel(app) {
     val extraFeaturesSummary get() = if (activeExtraFeatureCount == 0) "Nincs aktív kiegészítő funkció"
         else "$activeExtraFeatureCount funkció bekapcsolva"
     var developerSettingsUnlocked by mutableStateOf(prefs.getBoolean("developer_settings_unlocked", false)); private set
-    // Shown once to every installation, including upgrades; Fejlesztői beállítások can replay it.
+    // The first-run gate is independent of the developer replay.
     var onboardingDone by mutableStateOf(prefs.getBoolean("onboarding_done", false)); private set
     fun finishOnboarding() { onboardingDone = true; prefs.edit().putBoolean("onboarding_done", true).apply() }
-    fun restartOnboarding() { onboardingDone = false; prefs.edit().putBoolean("onboarding_done", false).apply() }
     var termsAccepted by mutableStateOf(prefs.getInt("terms_accepted_version", 0) >= LegalTerms.Version); private set
     fun acceptTerms() { termsAccepted = true; prefs.edit().putInt("terms_accepted_version", LegalTerms.Version).apply() }
+    var showOfflineSchedulesIntro by mutableStateOf(
+        SemanticVersion.compare(BuildConfig.VERSION_NAME, "v1.5.4") == 0 &&
+            prefs.getBoolean(OfflineSchedulesIntroPending, existingInstallation).also { pending ->
+                // Freeze eligibility before a fresh installation can acquire its own preferences.
+                if (!prefs.contains(OfflineSchedulesIntroPending)) {
+                    prefs.edit().putBoolean(OfflineSchedulesIntroPending, pending).apply()
+                }
+            }
+    ); private set
+    internal fun markOfflineSchedulesIntroPresented() {
+        prefs.edit().putBoolean(OfflineSchedulesIntroPending, false).apply()
+    }
+    fun dismissOfflineSchedulesIntro() {
+        showOfflineSchedulesIntro = false
+    }
     var journeyTrackingBetaEnabled by mutableStateOf(JourneyTracking.enabled(app)); private set
     init { if (!journeyTrackingBetaEnabled) JourneyTracking.stop(app) }
     fun chooseJourneyTrackingBeta(enabled: Boolean) {

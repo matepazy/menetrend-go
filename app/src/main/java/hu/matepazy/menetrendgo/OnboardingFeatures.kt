@@ -50,7 +50,7 @@ import kotlin.math.roundToInt
 
 /*
  * Look-alikes of the real screens, one per onboarding station, floating in the sky above the ride.
- * They copy the shipped layouts (search card, vehicle drawer, stop widget, pass card) but do nothing;
+ * They illustrate the search, vehicle drawer, stop widget, offline schedules and pass features;
  * the sample values are illustrations and the whole mock is hidden from screen readers.
  */
 
@@ -66,7 +66,8 @@ import kotlin.math.roundToInt
                 1 -> PlanMock()
                 2 -> VehicleMock()
                 3 -> WidgetMock()
-                4 -> PassMock()
+                4 -> OfflinePreviewPhones(Modifier.widthIn(max = 164.dp).fillMaxWidth())
+                5 -> PassMock()
                 else -> {} // The consent stop keeps the sky clear for the taller panel.
             }
         }
