@@ -11,7 +11,9 @@ enum class OfflineFeedGroup(val title: String) {
 
 /** One downloadable Transitous GTFS source. [url] is Transitous' cleaned-up copy; [originalUrl] is the publisher's file. */
 data class OfflineFeed(val id: String, val name: String, val group: OfflineFeedGroup, val url: String,
-                       val originalUrl: String?, val license: String?)
+                       val originalUrl: String?, val license: String?,
+                       /** For local transport: the town it serves and who runs it, as listed in the town picker. */
+                       val town: String = name, val operator: String = "")
 
 /** Hungarian static GTFS sources listed by Transitous (transitous.org/sources), with Hungarian display names.
  * Realtime, bike-share and disabled entries are skipped. Publishers' private download headers are never read. */
@@ -30,11 +32,27 @@ object OfflineFeedCatalog {
         if (type != "http" && type != "url" && type != "transitland-atlas") return@mapNotNull null
         val plain = type != "transitland-atlas" && !source.has("http-options") && !source.has("function")
         val original = source.optString("url").takeIf { plain && it.startsWith("https://") }
+        val (town, operator) = townAndOperator(id, original)
         OfflineFeed(id, displayName(id, original), group(id), processedUrl(id), original,
-            source.optJSONObject("license")?.optString("spdx-identifier")?.takeIf { it.isNotBlank() })
+            source.optJSONObject("license")?.optString("spdx-identifier")?.takeIf { it.isNotBlank() }, town, operator)
     }.distinctBy { it.id }.sortedWith(compareBy({ it.group.ordinal }, { order(it.id) }, { collator.getCollationKey(it.name) }))
 
-    private val collator = java.text.Collator.getInstance(Locale.forLanguageTag("hu"))
+    internal val collator: java.text.Collator = java.text.Collator.getInstance(Locale.forLanguageTag("hu"))
+    /** Trains and coaches across the country: the one download most riders need. */
+    val STARTER = listOf("mav", "gysev", "volan-helykozi")
+
+    private val towns = mapOf(
+        "bkk" to ("Budapest" to "BKK"), "budaors" to ("Budaörs" to "Helyi járatok"), "urom" to ("Üröm" to "Helyi járatok"),
+        "dkv" to ("Debrecen" to "DKV"), "mvk" to ("Miskolc" to "MVK"), "szkt" to ("Szeged" to "SZKT, villamos és troli"),
+        "vbusz" to ("Veszprém" to "V-Busz"), "tukebusz" to ("Pécs" to "Tüke Busz"), "blaguss-agora" to ("Szombathely" to "Blaguss Agora"),
+        "paksbusz" to ("Paks" to "Helyi járatok"), "kiskunhalas" to ("Kiskunhalas" to "Helyi járatok"), "oroshaza" to ("Orosháza" to "Helyi járatok"),
+    )
+    internal fun townAndOperator(id: String, originalUrl: String?): Pair<String, String> {
+        towns[id.lowercase()]?.let { return it }
+        if (id.startsWith("volan-") && id != "volan-helykozi") return displayName(id, originalUrl).substringBefore(" helyi") to "Volánbusz"
+        val name = displayName(id, originalUrl)
+        return name.substringBefore(" helyi járatai") to (if (name.endsWith(" helyi járatai")) "Helyi járatok" else "")
+    }
     private fun order(id: String) = listOf("mav", "volan-helykozi", "bkk", "gysev").indexOf(id).let { if (it < 0) 99 else it }
 
     internal fun group(id: String): OfflineFeedGroup {

@@ -16,6 +16,8 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
@@ -324,6 +326,12 @@ private fun featherMask(top: Boolean, endY: Float=Float.POSITIVE_INFINITY)=
     val icons = listOf(Icons.Outlined.Search,Icons.Outlined.Map,Icons.Outlined.CreditCard,Icons.Outlined.Settings,Icons.Outlined.BookmarkBorder)
     val navItems=destinations.map { (index,label) -> label to icons[index] }
     fun openExtras() { returning=false; vm.settingsRequest="Extras"; tab=3; page="search"; selected=null }
+    var offlineDrawer by rememberSaveable { mutableStateOf(false) }
+    var offlineRoutes by rememberSaveable { mutableStateOf(false) }
+    if(offlineDrawer) OfflineModeDrawer(onDismiss={offlineDrawer=false},
+        openRoutes={offlineDrawer=false;offlineRoutes=true},
+        openDownloads={offlineDrawer=false;returning=false;vm.settingsRequest="Offline";tab=3;page="search";selected=null})
+    if(offlineRoutes) OfflineRoutesSheet(onDismiss={offlineRoutes=false})
     // Map Back previews need the destination's navigation and measured insets too.
     @Composable fun NavigationFrame(mapScreen: Boolean, content: @Composable () -> Unit) {
     BoxWithConstraints(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
@@ -341,12 +349,20 @@ private fun featherMask(top: Boolean, endY: Float=Float.POSITIVE_INFINITY)=
               }
             }
             Scaffold(containerColor=Color.Transparent,contentWindowInsets=WindowInsets(0),
-                bottomBar={ if(!wide && !mapScreen) {
+                bottomBar={ if(!mapScreen) {
                     // The live-map vehicle sheet takes the bottom edge; the bar returns when it closes.
                     AnimatedVisibility(!(tab==1 && vm.mapVehicle!=null),
                         enter=slideInVertically(tween(AppMotion.Reveal,easing=AppMotion.Arrival)) {it}+fadeIn(tween(AppMotion.Reveal)),
                         exit=slideOutVertically(tween(AppMotion.Dismiss)) {it}+fadeOut(tween(AppMotion.Dismiss))) {
-                    GlassSurface(Modifier.navigationBarsPadding().padding(horizontal=AppLayout.PageGutter,vertical=6.dp),shape=MaterialTheme.shapes.large,
+                    Column(Modifier.then(if(wide) Modifier.navigationBarsPadding() else Modifier)) {
+                    AnimatedVisibility(OfflineStatus.active,
+                        enter=expandVertically(tween(AppMotion.Reveal,easing=AppMotion.Arrival))+fadeIn(tween(AppMotion.Reveal)),
+                        exit=shrinkVertically(tween(AppMotion.Dismiss))+fadeOut(tween(AppMotion.Dismiss))) {
+                        Box(Modifier.fillMaxWidth().padding(horizontal=AppLayout.PageGutter).padding(top=6.dp,bottom=if(wide) 6.dp else 0.dp),contentAlignment=Alignment.Center) {
+                            OfflineModeBar(onClick={offlineDrawer=true},modifier=Modifier.widthIn(max=560.dp))
+                        }
+                    }
+                    if(!wide) GlassSurface(Modifier.navigationBarsPadding().padding(horizontal=AppLayout.PageGutter,vertical=6.dp),shape=MaterialTheme.shapes.large,
                         level=GlassLevel.Floating) {
                         NavigationLongPressHost(vm,navItems,::openExtras) {
                         LiquidNavigationBar(navItems,
@@ -354,6 +370,7 @@ private fun featherMask(top: Boolean, endY: Float=Float.POSITIVE_INFINITY)=
                             onSelect={ pos -> returning=false;tab=destinations[pos].first;page="search";selected=null },
                             onMotion={ navInMotion=it },liquid=vm.navLiquid,labels=vm.navLabels)
                         }
+                    }
                     }
                     }
                 } }

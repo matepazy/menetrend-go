@@ -14,6 +14,7 @@ class MenetrendGoApp : Application() {
     override fun onCreate() {
         super.onCreate()
         OfflineSchedules.init(this)
+        OfflineStatus.init(this)
     }
 }
 

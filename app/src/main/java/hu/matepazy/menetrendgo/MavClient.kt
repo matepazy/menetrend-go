@@ -35,14 +35,17 @@ class MavClient {
                 connection.setRequestProperty("Content-Type","application/json; charset=utf-8")
                 connection.outputStream.use {it.write(JSONObject().put("query",query).toString().toByteArray(Charsets.UTF_8))}
             }
+            if(connection.responseCode >= 500) OfflineStatus.providerFailed()
             if(connection.responseCode !in 200..299) throw ProviderUnavailable("A MÁV adatai most nem érhetők el (${connection.responseCode}). Próbáld újra.")
             val raw=connection.inputStream.bufferedReader().use {it.readText()}
             val body=JSONObject(raw)
             onRawResponse?.invoke(raw)
+            OfflineStatus.providerReachable()
             if(query==null) return body
             if(body.has("errors") || body.optJSONObject("data")==null) throw ProviderUnavailable("A MÁV hiányos választ adott. Próbáld újra.")
             return body.getJSONObject("data")
         } catch(e: java.io.IOException) {
+            OfflineStatus.providerFailed()
             throw ProviderUnavailable("Nem sikerült kapcsolódni a MÁV-hoz. Ellenőrizd az internetkapcsolatot.",e)
         } catch(e: org.json.JSONException) {
             throw ProviderUnavailable("A MÁV hiányos választ adott. Próbáld újra.",e)
