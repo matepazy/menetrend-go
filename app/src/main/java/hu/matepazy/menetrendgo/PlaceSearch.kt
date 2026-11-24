@@ -97,6 +97,7 @@ internal class PlaceSearch(private val root: String = "https://photon.komoot.io"
         val key = stationSearchKey(query)
         require(key.length in 3..100)
         synchronized(cache) { cache[key] }?.let { return@withContext it }
+        if (OfflineStatus.forced) return@withContext emptyList()
         // Within Hungary's bounding box; neighbouring countries are dropped again by country code.
         val url = "$root/api/?q=" + URLEncoder.encode(query.trim(), "UTF-8") + "&limit=10&bbox=$HuWest,$HuSouth,$HuEast,$HuNorth"
         val connection = URI(url).toURL().openConnection() as HttpURLConnection

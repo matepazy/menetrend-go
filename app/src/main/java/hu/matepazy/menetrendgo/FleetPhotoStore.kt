@@ -67,7 +67,7 @@ internal object FleetPhotoStore {
     private var cache: FleetPhotoCache? = null
     @Synchronized private fun cache(context: Context): FleetPhotoCache = cache
         ?: FleetPhotoCache(File(context.cacheDir, "fleet-photos")).also { cache = it }
-    private val client = OkHttpClient.Builder().followRedirects(false).followSslRedirects(false)
+    private val client = OkHttpClient.Builder().addInterceptor(OfflineStatus.interceptor).followRedirects(false).followSslRedirects(false)
         .connectTimeout(10, TimeUnit.SECONDS).readTimeout(15, TimeUnit.SECONDS)
         .callTimeout(20, TimeUnit.SECONDS).build()
 

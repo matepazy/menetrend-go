@@ -52,6 +52,8 @@ import kotlinx.coroutines.withContext
 /** Shared map renderer. A route screen never requests the user's location or loads unrelated markers. */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable private fun TransportMap(vm: AppState, journey: Journey?, focusedId: String?, routeOnly: Boolean, back: () -> Unit={}) {
+    // Map tiles and live vehicles always come from the network, so Offline mód never creates a map at all.
+    if (OfflineStatus.forced) { OfflineMapPlaceholder(routeOnly, back); return }
     var selectedVehicle by vm::mapVehicle
     // The selection clears as soon as the sheet heads away; the last vehicle fills it until hidden.
     var sheetVehicle by remember { mutableStateOf(selectedVehicle) }

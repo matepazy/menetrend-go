@@ -103,7 +103,7 @@ object VersionUpdater {
         RegexOption.IGNORE_CASE,
     )
 
-    private val client = OkHttpClient()
+    private val client = OkHttpClient.Builder().addInterceptor(OfflineStatus.interceptor).build()
     private val moshi = Moshi.Builder().addLast(KotlinJsonAdapterFactory()).build()
     private val releasesAdapter = moshi.adapter<List<GitHubRelease>>(
         Types.newParameterizedType(List::class.java, GitHubRelease::class.java),

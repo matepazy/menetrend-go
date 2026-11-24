@@ -40,6 +40,7 @@ internal class OfflineCatalogState {
     var refresh by mutableIntStateOf(0)
     var confirmDelete by mutableStateOf<InstalledOfflineFeed?>(null)
     var confirmDeleteStarter by mutableStateOf(false)
+    var forcedWarning by mutableStateOf(false)
     var routesOpen by mutableStateOf(false)
     var townsOpen by mutableStateOf(false)
     var extrasOpen by mutableStateOf(false)
@@ -68,6 +69,11 @@ internal class OfflineCatalogState {
             text = { Text("A vonatok és a helyközi buszok menetrendje törlődik a készülékről, ${offlineBytesLabel(starter.sumOf { it.bytes })} szabadul fel.") },
             confirmButton = { TextButton(onClick = { starter.forEach { OfflineSchedules.delete(it.id) }; state.confirmDeleteStarter = false }) { Text("Törlés") } },
             dismissButton = { TextButton(onClick = { state.confirmDeleteStarter = false }) { Text("Mégse") } })
+    }
+    if (state.forcedWarning) {
+        val context = LocalContext.current
+        ForcedOfflineWarning(onDismiss = { state.forcedWarning = false },
+            onConfirm = { OfflineStatus.chooseForced(context, true); state.forcedWarning = false })
     }
     if (state.routesOpen) OfflineRoutesSheet(onDismiss = { state.routesOpen = false })
     if (state.townsOpen) OfflineTownPicker(state, onDismiss = { state.townsOpen = false })
@@ -110,6 +116,24 @@ internal fun LazyListScope.offlineScheduleItems(state: OfflineCatalogState, cont
         }
     }
     item { SettingsGroup { SettingsRow("Források és licencek", "Transitous", external = true, onClick = openSources) } }
+    item {
+        SettingsGroup {
+            // Switching on asks first; switching off is immediate.
+            Row(
+                Modifier.fillMaxWidth().toggleable(OfflineStatus.forced, role = Role.Switch,
+                    onValueChange = { on -> if (on) state.forcedWarning = true else OfflineStatus.chooseForced(context, false) })
+                    .padding(AppLayout.PanelPadding),
+                verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("Offline mód", style = MaterialTheme.typography.titleMedium)
+                    Text(if (OfflineStatus.forced) "Bekapcsolva: nincs internethasználat" else "Az alkalmazás nem használ internetet",
+                        style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+                Switch(checked = OfflineStatus.forced, onCheckedChange = null)
+            }
+        }
+    }
 }
 
 @Composable private fun OfflineIntro() {

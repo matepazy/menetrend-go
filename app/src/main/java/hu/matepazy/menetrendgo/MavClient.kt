@@ -23,6 +23,8 @@ class MavClient {
     private val tripLock=Mutex()
 
     private fun request(path: String, query: String?=null, onRawResponse: ((String) -> Unit)?=null): JSONObject {
+        // Offline mód: answer from downloaded timetables (through the fallback) without touching the network.
+        if(OfflineStatus.forced) throw ProviderUnavailable("Offline mód bekapcsolva: csak a letöltött menetrendek érhetők el.")
         val connection=URI(root+path).toURL().openConnection() as HttpURLConnection
         try {
             connection.connectTimeout=10_000;connection.readTimeout=40_000

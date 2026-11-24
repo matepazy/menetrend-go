@@ -36,6 +36,7 @@ class UtasClient {
     )
 
     private fun request(endpoint: String, parameters: String): JSONObject {
+        OfflineStatus.requireNetwork()
         val query = "$parameters&key=$KEY&version=9&appVersion=$APP_VERSION&locale=hu"
         val connection = URI("$root/$endpoint.json?$query").toURL().openConnection() as HttpURLConnection
         try {

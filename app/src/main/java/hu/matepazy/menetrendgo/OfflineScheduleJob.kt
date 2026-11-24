@@ -25,6 +25,9 @@ class OfflineScheduleJob : JobService() {
 
     override fun onStartJob(params: JobParameters): Boolean {
         OfflineSchedules.init(this)
+        OfflineStatus.init(this)
+        // Offline mód: queued downloads wait, and the weekly refresh skips this run.
+        if (OfflineStatus.forced) return false
         jobs[params.jobId] = scope.launch {
             try {
                 when (params.jobId) {

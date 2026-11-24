@@ -11,6 +11,10 @@ import androidx.compose.ui.graphics.toArgb
 
 /** Opens [url] in a themed Custom Tab above the app; native close/Back return to the same screen. False when no browser can open it. */
 internal fun openInAppBrowser(context: Context, url: String, dark: Boolean, toolbar: Color): Boolean {
+    if (OfflineStatus.forced) {
+        android.widget.Toast.makeText(context, "Offline módban nem nyitható meg weboldal.", android.widget.Toast.LENGTH_SHORT).show()
+        return true
+    }
     val tab = CustomTabsIntent.Builder()
         .setShowTitle(true)
         .setColorScheme(if (dark) CustomTabsIntent.COLOR_SCHEME_DARK else CustomTabsIntent.COLOR_SCHEME_LIGHT)

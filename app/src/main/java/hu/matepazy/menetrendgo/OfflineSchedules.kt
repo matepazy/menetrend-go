@@ -58,7 +58,7 @@ object OfflineSchedules {
     private val networkLock = Mutex()
     @Volatile private var network: OfflineNetwork? = null
     private val http by lazy {
-        OkHttpClient.Builder().connectTimeout(20, TimeUnit.SECONDS).readTimeout(60, TimeUnit.SECONDS).build()
+        OkHttpClient.Builder().addInterceptor(OfflineStatus.interceptor).connectTimeout(20, TimeUnit.SECONDS).readTimeout(60, TimeUnit.SECONDS).build()
     }
 
     fun init(context: Context) {
@@ -97,7 +97,7 @@ object OfflineSchedules {
     /** The Transitous list, refreshed from GitHub at most daily; the last copy or the bundled snapshot otherwise. */
     suspend fun catalog(forceRefresh: Boolean = false): Pair<List<OfflineFeed>, Boolean> = withContext(Dispatchers.IO) {
         val fresh = catalogFile.isFile && System.currentTimeMillis() - catalogFile.lastModified() < 24 * 3600_000L
-        if (!fresh || forceRefresh) {
+        if ((!fresh || forceRefresh) && !OfflineStatus.forced) {
             val body = runCatching {
                 http.newCall(Request.Builder().url(OfflineFeedCatalog.SOURCE_URL).header("User-Agent", userAgent).build()).execute().use { response ->
                     check(response.isSuccessful); response.body!!.string()
@@ -114,6 +114,7 @@ object OfflineSchedules {
 
     /** Download size of the Transitous copy, without downloading it. */
     suspend fun downloadSize(feed: OfflineFeed): Long? = withContext(Dispatchers.IO) {
+        if (OfflineStatus.forced) return@withContext null
         runCatching {
             http.newCall(Request.Builder().url(feed.url).head().header("User-Agent", userAgent).build()).execute().use { r ->
                 r.header("Content-Length")?.toLongOrNull()?.takeIf { r.isSuccessful }
@@ -134,6 +135,7 @@ object OfflineSchedules {
     }).toString()).apply()
 
     @Synchronized fun enqueue(context: Context, feed: OfflineFeed) {
+        if (OfflineStatus.forced) { tasks[feed.id] = OfflineTask.Failed("Offline módban nem lehet letölteni."); return }
         val current = queue()
         if (current.none { it.id == feed.id }) saveQueue(current + feed)
         tasks[feed.id] = OfflineTask.Queued

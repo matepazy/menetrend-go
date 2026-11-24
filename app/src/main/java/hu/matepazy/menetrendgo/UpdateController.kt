@@ -39,6 +39,7 @@ class UpdateController(private val context: Context, private val scope: Coroutin
 
     fun check(automatic: Boolean = false) {
         if (busy || state is UpdateState.Completed) return
+        if (OfflineStatus.forced && automatic) return
         val request = ++generation
         state = UpdateState.Checking
         VersionUpdater.checkForUpdates(BuildConfig.VERSION_NAME, channel == "pre-release") { result ->
