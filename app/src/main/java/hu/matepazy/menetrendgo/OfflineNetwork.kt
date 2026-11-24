@@ -175,10 +175,14 @@ class OfflineNetwork(val feeds: List<OfflineTimetable>) {
     // ---- Route timetables ----
     data class RouteSummary(val ref: RouteRef, val label: String, val longName: String, val mode: String, val color: String,
                             val textColor: String, val agency: String, val feedName: String)
-    data class RouteDirection(val headsign: String, val stops: List<Station>)
-    data class RouteDeparture(val tripId: String, val time: Long, val headsign: String, val day: LocalDate, val leg: Leg)
+    /** One travel direction of a line: its main terminus and every station any of its trips serves, in travel order.
+     * Stations are identified at station level (a bus station's platforms are one stop). */
+    data class RouteDirection(val terminus: String, val stops: List<Station>, internal val patterns: List<Int>)
+    /** A departure from the chosen stop, with where that trip ends and when it gets there. */
+    data class RouteDeparture(val tripId: String, val time: Long, val destination: String, val arrival: Long,
+                              val platform: String, val day: LocalDate, val leg: Leg)
 
-    fun routes(query: String, limit: Int = 50): List<RouteSummary> {
+    fun routes(query: String): List<RouteSummary> {
         val q = normalizedName(query)
         val out = ArrayList<RouteSummary>()
         feeds.forEachIndexed { f, feed ->
@@ -187,7 +191,9 @@ class OfflineNetwork(val feeds: List<OfflineTimetable>) {
                 if (q.isEmpty() || normalizedName(summary.label).startsWith(q) || normalizedName(summary.longName).contains(q)) out += summary
             }
         }
-        return out.sortedWith(compareBy({ normalizedName(it.label) != q }, { it.label.length }, { it.label }, { it.longName })).take(limit)
+        // Exact line numbers first, then numeric order (2 before 10), then by name.
+        return out.sortedWith(compareBy<RouteSummary>({ normalizedName(it.label) != q },
+            { it.label.takeWhile(Char::isDigit).toIntOrNull() ?: Int.MAX_VALUE }, { it.label }, { it.longName }))
     }
     fun routeSummary(f: Int, r: Int): RouteSummary {
         val feed = feeds[f]
@@ -200,34 +206,69 @@ class OfflineNetwork(val feeds: List<OfflineTimetable>) {
         return RouteSummary(RouteRef(f, r), label, long, feed.mode(r), hex(feed.routeColor[r]),
             hex(feed.routeTextColor[r]), feed.routeAgency[r].takeIf { it >= 0 }?.let { feed.text(feed.agencyName[it]) }.orEmpty(), feed.feedName)
     }
-    /** Directions of a route, longest stop sequence per terminus first, with that sequence's stops. */
+
+    /** A stop's station: its parent when it is a platform. */
+    private fun OfflineTimetable.stationOf(stop: Int) = stopParent[stop].takeIf { it >= 0 } ?: stop
+    private fun OfflineTimetable.stations(pattern: Int) = IntArray(patternSize(pattern)) { stationOf(patternStop(pattern, it)) }
+
+    /** At most two directions: trips are grouped by whether they run the same way as the line's longest trip.
+     * Short workings and platform variants join their direction instead of becoming directions of their own. */
     fun directions(route: RouteRef): List<RouteDirection> {
         val feed = feeds[route.feed]
-        return (0 until feed.patternCount).filter { feed.patternRoute[it] == route.route }
-            .groupBy { feed.patternStop(it, feed.patternSize(it) - 1) }
-            .map { (last, patterns) ->
-                val longest = patterns.maxBy { p -> feed.patternSize(p) * 100_000 + (feed.patternTripStart[p + 1] - feed.patternTripStart[p]) }
-                RouteDirection(feed.text(feed.stopName[last]), (0 until feed.patternSize(longest)).map { station(route.feed, feed.patternStop(longest, it)) })
-            }.sortedByDescending { it.stops.size }
+        val patterns = feed.routePatterns[route.route].orEmpty()
+        if (patterns.isEmpty()) return emptyList()
+        fun weight(p: Int) = feed.patternSize(p) * 100_000 + (feed.patternTripStart[p + 1] - feed.patternTripStart[p])
+        /** +1 when [p] visits the reference's stations in the same order, -1 when reversed, 0 when it cannot tell. */
+        fun orientation(p: Int, reference: IntArray): Int {
+            val at = HashMap<Int, Int>(); reference.forEachIndexed { i, s -> at.putIfAbsent(s, i) }
+            val shared = feed.stations(p).asList().mapNotNull { at[it] }
+            if (shared.size < 2) return 0
+            return if (shared.last() > shared.first()) 1 else if (shared.last() < shared.first()) -1 else 0
+        }
+        val main = patterns.maxBy(::weight)
+        val mainStations = feed.stations(main)
+        val forward = patterns.filter { orientation(it, mainStations) >= 0 }.toMutableList()
+        val backward = patterns.filter { orientation(it, mainStations) < 0 }.toMutableList()
+        // Patterns sharing too little with the main trip are placed by the opposite direction's main trip when there is one.
+        if (backward.isNotEmpty()) {
+            val back = feed.stations(backward.maxBy(::weight))
+            forward.filter { orientation(it, mainStations) == 0 && orientation(it, back) > 0 }.forEach { forward -= it; backward += it }
+        }
+        return listOf(forward, backward).filter { it.isNotEmpty() }.map { group ->
+            val reference = group.maxBy(::weight)
+            // Merge every pattern's stations into the reference order, inserting extra stops after their predecessor.
+            val order = feed.stations(reference).distinct().toMutableList()
+            group.sortedByDescending(::weight).forEach { p ->
+                var previous = -1
+                feed.stations(p).forEach { s ->
+                    val at = order.indexOf(s)
+                    if (at >= 0) previous = at else { order.add(previous + 1, s); previous += 1 }
+                }
+            }
+            val terminus = feed.text(feed.stopName[feed.stationOf(feed.patternStop(reference, feed.patternSize(reference) - 1))])
+            RouteDirection(terminus, order.map { station(route.feed, it) }, group)
+        }
     }
-    /** Every departure of the route from [stopId] on [day], for the classic hour-by-hour timetable. */
-    fun routeDepartures(route: RouteRef, directionHeadsign: String, stopId: String, day: LocalDate): List<RouteDeparture> {
+
+    /** Every departure in [direction] from [stationId] (a station or one of its platforms) on [day], in time order. */
+    fun routeDepartures(route: RouteRef, direction: RouteDirection, stationId: String, day: LocalDate): List<RouteDeparture> {
         val feed = feeds[route.feed]
+        val wanted = feed.stopIndex[stationId]?.let { feed.stationOf(it) } ?: return emptyList()
         val out = ArrayList<RouteDeparture>()
-        for (p in 0 until feed.patternCount) {
-            if (feed.patternRoute[p] != route.route) continue
-            if (feed.text(feed.stopName[feed.patternStop(p, feed.patternSize(p) - 1)]) != directionHeadsign) continue
-            for (i in 0 until feed.patternSize(p)) {
-                if (feed.text(feed.stopId[feed.patternStop(p, i)]) != stopId || !feed.canBoard(p, i)) continue
+        for (p in direction.patterns) {
+            val last = feed.patternSize(p) - 1
+            for (i in 0 until last) {
+                if (feed.stationOf(feed.patternStop(p, i)) != wanted || !feed.canBoard(p, i)) continue
                 for (t in feed.patternTripStart[p] until feed.patternTripStart[p + 1]) {
                     if (!feed.runsOn(t, day)) continue
-                    val headsign = feed.text(feed.tripHeadsign[t]).ifBlank { directionHeadsign }
-                    out += RouteDeparture(feed.text(feed.tripId[t]), epoch(day, feed.departure(t, i)), headsign, day,
-                        leg(route.feed, t, i, i, day).copy(headsign = headsign))
+                    val destination = feed.text(feed.stopName[feed.patternStop(p, last)])
+                    out += RouteDeparture(feed.text(feed.tripId[t]), epoch(day, feed.departure(t, i)), destination,
+                        epoch(day, feed.arrival(t, last)), feed.text(feed.stopPlatform[feed.patternStop(p, i)]), day,
+                        leg(route.feed, t, i, last, day).copy(headsign = destination))
                 }
             }
         }
-        return out.sortedBy { it.time }
+        return out.distinctBy { it.tripId to it.time }.sortedBy { it.time }
     }
 
     // ---- Journey planning (RAPTOR) ----

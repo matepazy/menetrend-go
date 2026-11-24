@@ -101,33 +101,20 @@ import org.json.JSONObject
             }, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(top = AppLayout.CompactGap, bottom = AppLayout.ItemGap))
             if (loading) VehicleProgress(Modifier.fillMaxWidth())
-            LazyColumn(Modifier.weight(1f), contentPadding = PaddingValues(bottom = AppLayout.SheetPadding),
-                verticalArrangement = Arrangement.spacedBy(AppLayout.CompactGap)) {
+            val track = TimelineTrack(serviceColor(departure.leg))
+            // Same connected timeline as the live vehicle drawer and the full trip timetable: times left, stops right.
+            LazyColumn(Modifier.weight(1f), contentPadding = PaddingValues(bottom = AppLayout.SheetPadding)) {
                 error?.let { message -> item {
                     InfoPanel("A járat adatai nem tölthetők be", message) { refresh++ }
                 } }
-                if (detail != null && !departure.cancelled) item {
-                    Text(if (detail?.optBoolean("offline") == true) "A letöltött menetrend szerint, élő adat nélkül." else "Ehhez a járathoz most nincs élő megállóadat.",
-                        style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
                 if (detail != null && stops.isEmpty()) item {
                     Text("Nincs elérhető megállóadat.")
                 }
-                itemsIndexed(stops) { _, stop ->
-                    GlassSurface(shape = MaterialTheme.shapes.medium) {
-                        Row(Modifier.fillMaxWidth().padding(AppLayout.ItemGap),
-                            horizontalArrangement = Arrangement.spacedBy(AppLayout.RelatedGap)) {
-                            Column(Modifier.width(with(LocalDensity.current) { 72.sp.toDp() })) {
-                                ScheduledTime(ServiceTime(stop.scheduled, stop.arrival, false),
-                                    style = MaterialTheme.typography.titleMedium)
-                            }
-                            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(AppLayout.LabelGap)) {
-                                Text(stop.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-                                if (stop.platform.isNotBlank() && stop.platform != "null")
-                                    Text("Vágány / kocsiállás: ${stop.platform}", style = MaterialTheme.typography.bodySmall)
-                            }
-                        }
-                    }
+                itemsIndexed(stops) { index, stop ->
+                    TimetableStopRow(stop.name, ServiceTime(stop.scheduled, stop.arrival, false),
+                        stop.platform.takeUnless { it == "null" }.orEmpty(), departure.leg.mode, track,
+                        first = index == 0, last = index == stops.lastIndex,
+                        scheduledLabel = if (index == 0) "Menetrendi indulás" else "Menetrendi érkezés")
                 }
             }
         }

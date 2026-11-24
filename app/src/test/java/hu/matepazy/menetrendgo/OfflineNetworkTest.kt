@@ -92,9 +92,60 @@ class OfflineNetworkTest {
         val route = network.routes("12").first()
         assertEquals("12", route.label); assertEquals("BUS", route.mode)
         val direction = network.directions(route.ref).single()
-        assertEquals("Dtelep", direction.headsign)
-        val times = network.routeDepartures(route.ref, direction.headsign, "b:B", today)
+        assertEquals("Dtelep", direction.terminus)
+        val times = network.routeDepartures(route.ref, direction, "b:B", today)
         assertEquals(listOf("b:early", "b:late"), times.map { it.tripId })
+        assertEquals("Dtelep", times.first().destination)
+        assertEquals(OfflineNetwork.epoch(today, 8 * 60 + 50), times.first().arrival)
+    }
+
+    @Test fun stationTimetablesIncludeEveryPlatform() {
+        // Trips leave from platform 1:A_1, but the timetable is chosen at station level (1:A).
+        val route = network.routes("").first { it.ref.feed == 0 }
+        val direction = network.directions(route.ref).single()
+        assertEquals(listOf("1:A", "1:B", "1:C"), direction.stops.map { it.id })
+        val times = network.routeDepartures(route.ref, direction, "1:A", today)
+        assertEquals(listOf("1:T1", "1:T2", "1:N"), times.map { it.tripId })
+        assertEquals("2", times.first().platform)
+        assertEquals(times, network.routeDepartures(route.ref, direction, "1:A_1", today))
+    }
+
+    /** Opt-in: OFFLINE_GTFS_SAMPLE=volan.zip prints line 8097 (Mór – Székesfehérvár) from real data. */
+    @Test fun realLineTimetable() {
+        val path = System.getenv("OFFLINE_GTFS_SAMPLE")?.split(File.pathSeparator)?.firstOrNull { "volan" in it } ?: return
+        val now = LocalDate.now(Budapest)
+        val real = OfflineNetwork(listOf(GtfsCompactor.compact(File(path), "v", "v", now)))
+        val route = real.routes("8097").first()
+        real.directions(route.ref).forEach { d ->
+            val from = d.stops.first()
+            val times = real.routeDepartures(route.ref, d, from.id, now.plusDays(1))
+            println("OFFLINE 8097 → ${d.terminus}: ${d.stops.size} stops, from ${from.name} ${times.size} departures: ${times.take(6).joinToString { timeLabel(it.time) + "→" + it.destination }}")
+            assertTrue(times.isNotEmpty())
+        }
+        println("OFFLINE lines listed: ${real.routes("").size}")
+    }
+
+    @Test fun shortWorkingsAndReturnTripsFormTwoDirections() {
+        val line = feed("l", mapOf(
+            "routes.txt" to "route_id,route_short_name,route_type\nL,8097,3\n", "calendar.txt" to calendar,
+            "stops.txt" to "stop_id,stop_name,stop_lat,stop_lon,location_type,parent_station\n" +
+                "M,Mór,47.37,18.21,1,\nM_1,Mór,47.37,18.21,0,M\nM_2,Mór,47.37,18.21,0,M\nK,Csókakő,47.35,18.27,0,\nS,Székesfehérvár,47.19,18.41,0,\n",
+            "trips.txt" to "route_id,service_id,trip_id\nL,S,full\nL,S,short\nL,S,back\nL,S,otherPlatform\n",
+            "stop_times.txt" to "trip_id,arrival_time,departure_time,stop_id,stop_sequence\n" +
+                "full,06:00:00,06:00:00,M_1,1\nfull,06:15:00,06:15:00,K,2\nfull,06:50:00,06:50:00,S,3\n" +
+                "short,07:00:00,07:00:00,M_2,1\nshort,07:15:00,07:15:00,K,2\n" +
+                "otherPlatform,08:00:00,08:00:00,M_2,1\notherPlatform,08:15:00,08:15:00,K,2\notherPlatform,08:50:00,08:50:00,S,3\n" +
+                "back,09:00:00,09:00:00,S,1\nback,09:35:00,09:35:00,K,2\nback,09:50:00,09:50:00,M_1,3\n",
+        ))
+        val net = OfflineNetwork(listOf(line))
+        val route = net.routes("8097").single()
+        val directions = net.directions(route.ref)
+        assertEquals(listOf("Székesfehérvár", "Mór"), directions.map { it.terminus })
+        val fromMor = net.routeDepartures(route.ref, directions[0], "M", today)
+        assertEquals(listOf("full", "short", "otherPlatform"), fromMor.map { it.tripId })
+        assertEquals("Csókakő", fromMor[1].destination)
+        assertEquals(listOf("back"), net.routeDepartures(route.ref, directions[1], "S", today).map { it.tripId })
+        assertTrue("no boarding at the terminus", net.routeDepartures(route.ref, directions[0], "S", today).isEmpty())
     }
 
     @Test fun catalogGroupsNamesAndUrls() {
@@ -113,7 +164,7 @@ class OfflineNetworkTest {
 
     /** Opt-in: OFFLINE_GTFS_SAMPLE=mav.zip;volan.zip;dkv.zip plans Budapest-Keleti → Debrecen, Szalók utca on real data. */
     @Test fun realNetworkPlanningSpeed() {
-        val paths = System.getenv("OFFLINE_GTFS_SAMPLE")?.split(File.pathSeparator) ?: return
+        val paths = System.getenv("OFFLINE_GTFS_SAMPLE")?.split(File.pathSeparator)?.takeIf { it.size >= 3 } ?: return
         val now = LocalDate.now(Budapest)
         val real = OfflineNetwork(paths.mapIndexed { i, p -> GtfsCompactor.compact(File(p), "f$i", "f$i", now) })
         val from = Station("1:005510017", "Budapest-Keleti", 47.50028, 19.084167)

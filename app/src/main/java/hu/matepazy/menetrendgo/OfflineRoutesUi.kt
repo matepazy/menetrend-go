@@ -4,6 +4,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
@@ -13,6 +15,7 @@ import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -65,12 +68,12 @@ private fun summaryLeg(route: OfflineNetwork.RouteSummary, headsign: String): Le
 @Composable private fun ColumnScope.RouteList(network: OfflineNetwork, query: String, onQuery: (String) -> Unit, close: () -> Unit,
                                           select: (OfflineNetwork.RouteSummary) -> Unit) {
     var routes by remember { mutableStateOf<List<OfflineNetwork.RouteSummary>?>(null) }
-    LaunchedEffect(network, query) { routes = withContext(Dispatchers.Default) { network.routes(query, limit = 80) } }
+    LaunchedEffect(network, query) { routes = withContext(Dispatchers.Default) { network.routes(query) } }
     Row(verticalAlignment = Alignment.CenterVertically) {
         Text("Vonalak menetrendje", Modifier.weight(1f).semantics { heading() }, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
         IconButton(onClick = close) { Icon(Icons.Outlined.Close, "Bezárás") }
     }
-    Text("Offline menetrend · csak menetrend szerinti idők", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    Text("Offline menetrend", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
     Spacer(Modifier.height(AppLayout.RelatedGap))
     OutlinedTextField(query, { onQuery(it.take(40)) }, Modifier.fillMaxWidth(), singleLine = true, shape = RoundedCornerShape(24.dp),
         label = { Text("Vonal száma vagy neve") }, leadingIcon = { Icon(Icons.Outlined.Search, null) })
@@ -86,7 +89,7 @@ private fun summaryLeg(route: OfflineNetwork.RouteSummary, headsign: String): Le
                     horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(AppLayout.LabelGap)) {
                         ServiceHeading(summaryLeg(route, route.longName.ifBlank { route.feedName }), route.longName.ifBlank { route.feedName })
-                        Text(if (route.agency.isBlank() || route.feedName.contains(route.agency, ignoreCase = true)) route.feedName else "${route.agency} · ${route.feedName}",
+                        Text(route.feedName,
                             style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     Icon(Icons.AutoMirrored.Outlined.KeyboardArrowRight, null, Modifier.size(20.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -96,93 +99,105 @@ private fun summaryLeg(route: OfflineNetwork.RouteSummary, headsign: String): Le
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+/** "Székesfehérvár felé": the town of a terminus, or the whole name when both ends are in one town. */
+private fun towardsLabel(directions: List<OfflineNetwork.RouteDirection>, direction: OfflineNetwork.RouteDirection): String {
+    val town = direction.terminus.substringBefore(',').trim()
+    val sameTown = directions.count { it.terminus.substringBefore(',').trim() == town } > 1 ||
+        directions.flatMap { it.stops }.all { it.name.substringBefore(',').trim() == town }
+    return "${if (sameTown) direction.terminus else town} felé"
+}
+
+/** One line's departures: direction, boarding stop and day on top, then a plain time-ordered list. */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable private fun ColumnScope.RouteTimetable(network: OfflineNetwork, route: OfflineNetwork.RouteSummary, back: () -> Unit) {
     val directions = remember(route) { network.directions(route.ref) }
     var direction by remember(route) { mutableIntStateOf(0) }
     val current = directions.getOrNull(direction)
+    // The terminus has no departures in this direction, so it is not offered.
+    val boardingStops = current?.stops?.dropLast(1).orEmpty()
     var stopIndex by remember(route, direction) { mutableIntStateOf(0) }
+    val stop = boardingStops.getOrNull(stopIndex)
     val today = remember { LocalDate.now(Budapest) }
     val lastDay = remember(route) { network.feeds[route.ref.feed].lastServiceDay ?: today }
     val days = remember(today, lastDay) { (0L..6L).map { today.plusDays(it) }.filter { !it.isAfter(lastDay) }.ifEmpty { listOf(today) } }
     var day by remember(route) { mutableStateOf(today) }
-    val stop = current?.stops?.getOrNull(stopIndex)
     var departures by remember { mutableStateOf<List<OfflineNetwork.RouteDeparture>?>(null) }
     LaunchedEffect(route, current, stop, day) {
         departures = null
-        if (current != null && stop != null) departures = withContext(Dispatchers.Default) { network.routeDepartures(route.ref, current.headsign, stop.id, day) }
+        if (current != null && stop != null) departures = withContext(Dispatchers.Default) { network.routeDepartures(route.ref, current, stop.id, day) }
     }
     var opened by remember { mutableStateOf<OfflineNetwork.RouteDeparture?>(null) }
     var stopMenu by remember { mutableStateOf(false) }
+    val now = System.currentTimeMillis()
+    val listState = rememberLazyListState()
+    val headerItems = 1
+    // Today opens at the next departure; earlier ones stay above, dimmed.
+    LaunchedEffect(departures) {
+        val list = departures ?: return@LaunchedEffect
+        val next = list.indexOfFirst { it.time >= now }
+        if (day == today && next > 0) listState.scrollToItem(headerItems + next)
+    }
 
     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(AppLayout.CompactGap)) {
         IconButton(onClick = back) { Icon(Icons.AutoMirrored.Outlined.ArrowBack, "Vissza a vonalakhoz") }
-        Box(Modifier.weight(1f)) { ServiceHeading(summaryLeg(route, current?.headsign.orEmpty()), current?.headsign.orEmpty()) }
+        Box(Modifier.weight(1f)) { ServiceHeading(summaryLeg(route, route.longName), route.longName) }
     }
-    Text("Offline menetrend · ${route.feedName}", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
     Spacer(Modifier.height(AppLayout.RelatedGap))
-    LazyColumn(Modifier.weight(1f, fill = false), contentPadding = PaddingValues(bottom = AppLayout.SheetPadding),
-        verticalArrangement = Arrangement.spacedBy(AppLayout.RelatedGap)) {
-        if (directions.size > 1) item {
-            Text("Irány", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                directions.forEachIndexed { index, d ->
-                    GlassFilterChip(selected = index == direction, onClick = { direction = index }, label = { Text(d.headsign) },
-                        modifier = Modifier.heightIn(min = 48.dp))
-                }
+    Column(verticalArrangement = Arrangement.spacedBy(AppLayout.RelatedGap)) {
+        if (directions.size > 1) LiquidSegmentedBar(directions.map { towardsLabel(directions, it) to null }, direction, { direction = it },
+            container = MaterialTheme.colorScheme.surfaceContainerHigh)
+        else if (current != null) Text(towardsLabel(directions, current), style = MaterialTheme.typography.titleMedium)
+        ExposedDropdownMenuBox(expanded = stopMenu, onExpandedChange = { stopMenu = it }) {
+            OutlinedTextField(stop?.name.orEmpty(), {}, readOnly = true, singleLine = true, label = { Text("Honnan") },
+                shape = RoundedCornerShape(24.dp), trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(stopMenu) },
+                modifier = Modifier.fillMaxWidth().menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable))
+            ExposedDropdownMenu(expanded = stopMenu, onDismissRequest = { stopMenu = false }) {
+                boardingStops.forEachIndexed { index, s -> DropdownMenuItem(text = { Text(s.name) }, onClick = { stopIndex = index; stopMenu = false }) }
             }
         }
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            items(days) { d ->
+                GlassFilterChip(selected = d == day, onClick = { day = d }, modifier = Modifier.heightIn(min = 48.dp), label = {
+                    Text(when (d) { today -> "Ma"; today.plusDays(1) -> "Holnap"
+                        else -> "${d.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.forLanguageTag("hu"))} ${d.dayOfMonth}." })
+                })
+            }
+        }
+    }
+    Spacer(Modifier.height(AppLayout.CompactGap))
+    val list = departures
+    LazyColumn(Modifier.weight(1f, fill = false), state = listState, contentPadding = PaddingValues(bottom = AppLayout.SheetPadding)) {
         item {
-            ExposedDropdownMenuBox(expanded = stopMenu, onExpandedChange = { stopMenu = it }) {
-                OutlinedTextField(stop?.name.orEmpty(), {}, readOnly = true, singleLine = true, label = { Text("Megálló") },
-                    shape = RoundedCornerShape(24.dp),
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(stopMenu) },
-                    modifier = Modifier.fillMaxWidth().menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable))
-                ExposedDropdownMenu(expanded = stopMenu, onDismissRequest = { stopMenu = false }) {
-                    current?.stops?.forEachIndexed { index, s ->
-                        if (index < current.stops.lastIndex) DropdownMenuItem(text = { Text(s.name) }, onClick = { stopIndex = index; stopMenu = false })
-                    }
-                }
-            }
+            Text(when {
+                list == null -> ""
+                list.isEmpty() -> "Ezen a napon innen nem indul járat ebbe az irányba."
+                else -> "${list.size} indulás"
+            }, Modifier.padding(vertical = AppLayout.CompactGap), style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant)
+            if (list == null) VehicleProgress(Modifier.fillMaxWidth())
         }
-        item {
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                days.forEach { d ->
-                    GlassFilterChip(selected = d == day, onClick = { day = d }, modifier = Modifier.heightIn(min = 48.dp), label = {
-                        Text(when (d) { today -> "Ma"; today.plusDays(1) -> "Holnap"
-                            else -> "${d.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.forLanguageTag("hu"))} ${d.dayOfMonth}." })
-                    })
+        if (list != null) items(list, key = { "${it.tripId}:${it.time}" }) { row ->
+            val past = day == today && row.time < now
+            Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(20.dp))
+                .clickable(role = Role.Button, onClickLabel = "Járat megállói") { opened = row }
+                .semantics { contentDescription = "${timeLabel(row.time)} indulás ${row.destination} felé, érkezés ${timeLabel(row.arrival)}" + if (past) ", elment" else "" }
+                .alpha(if (past) .5f else 1f)
+                .padding(horizontal = 8.dp, vertical = 12.dp).heightIn(min = 48.dp),
+                verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(AppLayout.ItemGap)) {
+                Text(timeLabel(row.time), Modifier.widthIn(min = 64.dp), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    DirectionText(row.destination, style = MaterialTheme.typography.titleMedium)
+                    Text(listOfNotNull("érkezés ${timeLabel(row.arrival)}", row.platform.takeIf { it.isNotBlank() }?.let { "kocsiállás $it" }).joinToString(" · "),
+                        style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
-            }
-        }
-        val list = departures
-        when {
-            list == null -> item { VehicleProgress(Modifier.fillMaxWidth()) }
-            list.isEmpty() -> item { Text("Ezen a napon nem indul járat erről a megállóról ebbe az irányba.", style = MaterialTheme.typography.bodyLarge) }
-            else -> items(list.groupBy { timeLabel(it.time).substringBefore(':') }.entries.toList(), key = { it.key }) { (hour, rows) ->
-                Row(verticalAlignment = Alignment.Top, horizontalArrangement = Arrangement.spacedBy(AppLayout.RelatedGap)) {
-                    Text(hour, Modifier.width(40.dp).padding(top = 12.dp).semantics { contentDescription = "$hour óra" },
-                        style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-                    FlowRow(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                        rows.forEach { row ->
-                            val minute = timeLabel(row.time).substringAfter(':')
-                            Box(Modifier.heightIn(min = 48.dp).widthIn(min = 48.dp).clip(RoundedCornerShape(16.dp))
-                                .clickable(role = Role.Button, onClickLabel = "Járat megállói") { opened = row }
-                                .semantics { contentDescription = "${timeLabel(row.time)}, ${row.headsign}" },
-                                contentAlignment = Alignment.Center) {
-                                Text(minute, style = MaterialTheme.typography.titleMedium)
-                            }
-                        }
-                    }
-                }
+                Icon(Icons.AutoMirrored.Outlined.KeyboardArrowRight, null, Modifier.size(20.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
     }
     opened?.let { row ->
-        val departure = StopDeparture(row.tripId, row.headsign, ServiceTime(row.time, row.time, false), stop?.platform.orEmpty(), false,
+        val departure = StopDeparture(row.tripId, row.destination, ServiceTime(row.time, row.time, false), row.platform, false,
             row.leg, row.day.toString(), offline = true)
         DepartureServiceDrawer(departure, dismiss = { opened = null },
             fetch = { id, serviceDay -> network.trip(id, serviceDay) ?: throw OfflineNotCovered() })
     }
 }
-
