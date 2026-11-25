@@ -19,7 +19,7 @@ class UtasTimetableTest {
 
     @Test fun displaysScheduledAndPredictedTimesFromTheTripEnvelope() {
         val detail = parseUtasTrip(body, id, date)
-        val stops = vehicleStops(detail, date.toString())
+        val stops = detail.vehicleStops()
         assertEquals(25, stops.size)
         assertEquals(1795106100000L, stops.first().scheduled)
         assertEquals(1795106314000L, stops.first().arrival)
@@ -34,7 +34,7 @@ class UtasTimetableTest {
     @Test fun scheduleOnlyPredictionsDoNotReplaceScheduledTimes() {
         body.getJSONObject("data").getJSONObject("entry").getJSONArray("stopTimes").getJSONObject(0)
             .put("predictionScheduled", true)
-        val origin = vehicleStops(parseUtasTrip(body, id, date), date.toString()).first()
+        val origin = parseUtasTrip(body, id, date).vehicleStops().first()
         assertFalse(origin.realtime)
         assertEquals(origin.scheduled, origin.arrival)
         assertEquals(origin.scheduled, origin.departure)

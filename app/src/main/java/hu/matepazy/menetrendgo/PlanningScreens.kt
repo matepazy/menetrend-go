@@ -1491,17 +1491,17 @@ internal fun sameJourneyStop(first: Station, second: Station): Boolean =
 @Composable fun TripScreen(vm: AppState, id: String, day: String, back: () -> Unit, onMap: () -> Unit) {
     val detail=vm.detail
     val vehicle=vm.vehicles.find {it.id==id}
-    val route=detail?.optJSONObject("route")
-    val mode=vehicle?.mode ?: route?.optString("mode").orEmpty()
-    val badge=vehicle?.badgeLeg() ?: Vehicle(id,route?.optString("shortName").orEmpty(),
-        detail?.optString("tripHeadsign").orEmpty(),mode,0.0,0.0,
-        routeColor=route?.optString("color").orEmpty(),category=detail?.optString("trainCategoryName").orEmpty(),
-        routeLongName=route?.optString("longName").orEmpty()).badgeLeg()
+    val route=detail?.summary?.route
+    val mode=vehicle?.mode ?: route?.mode?.otp.orEmpty()
+    val badge=vehicle?.badgeLeg() ?: Vehicle(id,route?.shortName.orEmpty(),
+        detail?.summary?.headsign.orEmpty(),mode,0.0,0.0,
+        routeColor=route?.color.orEmpty(),category=detail?.summary?.category.orEmpty(),
+        routeLongName=route?.longName.orEmpty()).badgeLeg()
     val track=TimelineTrack(serviceColor(badge))
-    val stops=remember(detail) {detail?.array("stoptimes").orEmpty()}
-    val timedIndices=remember(stops,day) {stops.indices.filter {tripStopTime(stops[it],day)!=null}}
-    val progress=remember(detail,vehicle,day) {
-        vehicle?.let {vehicleStopProgress(detail?.let {trip -> vehicleStops(trip,day)}.orEmpty(),detail,it)}
+    val stops=remember(detail) {detail?.calls.orEmpty()}
+    val timedIndices=remember(stops) {stops.indices.filter {stops[it].time!=null}}
+    val progress=remember(detail,vehicle) {
+        vehicle?.let {vehicleStopProgress(detail?.vehicleStops().orEmpty(),detail,it)}
     }
     val vehicleIndex=progress?.index?.let {timedIndices.getOrNull(it)}
     val betweenStops=progress?.atStop==false && vehicleIndex!=null && vehicleIndex>0
@@ -1519,28 +1519,27 @@ internal fun sameJourneyStop(first: Station, second: Station): Boolean =
     LazyColumn(Modifier.fillMaxSize(),contentPadding=screenContentPadding()) {
         item {
             Column(Modifier.padding(bottom=AppLayout.ItemGap),verticalArrangement=Arrangement.spacedBy(AppLayout.ItemGap)) {
-                PageTitle(route?.optString("shortName")?.ifBlank {"Járat"} ?: "Járat",
-                    "$day · ${detail?.optString("tripHeadsign").orEmpty()}",back)
+                PageTitle(route?.shortName?.ifBlank {"Járat"} ?: "Járat",
+                    "$day · ${detail?.summary?.headsign.orEmpty()}",back)
                 if(vm.detailLoading && detail==null) LoadingRows()
                 if(vm.detailError!=null) InfoPanel("A menetrend nem tölthető be",vm.detailError!!){vm.loadTrip(id,day)}
                 if(detail!=null) {
-                    if(detail.optBoolean("offline")) Text("Offline menetrend · ${detail.optString("offlineFeed")}. Csak menetrend szerinti idők.",
+                    if(detail.offline) Text("Offline menetrend · ${detail.feedName}. Csak menetrend szerinti idők.",
                         style=MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.onSurfaceVariant)
                     if(stops.isEmpty()) Text("Nincs elérhető megállóadat.",color=MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
         }
         itemsIndexed(stops) {index,stop ->
-            val station=stop.optJSONObject("stop")
-            TimetableStopRow(station?.optString("name").orEmpty(),tripStopTime(stop,day),
-                station?.optString("platformCode").orEmpty(),mode,track,
+            TimetableStopRow(stop.stop.name,stop.time?.serviceTime,
+                stop.platform,mode,track,
                 first=index==0,last=index==stops.lastIndex,wideTrack=true,
                 incomingTrack=if(vehicleIndex!=null && (index>vehicleIndex || index==vehicleIndex && betweenStops)) futureTrack else track,
                 outgoingTrack=if(vehicleIndex!=null && index>=vehicleIndex) futureTrack else track,
                 vehicleMarker=vehicleMarker.takeIf {index==vehicleIndex && progress?.atStop==true},
                 betweenMarker=vehicleMarker.takeIf {betweenStops && index==vehicleIndex!!-1},
                 afterVehicleTrack=futureTrack,
-                scheduledLabel=if(!stop.isNull("scheduledDeparture")) "Menetrendi indulás" else "Menetrendi érkezés")
+                scheduledLabel=if(stop.departure!=null) "Menetrendi indulás" else "Menetrendi érkezés")
         }
     }
 }

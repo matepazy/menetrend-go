@@ -41,30 +41,12 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.delay
-import org.json.JSONObject
 import java.time.LocalDate
 
+/** [id] is the provider-local stop id; [sequence] is the provider's stop_sequence when known. */
 data class VehicleStop(val name: String, val scheduled: Long, val arrival: Long, val departure: Long,
-    val realtime: Boolean, val platform: String, val id: String = "") {
+    val realtime: Boolean, val platform: String, val id: String = "", val sequence: Int? = null) {
     val changed get() = realtime && arrival / 60_000 != scheduled / 60_000
-}
-
-fun vehicleStops(detail: JSONObject, day: String): List<VehicleStop> = detail.array("stoptimes").mapNotNull { stop ->
-    fun seconds(key: String): Long? = if(stop.isNull(key)) null else stop.optLong(key,-1).takeIf {it>=0}
-    val scheduled=seconds("scheduledArrival") ?: seconds("scheduledDeparture") ?: return@mapNotNull null
-    val serviceDate=seconds("serviceDay")?.let {
-        java.time.Instant.ofEpochSecond(it).atZone(Budapest).toLocalDate()
-    } ?: LocalDate.parse(day)
-    val realtime=stop.optBoolean("realtime")
-    val arrival=if(realtime) seconds("realtimeArrival") ?: scheduled else scheduled
-    val departure=if(realtime) seconds("realtimeDeparture") ?: seconds("scheduledDeparture") ?: arrival
-        else seconds("scheduledDeparture") ?: scheduled
-    val station=stop.optJSONObject("stop")
-    fun millis(value: Long) = if (detail.optBoolean("usesUnixStopTimes")) value * 1_000
-        else vehicleStopTime(serviceDate, value)
-    VehicleStop(station?.optString("name").orEmpty(),millis(scheduled),
-        millis(arrival),millis(departure),
-        realtime,station?.optString("platformCode").orEmpty(),station?.optString("gtfsId").orEmpty())
 }
 
 /** OTP returns local timetable seconds, not elapsed seconds across a clock change.
@@ -79,35 +61,32 @@ fun upcomingVehicleStops(stops: List<VehicleStop>, now: Long): List<VehicleStop>
 /** Prefer the selected physical vehicle's live stop relationship over clock estimates.
  * Exact stop IDs distinguish platforms and repeated station names. If a stop occurs
  * more than once, the provider's arrival time identifies the visit. */
-internal fun upcomingVehicleStops(stops: List<VehicleStop>, now: Long, detail: JSONObject?, vehicle: Vehicle): List<VehicleStop> =
+internal fun upcomingVehicleStops(stops: List<VehicleStop>, now: Long, detail: Trip?, vehicle: Vehicle): List<VehicleStop> =
     vehicleStopProgress(stops, detail, vehicle)?.let { stops.drop(it.index) } ?: upcomingVehicleStops(stops,now)
 
 internal data class VehicleStopProgress(val index: Int, val atStop: Boolean)
 
 /** A timetable estimate alone is not evidence of a physical vehicle position. */
-internal fun vehicleStopProgress(stops: List<VehicleStop>, detail: JSONObject?, vehicle: Vehicle): VehicleStopProgress? {
-    val positions=detail?.array("vehiclePositions").orEmpty()
-    val utasTimes=detail?.optBoolean("usesUnixStopTimes")==true
+internal fun vehicleStopProgress(stops: List<VehicleStop>, detail: Trip?, vehicle: Vehicle): VehicleStopProgress? {
+    val positions=detail?.vehicles.orEmpty()
+    // utas.hu numbers its vehicles itself; MÁVPlusz uses the map vehicle's own id.
+    val utasTimes=detail?.id?.provider==ProviderId.Utas
     val vehicleId=if(utasTimes) vehicle.utasTrip?.vehicleId.orEmpty() else vehicle.vehicleId
-    val position=positions.firstOrNull {vehicleId.isNotBlank() && it.optString("vehicleId")==vehicleId}
+    val position=positions.firstOrNull {vehicleId.isNotBlank() && it.id==vehicleId}
         ?: positions.singleOrNull()?.takeIf {!utasTimes && vehicleId.isBlank()}
-    val relationship=position?.optJSONObject("stopRelationship") ?: return null
-    val status=relationship.optString("status")
-    if(status !in listOf("IN_TRANSIT_TO","INCOMING_AT","STOPPED_AT")) return null
-    val id=relationship.optJSONObject("stop")?.optString("gtfsId").orEmpty()
+    val status=position?.stopStatus ?: return null
+    val id=position.stopId?.local.orEmpty()
     val candidates=stops.indices.filter {id.isNotBlank() && stops[it].id==id}
-    val rawTimes=detail?.array("stoptimes").orEmpty()
-    val sequence=relationship.optInt("stopSequence",-1)
-    if(utasTimes && sequence>=0 && rawTimes.size==stops.size) {
-        candidates.singleOrNull {rawTimes[it].optInt("stopSequence",-1)==sequence}?.let {
-            return VehicleStopProgress(it,status=="STOPPED_AT")
+    val sequence=position.stopSequence
+    if(utasTimes && sequence!=null) {
+        candidates.singleOrNull {stops[it].sequence==sequence}?.let {
+            return VehicleStopProgress(it,status==VehicleStopStatus.StoppedAt)
         }
     }
-    val arrival=relationship.optLong("arrivalTime",-1)
-    val index=if(candidates.size>1 && arrival>=0 && rawTimes.size==stops.size)
-        candidates.minByOrNull {kotlin.math.abs(rawTimes[it].optLong("realtimeArrival",rawTimes[it].optLong("scheduledArrival"))-arrival)}
+    val arrival=position.stopArrival
+    val index=if(candidates.size>1 && arrival!=null) candidates.minByOrNull {kotlin.math.abs(stops[it].arrival-arrival)}
         else candidates.singleOrNull()
-    return index?.let {VehicleStopProgress(it,status=="STOPPED_AT")}
+    return index?.let {VehicleStopProgress(it,status==VehicleStopStatus.StoppedAt)}
 }
 
 /** Delay at the next stop, compared at minute resolution like the struck-through stop times. */
@@ -165,7 +144,7 @@ internal fun vehicleStopPlatform(platform: String, mode: String): String = when(
 /** Modal presentation for independently loaded stop-board departures. */
 @Composable internal fun VehicleDrawer(
     vehicle: Vehicle,
-    detail: JSONObject?,
+    detail: Trip?,
     day: String,
     now: Long,
     error: String?,
@@ -181,7 +160,7 @@ internal fun vehicleStopPlatform(platform: String, mode: String): String = when(
 /** Shared drawer body: the next stop leads; passed stops unfold above it on request. */
 @Composable internal fun ColumnScope.VehicleDrawerContent(
     vehicle: Vehicle,
-    detail: JSONObject?,
+    detail: Trip?,
     day: String,
     now: Long,
     error: String?,
@@ -189,7 +168,7 @@ internal fun vehicleStopPlatform(platform: String, mode: String): String = when(
     dismiss: () -> Unit,
     showOnMap: (() -> Unit)? = null,
 ) {
-    val stops=remember(detail,day) {detail?.let {vehicleStops(it,day)}.orEmpty()}
+    val stops=remember(detail) {detail?.vehicleStops().orEmpty()}
     val upcoming=upcomingVehicleStops(stops,now,detail,vehicle)
     val nextIndex=stops.size-upcoming.size
     // Passed stops unfold in place under an explicit toggle, independent of the sheet height,

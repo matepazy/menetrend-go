@@ -207,7 +207,7 @@ class AppState(app: Application) : AndroidViewModel(app) {
     }
     var vehicleError by mutableStateOf<String?>(null); private set
     var vehiclesLoading by mutableStateOf(false); private set
-    var detail by mutableStateOf<JSONObject?>(null); private set
+    var detail by mutableStateOf<Trip?>(null); private set
     var detailError by mutableStateOf<String?>(null); private set
     var detailLoading by mutableStateOf(false); private set
     var selectedJourney by mutableStateOf<Journey?>(null)
@@ -222,7 +222,7 @@ class AppState(app: Application) : AndroidViewModel(app) {
         loadMapTimetable(vehicle, mapTimetableDay(vehicle, serviceDay))
         mapVehicle = vehicle
     }
-    internal fun mapVehicleDetail(vehicle: Vehicle, day: String = mapTimetableDay(vehicle, mapVehicleServiceDay)): JSONObject? =
+    internal fun mapVehicleDetail(vehicle: Vehicle, day: String = mapTimetableDay(vehicle, mapVehicleServiceDay)): Trip? =
         detail.takeIf { detailKey == mapTimetableKey(vehicle, day) }
 
     private fun mapTimetableKey(vehicle: Vehicle, day: String) =
@@ -491,14 +491,14 @@ class AppState(app: Application) : AndroidViewModel(app) {
         if (!vehicle.hasTimetable) return
         loadDetail(mapTimetableKey(vehicle, day)) {
             val utasTrip = vehicle.utasTrip
-            val fromMav: (suspend () -> JSONObject)? = vehicle.mavTripId?.let { id ->
+            val fromMav: (suspend () -> Trip)? = vehicle.mavTripId?.let { id ->
                 suspend {
                     val result = mav.trip(id, day, refreshSeconds = mapRefreshSeconds)
-                    check(vehicleStops(result, day).isNotEmpty()) { "Ehhez a járathoz nincs megállóadat." }
+                    check(result.vehicleStops().isNotEmpty()) { "Ehhez a járathoz nincs megállóadat." }
                     result
                 }
             }
-            val fromUtas: (suspend () -> JSONObject)? = utasTrip?.takeIf {
+            val fromUtas: (suspend () -> Trip)? = utasTrip?.takeIf {
                 it.serviceDate == null || it.serviceDate.toString() == day
             }?.let { trip ->
                 suspend { utas.trip(trip.id, LocalDate.parse(day), mapRefreshSeconds) }
@@ -511,7 +511,7 @@ class AppState(app: Application) : AndroidViewModel(app) {
         }
     }
 
-    private fun loadDetail(key: String, load: suspend () -> JSONObject) {
+    private fun loadDetail(key: String, load: suspend () -> Trip) {
         if (detailKey == key && detailJob?.isActive == true) return
         detailJob?.cancel()
         if(detailKey!=key) detail=null
@@ -530,10 +530,10 @@ class AppState(app: Application) : AndroidViewModel(app) {
 internal fun mapTimetableDay(vehicle: Vehicle, serviceDay: String?) =
     serviceDay ?: (vehicle.utasTrip?.serviceDate ?: LocalDate.now(Budapest)).toString()
 
-internal suspend fun loadVehicleTimetable(
-    primary: (suspend () -> JSONObject)?,
-    fallback: (suspend () -> JSONObject)?,
-): JSONObject {
+internal suspend fun <T> loadVehicleTimetable(
+    primary: (suspend () -> T)?,
+    fallback: (suspend () -> T)?,
+): T {
     if (primary == null) return checkNotNull(fallback) { "Ehhez a járathoz nincs részletes menetrend." }()
     try {
         return primary()

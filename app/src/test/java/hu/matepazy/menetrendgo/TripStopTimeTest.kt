@@ -5,7 +5,11 @@ import org.junit.Assert.*
 import org.junit.Test
 import java.time.LocalDate
 
+/** Stop-row times as the trip parser computes them: departure first, else arrival, on the row's service date. */
 class TripStopTimeTest {
+    private fun tripStopTime(row: JSONObject, day: String): ServiceTime? =
+        mavTrip(JSONObject().put("stoptimes", org.json.JSONArray().put(row.put("stop", JSONObject().put("gtfsId", "s")))), day)
+            .calls.singleOrNull()?.time?.serviceTime
     private val day = "2026-11-08"
     private fun at(seconds: Long) = vehicleStopTime(LocalDate.parse(day), seconds)
 

@@ -85,9 +85,9 @@ class MavProviderTest {
         val day = LocalDate.of(2026, 11, 8)
         val trip = parseTripJson(tripJson, day, ProviderId.Mav, Provenance.of(ProviderId.Mav, 1, DataKind.Scheduled))
         assertEquals(3, trip.calls.size)   // the stop without coordinates is dropped, not guessed
-        tripJson.getJSONArray("stoptimes").objects().take(3).zip(trip.calls).forEach { (row, call) ->
-            assertEquals(tripStopTime(row, day.toString()), call.time!!.serviceTime)
-        }
+        fun at(seconds: Long) = vehicleStopTime(day, seconds)
+        assertEquals(listOf(ServiceTime(at(36000), at(36120), true), ServiceTime(at(40060), at(40360), true),
+            ServiceTime(at(45000), at(45000), false)), trip.calls.map { it.time!!.serviceTime })
         assertNull(trip.calls.last().departure)
         assertEquals(Gid("mav:1:712"), trip.id)
         assertEquals("MÁV-START", trip.summary.route.agency?.name)

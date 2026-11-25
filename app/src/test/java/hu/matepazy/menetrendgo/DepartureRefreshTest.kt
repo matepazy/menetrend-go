@@ -13,13 +13,13 @@ class DepartureRefreshTest {
     private val station = Station("stop", "Szolnok", 47.17, 20.18)
     private val leg = Leg("RAIL", (day + 36_000) * 1000, (day + 39_600) * 1000,
         station, station, "IR", "trip", false, 0, emptyList(), "")
-    private fun trip(delay: Int, live: Boolean = true) = JSONObject().put("gtfsId", "trip")
+    private fun trip(delay: Int, live: Boolean = true) = mavTrip(JSONObject().put("gtfsId", "trip")
         .put("stoptimes", JSONArray(listOf(36_000, 39_600).map { seconds ->
             JSONObject().put("serviceDay", day).put("scheduledDeparture", seconds)
                 .put("scheduledArrival", seconds).put("realtimeDeparture", seconds + delay)
                 .put("realtimeArrival", seconds + delay).put("realtime", live)
                 .put("stop", JSONObject().put("gtfsId", station.id))
-        }))
+        })))
 
     @Test fun updatesLoadedPagesWithOneRequestPerServiceAndKeepsStableKeysAndWalking() = runBlocking {
         val walk = leg.copy(mode = "WALK", tripId = "", start = leg.start - 60_000, end = leg.start)
@@ -47,7 +47,7 @@ class DepartureRefreshTest {
             end = leg.end + 120_000, realTime = true, departureDelay = 120, arrivalDelay = 120))))
         assertEquals(original, refreshDepartureJourneys(original) { _, _ -> error("offline") })
         assertEquals(original, refreshDepartureJourneys(original) { _, _ ->
-            JSONObject().put("gtfsId", "another-trip")
+            mavTrip(JSONObject().put("gtfsId", "another-trip"))
         })
     }
 

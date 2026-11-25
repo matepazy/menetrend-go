@@ -104,15 +104,16 @@ class JourneyTrackingTest {
     }
 
     @Test fun liveArrivalRequiresExactTripStopOccurrenceAndRealtime() {
+        // Local timetable seconds of 1970-01-01 (UTC+1), so 5200 s is 1 600 000 ms after the epoch.
         val trip = JSONObject("""{"gtfsId":"trip","stoptimes":[
-            {"serviceDay":0,"scheduledArrival":1600,"realtimeArrival":1700,"realtime":true,
+            {"scheduledArrival":5200,"realtimeArrival":5300,"realtime":true,
              "stop":{"name":"Érkezés","lat":47.02,"lon":19.0}},
-            {"serviceDay":0,"scheduledArrival":3600,"realtimeArrival":3700,"realtime":true,
+            {"scheduledArrival":7200,"realtimeArrival":7300,"realtime":true,
              "stop":{"name":"Érkezés","lat":47.02,"lon":19.0}}]}""")
-        assertEquals(1_700_000L, trackingArrival(trip, leg()))
-        assertNull(trackingArrival(trip, leg().copy(tripId = "different")))
+        assertEquals(1_700_000L, trackingArrival(mavTrip(trip, "1970-01-01"), leg()))
+        assertNull(trackingArrival(mavTrip(trip, "1970-01-01"), leg().copy(tripId = "different")))
         trip.getJSONArray("stoptimes").getJSONObject(0).put("realtime", false)
-        assertNull(trackingArrival(trip, leg()))
+        assertNull(trackingArrival(mavTrip(trip, "1970-01-01"), leg()))
     }
 
     @Test fun speedSpikeCannotTriggerAnEarlyWarning() {

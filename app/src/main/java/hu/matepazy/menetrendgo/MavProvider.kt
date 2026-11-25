@@ -31,8 +31,7 @@ class MavProvider(private val client: MavClient, private val clock: () -> Long =
 
     override suspend fun trip(id: Gid, day: LocalDate, fresh: Boolean) = providerCall {
         val local = local(id) ?: return@providerCall ProviderResult.NotCovered
-        val provenance = Provenance.of(ProviderId.Mav, clock(), DataKind.Scheduled)
-        val trip = parseTripJson(client.onlineTrip(local, day.toString(), fresh, 75), day, ProviderId.Mav, provenance)
+        val trip = client.onlineTrip(local, day.toString(), fresh, 75)
         ProviderResult.Ok(trip, trip.provenance)
     }
 
@@ -124,35 +123,60 @@ internal fun Vehicle.toVehiclePosition(provenance: Provenance): VehiclePosition 
         headsign, heading, speedMetersPerSecond, positionUpdatedSeconds, model, registration, uicCode)
 }
 
-/** A MÁVPlusz-shaped trip (MÁVPlusz itself, and today also the offline network and utas.hu, which imitate it)
- * as a canonical [Trip]. Times follow [tripStopTime]: the call's own serviceDay, else [day]. */
+/** A MÁVPlusz trip as a canonical [Trip]. Stop times are local timetable seconds of the row's service date
+ * (its serviceDay, else the trip's first one, else [day]), so they stay right across a clock change ([vehicleStopTime]). */
 internal fun parseTripJson(trip: JSONObject, day: LocalDate, provider: ProviderId, provenance: Provenance): Trip {
-    fun JSONObject.text(key: String) = if (isNull(key)) "" else optString(key).trim().takeUnless { it == "null" }.orEmpty()
+    fun JSONObject.text(key: String) = if (isNull(key)) "" else optString(key).trim().takeUnless { it.equals("null", true) }.orEmpty()
     fun JSONObject.seconds(key: String) = if (isNull(key)) null else optLong(key, -1).takeIf { it >= 0 }
+    fun JSONObject.number(key: String) = if (isNull(key)) null else optDouble(key).takeIf { it.isFinite() }
     val route = trip.optJSONObject("route") ?: JSONObject()
     val transitRoute = TransitRoute(null, route.text("shortName"), route.text("longName"), ModeMapping.fromOtp(route.text("mode")),
         route.text("color"), route.text("textColor"), route.optJSONObject("agency")?.text("name")?.takeIf { it.isNotBlank() }?.let { Agency(null, it) },
         RouteLogo.parse(route))
+    val rows = trip.array("stoptimes")
+    fun serviceDate(seconds: Long) = Instant.ofEpochSecond(seconds).atZone(Budapest).toLocalDate()
+    val firstServiceDate = rows.firstNotNullOfOrNull { it.seconds("serviceDay") }?.let(::serviceDate) ?: day
     var live = false
-    val calls = trip.array("stoptimes").mapIndexedNotNull { index, row ->
-        val point = row.optJSONObject("stop") ?: return@mapIndexedNotNull null
-        val stop = runCatching { Station.parse(point) }.getOrNull()?.callStop(provider) ?: return@mapIndexedNotNull null
-        val date = row.seconds("serviceDay")?.let { Instant.ofEpochSecond(it).atZone(Budapest).toLocalDate() } ?: day
+    val calls = rows.mapIndexedNotNull { index, row ->
+        val stop = tripStop(row.optJSONObject("stop") ?: return@mapIndexedNotNull null, provider) ?: return@mapIndexedNotNull null
+        // A row without its own serviceDay shares its trip's origin rather than guessing local midnight.
+        val date = row.seconds("serviceDay")?.let(::serviceDate) ?: firstServiceDate
         val state = row.text("realtimeState")
         fun time(kind: String): TimePoint? {
             val scheduled = row.seconds("scheduled$kind") ?: return null
             val estimate = row.seconds("realtime$kind")
             val realtime = row.optBoolean("realtime") && estimate != null
             if (realtime) live = true
-            val status = when { state == "CANCELED" -> TimeStatus.Cancelled; state == "SKIPPED" -> TimeStatus.Skipped
+            val status = when { state == "CANCELED" || state == "CANCELLED" -> TimeStatus.Cancelled; state == "SKIPPED" -> TimeStatus.Skipped
                 realtime -> TimeStatus.Realtime; else -> TimeStatus.Scheduled }
             return TimePoint(vehicleStopTime(date, scheduled), vehicleStopTime(date, if (realtime) estimate!! else scheduled), status)
         }
-        Call(stop, index, time("Arrival"), time("Departure"))
+        Call(stop, index, time("Arrival"), time("Departure"), stopSequence = row.optInt("stopSequence", -1).takeIf { it >= 0 })
+    }
+    val vehicles = trip.array("vehiclePositions").map { v ->
+        val relationship = v.optJSONObject("stopRelationship")
+        TripVehicle(v.text("vehicleId"), v.text("label"), v.text("vehicleModel"), v.text("licensePlate"), v.text("uicCode"),
+            v.number("lat")?.takeIf { it in -90.0..90.0 }, v.number("lon")?.takeIf { it in -180.0..180.0 },
+            v.number("heading")?.takeIf { it in 0.0..360.0 }?.rem(360.0), v.number("speed")?.takeIf { it >= 0 },
+            v.optLong("lastUpdated", 0L).takeIf { it > 0 },
+            relationship?.let { VehicleStopStatus.gtfsRt(it.text("status")) },
+            relationship?.optJSONObject("stop")?.text("gtfsId")?.takeIf { it.isNotBlank() }?.let { Gid.of(provider, it) },
+            relationship?.optInt("stopSequence", -1)?.takeIf { it >= 0 },
+            relationship?.seconds("arrivalTime")?.let { vehicleStopTime(firstServiceDate, it) })
     }
     val summary = TripSummary(Gid.of(provider, trip.text("gtfsId").ifBlank { "@${calls.firstOrNull()?.time?.scheduled}" }), transitRoute,
         trip.text("tripHeadsign").ifBlank { calls.lastOrNull()?.stop?.name.orEmpty() }, day,
         trip.text("tripShortName"), trip.text("trainCategoryName"))
     return Trip(summary, calls, provenance.copy(kind = if (live && provenance.kind == DataKind.Scheduled) DataKind.Live else provenance.kind),
-        MavService.parseAll(trip))
+        MavService.parseAll(trip), vehicles = vehicles)
+}
+
+/** A stop needs an id, or a name with coordinates (the tracking query sends no ids); missing coordinates stay NaN. */
+internal fun tripStop(o: JSONObject, provider: ProviderId): Stop? {
+    fun text(key: String) = if (o.isNull(key)) "" else o.optString(key).trim().takeUnless { it.equals("null", true) }.orEmpty()
+    val lat = o.optDouble("lat").takeIf { it in -90.0..90.0 } ?: Double.NaN
+    val lon = o.optDouble("lon").takeIf { it in -180.0..180.0 } ?: Double.NaN
+    val id = text("gtfsId"); val name = text("name")
+    if (id.isBlank() && (name.isBlank() || lat.isNaN() || lon.isNaN())) return null
+    return Stop(if (id.isNotBlank()) Gid.of(provider, id) else Gid.of(provider, "@$lat,$lon"), name, lat, lon, platform = text("platformCode"))
 }

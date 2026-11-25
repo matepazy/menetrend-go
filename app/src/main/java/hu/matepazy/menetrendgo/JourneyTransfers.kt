@@ -1,7 +1,6 @@
 package hu.matepazy.menetrendgo
 
 import kotlinx.coroutines.CancellationException
-import org.json.JSONObject
 import java.time.Instant
 import kotlin.math.abs
 
@@ -18,10 +17,9 @@ internal data class TransferTimes(val arrival: TransferEstimate, val departure: 
 internal data class JourneyVehicleDetails(val model: String, val registration: String)
 
 /** Trip metadata can report a model even when no usable map coordinates are available. */
-internal fun journeyVehicleDetails(trip: JSONObject, leg: Leg): JourneyVehicleDetails? {
+internal fun journeyVehicleDetails(trip: Trip, leg: Leg): JourneyVehicleDetails? {
     if(transferStopEstimate(trip,leg,false,0)==null) return null
-    fun JSONObject.text(key: String) = optString(key).trim().takeUnless {isNull(key) || it.equals("null",true)}.orEmpty()
-    val vehicles=trip.array("vehiclePositions").map { JourneyVehicleDetails(it.text("vehicleModel"),it.text("licensePlate")) }
+    val vehicles=trip.vehicles.map { JourneyVehicleDetails(it.model,it.plate) }
     return vehicles.firstOrNull {it.model.isNotBlank()} ?: vehicles.firstOrNull {it.registration.isNotBlank()}
 }
 internal enum class TransferRisk { Scheduled, Unknown, Tight, Missed, Available, Cancelled, Past }
@@ -84,35 +82,31 @@ internal fun reachableTransferCandidates(journeys: List<Journey>, original: Leg,
 /** Identify an exact stop occurrence by provider ID and scheduled absolute time, including loops.
  * Older saved journeys have no stop IDs, so require both name and nearby coordinates in that case.
  */
-private fun journeyStopMatches(entry: JSONObject, station: Station): Boolean {
-    val stop=entry.optJSONObject("stop") ?: return false
-    return if(station.id.isNotBlank()) stop.optString("gtfsId")==station.id else
-        stop.optString("name")==station.name && abs(stop.optDouble("lat")-station.lat)<.001 && abs(stop.optDouble("lon")-station.lon)<.001
-}
+private fun journeyStopMatches(call: Call, station: Station): Boolean =
+    if(station.id.isNotBlank()) call.stop.id.local==station.id else
+        call.stop.name==station.name && abs(call.stop.lat-station.lat)<.001 && abs(call.stop.lon-station.lon)<.001
 
-private fun journeyEndpointMatches(entry: JSONObject, leg: Leg, arrival: Boolean): Boolean {
+private fun Call.endpoint(arrival: Boolean) = if (arrival) this.arrival else departure
+
+private fun journeyEndpointMatches(call: Call, leg: Leg, arrival: Boolean): Boolean {
     val station = if (arrival) leg.to else leg.from
     val original = if (arrival) leg.arrivalTime else leg.departureTime
-    val suffix = if (arrival) "Arrival" else "Departure"
-    return journeyStopMatches(entry,station) && !entry.isNull("serviceDay") && !entry.isNull("scheduled$suffix") &&
-        (entry.optLong("serviceDay")+entry.optLong("scheduled$suffix"))*1000==original.scheduled
+    return journeyStopMatches(call,station) && call.endpoint(arrival)?.scheduled==original.scheduled
 }
 
-internal fun transferStopEstimate(trip: JSONObject, leg: Leg, arrival: Boolean, fetchedAt: Long): TransferEstimate? {
-    if (trip.optString("gtfsId") != leg.tripId) return null
+internal fun transferStopEstimate(trip: Trip, leg: Leg, arrival: Boolean, fetchedAt: Long): TransferEstimate? {
+    if (trip.id.local != leg.tripId) return null
     val original=if(arrival) leg.arrivalTime else leg.departureTime
-    val suffix=if(arrival) "Arrival" else "Departure"
-    val entry=trip.array("stoptimes").filter {journeyEndpointMatches(it,leg,arrival)}.singleOrNull() ?: return null
-    val realtime = entry.optBoolean("realtime") && !entry.isNull("realtime$suffix") && entry.optLong("realtime$suffix") >= 0
-    val estimate = if (realtime) (entry.getLong("serviceDay") + entry.getLong("realtime$suffix")) * 1000 else original.scheduled
-    return TransferEstimate(ServiceTime(original.scheduled, estimate, realtime), fetchedAt,
-        cancelled = entry.optString("realtimeState") in setOf("CANCELED", "CANCELLED"))
+    val point=trip.calls.filter {journeyEndpointMatches(it,leg,arrival)}.singleOrNull()?.endpoint(arrival) ?: return null
+    val realtime = point.status == TimeStatus.Realtime
+    return TransferEstimate(ServiceTime(original.scheduled, if (realtime) point.estimate else original.scheduled, realtime), fetchedAt,
+        cancelled = point.status == TimeStatus.Cancelled)
 }
 
 /** Bound the ridden segment first, then match repeated stations in timetable order. */
-internal fun journeyIntermediateTimes(trip: JSONObject, leg: Leg): List<ServiceTime?>? {
-    if(trip.optString("gtfsId")!=leg.tripId) return null
-    val stops=trip.array("stoptimes")
+internal fun journeyIntermediateTimes(trip: Trip, leg: Leg): List<ServiceTime?>? {
+    if(trip.id.local!=leg.tripId) return null
+    val stops=trip.calls
     val from=stops.indices.filter {journeyEndpointMatches(stops[it],leg,false)}.singleOrNull() ?: return null
     val to=stops.indices.filter {journeyEndpointMatches(stops[it],leg,true)}.singleOrNull() ?: return null
     if(to<=from) return null
@@ -121,17 +115,10 @@ internal fun journeyIntermediateTimes(trip: JSONObject, leg: Leg): List<ServiceT
         val index=(cursor until to).firstOrNull {journeyStopMatches(stops[it],station)}
         if(index==null) null else {
             cursor=index+1
-            // Missing service-day evidence must never assign a time from another day.
-            val entry=stops[index]
-            fun seconds(key: String)=if(entry.isNull(key)) null else entry.optLong(key,-1).takeIf {it>=0}
-            val serviceDay=seconds("serviceDay")
-            val suffix=if(seconds("scheduledDeparture")!=null) "Departure" else "Arrival"
-            val scheduled=seconds("scheduled$suffix")
-            val estimate=seconds("realtime$suffix")
-            if(serviceDay==null || scheduled==null) null else {
-                val realtime=entry.optBoolean("realtime") && estimate!=null
-                // Use the same provider service-day origin as the refreshed journey endpoints.
-                ServiceTime((serviceDay+scheduled)*1000,(serviceDay+if(realtime) estimate!! else scheduled)*1000,realtime)
+            // Departure first; the parser already placed both on the provider's service-day origin.
+            stops[index].time?.let {
+                val realtime=it.status==TimeStatus.Realtime
+                ServiceTime(it.scheduled,if(realtime) it.estimate else it.scheduled,realtime)
             }
         }
     }
@@ -143,8 +130,8 @@ internal fun onwardSearchTime(arrival: Long, now: Long): java.time.LocalDateTime
 
 /** Refresh exact stop occurrences for every ridden leg, retaining estimates when requests fail. */
 internal suspend fun refreshJourneyLegTimes(journey: Journey, previous: Map<Int, TransferTimes>,
-    fetchTrip: suspend (String, String) -> JSONObject): Map<Int, TransferTimes> {
-    val trips = mutableMapOf<Pair<String, String>, JSONObject?>()
+    fetchTrip: suspend (String, String) -> Trip): Map<Int, TransferTimes> {
+    val trips = mutableMapOf<Pair<String, String>, Trip?>()
     suspend fun endpoint(index: Int, arrival: Boolean, old: TransferEstimate): TransferEstimate {
         val leg = journey.legs[index]
         if (leg.tripId.isBlank()) return old.copy(failed = true)

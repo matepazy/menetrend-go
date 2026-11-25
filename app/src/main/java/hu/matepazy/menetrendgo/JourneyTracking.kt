@@ -220,14 +220,12 @@ internal fun liveArrivalWarning(session: TrackingSession, arrival: Long?, fetche
         arrival - now in -30_000..session.warningMinutes * 60_000L
 
 /** Match the exact trip's stop occurrence by coordinates and scheduled time, including loops. */
-internal fun trackingArrival(trip: JSONObject, leg: Leg): Long? {
-    if (trip.optString("gtfsId") != leg.tripId) return null
-    return trip.array("stoptimes").filter { entry ->
-        val stop = entry.optJSONObject("stop") ?: return@filter false
-        stop.optString("name") == leg.to.name &&
-            trackDistance(leg.to.trackPoint(), TrackPoint(stop.optDouble("lat"), stop.optDouble("lon"))) < 150 &&
-            abs((entry.optLong("serviceDay") + entry.optLong("scheduledArrival")) * 1000 - leg.arrivalTime.scheduled) < 120_000
-    }.singleOrNull()?.takeIf { it.optBoolean("realtime") }?.let {
-        (it.getLong("serviceDay") + it.getLong("realtimeArrival")) * 1000
-    }
+internal fun trackingArrival(trip: Trip, leg: Leg): Long? {
+    if (trip.id.local != leg.tripId) return null
+    return trip.calls.filter { call ->
+        val arrival = call.arrival ?: return@filter false
+        call.stop.name == leg.to.name &&
+            trackDistance(leg.to.trackPoint(), TrackPoint(call.stop.lat, call.stop.lon)) < 150 &&
+            abs(arrival.scheduled - leg.arrivalTime.scheduled) < 120_000
+    }.singleOrNull()?.arrival?.takeIf { it.status == TimeStatus.Realtime }?.estimate
 }

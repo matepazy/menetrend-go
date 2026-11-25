@@ -27,7 +27,7 @@ import kotlinx.coroutines.delay
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable fun StopBoardDrawer(station: Station, dismiss: () -> Unit,
     fetch: (suspend (String) -> List<StopDeparture>)? = null,
-    fetchTrip: (suspend (String, String) -> org.json.JSONObject)? = null,
+    fetchTrip: (suspend (String, String) -> Trip)? = null,
     liveVehicles: List<Vehicle> = emptyList(),
     showVehicleOnMap: ((Vehicle, String) -> Unit)? = null) {
     val context = LocalContext.current

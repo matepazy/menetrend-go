@@ -37,7 +37,7 @@ class VehicleStopsTest {
             {"serviceDay":1792879200,"scheduledArrival":75600,"scheduledDeparture":75600,
              "realtime":true,"realtimeArrival":75619,"realtimeDeparture":75619,
              "stop":{"gtfsId":"gyor","name":"Győr"}}]}""")
-        val stops=vehicleStops(detail,"2026-10-25")
+        val stops=mavTrip(detail,"2026-10-25").vehicleStops()
         assertEquals("20:22",timeLabel(stops.first().scheduled))
         assertEquals("21:00",timeLabel(stops.last().scheduled))
         assertEquals(listOf("Kisbér","Győr"),upcomingVehicleStops(stops,
@@ -53,10 +53,11 @@ class VehicleStopsTest {
     }
 
     private val vehicle=Vehicle("trip","1507/11","","COACH",47.4,18.1,vehicleId="selected")
-    private fun progress(id: String, status: String="IN_TRANSIT_TO", vehicleId: String="selected", arrival: Long=0): JSONObject =
-        JSONObject().put("vehiclePositions",JSONArray().put(JSONObject().put("vehicleId",vehicleId)
+    private val day="2026-11-08"
+    private fun progress(id: String, status: String="IN_TRANSIT_TO", vehicleId: String="selected", arrival: Long=0): Trip =
+        mavTrip(JSONObject().put("vehiclePositions",JSONArray().put(JSONObject().put("vehicleId",vehicleId)
             .put("stopRelationship",JSONObject().put("status",status).put("arrivalTime",arrival)
-                .put("stop",JSONObject().put("gtfsId",id)))))
+                .put("stop",JSONObject().put("gtfsId",id))))),day)
 
     @Test fun liveStopIdentityWinsOverElapsedTimetableAndDuplicateNames() {
         val stops=listOf(stop("Same station",0).copy(id="platform-a"),
@@ -75,11 +76,12 @@ class VehicleStopsTest {
     }
 
     @Test fun repeatedStopIdsUseTheReportedVisitTime() {
-        val stops=listOf(stop("Loop",0).copy(id="loop"),stop("Middle",60_000).copy(id="middle"),
-            stop("Loop",120_000).copy(id="loop"))
-        val detail=progress("loop",arrival=120).put("stoptimes",JSONArray("""[
-            {"realtimeArrival":0},{"realtimeArrival":60},{"realtimeArrival":120}]"""))
-        assertEquals(stops.takeLast(1),upcomingVehicleStops(stops,300_000,detail,vehicle))
+        // The reported arrival is local timetable seconds of the service day, like the stop times.
+        val base=vehicleStopTime(LocalDate.parse(day),0)
+        val stops=listOf(stop("Loop",base).copy(id="loop"),stop("Middle",base+60_000).copy(id="middle"),
+            stop("Loop",base+120_000).copy(id="loop"))
+        assertEquals(stops.takeLast(1),upcomingVehicleStops(stops,base+300_000,progress("loop",arrival=120),vehicle))
+        assertEquals(stops,upcomingVehicleStops(stops,base+300_000,progress("loop",arrival=0),vehicle))
     }
     @Test fun delaySummaryUsesMinuteResolutionAndDataStatus() {
         assertEquals("23 perc késés",vehicleDelaySummary(stop("Késik",18*3_600_000L,18*3_600_000L+23*60_000+30_000)))

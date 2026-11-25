@@ -213,8 +213,8 @@ import kotlinx.coroutines.withContext
     val focusVehicle=visibleVehicles.firstOrNull {it.id==focusId}
     val focusDetail=focusVehicle?.let {vm.mapVehicleDetail(it)}
     val focusStops=remember(focusDetail) {
-        focusDetail?.array("stoptimes").orEmpty().mapNotNull {time ->
-            time.optJSONObject("stop")?.takeIf {it.has("lat") && it.has("lon")}?.let {JSONObject().put("lat",it.getDouble("lat")).put("lon",it.getDouble("lon"))}
+        focusDetail?.calls.orEmpty().mapNotNull {call ->
+            call.stop.takeIf {it.lat.isFinite() && it.lon.isFinite()}?.let {JSONObject().put("lat",it.lat).put("lon",it.lon)}
         }
     }
     // Return to the earlier view only when the rider chose the vehicle on this map instance.

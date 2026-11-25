@@ -45,22 +45,29 @@ class JourneyTransfersTest {
     }
 
     private val day = LocalDate.of(2026, 10, 25).atStartOfDay(Budapest).toEpochSecond()
+    /** Local timetable seconds on the clock-change day, the same instants OTP gives journey legs. */
+    private fun at(seconds: Long) = vehicleStopTime(LocalDate.of(2026, 10, 25), seconds)
     private fun entry(seconds: Long = 90_000) = JSONObject().put("serviceDay", day).put("scheduledArrival", seconds)
         .put("realtimeArrival", seconds+120).put("realtime", true).put("stop", station.json().put("gtfsId", station.id))
+    private fun journeyIntermediateTimesJson(trip: JSONObject, leg: Leg) = journeyIntermediateTimes(mavTrip(trip), leg)
+    private fun journeyVehicleDetailsJson(trip: JSONObject, leg: Leg) = journeyVehicleDetails(mavTrip(trip), leg)
+    private fun transferStopEstimateJson(trip: JSONObject, leg: Leg, arrival: Boolean, fetchedAt: Long) =
+        transferStopEstimate(mavTrip(trip), leg, arrival, fetchedAt)
     private fun trip(vararg entries: JSONObject) = JSONObject().put("gtfsId", "trip").put("stoptimes", JSONArray(entries.toList()))
 
     @Test fun intermediateTimesRespectTheRiddenSegmentRepeatedStopsAndMissingData() {
-        val leg=leg((day+89_000)*1000,(day+90_000)*1000).copy(intermediate=listOf(station,station,station.copy(id="missing")))
+        val leg=leg(at(89_000),at(90_000)).copy(intermediate=listOf(station,station,station.copy(id="missing")))
         fun departure(seconds: Long)=entry(seconds).put("scheduledDeparture",seconds).put("realtimeDeparture",seconds+60)
         val response=trip(departure(88_000),departure(89_000),departure(89_200),entry(89_600),entry(90_000),departure(91_000))
-        val times=journeyIntermediateTimes(response,leg)!!
-        assertEquals(ServiceTime((day+89_200)*1000,(day+89_260)*1000,true),times[0])
-        assertEquals(ServiceTime((day+89_600)*1000,(day+89_720)*1000,true),times[1])
+        val times=journeyIntermediateTimesJson(response,leg)!!
+        assertEquals(ServiceTime(at(89_200),at(89_260),true),times[0])
+        assertEquals(ServiceTime(at(89_600),at(89_720),true),times[1])
         assertNull(times[2])
-        assertNull(journeyIntermediateTimes(response,leg.copy(tripId="other")))
-        assertNull(journeyIntermediateTimes(response,leg.copy(start=leg.start+86_400_000)))
+        assertNull(journeyIntermediateTimesJson(response,leg.copy(tripId="other")))
+        assertNull(journeyIntermediateTimesJson(response,leg.copy(start=leg.start+86_400_000)))
+        // A row without its own serviceDay shares the trip's origin, so the time stays exact across the DST change.
         response.getJSONArray("stoptimes").getJSONObject(2).remove("serviceDay")
-        assertNull(journeyIntermediateTimes(response,leg)!![0])
+        assertEquals(times[0],journeyIntermediateTimesJson(response,leg)!![0])
     }
 
     @Test fun intermediateStopsRetainProviderIds() {
@@ -71,34 +78,34 @@ class JourneyTransfersTest {
     }
 
     @Test fun tripVehicleModelRequiresTheExactDepartureOccurrenceAndNoCoordinates() {
-        val leg=leg((day+89_000)*1000,(day+90_000)*1000)
+        val leg=leg(at(89_000),at(90_000))
         val response=trip(entry(89_000).put("scheduledDeparture",89_000))
             .put("vehiclePositions",JSONArray().put(JSONObject().put("vehicleModel","Bombardier-TRAXX").put("licensePlate","480 001")))
-        assertEquals(JourneyVehicleDetails("Bombardier-TRAXX","480 001"),journeyVehicleDetails(response,leg))
-        assertNull(journeyVehicleDetails(response,leg.copy(tripId="different")))
-        assertNull(journeyVehicleDetails(response,leg.copy(start=leg.start+86_400_000)))
+        assertEquals(JourneyVehicleDetails("Bombardier-TRAXX","480 001"),journeyVehicleDetailsJson(response,leg))
+        assertNull(journeyVehicleDetailsJson(response,leg.copy(tripId="different")))
+        assertNull(journeyVehicleDetailsJson(response,leg.copy(start=leg.start+86_400_000)))
         response.put("vehiclePositions",JSONArray().put(JSONObject().put("vehicleModel",JSONObject.NULL)))
-        assertNull(journeyVehicleDetails(response,leg))
+        assertNull(journeyVehicleDetailsJson(response,leg))
     }
 
     @Test fun directJourneyRefreshesBothEndpointsWithOneRequestAndSkipsWalking() = runBlocking {
-        val start = (day + 89_000) * 1000
-        val end = (day + 90_000) * 1000
+        val start = at(89_000)
+        val end = at(90_000)
         val journey = Journey(1000, listOf(leg(start - 60_000, start, "WALK"), leg(start, end).copy(intermediate=listOf(station))))
         var requests = 0
         val refreshed = refreshJourneyLegTimes(journey, emptyMap()) { _, _ ->
             requests++
-            trip(entry(89_000).put("scheduledDeparture", 89_000).put("realtimeDeparture", 89_060), entry(89_500),entry())
+            mavTrip(trip(entry(89_000).put("scheduledDeparture", 89_000).put("realtimeDeparture", 89_060), entry(89_500),entry()))
         }
         assertEquals(setOf(1), refreshed.keys)
         assertEquals(1, requests)
         assertEquals(start + 60_000, refreshed.getValue(1).departure.time.estimate)
         assertEquals(end + 120_000, refreshed.getValue(1).arrival.time.estimate)
-        assertEquals((day+89_620)*1000,refreshed.getValue(1).intermediate.single()!!.estimate)
+        assertEquals(at(89_620),refreshed.getValue(1).intermediate.single()!!.estimate)
     }
 
     @Test fun journeyRefreshRetainsLastKnownTimesOnFailureAndPropagatesCancellation() = runBlocking {
-        val journey = Journey(60, listOf(leg((day + 89_000) * 1000, (day + 90_000) * 1000)))
+        val journey = Journey(60, listOf(leg(at(89_000), at(90_000))))
         val previous = mapOf(0 to times(now, now + 60_000))
         val refreshed = refreshJourneyLegTimes(journey, previous) { _, _ -> error("Offline") }
         assertEquals(previous.getValue(0).arrival.time, refreshed.getValue(0).arrival.time)
@@ -112,25 +119,25 @@ class JourneyTransfersTest {
     }
 
     @Test fun matchesExactServiceDayAndStopOccurrenceBeyondMidnightAcrossDst() {
-        val arrival = (day+90_000)*1000
+        val arrival = at(90_000)
         val leg = leg(arrival-60_000, arrival)
-        val result = transferStopEstimate(trip(entry(), entry(80_000)), leg, true, now)!!
+        val result = transferStopEstimateJson(trip(entry(), entry(80_000)), leg, true, now)!!
         assertEquals(arrival+120_000, result.time.estimate)
-        assertNull(transferStopEstimate(trip(entry()).put("gtfsId", "other"), leg, true, now))
-        assertNull(transferStopEstimate(trip(entry().put("serviceDay", day-86400)), leg, true, now))
-        assertNull(transferStopEstimate(trip(entry().put("stop", station.json().put("gtfsId", "other"))), leg, true, now))
-        assertNull(transferStopEstimate(trip(entry(), entry()), leg, true, now))
+        assertNull(transferStopEstimateJson(trip(entry()).put("gtfsId", "other"), leg, true, now))
+        assertNull(transferStopEstimateJson(trip(entry().put("serviceDay", day-86400)), leg, true, now))
+        assertNull(transferStopEstimateJson(trip(entry().put("stop", station.json().put("gtfsId", "other"))), leg, true, now))
+        assertNull(transferStopEstimateJson(trip(entry(), entry()), leg, true, now))
     }
 
     @Test fun missingRealtimeFallsBackToScheduleAndCancellationIsPreserved() {
-        val arrival = (day+90_000)*1000
+        val arrival = at(90_000)
         val leg = leg(arrival-60_000, arrival)
-        val result = transferStopEstimate(trip(entry().put("realtimeArrival", JSONObject.NULL).put("realtimeState", "CANCELED")), leg, true, now)!!
+        val result = transferStopEstimateJson(trip(entry().put("realtimeArrival", JSONObject.NULL).put("realtimeState", "CANCELED")), leg, true, now)!!
         assertFalse(result.time.realtime)
         assertEquals(arrival, result.time.estimate)
         assertTrue(result.cancelled)
         val departure = entry().put("scheduledDeparture", 89_940).put("realtimeDeparture", 90_000)
-        assertEquals(arrival, transferStopEstimate(trip(departure), leg, false, now)!!.time.estimate)
+        assertEquals(arrival, transferStopEstimateJson(trip(departure), leg, false, now)!!.time.estimate)
     }
 
     @Test fun onwardSearchUsesLaterOfArrivalAndNowAndRoundsForward() {

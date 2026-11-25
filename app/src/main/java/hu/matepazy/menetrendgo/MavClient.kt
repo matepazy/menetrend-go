@@ -18,7 +18,7 @@ class MavClient(private val http: HttpTransport = HttpTransport.Default) {
     private val headers=mapOf("Accept" to "application/json","Origin" to "https://mavplusz.hu","Referer" to "https://mavplusz.hu/")
     private val vehicleLock=Mutex()
     private var vehicleCache: Pair<List<Vehicle>,Long>?=null
-    private val trips=mutableMapOf<String,Pair<JSONObject,Long>>()
+    private val trips=mutableMapOf<String,Pair<Trip,Long>>()
     private val tripLock=Mutex()
 
     private fun request(path: String, query: String?=null, onRawResponse: ((String) -> Unit)?=null): JSONObject {
@@ -108,9 +108,9 @@ class MavClient(private val http: HttpTransport = HttpTransport.Default) {
             }
         }
     }
-    suspend fun trip(id: String,day: String,forceRefresh: Boolean = false,refreshSeconds: Int = 75): JSONObject =
+    suspend fun trip(id: String,day: String,forceRefresh: Boolean = false,refreshSeconds: Int = 75): Trip =
         withOfflineFallback({ net -> net.trip(id, day) ?: throw OfflineNotCovered() }) { onlineTrip(id, day, forceRefresh, refreshSeconds) }
-    internal suspend fun onlineTrip(id: String,day: String,forceRefresh: Boolean,refreshSeconds: Int): JSONObject = withContext(Dispatchers.IO) {
+    internal suspend fun onlineTrip(id: String,day: String,forceRefresh: Boolean,refreshSeconds: Int): Trip = withContext(Dispatchers.IO) {
         require(id.length in 1..250);LocalDate.parse(day)
         tripLock.withLock {
             val key="$id|$day";val now=System.currentTimeMillis()/1000
@@ -118,16 +118,18 @@ class MavClient(private val http: HttpTransport = HttpTransport.Default) {
                 val result=request("/index/graphql",MavQueries.trip(id,day)).optJSONObject("trip")
                     ?: throw IllegalStateException("Ehhez a járathoz nincs részletes menetrend.")
                 normalizeRoute(result.optJSONObject("route"),result.optString("tripShortName").ifBlank {result.optString("trainCategoryName")})
+                val trip=parseTripJson(result,LocalDate.parse(day),ProviderId.Mav,Provenance.of(ProviderId.Mav,System.currentTimeMillis(),DataKind.Scheduled))
                 if(trips.size>100) trips.clear()
-                trips[key]=result to System.currentTimeMillis()/1000
-                result
+                trips[key]=trip to System.currentTimeMillis()/1000
+                trip
             }
         }
     }
     /** Tracking only needs arrival evidence, not facilities, vehicles or route descriptions. */
-    suspend fun trackingTrip(id: String, day: String): JSONObject = withContext(Dispatchers.IO) {
-        request("/index/graphql", MavQueries.trackingTrip(id, day)).optJSONObject("trip")
+    suspend fun trackingTrip(id: String, day: String): Trip = withContext(Dispatchers.IO) {
+        val result = request("/index/graphql", MavQueries.trackingTrip(id, day)).optJSONObject("trip")
             ?: throw IllegalStateException("Ehhez a járathoz nincs részletes menetrend.")
+        parseTripJson(result, LocalDate.parse(day), ProviderId.Mav, Provenance.of(ProviderId.Mav, System.currentTimeMillis(), DataKind.Scheduled))
     }
 
     private var networkAlertCache: Pair<List<NetworkAlert>,Long>?=null

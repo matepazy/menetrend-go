@@ -8,7 +8,6 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import org.json.JSONArray
 import org.json.JSONObject
 import java.net.URLEncoder
 import java.time.LocalDate
@@ -25,7 +24,7 @@ class UtasClient(private val http: HttpTransport = HttpTransport.Default) {
     private val lock = Mutex()
     private var cache: Pair<List<Vehicle>, Long>? = null
     private val tripLock = Mutex()
-    private val trips = mutableMapOf<Pair<String, LocalDate>, Pair<JSONObject, Long>>()
+    private val trips = mutableMapOf<Pair<String, LocalDate>, Pair<Trip, Long>>()
 
     private fun request(tile: UtasTile): JSONObject = request(
         "vehicles-for-location",
@@ -44,7 +43,7 @@ class UtasClient(private val http: HttpTransport = HttpTransport.Default) {
         return JSONObject(response.body)
     }
 
-    suspend fun trip(id: String, date: LocalDate, refreshSeconds: Int): JSONObject = withContext(Dispatchers.IO) {
+    suspend fun trip(id: String, date: LocalDate, refreshSeconds: Int): Trip = withContext(Dispatchers.IO) {
         tripLock.withLock {
             val key = id to date
             val now = System.currentTimeMillis() / 1000
@@ -177,50 +176,45 @@ internal fun parseUtasVehicles(body: JSONObject): List<Vehicle> {
     }
 }
 
-/** Adapt the trip envelope for the existing live vehicle drawer and map stop overlay. */
-internal fun parseUtasTrip(body: JSONObject, id: String, date: LocalDate): JSONObject {
+/** A utas.hu trip as a canonical [Trip]. Its stop times are Unix seconds; its vehicle carries only stop progress. */
+internal fun parseUtasTrip(body: JSONObject, id: String, date: LocalDate, fetchedAt: Long = System.currentTimeMillis()): Trip {
     val data = body.optJSONObject("data")
     val entry = data?.optJSONObject("entry")
     check(body.optInt("code") == 200 && data != null && !data.optBoolean("limitExceeded") &&
         entry != null && entry.utasText("tripId") == id && utasDate(entry.utasText("serviceDate")) == date
     ) { "Ehhez a járathoz nincs részletes menetrend az utas.hu-n." }
     val references = data.optJSONObject("references")?.optJSONObject("stops")
-    val times = entry.array("stopTimes").mapNotNull { time ->
+    var live = false
+    val calls = entry.array("stopTimes").mapNotNull { time ->
         val arrival = time.optLong("arrivalTime").takeIf { it > 0 }
         val departure = time.optLong("departureTime").takeIf { it > 0 }
         if (arrival == null && departure == null) return@mapNotNull null
         val idAtStop = time.utasText("stopId")
         val reference = references?.optJSONObject(idAtStop)
-        val stop = JSONObject().put("gtfsId", idAtStop)
-            .put("name", reference?.utasText("name").orEmpty().ifBlank { "Ismeretlen megálló" })
-            .put("platformCode", reference?.utasText("platformCode").orEmpty())
-        reference?.optDouble("lat")?.takeIf { it in -90.0..90.0 }?.let { stop.put("lat", it) }
-        reference?.optDouble("lon")?.takeIf { it in -180.0..180.0 }?.let { stop.put("lon", it) }
-
+        val stop = Stop(if (idAtStop.isNotBlank()) Gid.of(ProviderId.Utas, idAtStop) else Gid.of(ProviderId.Utas, "@${arrival ?: departure}"),
+            reference?.utasText("name").orEmpty().ifBlank { "Ismeretlen megálló" },
+            reference?.optDouble("lat")?.takeIf { it in -90.0..90.0 } ?: Double.NaN,
+            reference?.optDouble("lon")?.takeIf { it in -180.0..180.0 } ?: Double.NaN,
+            platform = reference?.utasText("platformCode").orEmpty())
         val predictedArrival = time.optLong("predictedArrivalTime").takeIf { it > 0 && arrival != null }
         val predictedDeparture = time.optLong("predictedDepartureTime").takeIf { it > 0 && departure != null }
-        JSONObject().put("stop", stop)
-            .put("stopSequence", time.optInt("stopSequence", -1))
-            .put("scheduledArrival", arrival)
-            .put("scheduledDeparture", departure)
-            .put("realtimeArrival", if (arrival == null) predictedDeparture else predictedArrival)
-            .put("realtimeDeparture", predictedDeparture)
-            .put("realtime", !time.optBoolean("predictionScheduled") &&
-                (predictedArrival != null || predictedDeparture != null))
-    }
-    check(times.isNotEmpty()) { "Ehhez a járathoz nincs megállóadat az utas.hu-n." }
+        val realtime = !time.optBoolean("predictionScheduled") && (predictedArrival != null || predictedDeparture != null)
+        if (realtime) live = true
+        fun point(scheduled: Long?, predicted: Long?) = scheduled?.let {
+            if (realtime && predicted != null) TimePoint(it * 1000, predicted * 1000, TimeStatus.Realtime) else TimePoint(it * 1000)
+        }
+        Call(stop, 0, point(arrival, predictedArrival), point(departure, predictedDeparture),
+            stopSequence = time.optInt("stopSequence", -1).takeIf { it >= 0 })
+    }.mapIndexed { index, call -> call.copy(sequence = index) }
+    check(calls.isNotEmpty()) { "Ehhez a járathoz nincs megállóadat az utas.hu-n." }
 
-    val detail = JSONObject().put("usesUnixStopTimes", true).put("stoptimes", JSONArray(times))
     val vehicle = entry.optJSONObject("vehicle")
     val updated = vehicle?.optLong("lastUpdateTime") ?: 0L
     val now = body.optLong("currentTime") / 1000
-    if (vehicle != null && updated > 0 && now - updated in 0..UTAS_MAX_AGE_SECONDS) {
-        val relationship = JSONObject().put("status", vehicle.utasText("status"))
-            .put("stopSequence", vehicle.optInt("stopSequence", -1))
-            .put("stop", JSONObject().put("gtfsId", vehicle.utasText("stopId")))
-        val position = JSONObject().put("vehicleId", vehicle.utasText("vehicleId"))
-            .put("stopRelationship", relationship)
-        detail.put("vehiclePositions", JSONArray().put(position))
-    }
-    return detail
+    val vehicles = if (vehicle != null && updated > 0 && now - updated in 0..UTAS_MAX_AGE_SECONDS) listOf(TripVehicle(
+        vehicle.utasText("vehicleId"), stopStatus = VehicleStopStatus.gtfsRt(vehicle.utasText("status")),
+        stopId = vehicle.utasText("stopId").takeIf { it.isNotBlank() }?.let { Gid.of(ProviderId.Utas, it) },
+        stopSequence = vehicle.optInt("stopSequence", -1).takeIf { it >= 0 })) else emptyList()
+    val summary = TripSummary(Gid.of(ProviderId.Utas, id), TransitRoute(null, "", "", Mode.OTHER), calls.last().stop.name, date)
+    return Trip(summary, calls, Provenance.of(ProviderId.Utas, fetchedAt, if (live) DataKind.Live else DataKind.Scheduled), vehicles = vehicles)
 }

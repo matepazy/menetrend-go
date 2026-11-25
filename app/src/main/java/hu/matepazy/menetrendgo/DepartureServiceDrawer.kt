@@ -18,20 +18,19 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
-import org.json.JSONObject
 
 /** Own the request and dismissal independently of the departure board and map details. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable internal fun DepartureServiceDrawer(
     departure: StopDeparture,
     dismiss: () -> Unit,
-    fetch: (suspend (String, String) -> JSONObject)? = null,
+    fetch: (suspend (String, String) -> Trip)? = null,
     showOnMap: ((Vehicle) -> Unit)? = null,
     liveVehicles: List<Vehicle> = emptyList(),
 ) {
     val client = remember { MavClient() }
     val lifecycle = LocalLifecycleOwner.current.lifecycle
-    var detail by remember(departure.key) { mutableStateOf<JSONObject?>(null) }
+    var detail by remember(departure.key) { mutableStateOf<Trip?>(null) }
     var error by remember(departure.key) { mutableStateOf<String?>(null) }
     var loading by remember(departure.key) { mutableStateOf(true) }
     var refresh by remember { mutableIntStateOf(0) }
@@ -56,13 +55,11 @@ import org.json.JSONObject
             while (true) { now = System.currentTimeMillis(); delay(15_000) }
         }
     }
-    val stops = remember(detail, departure.serviceDay) {
-        detail?.let { vehicleStops(it, departure.serviceDay) }.orEmpty()
-    }
-    val position = remember(detail) { detail?.array("vehiclePositions")?.singleOrNull() }
+    val stops = remember(detail) { detail?.vehicleStops().orEmpty() }
+    val position = remember(detail) { detail?.vehicles?.singleOrNull() }
     val trackedVehicle = remember(detail, departure.tripId, liveVehicles) {
         detail?.let { trip ->
-            position?.let { parseVehiclePosition(it, trip) }?.takeIf { it.id == departure.tripId }?.let { tracked ->
+            position?.let { trip.liveVehicle(it) }?.takeIf { it.id == departure.tripId }?.let { tracked ->
                 liveVehicles.firstOrNull {
                     tracked.vehicleId.isNotBlank() && it.id == tracked.id && it.vehicleId == tracked.vehicleId
                 } ?: tracked
@@ -76,10 +73,8 @@ import org.json.JSONObject
                 routeColor = departure.leg.routeColor, category = departure.leg.category,
                 routeLongName = departure.leg.routeLongName, routeLogo = departure.leg.routeLogo,
                 agencyName = departure.leg.agencyName, routeShortName = departure.leg.routeShortName,
-                model = position?.optString("vehicleModel")?.takeUnless { it == "null" }.orEmpty(),
-                registration = position?.optString("licensePlate")?.takeUnless { it == "null" }.orEmpty(),
-                vehicleId = position?.optString("vehicleId")?.takeUnless { it == "null" }.orEmpty(),
-                positionUpdatedSeconds = position?.optLong("lastUpdated")?.takeIf { it > 0 })
+                model = position?.model.orEmpty(), registration = position?.plate.orEmpty(),
+                vehicleId = position?.id.orEmpty(), positionUpdatedSeconds = position?.updatedSeconds)
         }
         val mapAction: (() -> Unit)? = if (trackedVehicle != null && showOnMap != null) {
             { showOnMap(trackedVehicle) }
@@ -96,7 +91,7 @@ import org.json.JSONObject
             Text(when {
                 departure.cancelled -> "Kimaradó járat · tervezett menetrend"
                 detail == null -> "Járatadatok betöltése"
-                detail?.optBoolean("offline") == true -> "Offline menetrend · ${departure.serviceDay}"
+                detail?.offline == true -> "Offline menetrend · ${departure.serviceDay}"
                 else -> "Tervezett menetrend · ${departure.serviceDay}"
             }, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(top = AppLayout.CompactGap, bottom = AppLayout.ItemGap))

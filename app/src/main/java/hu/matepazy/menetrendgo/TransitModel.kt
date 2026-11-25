@@ -92,7 +92,7 @@ enum class TimeStatus { Scheduled, Realtime, Cancelled, Skipped }
     val color: String = "", val textColor: String = "", val agency: Agency? = null, val logo: RouteLogo? = null)
 
 /** A provider stop or station. A station's platforms point to it through [parentId]; [aliases] are
- * the same stop's ids at other providers, learnt from feeds or merges. */
+ * the same stop's ids at other providers, learnt from feeds or merges. [lat]/[lon] are NaN when the provider gave none. */
 @Immutable data class Stop(val id: Gid, val name: String, val lat: Double, val lon: Double,
     val parentId: Gid? = null, val platform: String = "", val modes: Set<Mode> = emptySet(),
     val locality: String = "", val aliases: Set<Gid> = emptySet()) {
@@ -118,10 +118,12 @@ enum class Boarding { Regular, None, PhoneAgency, AskDriver;
     companion object { fun gtfs(value: Int) = entries.getOrElse(value) { Regular } }
 }
 
-/** A trip's stop at one stop; terminal calls have only one of the two times. */
+/** A trip's stop at one stop; terminal calls have only one of the two times. [sequence] is the position in
+ * the trip, [stopSequence] the provider's own GTFS stop_sequence when it reports one. */
 @Immutable data class Call(val stop: Stop, val sequence: Int, val arrival: TimePoint?, val departure: TimePoint?,
-    val platform: String = stop.platform, val pickup: Boarding = Boarding.Regular, val dropoff: Boarding = Boarding.Regular) {
-    /** Departure first, falling back to the arrival at the terminus (as tripStopTime does). */
+    val platform: String = stop.platform, val pickup: Boarding = Boarding.Regular, val dropoff: Boarding = Boarding.Regular,
+    val stopSequence: Int? = null) {
+    /** Departure first, falling back to the arrival at the terminus. */
     val time get() = departure ?: arrival
     val cancelled get() = time?.status == TimeStatus.Cancelled || time?.status == TimeStatus.Skipped
 }
@@ -133,9 +135,24 @@ typealias ServiceFeature = MavService
 @Immutable data class TripSummary(val id: Gid, val route: TransitRoute, val headsign: String, val serviceDay: LocalDate,
     val shortName: String = "", val category: String = "")
 
+/** GTFS-RT VehicleStopStatus: where a trip's vehicle is relative to [TripVehicle.stopId]. */
+enum class VehicleStopStatus { IncomingAt, StoppedAt, InTransitTo;
+    companion object { fun gtfsRt(value: String) = when (value) {
+        "INCOMING_AT" -> IncomingAt; "STOPPED_AT" -> StoppedAt; "IN_TRANSIT_TO" -> InTransitTo; else -> null } }
+}
+
+/** A physical vehicle the provider attaches to a trip: its identity, last fix (when given) and stop progress.
+ * [id] is the provider's own vehicle id; [stopArrival] is epoch millis. */
+@Immutable data class TripVehicle(val id: String, val label: String = "", val model: String = "", val plate: String = "",
+    val uicCode: String = "", val lat: Double? = null, val lon: Double? = null, val heading: Double? = null,
+    val speedMetersPerSecond: Double? = null, val updatedSeconds: Long? = null,
+    val stopStatus: VehicleStopStatus? = null, val stopId: Gid? = null, val stopSequence: Int? = null, val stopArrival: Long? = null)
+
+/** [feedName] names the downloaded timetable an offline trip comes from. */
 @Immutable data class Trip(val summary: TripSummary, val calls: List<Call>, val provenance: Provenance,
     val services: List<ServiceFeature> = emptyList(), val alerts: List<ServiceAlert> = emptyList(),
-    val vehicle: VehiclePosition? = null, val shapeRef: String? = null) {
+    val vehicles: List<TripVehicle> = emptyList(), val feedName: String = "", val shapeRef: String? = null) {
+    val offline get() = provenance.kind == DataKind.Offline
     val id get() = summary.id
     fun callAt(stop: Gid) = calls.firstOrNull { it.stop.knownAs(stop) || it.stop.parentId == stop }
 }

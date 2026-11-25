@@ -1,7 +1,5 @@
 package hu.matepazy.menetrendgo
 
-import org.json.JSONArray
-import org.json.JSONObject
 import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
@@ -12,7 +10,7 @@ import java.util.concurrent.atomic.AtomicReferenceArray
 import kotlin.math.*
 
 /** Read-only queries over every downloaded feed: departures, trip timetables, route timetables and journeys.
- * Every answer is scheduled data only and says so (realtime=false, [OFFLINE_PREFIX] trip state). */
+ * Every answer is scheduled data only and says so (offline departures, journeys and trips with [DataKind.Offline]). */
 class OfflineNetwork(val feeds: List<OfflineTimetable>) {
     /** A stop in a specific feed. */
     data class StopRef(val feed: Int, val stop: Int)
@@ -198,42 +196,30 @@ class OfflineNetwork(val feeds: List<OfflineTimetable>) {
             feed.text(feed.stopPlatform[stop]), false, leg, day.toString(), offline = true)
     }
 
-    // ---- Trip timetable (same JSON shape as a MÁVPlusz trip) ----
-    fun trip(id: String, day: String): JSONObject? {
+    // ---- Trip timetable ----
+    fun trip(id: String, day: String): Trip? {
         val date = LocalDate.parse(day)
         for ((f, feed) in feeds.withIndex()) {
             val t = feed.tripIndex[id] ?: continue
             if (!feed.runsOn(t, date)) continue
-            return tripJson(f, t, date)
+            return trip(f, t, date)
         }
         return null
     }
-    private fun tripJson(f: Int, t: Int, day: LocalDate): JSONObject {
+    private fun trip(f: Int, t: Int, day: LocalDate): Trip {
         val feed = feeds[f]; val p = feed.tripPattern[t]; val route = feed.patternRoute[p]
-        val serviceDay = day.atStartOfDay(Budapest).toEpochSecond()
-        val times = JSONArray()
-        for (i in 0 until feed.patternSize(p)) {
-            val arrival = (epoch(day, feed.arrival(t, i)) / 1000 - serviceDay).toInt()
-            val departure = (epoch(day, feed.departure(t, i)) / 1000 - serviceDay).toInt()
-            times.put(JSONObject().put("serviceDay", serviceDay).put("realtime", false).put("realtimeState", OFFLINE_STATE)
-                .put("stop", stopJson(f, feed.patternStop(p, i)))
-                .put("scheduledArrival", arrival).put("scheduledDeparture", departure)
-                .put("realtimeArrival", arrival).put("realtimeDeparture", departure).put("arrivalDelay", 0).put("departureDelay", 0))
+        val calls = (0 until feed.patternSize(p)).map { i ->
+            val stop = feed.patternStop(p, i)
+            Call(Stop(Gid.of(ProviderId.Gtfs, feed.text(feed.stopId[stop])), feed.text(feed.stopName[stop]), feed.lat(stop), feed.lon(stop),
+                platform = feed.text(feed.stopPlatform[stop])), i,
+                TimePoint(epoch(day, feed.arrival(t, i))), TimePoint(epoch(day, feed.departure(t, i))))
         }
-        return JSONObject().put("gtfsId", feed.text(feed.tripId[t])).put("tripHeadsign", feed.text(feed.tripHeadsign[t]))
-            .put("tripShortName", feed.text(feed.tripShortName[t])).put("offline", true).put("offlineFeed", feed.feedName)
-            .put("route", routeJson(f, route)).put("stoptimes", times).put("vehiclePositions", JSONArray())
-    }
-    private fun stopJson(f: Int, stop: Int): JSONObject {
-        val feed = feeds[f]
-        return JSONObject().put("gtfsId", feed.text(feed.stopId[stop])).put("name", feed.text(feed.stopName[stop]))
-            .put("lat", feed.lat(stop)).put("lon", feed.lon(stop)).put("platformCode", feed.text(feed.stopPlatform[stop]))
-    }
-    private fun routeJson(f: Int, route: Int): JSONObject {
-        val feed = feeds[f]
-        return JSONObject().put("shortName", routeLabel(f, route, -1)).put("longName", feed.text(feed.routeLong[route]))
-            .put("mode", feed.mode(route)).put("color", hex(feed.routeColor[route])).put("textColor", hex(feed.routeTextColor[route]))
-            .put("agency", JSONObject().put("name", feed.routeAgency[route].takeIf { it >= 0 }?.let { feed.text(feed.agencyName[it]) }.orEmpty()))
+        val agency = feed.routeAgency[route].takeIf { it >= 0 }?.let { feed.text(feed.agencyName[it]) }.orEmpty()
+        val transitRoute = TransitRoute(null, routeLabel(f, route, -1), feed.text(feed.routeLong[route]), ModeMapping.fromOtp(feed.mode(route)),
+            hex(feed.routeColor[route]), hex(feed.routeTextColor[route]), agency.takeIf { it.isNotBlank() }?.let { Agency(null, it) })
+        val summary = TripSummary(Gid.of(ProviderId.Gtfs, feed.text(feed.tripId[t])), transitRoute,
+            feed.text(feed.tripHeadsign[t]).ifBlank { calls.last().stop.name }, day, feed.text(feed.tripShortName[t]))
+        return Trip(summary, calls, Provenance.of(ProviderId.Gtfs, feed.builtAt, DataKind.Offline), feedName = feed.feedName)
     }
 
     // ---- Route timetables ----
@@ -591,7 +577,6 @@ class OfflineNetwork(val feeds: List<OfflineTimetable>) {
     }
 
     companion object {
-        const val OFFLINE_STATE = "SCHEDULED"
         private const val CELL = 0.005
         const val MAX_WALK_METERS = 400
         private const val ACCESS_METERS = 800.0

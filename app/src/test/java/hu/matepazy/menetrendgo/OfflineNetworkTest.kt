@@ -103,16 +103,18 @@ class OfflineNetworkTest {
         assertEquals(OfflineNetwork.epoch(today, 8 * 60), journeys.last().start)
     }
 
-    @Test fun tripJsonMatchesTheProviderShape() {
+    @Test fun tripsAreCanonicalAndScheduledOnly() {
         val trip = network.trip("1:T1", today.toString())!!
-        assertTrue(trip.getBoolean("offline"))
-        val times = trip.getJSONArray("stoptimes")
-        assertEquals(3, times.length())
-        val second = times.getJSONObject(1)
-        assertEquals(8 * 3600 + 31 * 60, second.getInt("scheduledDeparture"))
-        assertFalse(second.getBoolean("realtime"))
-        assertEquals("1:B", second.getJSONObject("stop").getString("gtfsId"))
-        assertEquals("003A7E", trip.getJSONObject("route").getString("color"))
+        assertTrue(trip.offline)
+        assertEquals(setOf(ProviderId.Gtfs), trip.provenance.sources)
+        assertEquals(3, trip.calls.size)
+        val second = trip.calls[1]
+        assertEquals(OfflineNetwork.epoch(today, 8 * 60 + 31), second.departure!!.scheduled)
+        assertFalse(second.departure!!.realtime)
+        assertEquals(Gid("gtfs:1:B"), second.stop.id)
+        assertEquals("1:T1", trip.id.local)
+        assertEquals("003A7E", trip.summary.route.color)
+        assertEquals(trip.feedName, network.feeds.first { it.tripIndex["1:T1"] != null }.feedName)
         assertNull(network.trip("missing", today.toString()))
     }
 
