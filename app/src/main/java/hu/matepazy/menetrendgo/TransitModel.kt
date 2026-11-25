@@ -77,7 +77,8 @@ enum class TimeStatus { Scheduled, Realtime, Cancelled, Skipped }
 
 /** One scheduled moment and, when known, its live estimate (epoch millis). */
 @Immutable data class TimePoint(val scheduled: Long, val estimate: Long = scheduled, val status: TimeStatus = TimeStatus.Scheduled) {
-    val realtime get() = status == TimeStatus.Realtime
+    /** Live evidence: an estimate, or a cancellation or skip, which only live data reports. */
+    val realtime get() = status != TimeStatus.Scheduled
     val serviceTime get() = ServiceTime(scheduled, if (realtime) estimate else scheduled, realtime)
     companion object {
         fun of(time: ServiceTime, cancelled: Boolean = false) = TimePoint(time.scheduled, time.estimate,
@@ -170,9 +171,9 @@ typealias ServiceFeature = MavService
     } }
 }
 
-/** A live vehicle. [observedAt] is the provider's GPS timestamp in epoch seconds. */
+/** A live vehicle. [tripId] and [serviceDay] open its timetable when known; [observedAt] is the provider's GPS timestamp in epoch seconds. */
 @Immutable data class VehiclePosition(val id: Gid, val label: String, val route: TransitRoute, val lat: Double, val lon: Double,
-    val provenance: Provenance, val trip: TripSummary? = null, val headsign: String = "",
+    val provenance: Provenance, val tripId: Gid? = null, val serviceDay: LocalDate? = null, val headsign: String = "",
     val heading: Double? = null, val speedMetersPerSecond: Double? = null, val observedAt: Long? = null,
     val model: String = "", val plate: String = "", val uicCode: String = "")
 

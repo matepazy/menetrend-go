@@ -5,8 +5,6 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.json.JSONObject
-import java.net.HttpURLConnection
-import java.net.URI
 import java.net.URLEncoder
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -15,8 +13,9 @@ import java.time.format.DateTimeFormatter
 /** Same OTP queries and normalization as hovamegy.hu, executed on the device.
  * No proxy, account, custom endpoint, or local development server is required.
  */
-class MavClient {
+class MavClient(private val http: HttpTransport = HttpTransport.Default) {
     private val root="https://mavplusz.hu/otp2-backend/otp/routers/default"
+    private val headers=mapOf("Accept" to "application/json","Origin" to "https://mavplusz.hu","Referer" to "https://mavplusz.hu/")
     private val vehicleLock=Mutex()
     private var vehicleCache: Pair<List<Vehicle>,Long>?=null
     private val trips=mutableMapOf<String,Pair<JSONObject,Long>>()
@@ -25,23 +24,12 @@ class MavClient {
     private fun request(path: String, query: String?=null, onRawResponse: ((String) -> Unit)?=null): JSONObject {
         // Offline mód: answer from downloaded timetables (through the fallback) without touching the network.
         if(OfflineStatus.forced) throw ProviderUnavailable("Offline mód bekapcsolva: csak a letöltött menetrendek érhetők el.")
-        val connection=URI(root+path).toURL().openConnection() as HttpURLConnection
         try {
-            connection.connectTimeout=10_000;connection.readTimeout=40_000
-            connection.setRequestProperty("Accept","application/json")
-            connection.setRequestProperty("Origin","https://mavplusz.hu")
-            connection.setRequestProperty("Referer","https://mavplusz.hu/")
-            connection.setRequestProperty("User-Agent","MenetrendGO/${BuildConfig.VERSION_NAME} (Android)")
-            if(query!=null) {
-                connection.requestMethod="POST";connection.doOutput=true
-                connection.setRequestProperty("Content-Type","application/json; charset=utf-8")
-                connection.outputStream.use {it.write(JSONObject().put("query",query).toString().toByteArray(Charsets.UTF_8))}
-            }
-            if(connection.responseCode >= 500) OfflineStatus.providerFailed()
-            if(connection.responseCode !in 200..299) throw ProviderUnavailable("A MÁV adatai most nem érhetők el (${connection.responseCode}). Próbáld újra.")
-            val raw=connection.inputStream.bufferedReader().use {it.readText()}
-            val body=JSONObject(raw)
-            onRawResponse?.invoke(raw)
+            val response=http.execute(HttpRequest(root+path,headers,query?.let {JSONObject().put("query",it).toString()},10_000,40_000))
+            if(response.code >= 500) OfflineStatus.providerFailed()
+            if(!response.ok) throw ProviderUnavailable("A MÁV adatai most nem érhetők el (${response.code}). Próbáld újra.")
+            val body=JSONObject(response.body)
+            onRawResponse?.invoke(response.body)
             OfflineStatus.providerReachable()
             if(query==null) return body
             if(body.has("errors") || body.optJSONObject("data")==null) throw ProviderUnavailable("A MÁV hiányos választ adott. Próbáld újra.")
@@ -51,7 +39,7 @@ class MavClient {
             throw ProviderUnavailable("Nem sikerült kapcsolódni a MÁV-hoz. Ellenőrizd az internetkapcsolatot.",e)
         } catch(e: org.json.JSONException) {
             throw ProviderUnavailable("A MÁV hiányos választ adott. Próbáld újra.",e)
-        } finally {connection.disconnect()}
+        }
     }
     suspend fun nearbyStops(lat: Double, lon: Double, radius: Int): List<Station> = withContext(Dispatchers.IO) {
         parseMapStops(request("/index/graphql", MavQueries.nearbyStops(lat, lon, radius)))
@@ -72,8 +60,12 @@ class MavClient {
      * offline lookup match by name when the provider id is unknown there. */
     suspend fun stopDepartures(id: String, now: Long = System.currentTimeMillis(), station: Station? = null): List<StopDeparture> =
         withOfflineFallback({ net -> net.departures(station?.takeIf { it.id == id } ?: Station(id, "", 0.0, 0.0), now) }) {
-            parseStopDepartures(request("/index/graphql", MavQueries.stopDepartures(id, now)), now)
+            onlineStopDepartures(id, now)
         }
+    /** MÁVPlusz only, without the offline fallback. */
+    internal suspend fun onlineStopDepartures(id: String, now: Long): List<StopDeparture> = withContext(Dispatchers.IO) {
+        parseStopDepartures(request("/index/graphql", MavQueries.stopDepartures(id, now)), now)
+    }
     /** Stops by name from the downloaded timetables, for when [stations] cannot reach the provider. */
     suspend fun offlineStations(query: String): List<Station> =
         OfflineSchedules.network()?.let { net -> withContext(Dispatchers.Default) { net.searchStops(query) } }.orEmpty()
@@ -88,7 +80,7 @@ class MavClient {
     }
     suspend fun plan(from: Station,to: Station,time: LocalDateTime,arrive: Boolean, filters: Set<SearchFilter> = emptySet(), vehicles: Set<SearchVehicle> = emptySet()): List<Journey> =
         withOfflineFallback({ net -> net.plan(from,to,time,arrive) }) { onlinePlan(from,to,time,arrive,filters,vehicles) }
-    private suspend fun onlinePlan(from: Station,to: Station,time: LocalDateTime,arrive: Boolean, filters: Set<SearchFilter>, vehicles: Set<SearchVehicle>): List<Journey> = withContext(Dispatchers.IO) {
+    internal suspend fun onlinePlan(from: Station,to: Station,time: LocalDateTime,arrive: Boolean, filters: Set<SearchFilter>, vehicles: Set<SearchVehicle>): List<Journey> = withContext(Dispatchers.IO) {
         var rawResponse: String? = null
         val data=request("/index/graphql",MavQueries.plan(from,to,time,arrive,filters,vehicles)) {rawResponse=it}
         data.optJSONObject("plan")?.array("itineraries").orEmpty().map {itinerary->
@@ -118,7 +110,7 @@ class MavClient {
     }
     suspend fun trip(id: String,day: String,forceRefresh: Boolean = false,refreshSeconds: Int = 75): JSONObject =
         withOfflineFallback({ net -> net.trip(id, day) ?: throw OfflineNotCovered() }) { onlineTrip(id, day, forceRefresh, refreshSeconds) }
-    private suspend fun onlineTrip(id: String,day: String,forceRefresh: Boolean,refreshSeconds: Int): JSONObject = withContext(Dispatchers.IO) {
+    internal suspend fun onlineTrip(id: String,day: String,forceRefresh: Boolean,refreshSeconds: Int): JSONObject = withContext(Dispatchers.IO) {
         require(id.length in 1..250);LocalDate.parse(day)
         tripLock.withLock {
             val key="$id|$day";val now=System.currentTimeMillis()/1000

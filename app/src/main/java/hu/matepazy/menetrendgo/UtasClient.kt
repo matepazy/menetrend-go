@@ -10,8 +10,6 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONObject
-import java.net.HttpURLConnection
-import java.net.URI
 import java.net.URLEncoder
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -21,8 +19,9 @@ import java.util.Locale
 /** utas.hu (realCity) vehicles and schedules, used only in the Aggregált data-source mode.
  * Same request as the utas.hu web map; the country is fetched as tiles because the endpoint
  * silently returns an empty list when a half-span exceeds about one degree. */
-class UtasClient {
+class UtasClient(private val http: HttpTransport = HttpTransport.Default) {
     private val root = "https://utas.hu/api/query/v1/ws/otp/api/where"
+    private val headers = mapOf("Accept" to "application/json", "Origin" to "https://utas.hu", "Referer" to "https://utas.hu/")
     private val lock = Mutex()
     private var cache: Pair<List<Vehicle>, Long>? = null
     private val tripLock = Mutex()
@@ -36,20 +35,13 @@ class UtasClient {
     )
 
     private fun request(endpoint: String, parameters: String): JSONObject {
-        OfflineStatus.requireNetwork()
         val query = "$parameters&key=$KEY&version=9&appVersion=$APP_VERSION&locale=hu"
-        val connection = URI("$root/$endpoint.json?$query").toURL().openConnection() as HttpURLConnection
-        try {
-            connection.connectTimeout = 10_000; connection.readTimeout = 20_000
-            connection.setRequestProperty("Accept", "application/json")
-            connection.setRequestProperty("Origin", "https://utas.hu")
-            connection.setRequestProperty("Referer", "https://utas.hu/")
-            connection.setRequestProperty("User-Agent", "MenetrendGO/${BuildConfig.VERSION_NAME} (Android)")
-            check(connection.responseCode in 200..299) { "Az utas.hu adatai most nem érhetők el (${connection.responseCode})." }
-            return JSONObject(connection.inputStream.bufferedReader().use { it.readText() })
-        } catch (e: java.io.IOException) {
-            throw IllegalStateException("Nem sikerült kapcsolódni az utas.hu-hoz.", e)
-        } finally { connection.disconnect() }
+        val response = try {
+            http.execute(HttpRequest("$root/$endpoint.json?$query", headers, readTimeoutMillis = 20_000))
+        } catch (e: ForcedOffline) { throw e
+        } catch (e: java.io.IOException) { throw IllegalStateException("Nem sikerült kapcsolódni az utas.hu-hoz.", e) }
+        check(response.ok) { "Az utas.hu adatai most nem érhetők el (${response.code})." }
+        return JSONObject(response.body)
     }
 
     suspend fun trip(id: String, date: LocalDate, refreshSeconds: Int): JSONObject = withContext(Dispatchers.IO) {
