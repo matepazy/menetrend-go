@@ -38,16 +38,16 @@ import androidx.compose.ui.unit.dp
 
 /* First run: one short line per station of the ride; skippable at any point. */
 
-private class Stop(val title: String, val line: String)
+private class TourStop(val title: String, val line: String)
 private val stops = listOf(
-    Stop("Szia! Indulhatunk?", "Menetrend, élő térkép és indulási táblák a MÁV-hálózat vonataira és buszaira. Fiók és reklám nélkül."),
-    Stop("Tervezz!", "Add meg, honnan hová és mikor utazol. A találatoknál látod az átszállásokat és a késéseket, a kereséseidet pedig elmentheted."),
-    Stop("Élő térkép", "A vonatok és buszok valós időben mozognak. Koppints egy járműre: látod a késését, a következő megállóit és a járműtípust."),
-    Stop("Indulások kéznél", "Bármely megálló indulási tábláját kiteheted widgetként a kezdőképernyőre, így az app megnyitása nélkül is látod."),
-    Stop("Offline menetrendek", "Tölts le menetrendeket a Beállításokban, hogy internet nélkül is tervezhess és megnézhesd az indulásokat. Az élő késésekhez internet kell."),
-    Stop("Bérletfigyelő", "Rögzítsd a bérleteidet, és szólunk, mielőtt lejárnak. Bekapcsolás: Beállítások › Kiegészítő funkciók."),
+    TourStop("Szia! Indulhatunk?", "Menetrend, élő térkép és indulási táblák a MÁV-hálózat vonataira és buszaira. Fiók és reklám nélkül."),
+    TourStop("Tervezz!", "Add meg, honnan hová és mikor utazol. A találatoknál látod az átszállásokat és a késéseket, a kereséseidet pedig elmentheted."),
+    TourStop("Élő térkép", "A vonatok és buszok valós időben mozognak. Koppints egy járműre: látod a késését, a következő megállóit és a járműtípust."),
+    TourStop("Indulások kéznél", "Bármely megálló indulási tábláját kiteheted widgetként a kezdőképernyőre, így az app megnyitása nélkül is látod."),
+    TourStop("Offline menetrendek", "Tölts le menetrendeket a Beállításokban, hogy internet nélkül is tervezhess és megnézhesd az indulásokat. Az élő késésekhez internet kell."),
+    TourStop("Bérletfigyelő", "Rögzítsd a bérleteidet, és szólunk, mielőtt lejárnak. Bekapcsolás: Beállítások › Kiegészítő funkciók."),
     // The terminus: both documents must be accepted before the train leaves.
-    Stop("Végállomás", "Indulás előtt fogadd el a licencszerződést és a felhasználási feltételeket. Koppints egy kártyára az elolvasásához."),
+    TourStop("Végállomás", "Indulás előtt fogadd el a licencszerződést és a felhasználási feltételeket. Koppints egy kártyára az elolvasásához."),
 )
 private val consentStep = stops.lastIndex
 

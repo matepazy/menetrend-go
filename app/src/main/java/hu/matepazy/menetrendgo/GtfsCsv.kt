@@ -67,20 +67,4 @@ internal fun gtfsMinutes(value: String): Int {
 }
 
 /** GTFS route_type (basic and extended) → the MÁVPlusz/OTP mode names the rest of the app uses. */
-internal fun gtfsMode(type: Int): String = when (type) {
-    0, in 900..999 -> "TRAM"
-    1, 401, 402 -> "SUBWAY"
-    2, 404, in 100..108, in 110..199 -> "RAIL"
-    109 -> "SUBURBAN_RAILWAY"
-    403, 400 -> "TRAMTRAIN"
-    3, in 700..713, in 715..799 -> "BUS"
-    714 -> "RAIL_REPLACEMENT_BUS"
-    in 200..299 -> "COACH"
-    4, in 1000..1099, 1200 -> "FERRY"
-    5 -> "CABLE_CAR"
-    6, in 1300..1399 -> "GONDOLA"
-    7, 1400 -> "FUNICULAR"
-    11, in 800..899 -> "TROLLEYBUS"
-    12 -> "MONORAIL"
-    else -> "BUS"
-}
+internal fun gtfsMode(type: Int): String = ModeMapping.fromGtfsRouteType(type).otp
