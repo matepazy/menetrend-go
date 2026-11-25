@@ -177,6 +177,7 @@ private class GoogleMapSurface(
     private val focusStops=mutableListOf<Marker>()
     private var focusKey=""
     private var focusReturn:CameraPosition?=null
+    private var focusReturnBottom=0
     private var focusActive=false
     private var destroyed=false
 
@@ -256,6 +257,9 @@ private class GoogleMapSurface(
             "centerOn"->map.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng((args[0] as Number).toDouble(),(args[1] as Number).toDouble()),max(14f,map.cameraPosition.zoom)))
             "updateRoute"->drawRoute(args[0] as JSONArray)
             "focusVehicle"->focusVehicle(args[0] as? JSONObject,(args[1] as Number).toFloat())
+            // The sheet is leaving: fly back now; the trip clears with the selection afterwards.
+            // Padding moves the camera, so drop the sheet's padding first and return in the same step.
+            "returnFromFocus"->returnFromFocus()
             "updateDestinationAlert"->{
                 alerts.forEach {it.remove()};alerts.clear()
                 (args[0] as? JSONObject)?.let {area->
@@ -446,17 +450,27 @@ private class GoogleMapSurface(
             map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds,(60*density).toInt()))
         }
     }
+    /**
+     * Flies back to the view saved when the trip was focused. Padding moves the camera, so the bottom
+     * padding saved with it comes back first; the navigation bar is hidden while the sheet is open,
+     * and the settled inset reaches the same value once the bar returns.
+     */
+    private fun returnFromFocus() {
+        val saved=focusReturn ?: return
+        bottom=focusReturnBottom;padding()
+        map.animateCamera(CameraUpdateFactory.newCameraPosition(saved))
+        focusReturn=null
+    }
     /** Matches map.html: draw the selected trip, fit once per geometry kind, restore on clear. */
     private fun focusVehicle(focus:JSONObject?,bottomDp:Float) {
         focusLines.forEach {it.remove()};focusLines.clear();focusStops.forEach {it.remove()};focusStops.clear()
         if(focus==null) {
             focusKey=""
             focusActive=false
-            focusReturn?.let {map.animateCamera(CameraUpdateFactory.newCameraPosition(it))}
-            focusReturn=null
+            returnFromFocus()
             return
         }
-        if(!focusActive) {focusActive=true;focusReturn=if(focus.optBoolean("restore")) map.cameraPosition else null}
+        if(!focusActive) {focusActive=true;focusReturn=if(focus.optBoolean("restore")) map.cameraPosition else null;focusReturnBottom=bottom}
         val color=color(focus)
         val path=focus.optJSONArray("path")?.let {items->(0 until items.length()).mapNotNull {i->
             items.optJSONArray(i)?.let {LatLng(it.optDouble(1),it.optDouble(0))}

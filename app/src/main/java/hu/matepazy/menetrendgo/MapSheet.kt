@@ -1,6 +1,9 @@
 package hu.matepazy.menetrendgo
 
-import androidx.activity.compose.BackHandler
+import android.animation.ValueAnimator
+import androidx.activity.compose.PredictiveBackHandler
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.spring
@@ -22,6 +25,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
@@ -35,7 +39,10 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
@@ -64,12 +71,15 @@ fun MapSheetScaffold(
     open: Boolean,
     onDismissRequest: () -> Unit,
     restingFraction: Float,
+    /** The sheet has started heading to hidden, before [onDismissRequest] (which may wait for the exit). */
+    onLeaving: () -> Unit = {},
     sheetContent: @Composable ColumnScope.(expanded: Boolean) -> Unit,
     content: @Composable (restingHeight: Dp, liveHeight: () -> Dp) -> Unit,
 ) {
     // A selection that survives recreation rests at once instead of animating from hidden.
     val state = remember { AnchoredDraggableState(if (open) MapSheetValue.Half else MapSheetValue.Hidden) }
     val dismiss by rememberUpdatedState(onDismissRequest)
+    val leaving by rememberUpdatedState(onLeaving)
     val isOpen by rememberUpdatedState(open)
     val scope = rememberCoroutineScope()
     var summaryPx by remember { mutableIntStateOf(0) }
@@ -78,15 +88,20 @@ fun MapSheetScaffold(
     val density = LocalDensity.current
     val flingThreshold = with(density) { 125.dp.toPx() }
     val motion = remember { spring<Float>(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessMediumLow) }
+    val backProgress = remember { Animatable(0f) }
+    val backEasing = remember { CubicBezierEasing(.1f, .1f, 0f, 1f) }
+    val motionEnabled = ValueAnimator.areAnimatorsEnabled()
 
     // Springs from the current offset with the gesture's velocity, retargeting if anchors move.
     // Heading to hidden releases the selection at once: the screen behind returns to its normal
     // mode while the sheet slides away, instead of after the spring's long tail has settled.
-    suspend fun animateTo(target: MapSheetValue, velocity: Float = 0f) {
+    // [dismissEarly] false leaves the release to the settle below, after the sheet has left the screen.
+    suspend fun animateTo(target: MapSheetValue, velocity: Float = 0f, dismissEarly: Boolean = true) {
         if (!state.anchors.hasPositionFor(target)) return
+        if (target == MapSheetValue.Hidden && isOpen) leaving()
         var startVelocity = velocity
         state.anchoredDrag(target) { anchors, latest ->
-            if (latest == MapSheetValue.Hidden && isOpen) dismiss()
+            if (dismissEarly && latest == MapSheetValue.Hidden && isOpen) dismiss()
             val from = state.offset.takeUnless { it.isNaN() } ?: anchors.positionOf(latest)
             animate(from, anchors.positionOf(latest), startVelocity, motion) { value, v -> dragTo(value, v); startVelocity = v }
         }
@@ -151,7 +166,24 @@ fun MapSheetScaffold(
             ((halfPx - offset) / (halfPx - fullPx).coerceAtLeast(1f)).coerceIn(0f, 1f)
         } }
         val expanded = open && progress > .98f
-        BackHandler(open) { scope.launch { animateTo(if (progress > .5f) MapSheetValue.Half else MapSheetValue.Hidden) } }
+        // Back shrinks the sheet toward its visible bottom edge as the gesture moves, as Material's
+        // sheets do; a committed Back then collapses full height to half, or slides the sheet away.
+        PredictiveBackHandler(open) { events ->
+            try {
+                events.collect { backProgress.snapTo(if (motionEnabled) backEasing.transform(it.progress) else 0f) }
+                val target = if (progress > .5f) MapSheetValue.Half else MapSheetValue.Hidden
+                // The handler is disabled once the sheet closes, so the settle runs in the sheet's scope.
+                // Like Material's sheets, Back releases the selection only after the exit: the map's
+                // rebuild of every vehicle marker would otherwise land on the first frames of the slide.
+                scope.launch {
+                    if (target == MapSheetValue.Hidden) { animateTo(target, dismissEarly = false); backProgress.snapTo(0f) }
+                    else { launch { backProgress.animateTo(0f) }; animateTo(target) }
+                }
+            } catch (cancelled: CancellationException) {
+                withContext(NonCancellable) { backProgress.animateTo(0f) }
+                throw cancelled
+            }
+        }
 
         // The settled rest, not the moving offset, so camera fits run once per change. While the
         // sheet rises from hidden it reports the half rest it is heading to, so the first fit of a
@@ -193,10 +225,23 @@ fun MapSheetScaffold(
         } }
         val sheetHeight = maxHeight - topGap
         val sheetShape = MaterialTheme.shapes.extraLarge.copy(bottomStart = CornerSize(0.dp), bottomEnd = CornerSize(0.dp))
+        // Material's predictive-back geometry: 48dp narrower and 24dp shorter at full progress.
+        val backDistanceX = with(density) { 48.dp.toPx() }
+        val backDistanceY = with(density) { 24.dp.toPx() }
+        val sheetPx = with(density) { sheetHeight.toPx() }.coerceAtLeast(1f)
         Surface(
             Modifier.align(Alignment.TopCenter).widthIn(max = BottomSheetDefaults.SheetMaxWidth).fillMaxWidth()
                 .height(sheetHeight)
                 .offset { IntOffset(0, (state.offset.takeUnless { it.isNaN() } ?: layoutPx).roundToInt()) }
+                .graphicsLayer {
+                    val p = backProgress.value
+                    if (p == 0f) return@graphicsLayer
+                    scaleX = 1f - (backDistanceX / size.width).coerceAtMost(1f) * p
+                    scaleY = 1f - (backDistanceY / layoutPx).coerceAtMost(1f) * p
+                    // The sheet runs below the screen at partial rests; shrink toward the screen's bottom edge.
+                    val offset = state.offset.takeUnless { it.isNaN() } ?: layoutPx
+                    transformOrigin = TransformOrigin(.5f, ((layoutPx - offset) / sheetPx).coerceIn(0f, 1f))
+                }
                 .nestedScroll(nestedScroll)
                 .draggable(rememberDraggableState { state.dispatchRawDelta(it) }, Orientation.Vertical,
                     onDragStopped = { settle(it) })
@@ -205,7 +250,15 @@ fun MapSheetScaffold(
             color = BottomSheetDefaults.ContainerColor,
             shadowElevation = BottomSheetDefaults.Elevation,
         ) {
-            Column(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom))) {
+            // Counter-scale the content so text and icons shrink uniformly while the surface narrows.
+            Column(Modifier.fillMaxSize().graphicsLayer {
+                val p = backProgress.value
+                if (p == 0f) return@graphicsLayer
+                val parentX = 1f - (backDistanceX / size.width).coerceAtMost(1f) * p
+                val parentY = 1f - (backDistanceY / layoutPx).coerceAtMost(1f) * p
+                scaleY = if (parentY > 0f) parentX / parentY else 1f
+                transformOrigin = TransformOrigin(.5f, 0f)
+            }.windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom))) {
                 val current = state.settledValue
                 Box(Modifier.fillMaxWidth().semantics(mergeDescendants = true) {
                     when (current) {

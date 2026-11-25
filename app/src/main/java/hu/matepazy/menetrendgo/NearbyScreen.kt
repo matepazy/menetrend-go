@@ -59,15 +59,18 @@ import kotlinx.coroutines.withContext
     var sheetVehicle by remember { mutableStateOf(selectedVehicle) }
     LaunchedEffect(selectedVehicle) { selectedVehicle?.let { sheetVehicle=it } }
     // The vehicle sheet rests at half height over a live, pannable map.
+    // Counts departures of the sheet, so the camera flies back the moment one begins.
+    var leaving by remember {mutableIntStateOf(0)}
     MapSheetScaffold(open=selectedVehicle!=null,onDismissRequest={selectedVehicle=null},restingFraction=.5f,
+        onLeaving={leaving++},
         sheetContent={_ -> (selectedVehicle ?: sheetVehicle)?.let {selected ->
             val live=vm.vehicles.firstOrNull {it.id==selected.id} ?: selected
             MapVehicleSheetContent(vm,live) {selectedVehicle=null}
-        }}) {sheetHeight,liveSheetHeight -> TransportMapContent(vm,journey,focusedId,routeOnly,back,sheetHeight,liveSheetHeight)}
+        }}) {sheetHeight,liveSheetHeight -> TransportMapContent(vm,journey,focusedId,routeOnly,back,sheetHeight,liveSheetHeight,leaving)}
 }
 
 @OptIn(ExperimentalLayoutApi::class)
-@Composable private fun TransportMapContent(vm: AppState, journey: Journey?, focusedId: String?, routeOnly: Boolean, back: () -> Unit, sheetHeight: androidx.compose.ui.unit.Dp, liveSheetHeight: () -> androidx.compose.ui.unit.Dp) {
+@Composable private fun TransportMapContent(vm: AppState, journey: Journey?, focusedId: String?, routeOnly: Boolean, back: () -> Unit, sheetHeight: androidx.compose.ui.unit.Dp, liveSheetHeight: () -> androidx.compose.ui.unit.Dp, leaving: Int) {
     val context=LocalContext.current
     val tracking by JourneyTracking.state.collectAsStateWithLifecycle()
     // While the vehicle sheet rests, map attribution, status and camera fits keep clear of it.
@@ -227,6 +230,8 @@ import kotlinx.coroutines.withContext
             .put("vehicle",focusVehicle?.let {JSONObject().put("lat",it.lat).put("lon",it.lon)} ?: JSONObject.NULL)}
         mapSurface?.call("focusVehicle",focus ?: JSONObject.NULL,bottomInset)
     }
+    // A departing sheet returns the camera at once; clearing the trip waits for the selection to end.
+    LaunchedEffect(leaving) {if(ready && leaving>0) mapSurface?.call("returnFromFocus")}
     val alertSession = tracking.session?.takeIf { JourneyTracking.enabled(context) && !it.awaitingBoarding &&
         (journey == null && !routeOnly || journey?.trackingKey == it.journey.trackingKey) }
     val alertColor = MaterialTheme.colorScheme.primary.toArgb()

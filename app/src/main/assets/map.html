@@ -428,9 +428,11 @@ window.centerOn=(lat,lon)=>{map.setView([lat,lon],12)};
 // A selected live-map vehicle shows its complete trip. Fit once per trip and geometry
 // kind (stops, then the full shape), keeping clear of the resting sheet; restore on clear.
 const focusLayer=L.layerGroup().addTo(map);let focusKey='',focusReturn=null,focusActive=false;
+// The sheet is leaving: fly back now; the trip clears with the selection afterwards.
+window.returnFromFocus=()=>{if(focusReturn){map.setView(focusReturn.center,focusReturn.zoom,{animate:true});focusReturn=null}};
 window.focusVehicle=(focus,bottom)=>{
  focusLayer.clearLayers();
- if(!focus){focusKey='';focusActive=false;if(focusReturn){map.setView(focusReturn.center,focusReturn.zoom);focusReturn=null}return}
+ if(!focus){focusKey='';focusActive=false;window.returnFromFocus();return}
  if(!focusActive){focusActive=true;focusReturn=focus.restore?{center:map.getCenter(),zoom:map.getZoom()}:null}
  const hex=(focus.color||'').replace(/^#/,''),color=/^[0-9a-f]{6}$/i.test(hex)?'#'+hex:'#4e6581';
  const path=(focus.path||[]).filter(p=>Array.isArray(p)&&p.length>1&&Number.isFinite(p[0])&&Number.isFinite(p[1])).map(([lon,lat])=>[lat,lon]);
