@@ -44,6 +44,8 @@ class OfflineNetworkTest {
         assertTrue(board.all { it.offline && !it.time.realtime })
         assertEquals("2", board.first().platform)
         assertEquals("SZ 100", board.first().leg.route)
+        assertEquals(RouteLogo(484, "00A0E3", "FEFEFE"), board.first().leg.routeLogo)
+        assertEquals("Személyvonat", board.first().leg.category)
         assertEquals("Cváros", board.first().headsign)
         // Yesterday's 24:50 trip leaves at 00:50 today.
         val night = network.departures(a, OfflineNetwork.epoch(today, 30))

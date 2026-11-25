@@ -216,7 +216,8 @@ class OfflineNetwork(val feeds: List<OfflineTimetable>) {
         }
         val agency = feed.routeAgency[route].takeIf { it >= 0 }?.let { feed.text(feed.agencyName[it]) }.orEmpty()
         val transitRoute = TransitRoute(null, routeLabel(f, route, -1), feed.text(feed.routeLong[route]), ModeMapping.fromOtp(feed.mode(route)),
-            hex(feed.routeColor[route]), hex(feed.routeTextColor[route]), agency.takeIf { it.isNotBlank() }?.let { Agency(null, it) })
+            hex(feed.routeColor[route]), hex(feed.routeTextColor[route]), agency.takeIf { it.isNotBlank() }?.let { Agency(null, it) },
+            OfflineRouteMarks.logo(feed.mode(route), feed.text(feed.routeShort[route]), feed.text(feed.routeLong[route]), feed.text(feed.tripShortName[t])))
         val summary = TripSummary(Gid.of(ProviderId.Gtfs, feed.text(feed.tripId[t])), transitRoute,
             feed.text(feed.tripHeadsign[t]).ifBlank { calls.last().stop.name }, day, feed.text(feed.tripShortName[t]))
         return Trip(summary, calls, Provenance.of(ProviderId.Gtfs, feed.builtAt, DataKind.Offline), feedName = feed.feedName)
@@ -561,11 +562,13 @@ class OfflineNetwork(val feeds: List<OfflineTimetable>) {
         val label = routeLabel(f, route, t)
         val start = epoch(day, feed.departure(t, board)); val end = epoch(day, feed.arrival(t, alight))
         val intermediate = if (alight > board + 1) (board + 1 until alight).map { station(f, feed.patternStop(p, it)) } else emptyList()
-        return Leg(feed.mode(route), start, end, station(f, feed.patternStop(p, board)), station(f, feed.patternStop(p, alight)),
-            label, feed.text(feed.tripId[t]), false, 0, intermediate, "", hex(feed.routeColor[route]), "",
-            feed.text(feed.tripHeadsign[t]), feed.text(feed.routeLong[route]),
+        val mode = feed.mode(route); val short = feed.text(feed.routeShort[route]); val long = feed.text(feed.routeLong[route])
+        val tripName = feed.text(feed.tripShortName[t])
+        return Leg(mode, start, end, station(f, feed.patternStop(p, board)), station(f, feed.patternStop(p, alight)),
+            label, feed.text(feed.tripId[t]), false, 0, intermediate, "", hex(feed.routeColor[route]),
+            OfflineRouteMarks.serviceName(mode, long, tripName), feed.text(feed.tripHeadsign[t]), long,
             feed.routeAgency[route].takeIf { it >= 0 }?.let { feed.text(feed.agencyName[it]) }.orEmpty(),
-            routeShortName = feed.text(feed.routeShort[route]))
+            routeShortName = short, routeLogo = OfflineRouteMarks.logo(mode, short, long, tripName))
     }
     /** Trains are named by their train number; everything else by its public line number. */
     private fun routeLabel(f: Int, route: Int, trip: Int): String {
