@@ -127,14 +127,16 @@ class MavProviderTest {
     }
 
     @Test fun placesRoundTripToStations() {
-        val stop = Station("1:0055", "Budapest-Nyugati", 47.51, 19.05, modes = listOf("RAIL"), platform = "6")
+        val stop = Station("mav:1:0055", "Budapest-Nyugati", 47.51, 19.05, modes = listOf("RAIL"), platform = "6")
         assertEquals(stop, stop.toPlace().toStation())
         val osm = Station("osm:node/1", "Dóm tér", 46.25, 20.15, detail = "Tér")
         assertEquals(Station("", "Dóm tér", 46.25, 20.15, detail = "Tér"), osm.toPlace().toStation())
         val here = Station("", "Jelenlegi hely", 47.0, 19.0, currentLocationCalculatedAt = 5)
         assertTrue(here.toPlace() is Place.CurrentLocation)
         assertEquals(5L, here.toPlace().toStation().currentLocationCalculatedAt)
-        val foreign = Place.StopPlace(Stop(Gid("gtfs:hu_volan:1"), "Eger", 47.9, 20.37))
+        val offline = Place.StopPlace(Stop(Gid("gtfs:hu_volan:1"), "Eger", 47.9, 20.37))
+        assertEquals("gtfs:hu_volan:1", offline.toStation().id)
+        val foreign = Place.StopPlace(Stop(Gid("motis:at:123"), "Wien", 48.2, 16.37))
         assertEquals("", foreign.toStation().id)
     }
 

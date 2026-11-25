@@ -64,7 +64,7 @@ class StopDeparturesTest {
             {"node":{"stop":{"gtfsId":"bus:west","name":"Stop","lat":47.0,"lon":19.001}}}
         ]}}""")
         val stops = parseMapStops(data)
-        assertEquals(listOf("rail:1", "bus:east", "bus:west"), stops.map { it.id })
+        assertEquals(listOf("mav:rail:1", "mav:bus:east", "mav:bus:west"), stops.map { it.id })
         assertEquals("Station", stops.first().name)
     }
     private fun row(trip: String, scheduled: Long, live: Long = scheduled, realtime: Boolean = true,

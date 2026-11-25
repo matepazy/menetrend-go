@@ -78,7 +78,7 @@ internal fun parseMapStops(data: JSONObject): List<Station> =
         val stop = edge.optJSONObject("node")?.optJSONObject("stop") ?: return@mapNotNull null
         // A station owns its platforms. Street stops retain their directional identity.
         val place = stop.optJSONObject("parentStation") ?: stop
-        Station(place.getString("gtfsId"), place.getString("name"), place.getDouble("lat"), place.getDouble("lon"),
+        Station(StationIds.mav(place.getString("gtfsId")), place.getString("name"), place.getDouble("lat"), place.getDouble("lon"),
             modes = listOfNotNull(stop.optString("vehicleMode").takeUnless { it.isBlank() || it == "null" }),
             platform = if (place === stop) stop.optString("platformCode").takeUnless { it == "null" }.orEmpty() else "")
     }.distinctBy { it.id }
@@ -96,7 +96,7 @@ internal fun parseStopDepartures(data: JSONObject, now: Long): List<StopDepartur
         val estimate = if (live) (day + row.getLong("realtimeDeparture")) * 1000 else scheduled
         if (estimate < now) return@mapNotNull null
         val point = row.optJSONObject("stop") ?: stop
-        val station = Station(point.optString("gtfsId"), point.optString("name"), point.optDouble("lat", 0.0), point.optDouble("lon", 0.0))
+        val station = Station(StationIds.mav(point.optString("gtfsId")), point.optString("name"), point.optDouble("lat", 0.0), point.optDouble("lon", 0.0))
         val label = trip.text("tripShortName").ifBlank { route.text("shortName").takeUnless { '<' in it }.orEmpty() }
             .ifBlank { "Járat" }
         val destination = row.text("headsign").ifBlank { trip.text("tripHeadsign") }.ifBlank { "Az irány nem ismert" }

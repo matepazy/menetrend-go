@@ -59,7 +59,7 @@ class MavClient(private val http: HttpTransport = HttpTransport.Default) {
             val coords=feature.optJSONObject("geometry")?.optJSONArray("coordinates")
             val properties=feature.optJSONObject("properties")
             val modes=properties?.optJSONArray("modes")
-            if(coords==null || coords.length()<2) null else Station(feature.optString("id"),properties?.optString("name",query) ?: query,coords.getDouble(1),coords.getDouble(0),
+            if(coords==null || coords.length()<2) null else Station(StationIds.mav(feature.optString("id")),properties?.optString("name",query) ?: query,coords.getDouble(1),coords.getDouble(0),
                 properties?.optString("type").orEmpty(),if(modes==null) emptyList() else (0 until modes.length()).map {modes.getString(it)})
         }.distinctBy {it.id}
     }
@@ -152,9 +152,9 @@ object MavQueries {
     // Preserve provider identity: a MetaStation (CITY*) denotes all of a city's
     // stations. Its coordinates are only a display point, not a routing endpoint.
     // This is the same name::id format used by the MÁVPlusz planner.
-    // OpenStreetMap places and the current location are plain coordinates.
+    // OpenStreetMap places, the current location and offline-only stops are plain coordinates.
     private fun endpoint(key: String,station: Station): String =
-        if(station.id.isNotBlank() && !station.isPlace) "${key}Place:${quote("${station.name}::${station.id}")}"
+        if(station.source=="mav") "${key}Place:${quote("${station.name}::${station.localId}")}"
         else "$key:${point(station.lat,station.lon)}"
 
     fun plan(from: Station,to: Station,time: LocalDateTime,arrive: Boolean, filters: Set<SearchFilter> = emptySet(), vehicles: Set<SearchVehicle> = emptySet()): String =

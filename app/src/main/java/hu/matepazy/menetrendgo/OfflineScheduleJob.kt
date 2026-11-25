@@ -13,6 +13,8 @@ import java.util.concurrent.TimeUnit
 class MenetrendGoApp : Application() {
     override fun onCreate() {
         super.onCreate()
+        // Saved data is rewritten to the current schema before any screen, widget or service reads it.
+        DataMigration.run(this)
         OfflineSchedules.init(this)
         OfflineStatus.init(this)
     }

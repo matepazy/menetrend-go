@@ -13,18 +13,42 @@ fun dayLabel(millis: Long, today: LocalDate = LocalDate.now(Budapest)): String {
 }
 fun JSONArray.objects(): List<JSONObject> = (0 until length()).mapNotNull { optJSONObject(it) }
 fun JSONObject.array(key: String): List<JSONObject> = optJSONArray(key)?.objects().orEmpty()
+/** Station ids carry their source: "mav:<MÁVPlusz gtfsId>", "gtfs:<offline feed stop id>", "osm:<place>";
+ * "" is a plain coordinate. A bare id is a MÁVPlusz id stored before namespacing. */
+internal object StationIds {
+    private val sources = setOf("mav", "gtfs", "osm", "utas")
+    fun source(id: String): String? = when {
+        id.isBlank() -> null
+        id.substringBefore(':', "") in sources -> id.substringBefore(':')
+        else -> "mav"
+    }
+    /** The id the source itself uses. */
+    fun local(id: String): String = if (id.substringBefore(':', "") in sources) id.substringAfter(':') else id
+    fun mav(id: String): String = if (id.isBlank()) "" else "mav:$id"
+    fun gtfs(id: String): String = if (id.isBlank()) "" else "gtfs:$id"
+    /** Schema 1 → 2: bare ids become MÁVPlusz ids; namespaced ids and coordinates stay. */
+    fun migrate(id: String): String = if (id.isBlank() || id.substringBefore(':', "") in sources) id else mav(id)
+}
+
 data class Station(val id: String, val name: String, val lat: Double, val lon: Double,
     val type: String = "", val modes: List<String> = emptyList(), val platform: String = "",
     // Monotonic time for a one-shot current location. Never persisted with saved stops.
     val currentLocationCalculatedAt: Long? = null,
     // Secondary line for OpenStreetMap places (kind · town, street); empty for provider stops.
     val detail: String = "") {
+    val source get() = StationIds.source(id)
+    /** The id the station's own source uses, for requests to that source. */
+    val localId get() = StationIds.local(id)
     val townName get() = name.substringBefore(',').trim()
     val stopName get() = name.substringAfter(',', "").trim()
     fun json() = JSONObject().put("id", id).put("name", name).put("lat", lat).put("lon", lon)
         .put("type", type).put("modes", JSONArray(modes)).put("platformCode", platform)
         .apply { if (detail.isNotBlank()) put("detail", detail) }
-    companion object { fun parse(o: JSONObject): Station {
+    companion object {
+    /** A station from MÁVPlusz JSON, whose ids are bare provider ids. */
+    fun parseMav(o: JSONObject): Station = parse(o).let { it.copy(id = StationIds.mav(it.id)) }
+    /** A station as the app stores it: the id is kept as written. */
+    fun parse(o: JSONObject): Station {
         val modes=o.optJSONArray("modes")
         return Station(o.optString("id").ifBlank {o.optString("gtfsId").ifBlank { o.optJSONObject("stop")?.optString("gtfsId").orEmpty() }}, o.getString("name"), o.getDouble("lat"), o.getDouble("lon"),
             o.optString("type"), if(modes==null) emptyList() else (0 until modes.length()).map {modes.getString(it)},
@@ -70,14 +94,17 @@ data class Leg(val mode: String, val start: Long, val end: Long, val from: Stati
     val departureTime get() = ServiceTime.fromEstimate(start, departureDelay, realTime && !walking)
     val arrivalTime get() = ServiceTime.fromEstimate(end, arrivalDelay, realTime && !walking)
     companion object {
-        fun parse(o: JSONObject): Leg {
+        /** [namespacedIds]: the JSON was written by the app with namespaced station ids (idSchema 2);
+         * otherwise it is a MÁVPlusz itinerary with bare ids. */
+        fun parse(o: JSONObject, namespacedIds: Boolean = false): Leg {
+            val station: (JSONObject) -> Station = if (namespacedIds) Station::parse else Station::parseMav
             val route = o.optJSONObject("route") ?: JSONObject()
             val trip = o.optJSONObject("trip") ?: JSONObject()
             return Leg(o.optString("mode"), o.getLong("startTime"), o.getLong("endTime"),
-                Station.parse(o.getJSONObject("from")), Station.parse(o.getJSONObject("to")),
+                station(o.getJSONObject("from")), station(o.getJSONObject("to")),
                 route.optString("shortName").ifBlank { trip.optString("tripShortName").ifBlank { o.optString("mode") } },
                 trip.optString("gtfsId"), o.optBoolean("realTime"), o.optInt("departureDelay"),
-                o.array("intermediateStops").map(Station::parse), o.optJSONObject("legGeometry")?.optString("points").orEmpty(),
+                o.array("intermediateStops").map(station), o.optJSONObject("legGeometry")?.optString("points").orEmpty(),
                 route.optString("color"), trip.optString("trainCategoryName"), trip.optString("tripHeadsign"), route.optString("longName"), route.optJSONObject("agency")?.optString("name").orEmpty(),o.optInt("arrivalDelay"),MavService.parseAll(o),RouteLogo.parse(route),
                 MavAlert.parseAll(o, o.getLong("startTime"), o.getLong("endTime")))
         }
@@ -98,7 +125,14 @@ data class Journey(val duration: Int, val legs: List<Leg>, val rawGraphQl: Strin
     val serviceMinutes get() = ((alightingLeg.end - boardingLeg.start + 59_999) / 60_000).toInt()
     val key get() = legs.joinToString("|") { "${it.tripId}:${it.departureTime.scheduled}:${it.from.name}" }
     val changes get() = (legs.count { !it.walking } - 1).coerceAtLeast(0)
-    companion object { fun parse(o: JSONObject) = Journey(o.optInt("duration"), o.array("legs").map(Leg::parse)) }
+    companion object {
+        /** Station ids in app-written itineraries ([ID_SCHEMA]) are kept; MÁVPlusz itineraries get the "mav:" namespace. */
+        const val ID_SCHEMA = 2
+        fun parse(o: JSONObject): Journey {
+            val namespaced = o.optInt("idSchema") >= ID_SCHEMA
+            return Journey(o.optInt("duration"), o.array("legs").map { Leg.parse(it, namespaced) })
+        }
+    }
 }
 data class Pass(val id: String, val county: String?, val starts: LocalDate, val expires: LocalDate,
                 val localCity: String? = null, val thirtyDays: Boolean = expires == starts.plusDays(29)) {

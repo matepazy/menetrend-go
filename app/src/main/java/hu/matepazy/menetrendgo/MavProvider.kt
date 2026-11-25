@@ -56,7 +56,8 @@ class MavProvider(private val client: MavClient, private val clock: () -> Long =
 /** A provider stop, or null for OpenStreetMap places, coordinates and the current location. */
 internal fun Station.toStop(provider: ProviderId): Stop? {
     if (id.isBlank() || isPlace || currentLocationCalculatedAt != null) return null
-    return Stop(Gid.of(provider, id), name, lat, lon, platform = platform, modes = modes.map(ModeMapping::fromOtp).toSet())
+    val gid = source?.let { Gid.of(ProviderId(it), localId) } ?: Gid.of(provider, id)
+    return Stop(gid, name, lat, lon, platform = platform, modes = modes.map(ModeMapping::fromOtp).toSet())
 }
 
 internal fun Station.toPlace(provider: ProviderId = ProviderId.Mav): Place = when {
@@ -66,7 +67,7 @@ internal fun Station.toPlace(provider: ProviderId = ProviderId.Mav): Place = whe
 
 /** The reverse, for handing canonical places to [MavClient]; a foreign or synthetic stop becomes plain coordinates. */
 internal fun Place.toStation(): Station = when (this) {
-    is Place.StopPlace -> if (stop.id.provider == ProviderId.Mav) Station(stop.id.local, stop.name, stop.lat, stop.lon,
+    is Place.StopPlace -> if (stop.id.provider == ProviderId.Mav || stop.id.provider == ProviderId.Gtfs) Station(stop.id.raw, stop.name, stop.lat, stop.lon,
         modes = stop.modes.map { it.otp }, platform = stop.platform) else Station("", stop.name, stop.lat, stop.lon)
     is Place.Address -> Station("", name, lat, lon, detail = detail)
     is Place.CurrentLocation -> Station("", name, lat, lon, currentLocationCalculatedAt = calculatedAt)

@@ -133,7 +133,7 @@ class OfflineNetworkTest {
         // Trips leave from platform 1:A_1, but the timetable is chosen at station level (1:A).
         val route = network.routes("").first { it.ref.feed == 0 }
         val direction = network.directions(route.ref).single()
-        assertEquals(listOf("1:A", "1:B", "1:C"), direction.stops.map { it.id })
+        assertEquals(listOf("gtfs:1:A", "gtfs:1:B", "gtfs:1:C"), direction.stops.map { it.id })
         val times = network.routeDepartures(route.ref, direction, "1:A", today)
         assertEquals(listOf("1:T1", "1:T2", "1:N"), times.map { it.tripId })
         assertEquals("2", times.first().platform)
@@ -244,7 +244,7 @@ class OfflineStopSearchTest {
     @Test fun platformsFoldIntoTheirStationAndAccentsDoNotMatter() {
         val table = SampleGtfs.timetable()
         val found = OfflineNetwork(listOf(table)).searchStops("avaros")
-        assertEquals(listOf("A"), found.map { it.id })
+        assertEquals(listOf("gtfs:A"), found.map { it.id })
         assertEquals("Station", found.single().type)
         assertTrue("RAIL" in found.single().modes)
         assertTrue(OfflineNetwork(listOf(table)).searchStops("cvaros vasut").single().name.startsWith("Cváros"))

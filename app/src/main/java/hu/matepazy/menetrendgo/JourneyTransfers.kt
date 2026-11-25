@@ -83,7 +83,7 @@ internal fun reachableTransferCandidates(journeys: List<Journey>, original: Leg,
  * Older saved journeys have no stop IDs, so require both name and nearby coordinates in that case.
  */
 private fun journeyStopMatches(call: Call, station: Station): Boolean =
-    if(station.id.isNotBlank()) call.stop.id.local==station.id else
+    if(station.id.isNotBlank()) call.stop.id.local==station.localId else
         call.stop.name==station.name && abs(call.stop.lat-station.lat)<.001 && abs(call.stop.lon-station.lon)<.001
 
 private fun Call.endpoint(arrival: Boolean) = if (arrival) this.arrival else departure

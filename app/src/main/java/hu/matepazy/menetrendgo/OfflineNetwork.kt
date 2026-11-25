@@ -65,7 +65,7 @@ class OfflineNetwork(val feeds: List<OfflineTimetable>) {
     /** Exact provider identity first (a station includes its platforms), then the same name nearby. */
     fun resolve(station: Station, nameRadius: Double = 250.0): List<StopRef> {
         val exact = feeds.flatMapIndexed { f, feed ->
-            val stop = feed.stopIndex[station.id] ?: return@flatMapIndexed emptyList()
+            val stop = feed.stopIndex[station.localId] ?: return@flatMapIndexed emptyList()
             listOf(StopRef(f, stop)) + feed.children[stop].orEmpty().map { StopRef(f, it) }
         }
         if (exact.isNotEmpty()) return exact
@@ -116,7 +116,7 @@ class OfflineNetwork(val feeds: List<OfflineTimetable>) {
             feed.children[stop].orEmpty().forEach { child ->
                 feed.forEachStopPattern(child) { p, _ -> modes += feed.mode(feed.patternRoute[p]) }
             }
-            val result = Station(id, feed.text(feed.stopName[stop]), lat, lon,
+            val result = Station(StationIds.gtfs(id), feed.text(feed.stopName[stop]), lat, lon,
                 type = if (match.isStation) "Station" else "Stop", modes = modes.toList())
             results += result
             sameName += result
@@ -303,7 +303,7 @@ class OfflineNetwork(val feeds: List<OfflineTimetable>) {
     /** Every departure in [direction] from [stationId] (a station or one of its platforms) on [day], in time order. */
     fun routeDepartures(route: RouteRef, direction: RouteDirection, stationId: String, day: LocalDate): List<RouteDeparture> {
         val feed = feeds[route.feed]
-        val wanted = feed.stopIndex[stationId]?.let { feed.stationOf(it) } ?: return emptyList()
+        val wanted = feed.stopIndex[StationIds.local(stationId)]?.let { feed.stationOf(it) } ?: return emptyList()
         val out = ArrayList<RouteDeparture>()
         for (p in direction.patterns) {
             val last = feed.patternSize(p) - 1
@@ -552,7 +552,7 @@ class OfflineNetwork(val feeds: List<OfflineTimetable>) {
         val feed = feeds[f]
         val parent = feed.stopParent[stop]
         val id = feed.text(feed.stopId[if (parent >= 0) parent else stop])
-        return Station(id, feed.text(feed.stopName[stop]), feed.lat(stop), feed.lon(stop), platform = feed.text(feed.stopPlatform[stop]))
+        return Station(StationIds.gtfs(id), feed.text(feed.stopName[stop]), feed.lat(stop), feed.lon(stop), platform = feed.text(feed.stopPlatform[stop]))
     }
 
     /** A ride from position [board] to [alight] of trip [t] on service [day], shaped like a provider leg. */

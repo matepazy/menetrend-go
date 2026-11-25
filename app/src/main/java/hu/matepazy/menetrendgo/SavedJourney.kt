@@ -51,7 +51,7 @@ internal fun itineraryJson(journey: Journey) = JSONObject().put("legs", JSONArra
         .put("intermediateStops", JSONArray(leg.intermediate.map { it.json() }))
         .put("legGeometry", JSONObject().put("points", leg.geometry))
         .put("realTime", leg.realTime).put("arrivalDelay", leg.arrivalDelay).put("departureDelay", leg.departureDelay)
-})).put("duration", journey.duration)
+})).put("duration", journey.duration).put("idSchema", Journey.ID_SCHEMA)
 
 private val SavedDay = DateTimeFormatter.ofPattern("MMM d., EEEE", Locale.forLanguageTag("hu-HU"))
 private val SavedDayWithYear = DateTimeFormatter.ofPattern("yyyy. MMM d., EEEE", Locale.forLanguageTag("hu-HU"))

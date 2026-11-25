@@ -54,11 +54,17 @@ class TransitRepository(
     suspend fun nearbyStops(lat: Double, lon: Double, radius: Int): List<Station> = mav.nearbyStops(lat, lon, radius)
 
     // ---- Departures, journeys, trips ----
-    /** [station] lets the offline lookup match by name when the provider id is unknown there. */
-    suspend fun stopDepartures(id: String, now: Long = clock(), station: Station? = null): List<StopDeparture> =
-        primaryOrOffline({ net -> net.departures(station?.takeIf { it.id == id } ?: Station(id, "", 0.0, 0.0), now) }) {
-            mav.stopDepartures(id, now)
+    /** The id's namespace picks the source: a MÁVPlusz stop asks MÁVPlusz (offline as fallback), an offline-only
+     * stop goes straight to the timetables. [station] lets the offline lookup match by name when the id is unknown there. */
+    suspend fun stopDepartures(id: String, now: Long = clock(), station: Station? = null): List<StopDeparture> {
+        val offlineDepartures = { net: OfflineNetwork -> net.departures(station?.takeIf { it.id == id } ?: Station(id, "", 0.0, 0.0), now) }
+        if (StationIds.source(id) == "gtfs") {
+            val network = offline() ?: throw ProviderUnavailable("Ehhez a megállóhoz csak letöltött menetrend tartozik, de most nem érhető el.")
+            return try { withContext(Dispatchers.Default) { offlineDepartures(network) } }
+            catch (e: OfflineNotCovered) { throw ProviderUnavailable("Ehhez a megállóhoz nincs letöltött menetrend.", e) }
         }
+        return primaryOrOffline(offlineDepartures) { mav.stopDepartures(StationIds.local(id), now) }
+    }
 
     suspend fun plan(from: Station, to: Station, time: LocalDateTime, arrive: Boolean,
         filters: Set<SearchFilter> = emptySet(), vehicles: Set<SearchVehicle> = emptySet()): List<Journey> =
