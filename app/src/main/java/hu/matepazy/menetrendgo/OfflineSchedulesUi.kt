@@ -213,6 +213,54 @@ internal fun LazyListScope.offlineScheduleItems(state: OfflineCatalogState, cont
     }
 }
 
+/**
+ * The onboarding's one-tap Országos alapcsomag download. The job keeps running in the background,
+ * so the rider can carry on with the tour while it works; Settings › Offline menetrendek holds the rest.
+ */
+@Composable internal fun OnboardingStarterDownload(modifier: Modifier = Modifier) {
+    val context = LocalContext.current
+    var members by remember { mutableStateOf<List<OfflineFeed>>(emptyList()) }
+    val sizes = remember { mutableStateMapOf<String, Long>() }
+    LaunchedEffect(Unit) {
+        members = OfflineSchedules.catalog().first.filter { it.id in OfflineFeedCatalog.STARTER }
+        members.forEach { feed -> OfflineSchedules.downloadSize(feed)?.let { sizes[feed.id] = it } }
+    }
+    val missing = members.filter { installedFeed(it.id) == null }
+    val tasks = OfflineFeedCatalog.STARTER.mapNotNull { id -> OfflineSchedules.tasks[id]?.let { id to it } }
+    val busy = tasks.firstOrNull { it.second.busy }
+    val failed = tasks.firstOrNull { it.second is OfflineTask.Failed }
+    val scheme = MaterialTheme.colorScheme
+    Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(AppLayout.CompactGap)) {
+        when {
+            busy != null -> {
+                val done = OfflineFeedCatalog.STARTER.count { id -> installedFeed(id) != null && OfflineSchedules.tasks[id] == null }
+                TaskStatus(busy.second, prefix = "Országos alapcsomag · ${(done + 1).coerceAtMost(members.size.coerceAtLeast(1))}/${members.size.coerceAtLeast(1)}")
+                Text("A háttérben folytatódik, nyugodtan továbbmehetsz.", style = MaterialTheme.typography.bodySmall, color = scheme.onSurfaceVariant)
+            }
+            members.isNotEmpty() && missing.isEmpty() -> Row(Modifier.heightIn(min = 48.dp), verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(AppLayout.CompactGap)) {
+                Icon(Icons.Outlined.CheckCircle, null, Modifier.size(22.dp), tint = scheme.primary)
+                Text("Az országos alapcsomag letöltve", style = MaterialTheme.typography.titleMedium)
+            }
+            else -> {
+                if (failed != null) Text((failed.second as OfflineTask.Failed).message, style = MaterialTheme.typography.bodyMedium, color = scheme.error)
+                val size = missing.mapNotNull { sizes[it.id] }.takeIf { it.size == missing.size && it.isNotEmpty() }?.sum()
+                GlassButton(onClick = { missing.forEach { OfflineSchedules.enqueue(context, it) } }, Modifier.fillMaxWidth().heightIn(min = 64.dp),
+                    enabled = missing.isNotEmpty(), shape = RoundedCornerShape(24.dp),
+                    contentPadding = PaddingValues(horizontal = 20.dp, vertical = 10.dp)) {
+                    Icon(if (failed != null) Icons.Outlined.Refresh else Icons.Outlined.Download, null, Modifier.size(24.dp))
+                    Spacer(Modifier.width(14.dp))
+                    Column(Modifier.weight(1f)) {
+                        Text(if (failed != null) "Újrapróbálás" else "Országos alapcsomag letöltése", style = MaterialTheme.typography.titleMedium)
+                        Text("Vonatok és helyközi buszok" + (size?.let { " · ${offlineBytesLabel(it)}" } ?: ""),
+                            style = MaterialTheme.typography.bodySmall, color = scheme.onSurfaceVariant)
+                    }
+                }
+            }
+        }
+    }
+}
+
 @Composable private fun PrimaryAction(label: String, icon: androidx.compose.ui.graphics.vector.ImageVector, onClick: () -> Unit) {
     Button(onClick = onClick, modifier = Modifier.fillMaxWidth().heightIn(min = 58.dp), border = glassBorder(buttonGlassTone())) {
         Icon(icon, null, Modifier.size(22.dp)); Spacer(Modifier.width(10.dp)); Text(label, style = MaterialTheme.typography.titleMedium)

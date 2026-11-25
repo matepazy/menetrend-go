@@ -17,6 +17,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowForward
 import androidx.compose.material.icons.outlined.CalendarToday
+import androidx.compose.material.icons.outlined.CloudOff
 import androidx.compose.material.icons.outlined.DirectionsBus
 import androidx.compose.material.icons.outlined.FilterList
 import androidx.compose.material.icons.outlined.Refresh
@@ -50,7 +51,7 @@ import kotlin.math.roundToInt
 
 /*
  * Look-alikes of the real screens, one per onboarding station, floating in the sky above the ride.
- * They illustrate the search, vehicle drawer, stop widget, offline schedules and pass features;
+ * They illustrate the search, vehicle drawer, stop widget, offline schedules (no signal, scheduled times) and pass features;
  * the sample values are illustrations and the whole mock is hidden from screen readers.
  */
 
@@ -66,7 +67,7 @@ import kotlin.math.roundToInt
                 1 -> PlanMock()
                 2 -> VehicleMock()
                 3 -> WidgetMock()
-                4 -> OfflinePreviewPhones(Modifier.widthIn(max = 164.dp).fillMaxWidth())
+                4 -> NoSignalMock()
                 5 -> PassMock()
                 else -> {} // The consent stop keeps the sky clear for the taller panel.
             }
@@ -229,6 +230,59 @@ private val MapRoad = Color(0xFFFFFFFF)
             if (detail.isNotEmpty()) Text(detail, fontSize = 12.sp, color = scheme.onSurfaceVariant)
         }
         Text(countdown, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+    }
+}
+
+// Offline menetrendek: the phone has no signal, yet Dinnyés still shows its scheduled departures.
+@Composable private fun NoSignalMock() {
+    val scheme = MaterialTheme.colorScheme
+    MockPanel {
+        Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                Box(Modifier.size(64.dp).background(scheme.surfaceContainerHigh, CircleShape), contentAlignment = Alignment.Center) {
+                    SignalOff(Modifier.size(34.dp))
+                }
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text("Nincs térerő", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Icon(Icons.Outlined.CloudOff, null, Modifier.size(16.dp), tint = scheme.primary)
+                        Text("Offline menetrend szerint", style = MaterialTheme.typography.bodySmall, color = scheme.onSurfaceVariant)
+                    }
+                }
+            }
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                OfflineDeparture("08:14", "Székesfehérvár")
+                OfflineDeparture("08:41", "Budapest-Déli")
+            }
+        }
+    }
+}
+
+/** Four ascending signal bars, emptied and struck through: the familiar "no service" mark, drawn as geometry. */
+@Composable private fun SignalOff(modifier: Modifier) {
+    val scheme = MaterialTheme.colorScheme
+    val gap = scheme.surfaceContainerHigh
+    Canvas(modifier) {
+        val w = size.width; val h = size.height
+        val bar = w * .16f; val step = (w - bar * 4) / 3
+        repeat(4) { i ->
+            val top = h * (1f - (i + 1) / 4f)
+            drawRoundRect(scheme.outline.copy(alpha = .45f), Offset(i * (bar + step), top), androidx.compose.ui.geometry.Size(bar, h - top),
+                androidx.compose.ui.geometry.CornerRadius(bar / 3))
+        }
+        val a = Offset(w * .04f, h * .1f); val b = Offset(w * .96f, h * .98f)
+        drawLine(gap, a, b, bar * 1.5f, StrokeCap.Round)
+        drawLine(scheme.onSurface, a, b, bar * .62f, StrokeCap.Round)
+    }
+}
+
+@Composable private fun OfflineDeparture(time: String, destination: String) {
+    val scheme = MaterialTheme.colorScheme
+    Row(Modifier.fillMaxWidth().background(scheme.surfaceContainerLow, RoundedCornerShape(20.dp)).padding(horizontal = 16.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+        Text(time, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+        Icon(painterResource(R.drawable.ic_service_direction), null, Modifier.size(14.dp), tint = scheme.onSurface)
+        Text(destination, Modifier.weight(1f), style = MaterialTheme.typography.titleMedium, maxLines = 1)
     }
 }
 

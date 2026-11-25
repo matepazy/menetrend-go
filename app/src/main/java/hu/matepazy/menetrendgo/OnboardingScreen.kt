@@ -44,12 +44,13 @@ private val stops = listOf(
     TourStop("Tervezz!", "Add meg, honnan hová és mikor utazol. A találatoknál látod az átszállásokat és a késéseket, a kereséseidet pedig elmentheted."),
     TourStop("Élő térkép", "A vonatok és buszok valós időben mozognak. Koppints egy járműre: látod a késését, a következő megállóit és a járműtípust."),
     TourStop("Indulások kéznél", "Bármely megálló indulási tábláját kiteheted widgetként a kezdőképernyőre, így az app megnyitása nélkül is látod."),
-    TourStop("Offline menetrendek", "Tölts le menetrendeket a Beállításokban, hogy internet nélkül is tervezhess és megnézhesd az indulásokat. Az élő késésekhez internet kell."),
+    TourStop("Offline menetrendek", "Letöltött menetrendekkel térerő nélkül is tervezhetsz és láthatod az indulásokat. Az élő késésekhez internet kell."),
     TourStop("Bérletfigyelő", "Rögzítsd a bérleteidet, és szólunk, mielőtt lejárnak. Bekapcsolás: Beállítások › Kiegészítő funkciók."),
     // The terminus: both documents must be accepted before the train leaves.
     TourStop("Végállomás", "Indulás előtt fogadd el a licencszerződést és a felhasználási feltételeket. Koppints egy kártyára az elolvasásához."),
 )
 private val consentStep = stops.lastIndex
+private const val offlineStep = 4
 
 /**
  * First run, ending in the legal consent stop. [consentOnly] shows just that stop, without Back or Kihagyás,
@@ -102,6 +103,7 @@ private val consentStep = stops.lastIndex
                         Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(AppLayout.LabelGap)) {
                             Text(stops[i].title, Modifier.semantics { heading() }, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
                             Text(stops[i].line, minLines = if (i == consentStep) 1 else 3, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            if (i == offlineStep) OnboardingStarterDownload(Modifier.padding(top = AppLayout.CompactGap))
                             if (i == consentStep) Column(Modifier.padding(top = AppLayout.CompactGap), verticalArrangement = Arrangement.spacedBy(AppLayout.CompactGap)) {
                                 LegalConsentCard(LegalDoc.License, licenseOk, { licenseOk = it }) { reading = LegalDoc.License }
                                 LegalConsentCard(LegalDoc.Terms, termsOk, { termsOk = it }) { reading = LegalDoc.Terms }
