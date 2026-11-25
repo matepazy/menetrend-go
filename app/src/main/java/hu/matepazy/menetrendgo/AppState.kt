@@ -22,8 +22,7 @@ class AppState(app: Application) : AndroidViewModel(app) {
     }.getOrDefault(false)
     private val initialDataSourceMode = initializeDataSourcePreferences(prefs, existingInstallation)
     val updates = UpdateController(app, viewModelScope)
-    private val mav=MavClient()
-    private val utas=UtasClient()
+    private val transit=TransitRepository.shared
     var passGeography by mutableStateOf<PassGeography?>(null); private set
     init {
         viewModelScope.launch {
@@ -32,7 +31,7 @@ class AppState(app: Application) : AndroidViewModel(app) {
             }
         }
     }
-    private val stationSearch=StationSearch(app, mav::stations, mav::offlineStations)
+    private val stationSearch=StationSearch(app, transit::stations, transit::offlineStations)
     private val placeSearch=PlaceSearch()
     var theme by mutableStateOf(prefs.getString("theme", "system").orEmpty()); private set
     var passReminders by mutableStateOf(PassNotifications.enabledReminders(app)); private set
@@ -198,7 +197,7 @@ class AppState(app: Application) : AndroidViewModel(app) {
         networkAlertsJob=viewModelScope.launch {
             networkAlertsLoading=true
             try {
-                val (items,updated)=mav.networkAlerts(force)
+                val (items,updated)=transit.networkAlerts(force)
                 networkAlerts=items;networkAlertsUpdated=updated;networkAlertsError=null
             } catch(e: CancellationException) {throw e}
             catch(e: Exception) {networkAlertsError=e.message ?: "A közlemények nem tölthetők be."}
@@ -377,7 +376,7 @@ class AppState(app: Application) : AndroidViewModel(app) {
                     val epoch = if (earlier) journeys.minOf { it.end } - 60_000 else journeys.maxOf { it.start } + 60_000
                     Instant.ofEpochMilli(epoch).atZone(Budapest).toLocalDateTime()
                 } else criteria.time
-                val next = mav.plan(criteria.from,criteria.to,edge,if(more) earlier else criteria.arrive,activeSearchFilters,activeSearchVehicles)
+                val next = transit.plan(criteria.from,criteria.to,edge,if(more) earlier else criteria.arrive,activeSearchFilters,activeSearchVehicles)
                 val fresh = next.filterNot { n -> journeys.any { it.key == n.key } }
                 journeys = (journeys + fresh).distinctBy { it.key }.sortedBy { it.start }
                 if (!more) {
@@ -394,44 +393,19 @@ class AppState(app: Application) : AndroidViewModel(app) {
         if (vehiclesLoading) return
         vehiclesLoading = true
         try {
-            val (snapshot,partialError)=when(dataSourceMode) {
-                DataSourceMode.Single -> mav.vehicles(forceRefresh, mapRefreshSeconds) to null
-                DataSourceMode.Aggregated -> aggregatedVehicles(forceRefresh)
-            }
-            vehicles=snapshot.first
-            vehicleUpdated=snapshot.second
-            vehicleError = partialError
+            val snapshot=transit.vehicles(dataSourceMode, forceRefresh, mapRefreshSeconds)
+            vehicles=snapshot.vehicles
+            vehicleUpdated=snapshot.updatedSeconds
+            vehicleError = snapshot.notice
         } catch (e: CancellationException) { throw e }
         catch (e: Exception) { vehicleError = e.message ?: "Nem sikerült frissíteni a járműveket." }
         finally { vehiclesLoading = false }
-    }
-    /** Both providers in parallel. One failing provider degrades to the other with a notice;
-     * only a double failure is an error. */
-    private suspend fun aggregatedVehicles(forceRefresh: Boolean): Pair<Pair<List<Vehicle>,Long>,String?> = coroutineScope {
-        suspend fun <T> attempt(block: suspend () -> T): Result<T> =
-            try { Result.success(block()) } catch (e: CancellationException) { throw e } catch (e: Exception) { Result.failure(e) }
-        val mavResult=async { attempt { mav.vehicles(forceRefresh, mapRefreshSeconds) } }
-        val utasResult=async { attempt { utas.vehicles(forceRefresh, mapRefreshSeconds) } }
-        val m=mavResult.await(); val u=utasResult.await()
-        val mavSnapshot=m.getOrNull(); val utasSnapshot=u.getOrNull()
-        if (mavSnapshot==null && utasSnapshot==null) throw m.exceptionOrNull()!!
-        val now=System.currentTimeMillis()/1000
-        val merged=withContext(Dispatchers.Default) {
-            mergeVehicleSources(mavSnapshot?.first.orEmpty(), utasSnapshot?.first.orEmpty(), now)
-        }
-        val updated=listOfNotNull(mavSnapshot?.second,utasSnapshot?.second).min()
-        val notice=when {
-            mavSnapshot==null -> "A MÁVPlusz járműadatai most nem érhetők el, csak az utas.hu járművei láthatók."
-            utasSnapshot==null -> "Az utas.hu most nem érhető el, csak a MÁVPlusz járművei láthatók."
-            else -> null
-        }
-        (merged to updated) to notice
     }
     internal suspend fun refreshDepartures() {
         if (searching || journeys.isEmpty()) return
         val generation = searchGeneration
         val snapshot = journeys
-        val refreshed = refreshDepartureJourneys(snapshot) { id, day -> mav.trip(id, day, forceRefresh = true) }
+        val refreshed = refreshDepartureJourneys(snapshot) { id, day -> transit.trip(id, day, forceRefresh = true) }
         // Pagination can finish during the refresh. Keep its additions, and ignore a replaced search.
         if (generation != searchGeneration) return
         val replacements = snapshot.zip(refreshed).associate { (old, fresh) -> old.key to fresh }
@@ -439,7 +413,7 @@ class AppState(app: Application) : AndroidViewModel(app) {
     }
 
     internal suspend fun refreshJourneyTimes(journey: Journey, previous: Map<Int, TransferTimes>) =
-        refreshJourneyLegTimes(journey, previous) { id, day -> mav.trip(id, day, forceRefresh = true) }
+        refreshJourneyLegTimes(journey, previous) { id, day -> transit.trip(id, day, forceRefresh = true) }
 
     /** Optional one-line fallback. Failures and missing matches stay silent. */
     internal suspend fun refreshTransferAlternatives(journey: Journey, times: Map<Int, TransferTimes>): Map<Int, TransferTimes> {
@@ -452,7 +426,7 @@ class AppState(app: Application) : AndroidViewModel(app) {
             val outgoing = journey.legs[connection.outgoingIndex]
             try {
                 val modes = SearchVehicle.entries.filter { it.mode == outgoing.mode }.toSet()
-                val plans = mav.plan(incoming.to, outgoing.to,
+                val plans = transit.plan(incoming.to, outgoing.to,
                     onwardSearchTime(current.arrival.time.estimate + 120_000, now), false,
                     journey.providerFilters, modes)
                 val candidates = reachableTransferCandidates(plans, outgoing, current.arrival.time.estimate, now)
@@ -461,7 +435,7 @@ class AppState(app: Application) : AndroidViewModel(app) {
                     val leg = candidate.leg
                     val day = Instant.ofEpochMilli(leg.departureTime.scheduled).atZone(Budapest).toLocalDate()
                     for (serviceDay in listOf(day, day.minusDays(1))) {
-                        val trip = try { mav.trip(leg.tripId, serviceDay.toString(), forceRefresh = true) }
+                        val trip = try { transit.trip(leg.tripId, serviceDay.toString(), forceRefresh = true) }
                             catch (e: CancellationException) { throw e }
                             catch (_: Exception) { continue }
                         val fetchedAt = System.currentTimeMillis()
@@ -483,7 +457,7 @@ class AppState(app: Application) : AndroidViewModel(app) {
     fun loadTrip(id: String, day: String) {
         loadDetail("$id|$day") {
             check(id.isNotBlank()) { "Ehhez a szakaszhoz nincs járatazonosító." }
-            mav.trip(id, day, refreshSeconds = mapRefreshSeconds)
+            transit.trip(id, day, refreshSeconds = mapRefreshSeconds)
         }
     }
 
@@ -493,7 +467,7 @@ class AppState(app: Application) : AndroidViewModel(app) {
             val utasTrip = vehicle.utasTrip
             val fromMav: (suspend () -> Trip)? = vehicle.mavTripId?.let { id ->
                 suspend {
-                    val result = mav.trip(id, day, refreshSeconds = mapRefreshSeconds)
+                    val result = transit.trip(id, day, refreshSeconds = mapRefreshSeconds)
                     check(result.vehicleStops().isNotEmpty()) { "Ehhez a járathoz nincs megállóadat." }
                     result
                 }
@@ -501,7 +475,7 @@ class AppState(app: Application) : AndroidViewModel(app) {
             val fromUtas: (suspend () -> Trip)? = utasTrip?.takeIf {
                 it.serviceDate == null || it.serviceDate.toString() == day
             }?.let { trip ->
-                suspend { utas.trip(trip.id, LocalDate.parse(day), mapRefreshSeconds) }
+                suspend { transit.utasTrip(trip.id, LocalDate.parse(day), mapRefreshSeconds) }
             }
             if (vehicle.sources and VehicleSources.MAV != 0) {
                 loadVehicleTimetable(fromMav, fromUtas)

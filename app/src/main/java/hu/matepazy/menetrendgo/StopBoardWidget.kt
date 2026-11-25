@@ -203,7 +203,7 @@ class StopBoardWidgetJob : JobService() {
     override fun onStartJob(params: JobParameters): Boolean {
         tasks[params.jobId] = CoroutineScope(Dispatchers.IO).launch {
             try {
-                val client = MavClient()
+                val client = TransitRepository.shared
                 StopBoardWidget.widgetIds(this@StopBoardWidgetJob).forEach { id ->
                     val station = StopBoardWidget.station(this@StopBoardWidgetJob, id) ?: return@forEach
                     StopBoardWidget.prefs(this@StopBoardWidgetJob).edit().putLong("attempt_$id", System.currentTimeMillis()).apply()
@@ -280,7 +280,7 @@ class StopBoardWidgetActivity : ComponentActivity() {
     var error by remember { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
     var lookup by remember { mutableStateOf<Job?>(null) }
-    val client = remember { MavClient() }
+    val client = TransitRepository.shared
     LaunchedEffect(query) {
         lookup?.cancel(); loading = false
         stops = null; places = emptyList(); error = null

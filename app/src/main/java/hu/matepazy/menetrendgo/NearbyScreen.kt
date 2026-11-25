@@ -114,7 +114,7 @@ import kotlinx.coroutines.withContext
     var mapStops by remember {mutableStateOf<List<Station>>(emptyList())}
     var selectedStop by remember {mutableStateOf<Station?>(null)}
     val currentStops by rememberUpdatedState(mapStops)
-    val stopClient = remember {MavClient()}
+    val stopClient = TransitRepository.shared
     val stopsEnabled = vm.showMapStops && !routeOnly
     LaunchedEffect(ready,stopsEnabled) {
         if(ready) mapSurface?.call("setStopsEnabled",stopsEnabled)

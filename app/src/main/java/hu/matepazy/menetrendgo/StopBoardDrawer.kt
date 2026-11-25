@@ -36,7 +36,7 @@ import kotlinx.coroutines.delay
         departureThemeContext(context, dark)
     }
     val lifecycle = LocalLifecycleOwner.current.lifecycle
-    val client = remember { MavClient() }
+    val client = TransitRepository.shared
     var departures by remember(station.id) { mutableStateOf<List<StopDeparture>>(emptyList()) }
     var updated by remember(station.id) { mutableLongStateOf(0) }
     var error by remember(station.id) { mutableStateOf<String?>(null) }

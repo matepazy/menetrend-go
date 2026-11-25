@@ -2,8 +2,6 @@ package hu.matepazy.menetrendgo
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import org.json.JSONObject
 import java.net.URLEncoder
 import java.time.LocalDate
@@ -12,14 +10,11 @@ import java.time.format.DateTimeFormatter
 
 /** Same OTP queries and normalization as hovamegy.hu, executed on the device.
  * No proxy, account, custom endpoint, or local development server is required.
+ * Every call asks MÁVPlusz itself: caching and the offline fallback belong to [TransitRepository].
  */
 class MavClient(private val http: HttpTransport = HttpTransport.Default) {
     private val root="https://mavplusz.hu/otp2-backend/otp/routers/default"
     private val headers=mapOf("Accept" to "application/json","Origin" to "https://mavplusz.hu","Referer" to "https://mavplusz.hu/")
-    private val vehicleLock=Mutex()
-    private var vehicleCache: Pair<List<Vehicle>,Long>?=null
-    private val trips=mutableMapOf<String,Pair<Trip,Long>>()
-    private val tripLock=Mutex()
 
     private fun request(path: String, query: String?=null, onRawResponse: ((String) -> Unit)?=null): JSONObject {
         // Offline mód: answer from downloaded timetables (through the fallback) without touching the network.
@@ -56,19 +51,9 @@ class MavClient(private val http: HttpTransport = HttpTransport.Default) {
             }
         }
     }
-    /** Falls back to the downloaded offline timetable when MÁVPlusz cannot be reached; [station] lets the
-     * offline lookup match by name when the provider id is unknown there. */
-    suspend fun stopDepartures(id: String, now: Long = System.currentTimeMillis(), station: Station? = null): List<StopDeparture> =
-        withOfflineFallback({ net -> net.departures(station?.takeIf { it.id == id } ?: Station(id, "", 0.0, 0.0), now) }) {
-            onlineStopDepartures(id, now)
-        }
-    /** MÁVPlusz only, without the offline fallback. */
-    internal suspend fun onlineStopDepartures(id: String, now: Long): List<StopDeparture> = withContext(Dispatchers.IO) {
+    suspend fun stopDepartures(id: String, now: Long): List<StopDeparture> = withContext(Dispatchers.IO) {
         parseStopDepartures(request("/index/graphql", MavQueries.stopDepartures(id, now)), now)
     }
-    /** Stops by name from the downloaded timetables, for when [stations] cannot reach the provider. */
-    suspend fun offlineStations(query: String): List<Station> =
-        OfflineSchedules.network()?.let { net -> withContext(Dispatchers.Default) { net.searchStops(query) } }.orEmpty()
     suspend fun stations(query: String): List<Station> = withContext(Dispatchers.IO) {
         request("/geocode/stations?q="+URLEncoder.encode(query.trim(),"UTF-8")+"&limit=10").array("features").mapNotNull {feature->
             val coords=feature.optJSONObject("geometry")?.optJSONArray("coordinates")
@@ -78,9 +63,7 @@ class MavClient(private val http: HttpTransport = HttpTransport.Default) {
                 properties?.optString("type").orEmpty(),if(modes==null) emptyList() else (0 until modes.length()).map {modes.getString(it)})
         }.distinctBy {it.id}
     }
-    suspend fun plan(from: Station,to: Station,time: LocalDateTime,arrive: Boolean, filters: Set<SearchFilter> = emptySet(), vehicles: Set<SearchVehicle> = emptySet()): List<Journey> =
-        withOfflineFallback({ net -> net.plan(from,to,time,arrive) }) { onlinePlan(from,to,time,arrive,filters,vehicles) }
-    internal suspend fun onlinePlan(from: Station,to: Station,time: LocalDateTime,arrive: Boolean, filters: Set<SearchFilter>, vehicles: Set<SearchVehicle>): List<Journey> = withContext(Dispatchers.IO) {
+    suspend fun plan(from: Station,to: Station,time: LocalDateTime,arrive: Boolean, filters: Set<SearchFilter> = emptySet(), vehicles: Set<SearchVehicle> = emptySet()): List<Journey> = withContext(Dispatchers.IO) {
         var rawResponse: String? = null
         val data=request("/index/graphql",MavQueries.plan(from,to,time,arrive,filters,vehicles)) {rawResponse=it}
         data.optJSONObject("plan")?.array("itineraries").orEmpty().map {itinerary->
@@ -97,33 +80,18 @@ class MavClient(private val http: HttpTransport = HttpTransport.Default) {
                 providerFilters=filters.filter { it.providerSearchCode != null }.toSet())
         }.filter {it.legs.isNotEmpty()}.sortedBy {it.start}
     }
-    suspend fun vehicles(forceRefresh: Boolean = false, refreshSeconds: Int = 75): Pair<List<Vehicle>,Long> = withContext(Dispatchers.IO) {
-        vehicleLock.withLock {
-            val now=System.currentTimeMillis()/1000
-            vehicleCache?.takeIf {!forceRefresh && now-it.second<refreshSeconds.coerceIn(15,90)} ?: run {
-                val data=request("/index/graphql",MavQueries.vehicles)
-                check(data.has("vehiclePositions")) {"A MÁV járműadatai most nem érhetők el."}
-                val items=data.array("vehiclePositions").mapNotNull(::parseVehiclePosition)
-                (items to System.currentTimeMillis()/1000).also {vehicleCache=it}
-            }
-        }
+    /** Every live MÁVPlusz vehicle in Hungary, with the time it was fetched (epoch seconds). */
+    suspend fun vehicles(): Pair<List<Vehicle>,Long> = withContext(Dispatchers.IO) {
+        val data=request("/index/graphql",MavQueries.vehicles)
+        check(data.has("vehiclePositions")) {"A MÁV járműadatai most nem érhetők el."}
+        data.array("vehiclePositions").mapNotNull(::parseVehiclePosition) to System.currentTimeMillis()/1000
     }
-    suspend fun trip(id: String,day: String,forceRefresh: Boolean = false,refreshSeconds: Int = 75): Trip =
-        withOfflineFallback({ net -> net.trip(id, day) ?: throw OfflineNotCovered() }) { onlineTrip(id, day, forceRefresh, refreshSeconds) }
-    internal suspend fun onlineTrip(id: String,day: String,forceRefresh: Boolean,refreshSeconds: Int): Trip = withContext(Dispatchers.IO) {
+    suspend fun trip(id: String,day: String): Trip = withContext(Dispatchers.IO) {
         require(id.length in 1..250);LocalDate.parse(day)
-        tripLock.withLock {
-            val key="$id|$day";val now=System.currentTimeMillis()/1000
-            trips[key]?.takeIf {!forceRefresh && now-it.second<refreshSeconds.coerceIn(15,90)}?.first ?: run {
-                val result=request("/index/graphql",MavQueries.trip(id,day)).optJSONObject("trip")
-                    ?: throw IllegalStateException("Ehhez a járathoz nincs részletes menetrend.")
-                normalizeRoute(result.optJSONObject("route"),result.optString("tripShortName").ifBlank {result.optString("trainCategoryName")})
-                val trip=parseTripJson(result,LocalDate.parse(day),ProviderId.Mav,Provenance.of(ProviderId.Mav,System.currentTimeMillis(),DataKind.Scheduled))
-                if(trips.size>100) trips.clear()
-                trips[key]=trip to System.currentTimeMillis()/1000
-                trip
-            }
-        }
+        val result=request("/index/graphql",MavQueries.trip(id,day)).optJSONObject("trip")
+            ?: throw IllegalStateException("Ehhez a járathoz nincs részletes menetrend.")
+        normalizeRoute(result.optJSONObject("route"),result.optString("tripShortName").ifBlank {result.optString("trainCategoryName")})
+        parseTripJson(result,LocalDate.parse(day),ProviderId.Mav,Provenance.of(ProviderId.Mav,System.currentTimeMillis(),DataKind.Scheduled))
     }
     /** Tracking only needs arrival evidence, not facilities, vehicles or route descriptions. */
     suspend fun trackingTrip(id: String, day: String): Trip = withContext(Dispatchers.IO) {
@@ -131,23 +99,12 @@ class MavClient(private val http: HttpTransport = HttpTransport.Default) {
             ?: throw IllegalStateException("Ehhez a járathoz nincs részletes menetrend.")
         parseTripJson(result, LocalDate.parse(day), ProviderId.Mav, Provenance.of(ProviderId.Mav, System.currentTimeMillis(), DataKind.Scheduled))
     }
-
-    private var networkAlertCache: Pair<List<NetworkAlert>,Long>?=null
-    /** Line and station notices across every feed; cached briefly because the response is large. */
-    suspend fun networkAlerts(forceRefresh: Boolean = false): Pair<List<NetworkAlert>,Long> = withContext(Dispatchers.IO) {
+    /** Line and station notices across every feed, with the fetch time (epoch millis). */
+    suspend fun networkAlerts(): Pair<List<NetworkAlert>,Long> = withContext(Dispatchers.IO) {
         val now=System.currentTimeMillis()
-        networkAlertCache?.takeIf {!forceRefresh && now-it.second<120_000} ?: run {
-            val data=request("/index/graphql",MavQueries.networkAlerts)
-            check(data.has("alerts")) {"A MÁV közleményei most nem érhetők el."}
-            (NetworkAlert.parseAll(data,now) to now).also {networkAlertCache=it}
-        }
-    }
-    /** Run [online]; when the provider is unreachable and offline timetables cover the request, answer from them instead. */
-    private suspend fun <T> withOfflineFallback(offline: (OfflineNetwork) -> T, online: suspend () -> T): T = try {
-        online()
-    } catch(e: ProviderUnavailable) {
-        val network = OfflineSchedules.network() ?: throw e
-        try { withContext(Dispatchers.Default) { offline(network) } } catch(_: OfflineNotCovered) { throw e }
+        val data=request("/index/graphql",MavQueries.networkAlerts)
+        check(data.has("alerts")) {"A MÁV közleményei most nem érhetők el."}
+        NetworkAlert.parseAll(data,now) to now
     }
 
     private fun normalizeRoute(route: JSONObject?,fallback: String?) {

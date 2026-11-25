@@ -28,7 +28,7 @@ import kotlinx.coroutines.delay
     showOnMap: ((Vehicle) -> Unit)? = null,
     liveVehicles: List<Vehicle> = emptyList(),
 ) {
-    val client = remember { MavClient() }
+    val client = TransitRepository.shared
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     var detail by remember(departure.key) { mutableStateOf<Trip?>(null) }
     var error by remember(departure.key) { mutableStateOf<String?>(null) }

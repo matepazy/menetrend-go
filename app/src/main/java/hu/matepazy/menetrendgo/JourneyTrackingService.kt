@@ -81,7 +81,7 @@ internal object JourneyTracking {
 /** User-started navigation, independent of Activity/ViewModel lifecycle. No background-location grant. */
 class JourneyTrackingService : Service(), LocationListener {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
-    private val client = MavClient()
+    private val client = TransitRepository.shared
     private lateinit var locations: LocationManager
     private var session: TrackingSession? = null
     private var engine: JourneyProgress? = null

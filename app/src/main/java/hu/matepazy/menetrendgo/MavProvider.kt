@@ -25,19 +25,19 @@ class MavProvider(private val client: MavClient, private val clock: () -> Long =
     override suspend fun departures(query: DepartureQuery) = providerCall {
         val id = local(query.stop) ?: return@providerCall ProviderResult.NotCovered
         val now = clock()
-        val rows = client.onlineStopDepartures(id, query.from).take(query.limit).map { it.toDeparture(now) }
+        val rows = client.stopDepartures(id, query.from).take(query.limit).map { it.toDeparture(now) }
         ok(rows, if (rows.any { it.call.departure?.realtime == true }) DataKind.Live else DataKind.Scheduled)
     }
 
     override suspend fun trip(id: Gid, day: LocalDate, fresh: Boolean) = providerCall {
         val local = local(id) ?: return@providerCall ProviderResult.NotCovered
-        val trip = client.onlineTrip(local, day.toString(), fresh, 75)
+        val trip = client.trip(local, day.toString())
         ProviderResult.Ok(trip, trip.provenance)
     }
 
     override suspend fun plan(query: PlanQuery) = providerCall {
         val from = query.from.toStation(); val to = query.to.toStation()
-        val journeys = client.onlinePlan(from, to, query.time, query.arriveBy, query.filters, query.vehicles)
+        val journeys = client.plan(from, to, query.time, query.arriveBy, query.filters, query.vehicles)
         val now = clock()
         val itineraries = journeys.map { it.toItinerary(now) }
         ok(itineraries, if (itineraries.any { it.provenance.kind == DataKind.Live }) DataKind.Live else DataKind.Scheduled)
@@ -45,7 +45,7 @@ class MavProvider(private val client: MavClient, private val clock: () -> Long =
 
     override suspend fun vehicles(area: Area, fresh: Boolean) = providerCall {
         if (!area.intersects(Area.Hungary)) return@providerCall ProviderResult.NotCovered
-        val (list, fetchedSeconds) = client.vehicles(fresh)
+        val (list, fetchedSeconds) = client.vehicles()
         val provenance = Provenance.of(ProviderId.Mav, fetchedSeconds * 1000, DataKind.Live)
         ProviderResult.Ok(list.filter { (it.lat to it.lon) in area }.map { it.toVehiclePosition(provenance) }, provenance)
     }

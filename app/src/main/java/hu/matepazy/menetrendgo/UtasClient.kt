@@ -5,8 +5,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import java.net.URLEncoder
@@ -21,10 +19,6 @@ import java.util.Locale
 class UtasClient(private val http: HttpTransport = HttpTransport.Default) {
     private val root = "https://utas.hu/api/query/v1/ws/otp/api/where"
     private val headers = mapOf("Accept" to "application/json", "Origin" to "https://utas.hu", "Referer" to "https://utas.hu/")
-    private val lock = Mutex()
-    private var cache: Pair<List<Vehicle>, Long>? = null
-    private val tripLock = Mutex()
-    private val trips = mutableMapOf<Pair<String, LocalDate>, Pair<Trip, Long>>()
 
     private fun request(tile: UtasTile): JSONObject = request(
         "vehicles-for-location",
@@ -43,49 +37,27 @@ class UtasClient(private val http: HttpTransport = HttpTransport.Default) {
         return JSONObject(response.body)
     }
 
-    suspend fun trip(id: String, date: LocalDate, refreshSeconds: Int): Trip = withContext(Dispatchers.IO) {
-        tripLock.withLock {
-            val key = id to date
-            val now = System.currentTimeMillis() / 1000
-            trips[key]?.takeIf { now - it.second < refreshSeconds.coerceIn(15, 90) }?.first ?: run {
-                val tripId = URLEncoder.encode(id, "UTF-8")
-                val serviceDate = date.format(DateTimeFormatter.BASIC_ISO_DATE)
-                val detail = parseUtasTrip(
-                    request("trip-details", "tripId=$tripId&date=$serviceDate"), id, date,
-                )
-                if (trips.size >= 100) trips.clear()
-                trips[key] = detail to System.currentTimeMillis() / 1000
-                detail
-            }
-        }
+    suspend fun trip(id: String, date: LocalDate): Trip = withContext(Dispatchers.IO) {
+        val tripId = URLEncoder.encode(id, "UTF-8")
+        val serviceDate = date.format(DateTimeFormatter.BASIC_ISO_DATE)
+        parseUtasTrip(request("trip-details", "tripId=$tripId&date=$serviceDate"), id, date)
     }
 
-    /** Cached like [MavClient.vehicles]. A failed refresh keeps the last good list for up to
-     * [STALE_SECONDS], so one bad poll doesn't make every bus vanish from the map. */
-    suspend fun vehicles(forceRefresh: Boolean = false, refreshSeconds: Int = 75): Pair<List<Vehicle>, Long> = withContext(Dispatchers.IO) {
-        lock.withLock {
-            val now = System.currentTimeMillis() / 1000
-            cache?.takeIf { !forceRefresh && now - it.second < refreshSeconds.coerceIn(15, 90) }?.let { return@withLock it }
-            try {
-                val responses = coroutineScope {
-                    UtasTile.hungary.map { tile -> async { runCatching { request(tile) } } }.awaitAll()
-                }
-                responses.forEach { r -> r.exceptionOrNull()?.let { if (it is CancellationException) throw it } }
-                val ok = responses.mapNotNull { it.getOrNull() }
-                if (ok.isEmpty()) throw responses.first().exceptionOrNull() ?: IllegalStateException("Az utas.hu nem adott választ.")
-                val merged = ok.flatMap(::parseUtasVehicles).distinctBy { it.id }
-                (merged to System.currentTimeMillis() / 1000).also { cache = it }
-            } catch (e: CancellationException) { throw e }
-            catch (e: Exception) {
-                cache?.takeIf { now - it.second <= STALE_SECONDS } ?: throw e
-            }
+    /** Every utas.hu vehicle in Hungary (fetched as tiles in parallel), with the fetch time in epoch seconds.
+     * Fails only when every tile failed. */
+    suspend fun vehicles(): Pair<List<Vehicle>, Long> = withContext(Dispatchers.IO) {
+        val responses = coroutineScope {
+            UtasTile.hungary.map { tile -> async { runCatching { request(tile) } } }.awaitAll()
         }
+        responses.forEach { r -> r.exceptionOrNull()?.let { if (it is CancellationException) throw it } }
+        val ok = responses.mapNotNull { it.getOrNull() }
+        if (ok.isEmpty()) throw responses.first().exceptionOrNull() ?: IllegalStateException("Az utas.hu nem adott választ.")
+        ok.flatMap(::parseUtasVehicles).distinctBy { it.id } to System.currentTimeMillis() / 1000
     }
 
     companion object {
         private const val KEY = "ride-web"
         private const val APP_VERSION = "8126.344625.20261117"
-        private const val STALE_SECONDS = 90L
     }
 }
 
