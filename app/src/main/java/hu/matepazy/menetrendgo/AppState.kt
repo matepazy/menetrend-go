@@ -177,6 +177,8 @@ class AppState(app: Application) : AndroidViewModel(app) {
         prefs.edit().also { editor -> SearchFilter.entries.forEach { editor.remove("search_filter_${it.name}") } }.apply()
     }
     var journeys by mutableStateOf<List<Journey>>(emptyList()); private set
+    /** Every journey the pages returned, including walks [singleWalkingJourney] hides; paging continues from these. */
+    private var pagedJourneys = emptyList<Journey>()
     var searching by mutableStateOf(false); private set
     var searchError by mutableStateOf<String?>(null); private set
     var canLoadMore by mutableStateOf(false); private set
@@ -361,7 +363,7 @@ class AppState(app: Application) : AndroidViewModel(app) {
         searchJob = viewModelScope.launch {
             searching = true; loadingEarlier = earlier; searchError = null
             failedSearchMore = more; failedSearchEarlier = earlier
-            if (!more) { journeys = emptyList(); canLoadMore = false; canLoadEarlier = false; earlierRequested = false }
+            if (!more) { journeys = emptyList(); pagedJourneys = emptyList(); canLoadMore = false; canLoadEarlier = false; earlierRequested = false }
             try {
                 val criteria = if (more) requestedCriteria else {
                     val (freshFrom, freshTo) = refreshSearchLocations(requestedCriteria.from, requestedCriteria.to, SystemClock.elapsedRealtime()) {
@@ -372,13 +374,16 @@ class AppState(app: Application) : AndroidViewModel(app) {
                     if (to == requestedCriteria.to) to = freshTo
                     requestedCriteria.copy(from = freshFrom, to = freshTo).also { activeSearch = it }
                 }
-                val edge = if (more && journeys.isNotEmpty()) {
-                    Instant.ofEpochMilli(OfflineSupplement.pageEdge(journeys, earlier)).atZone(Budapest).toLocalDateTime()
+                val edge = if (more && pagedJourneys.isNotEmpty()) {
+                    Instant.ofEpochMilli(OfflineSupplement.pageEdge(pagedJourneys, earlier)).atZone(Budapest).toLocalDateTime()
                 } else criteria.time
                 val next = transit.plan(criteria.from,criteria.to,edge,if(more) earlier else criteria.arrive,activeSearchFilters,activeSearchVehicles)
-                val fresh = next.filterNot { n -> journeys.any { it.key == n.key } }
-                val all = (journeys + fresh).distinctBy { it.key }
-                journeys = OfflineSupplement.journeys(all.filterNot { it.offline }, all.filter { it.offline }).sortedBy { it.start }
+                val fresh = next.filterNot { n -> pagedJourneys.any { it.key == n.key } }
+                pagedJourneys = (pagedJourneys + fresh).distinctBy { it.key }
+                val merged = OfflineSupplement.journeys(pagedJourneys.filterNot { it.offline }, pagedJourneys.filter { it.offline })
+                // Keep refreshed times of journeys already on screen.
+                val shown = journeys.associateBy { it.key }
+                journeys = singleWalkingJourney(merged.map { shown[it.key] ?: it }).sortedBy { it.start }
                 if (!more) {
                     canLoadMore = fresh.isNotEmpty()
                     canLoadEarlier = fresh.isNotEmpty()

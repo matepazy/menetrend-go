@@ -26,6 +26,12 @@ internal fun searchVehicleModes(selected: Set<SearchVehicle>): List<String> =
 internal fun searchVehicleSummary(selected: Set<SearchVehicle>): String =
     SearchVehicle.entries.filter { it in selected }.joinToString(" · ") { it.title }
 
+/** The provider answers short trips with a walk at every minute; only the earliest walk stays, beside the rides. */
+internal fun singleWalkingJourney(journeys: List<Journey>): List<Journey> {
+    val firstWalk = journeys.filter { j -> j.legs.all { it.walking } }.minByOrNull { it.start } ?: return journeys
+    return journeys.filter { j -> j === firstWalk || !j.legs.all { it.walking } }
+}
+
 internal fun filterJourneyVehicles(journeys: List<Journey>, selected: Set<SearchVehicle>): List<Journey> {
     if (selected.isEmpty()) return journeys
     val modes = selected.map { it.mode }.toSet()

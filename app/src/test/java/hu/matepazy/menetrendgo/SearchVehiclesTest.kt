@@ -40,4 +40,12 @@ class SearchVehiclesTest {
         assertEquals(listOf(rail, hev), filterJourneyVehicles(journeys, setOf(SearchVehicle.Train, SearchVehicle.Hev)))
         assertEquals(journeys, filterJourneyVehicles(journeys, emptySet()))
     }
+
+    @Test fun onlyTheEarliestWalkStays() {
+        fun walk(start: Long) = Journey(60, listOf(Leg("WALK", start, start + 60_000, a, b, "", "", false, 0, emptyList(), "")))
+        val bus = journey("BUS")
+        val first = walk(0); val later = walk(60_000)
+        assertEquals(listOf(first, bus), singleWalkingJourney(listOf(later, first, bus)))
+        assertEquals(listOf(bus), singleWalkingJourney(listOf(bus)))
+    }
 }
