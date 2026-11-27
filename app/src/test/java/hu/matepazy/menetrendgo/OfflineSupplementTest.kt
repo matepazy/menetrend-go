@@ -44,6 +44,23 @@ class OfflineSupplementTest {
         assertEquals(listOf(min(10), min(120)), OfflineSupplement.journeys(emptyList(), listOf(better, late)).map { it.start })
     }
 
+    @Test fun anOfflineJourneyOnARunALiveJourneyUsesIsDroppedEvenBetweenOtherStops() {
+        // The screenshot case: live 1845 from VÉRTES Áruház; offline the same bus from the hospital to another stop.
+        val live = listOf(journey(false, leg("1845", 0, 32, trip = "hkir:777")))
+        val sameTrip = journey(true, leg("1845", 3, 29, trip = "777"))
+        val sameLineOverlapping = journey(true, leg("1845", 3, 29, trip = "other"))
+        val withLocalBus = journey(true, leg("2", -20, -5), leg("1845", 3, 29, trip = "777"))
+        assertEquals(listOf(min(-20), min(0)),
+            OfflineSupplement.journeys(live, listOf(sameTrip, sameLineOverlapping, withLocalBus)).map { it.start })
+    }
+
+    @Test fun journeysOnRunsTheProviderHasNeverAddToALiveAnswer() {
+        val volan = journey(true, leg("8365", 35, 55, trip = "hkir:8365"), leg("8093", 58, 75, trip = "hkir:8093"))
+        val withLocal = journey(true, leg("2", 30, 40, trip = "mor:2"), leg("8093", 58, 75, trip = "hkir:8093"))
+        assertEquals(listOf(min(30)), OfflineSupplement.journeys(emptyList(), listOf(volan, withLocal),
+            providerTrips = setOf("hkir:8365", "hkir:8093")).map { it.start })
+    }
+
     @Test fun pagingFollowsProviderJourneysWhenThereAreAny() {
         val live = listOf(journey(false, leg("7215", 0, 30)), journey(false, leg("7215", 60, 90)))
         val offline = listOf(journey(true, leg("1", 120, 130)), journey(true, leg("1", -30, -20)))

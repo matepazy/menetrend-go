@@ -16,7 +16,8 @@ class MavClient(private val http: HttpTransport = HttpTransport.Default) {
     private val root="https://mavplusz.hu/otp2-backend/otp/routers/default"
     private val headers=mapOf("Accept" to "application/json","Origin" to "https://mavplusz.hu","Referer" to "https://mavplusz.hu/")
 
-    private fun request(path: String, query: String?=null, onRawResponse: ((String) -> Unit)?=null): JSONObject {
+    /** [partial] accepts an answer whose fields failed one by one (an unknown id), as long as data came back. */
+    private fun request(path: String, query: String?=null, partial: Boolean=false, onRawResponse: ((String) -> Unit)?=null): JSONObject {
         // Offline mód: answer from downloaded timetables (through the fallback) without touching the network.
         if(OfflineStatus.forced) throw ProviderUnavailable("Offline mód bekapcsolva: csak a letöltött menetrendek érhetők el.")
         try {
@@ -27,7 +28,7 @@ class MavClient(private val http: HttpTransport = HttpTransport.Default) {
             onRawResponse?.invoke(response.body)
             OfflineStatus.providerReachable()
             if(query==null) return body
-            if(body.has("errors") || body.optJSONObject("data")==null) throw ProviderUnavailable("A MÁV hiányos választ adott. Próbáld újra.")
+            if((body.has("errors") && !partial) || body.optJSONObject("data")==null) throw ProviderUnavailable("A MÁV hiányos választ adott. Próbáld újra.")
             return body.getJSONObject("data")
         } catch(e: java.io.IOException) {
             OfflineStatus.providerFailed()
@@ -50,6 +51,13 @@ class MavClient(private val http: HttpTransport = HttpTransport.Default) {
                 data.optJSONObject("p$i")?.optJSONArray("geometry")?.let {put(id,it)}
             }
         }
+    }
+    /** Which of these trip ids MÁVPlusz itself has (at most 40 per call); unknown ids come back null. */
+    suspend fun knownTrips(ids: List<String>): Set<String> = withContext(Dispatchers.IO) {
+        val selected=ids.distinct().filter {it.length in 1..250}.take(40)
+        if(selected.isEmpty()) return@withContext emptySet()
+        val data=request("/index/graphql",selected.mapIndexed {i,id->"t$i:trip(id:${MavQueries.quote(id)}) {gtfsId}"}.joinToString(" ","{","}"),partial=true)
+        selected.filterIndexed {i,_->data.optJSONObject("t$i")!=null}.toSet()
     }
     suspend fun stopDepartures(id: String, now: Long): List<StopDeparture> = withContext(Dispatchers.IO) {
         parseStopDepartures(request("/index/graphql", MavQueries.stopDepartures(id, now)), now)

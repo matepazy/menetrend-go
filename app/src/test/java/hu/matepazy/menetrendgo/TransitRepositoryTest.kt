@@ -80,7 +80,13 @@ class TransitRepositoryTest {
             "vehiclePositions(" in body -> JSONObject().put("data", JSONObject().put("vehiclePositions", JSONArray().put(JSONObject(
                 """{"vehicleId":"m1","lat":47.5,"lon":19.0,"licensePlate":"ABC-123","lastUpdated":1,
                    "trip":{"gtfsId":"1:T1","tripShortName":"100","route":{"shortName":"S10","mode":"RAIL"}}}"""))))
-            "trip(id:" in body && "1:T1" in body ->JSONObject().put("data", JSONObject().put("trip", JSONObject("""{"gtfsId":"1:T1","stoptimes":[
+            // Batched existence check: MÁVPlusz knows only 1:T1.
+            "t0:trip(" in body -> JSONObject().put("data", JSONObject().apply {
+                Regex("""t(\d+):trip\(id:\\"([^\\]+)\\"""").findAll(body).forEach { m ->
+                    put("t${m.groupValues[1]}", if (m.groupValues[2] == "1:T1") JSONObject().put("gtfsId", "1:T1") else JSONObject.NULL)
+                }
+            })
+            "trip(id:" in body && "1:T1" in body -> JSONObject().put("data", JSONObject().put("trip", JSONObject("""{"gtfsId":"1:T1","stoptimes":[
                 {"stop":{"gtfsId":"1:A","name":"A","lat":47.0,"lon":19.0},"scheduledDeparture":28800}]}""")))
             else -> JSONObject().put("data", JSONObject())
         }.toString())
@@ -138,6 +144,8 @@ class TransitRepositoryTest {
         val a = Station("gtfs:1:A", "Aváros", 47.0, 19.0); val b = Station("gtfs:1:B", "Bfalva", 47.1, 19.1)
         val journeys = repo.plan(a, b, today.atTime(7, 0), false)
         assertTrue(journeys.isNotEmpty() && journeys.all { it.offline })
+        // 1:T1 is a run MÁVPlusz has (its planner weighed it); only the offline-only L1 adds a journey.
+        assertEquals(listOf("L1"), journeys.flatMap { j -> j.legs.filterNot { it.walking }.map { it.tripId } }.distinct())
         assertTrue(repo.trip("L1", today.toString()).offline)
         assertFalse(repo.trip("1:T1", today.toString()).offline)
         offlineAvailable = false

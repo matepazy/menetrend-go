@@ -85,7 +85,13 @@ class TransitRepository(
         filters: Set<SearchFilter> = emptySet(), vehicles: Set<SearchVehicle> = emptySet()): List<Journey> =
         primaryOrOffline({ net -> net.plan(from, to, time, arrive) }) { coroutineScope {
             val local = async { supplement { it.plan(from, to, time, arrive) }.orEmpty() }
-            OfflineSupplement.journeys(mav.plan(from, to, time, arrive, filters, vehicles), local.await(), vehicles)
+            val live = mav.plan(from, to, time, arrive, filters, vehicles)
+            val candidates = OfflineSupplement.journeys(live, local.await(), vehicles).filter { it.offline }
+            // Runs MÁVPlusz has were already weighed by its own planner: only offline-only runs may add a journey.
+            val rideIds = candidates.flatMap { j -> j.legs.filterNot { it.walking }.map { it.tripId } }.filter { it.isNotBlank() }
+            val known = if (rideIds.isEmpty()) emptySet() else
+                try { mav.knownTrips(rideIds) } catch (e: CancellationException) { throw e } catch (_: Exception) { emptySet() }
+            OfflineSupplement.journeys(live, candidates, vehicles, known)
         } }
 
     /** Only MÁVPlusz answers are cached; an offline answer is computed fresh, as it costs no request.

@@ -29,7 +29,7 @@ internal object OfflineSupplement {
         val until = if (live.size >= limit) live.maxOf { it.time.scheduled } else Long.MAX_VALUE
         val extra = offline.filter { o ->
             o.time.scheduled <= until && live.none { l ->
-                l.tripId == o.tripId || sameRide(l.leg.route, l.headsign, l.time.scheduled, o.leg.route, o.headsign, o.time.scheduled)
+                sameTripId(l.tripId, o.tripId) || sameRide(l.leg.route, l.headsign, l.time.scheduled, o.leg.route, o.headsign, o.time.scheduled)
             }
         }
         return if (extra.isEmpty()) live else (live + extra).sortedBy { it.time.estimate }
@@ -37,17 +37,26 @@ internal object OfflineSupplement {
 
     private fun rides(journey: Journey) = journey.legs.filterNot { it.walking }
 
-    /** Offline journeys that no live journey matches ride for ride or beats (leaves no earlier, arrives no later,
-     * changes no more often). Offline journeys may run past the provider's last result; [pageEdge] keeps paging on
-     * the provider's results, and re-merging every page drops an offline journey that a later live one beats. */
-    fun journeys(live: List<Journey>, offline: List<Journey>, vehicles: Set<SearchVehicle> = emptySet()): List<Journey> {
+    /** Feeds may namespace one provider trip differently ("hkir:123" and "123"). */
+    private fun sameTripId(a: String, b: String) = a.isNotBlank() && b.isNotBlank() &&
+        (a == b || a.substringAfterLast(':') == b.substringAfterLast(':'))
+
+    /** The same vehicle run, possibly boarded or left at other stops: the same trip, or the same line at overlapping times. */
+    private fun sameTrip(a: Leg, b: Leg) = sameTripId(a.tripId, b.tripId) ||
+        key(a.route) == key(b.route) && a.departureTime.scheduled < b.arrivalTime.scheduled && b.departureTime.scheduled < a.arrivalTime.scheduled
+
+    /** Live always wins: an offline journey is dropped when every ride of it is a run some live journey already uses
+     * (even between other stops) or one of [providerTrips] (runs the provider has, so its planner already weighed
+     * them), or when a live journey beats it (leaves no earlier, arrives no later, changes no
+     * more often). What stays uses at least one run the provider does not know. Offline journeys may run past the
+     * provider's last result; [pageEdge] keeps paging on the provider's results, and re-merging every page drops an
+     * offline journey that a later live one covers. */
+    fun journeys(live: List<Journey>, offline: List<Journey>, vehicles: Set<SearchVehicle> = emptySet(),
+                 providerTrips: Set<String> = emptySet()): List<Journey> {
+        val liveRides = live.flatMap(::rides)
         val extra = filterJourneyVehicles(offline, vehicles).filter { o ->
-            live.none { l ->
-                (l.start >= o.start && l.end <= o.end && l.changes <= o.changes) ||
-                    rides(l).size == rides(o).size && rides(l).zip(rides(o)).all { (a, b) ->
-                        sameRide(a.route, a.headsign, a.departureTime.scheduled, b.route, b.headsign, b.departureTime.scheduled)
-                    }
-            }
+            !rides(o).all { ride -> ride.tripId in providerTrips || liveRides.any { sameTrip(it, ride) } } &&
+                live.none { l -> l.start >= o.start && l.end <= o.end && l.changes <= o.changes }
         }
         return if (extra.isEmpty()) live else (live + extra).sortedBy { it.start }
     }
