@@ -44,6 +44,7 @@ internal class OfflineCatalogState {
     var routesOpen by mutableStateOf(false)
     var townsOpen by mutableStateOf(false)
     var extrasOpen by mutableStateOf(false)
+    var confirmAll by mutableStateOf(false)
     val sizes = mutableStateMapOf<String, Long>()
     fun feed(id: String) = feeds?.firstOrNull { it.id == id }
 }
@@ -69,6 +70,17 @@ internal class OfflineCatalogState {
             text = { Text("A vonatok és a helyközi buszok menetrendje törlődik a készülékről, ${offlineBytesLabel(starter.sumOf { it.bytes })} szabadul fel.") },
             confirmButton = { TextButton(onClick = { starter.forEach { OfflineSchedules.delete(it.id) }; state.confirmDeleteStarter = false }) { Text("Törlés") } },
             dismissButton = { TextButton(onClick = { state.confirmDeleteStarter = false }) { Text("Mégse") } })
+    }
+    if (state.confirmAll) {
+        val context = LocalContext.current
+        val missing = state.feeds.orEmpty().filter { installedFeed(it.id) == null && !OfflineSchedules.tasks[it.id].busy }
+        val size = missing.mapNotNull { state.sizes[it.id] }.takeIf { it.size == missing.size }?.sum()
+        AlertDialog(onDismissRequest = { state.confirmAll = false }, shape = RoundedCornerShape(32.dp),
+            title = { Text("Letöltöd az összes menetrendet?") },
+            text = { Text("${missing.size} menetrend kerül a készülékre" + (size?.let { ", összesen ${offlineBytesLabel(it)}" } ?: "") +
+                ". Ez sok adatforgalommal és tárhellyel jár, ezért Wi-Fi-n érdemes elindítani.") },
+            confirmButton = { TextButton(onClick = { missing.forEach { OfflineSchedules.enqueue(context, it) }; state.confirmAll = false }) { Text("Letöltés") } },
+            dismissButton = { TextButton(onClick = { state.confirmAll = false }) { Text("Mégse") } })
     }
     if (state.forcedWarning) {
         val context = LocalContext.current
@@ -96,6 +108,7 @@ internal fun LazyListScope.offlineScheduleItems(state: OfflineCatalogState, cont
     item { Towns(state, context) }
     item { SectionHeading("Továbbiak") }
     item { Extras(state, context) }
+    item { DownloadAll(state) }
     item {
         SettingsGroup {
             Row(
@@ -360,6 +373,30 @@ internal fun LazyListScope.offlineScheduleItems(state: OfflineCatalogState, cont
                     FeedRow(feed.name, "", feed.id, state, context)
                 }
             }
+        }
+    }
+}
+
+/** Every catalog feed in one go, after a confirmation; while any download runs it shows the overall progress instead. */
+@Composable private fun DownloadAll(state: OfflineCatalogState) {
+    val catalog = state.feeds ?: return
+    val missing = catalog.filter { installedFeed(it.id) == null }
+    val running = catalog.filter { OfflineSchedules.tasks[it.id].busy }
+    if (missing.isEmpty() && running.isEmpty()) return
+    SettingsGroup {
+        Column(Modifier.fillMaxWidth().padding(AppLayout.PanelPadding), verticalArrangement = Arrangement.spacedBy(AppLayout.RelatedGap)) {
+            Column(verticalArrangement = Arrangement.spacedBy(AppLayout.LabelGap)) {
+                Text("Az összes menetrend", style = MaterialTheme.typography.titleMedium)
+                Text("${catalog.size - missing.size}/${catalog.size} letöltve" + (if (running.isNotEmpty()) " · ${running.size} folyamatban" else ""),
+                    style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            if (running.size > 1) TextButton(onClick = { running.forEach { OfflineSchedules.cancel(it.id) } }, modifier = Modifier.heightIn(min = 48.dp)) {
+                Text("Az összes megszakítása")
+            }
+            else if (missing.any { !OfflineSchedules.tasks[it.id].busy })
+                GlassButton(onClick = { state.confirmAll = true }, Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
+                    Icon(Icons.Outlined.Download, null, Modifier.size(18.dp)); Spacer(Modifier.width(AppLayout.CompactGap)); Text("Minden letöltése")
+                }
         }
     }
 }
