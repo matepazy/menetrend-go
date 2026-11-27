@@ -192,6 +192,11 @@ class OfflineNetworkTest {
         assertEquals("https://api.transitous.org/gtfs/hu_Kecskem%C3%A9t.gtfs.zip", feeds.single { it.id == "Kecskemét" }.url)
         assertNull("authenticated sources are only fetched through Transitous", feeds.single { it.id == "mav-gyermekvasut" }.originalUrl)
         assertEquals("Kecskemét helyi járatai", feeds.single { it.id == "Kecskemét" }.name)
+        val mor = feeds.single { it.id == "mor" }
+        assertEquals(OfflineFeedGroup.City, mor.group)
+        assertEquals("Mór" to "M-Bussal", mor.town to mor.operator)
+        assertEquals("https://github.com/matepazy/mor-gtfs/releases/latest/download/mor-gtfs.zip", mor.url)
+        assertTrue("community feeds never mask an empty Transitous list", OfflineFeedCatalog.parse("{\"sources\":[]}").isEmpty())
     }
 
     /** Opt-in: OFFLINE_GTFS_SAMPLE=mav.zip;volan.zip;dkv.zip plans Budapest-Keleti → Debrecen, Szalók utca on real data. */

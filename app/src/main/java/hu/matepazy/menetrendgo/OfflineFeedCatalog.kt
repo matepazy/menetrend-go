@@ -24,7 +24,19 @@ object OfflineFeedCatalog {
 
     fun processedUrl(id: String) = "https://api.transitous.org/gtfs/hu_" + URLEncoder.encode(id, "UTF-8").replace("+", "%20") + ".gtfs.zip"
 
-    fun parse(json: String): List<OfflineFeed> = JSONObject(json).array("sources").mapNotNull { source ->
+    /** Community feeds Transitous does not list, downloaded straight from their publishers' releases. */
+    val COMMUNITY = listOf(
+        OfflineFeed("mor", "Mór helyi járatai", OfflineFeedGroup.City, "https://github.com/matepazy/mor-gtfs/releases/latest/download/mor-gtfs.zip",
+            null, "CC-BY-SA-4.0 AND ODbL-1.0", "Mór", "M-Bussal"),
+    )
+
+    /** The Transitous sources plus [COMMUNITY]; empty when the Transitous list has no usable source. */
+    fun parse(json: String): List<OfflineFeed> = parseTransitous(json).let { feeds ->
+        if (feeds.isEmpty()) feeds else (feeds + COMMUNITY).distinctBy { it.id }
+            .sortedWith(compareBy({ it.group.ordinal }, { order(it.id) }, { collator.getCollationKey(it.name) }))
+    }
+
+    private fun parseTransitous(json: String): List<OfflineFeed> = JSONObject(json).array("sources").mapNotNull { source ->
         val spec = source.optString("spec").ifBlank { "gtfs" }
         if (spec != "gtfs" || source.optBoolean("skip")) return@mapNotNull null
         val id = source.optString("name").trim().takeIf { it.isNotEmpty() } ?: return@mapNotNull null
@@ -35,7 +47,7 @@ object OfflineFeedCatalog {
         val (town, operator) = townAndOperator(id, original)
         OfflineFeed(id, displayName(id, original), group(id), processedUrl(id), original,
             source.optJSONObject("license")?.optString("spdx-identifier")?.takeIf { it.isNotBlank() }, town, operator)
-    }.distinctBy { it.id }.sortedWith(compareBy({ it.group.ordinal }, { order(it.id) }, { collator.getCollationKey(it.name) }))
+    }
 
     internal val collator: java.text.Collator = java.text.Collator.getInstance(Locale.forLanguageTag("hu"))
     /** Trains and coaches across the country: the one download most riders need. */
