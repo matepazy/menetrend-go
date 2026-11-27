@@ -144,7 +144,7 @@ class StopBoardWidget : AppWidgetProvider() {
                 refreshing -> "Frissítés…"
                 error -> "Sikertelen frissítés${if (lastUpdate.isBlank()) "" else " · $lastUpdate"}"
                 updated == 0L -> "Indulások betöltése…"
-                rows.any { it.offline } -> "Offline menetrend · $lastUpdate"
+                rows.isNotEmpty() && rows.all { it.offline } -> "Offline menetrend · $lastUpdate"
                 else -> "Frissítve $lastUpdate"
             })
             views.removeAllViews(R.id.widget_departures)

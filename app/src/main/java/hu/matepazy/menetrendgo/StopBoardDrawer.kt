@@ -79,7 +79,8 @@ import kotlinx.coroutines.delay
                         Text("Indulási tábla", style = MaterialTheme.typography.titleMedium)
                         Text(when {
                                 updated == 0L -> "Indulások betöltése"
-                                departures.any { it.offline } -> "Offline menetrend szerint · a MÁV most nem érhető el"
+                                departures.all { it.offline } -> "Offline menetrend szerint · a MÁV most nem érhető el"
+                                departures.any { it.offline } -> "Frissítve ${updateAge(updated, now)} · egyes járatok offline menetrend szerint"
                                 else -> "Frissítve ${updateAge(updated, now)}"
                             },
                             style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)

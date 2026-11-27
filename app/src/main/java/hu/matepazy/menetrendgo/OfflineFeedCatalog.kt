@@ -26,7 +26,7 @@ object OfflineFeedCatalog {
 
     /** Community feeds Transitous does not list, downloaded straight from their publishers' releases. */
     val COMMUNITY = listOf(
-        OfflineFeed("mor", "Mór helyi járatai", OfflineFeedGroup.City, "https://github.com/matepazy/mor-gtfs/releases/latest/download/mor-gtfs.zip",
+        OfflineFeed("mor", "Mór helyi járatai", OfflineFeedGroup.City, "https://github.com/matepazy/mor-gtfs/releases/latest/download/mor-gtfs-menetrendgo.zip",
             null, "CC-BY-SA-4.0 AND ODbL-1.0", "Mór", "M-Bussal"),
     )
 

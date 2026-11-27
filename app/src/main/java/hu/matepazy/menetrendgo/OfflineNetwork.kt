@@ -62,7 +62,7 @@ class OfflineNetwork(val feeds: List<OfflineTimetable>) {
     }
 
     // ---- Resolving app stations to offline stops ----
-    /** Exact provider identity first (a station includes its platforms), then the same name nearby. */
+    /** Exact provider identity first, then the same name nearby; a matched station always includes its platforms. */
     fun resolve(station: Station, nameRadius: Double = 250.0): List<StopRef> {
         val exact = feeds.flatMapIndexed { f, feed ->
             val stop = feed.stopIndex[station.localId] ?: return@flatMapIndexed emptyList()
@@ -73,6 +73,7 @@ class OfflineNetwork(val feeds: List<OfflineTimetable>) {
         val wanted = normalizedName(station.name)
         return stopsNear(station.lat, station.lon, nameRadius).map { ref(it.first) }
             .filter { normalizedName(feeds[it.feed].text(feeds[it.feed].stopName[it.stop])) == wanted }
+            .flatMap { listOf(it) + feeds[it.feed].children[it.stop].orEmpty().map { child -> StopRef(it.feed, child) } }.distinct()
     }
     fun covers(station: Station) = resolve(station).isNotEmpty()
 
@@ -123,6 +124,22 @@ class OfflineNetwork(val feeds: List<OfflineTimetable>) {
             if (results.size == limit) break
         }
         return results
+    }
+
+    /** Stops within [radius] metres for the map, platforms folded into their station, nearest first. */
+    fun stationsNear(lat: Double, lon: Double, radius: Double, limit: Int = 500): List<Station> {
+        val seen = HashSet<String>()
+        return stopsNear(lat, lon, radius).sortedBy { it.second }.asSequence().mapNotNull { (g, _) ->
+            val (f, s) = ref(g); val feed = feeds[f]; val stop = feed.stationOf(s)
+            val id = StationIds.gtfs(feed.text(feed.stopId[stop]))
+            if (!seen.add(id)) return@mapNotNull null
+            val modes = LinkedHashSet<String>()
+            (listOf(stop) + feed.children[stop].orEmpty()).forEach { feed.forEachStopPattern(it) { p, _ -> modes += feed.mode(feed.patternRoute[p]) } }
+            if (modes.isEmpty()) null
+            else Station(id, feed.text(feed.stopName[stop]), feed.lat(stop), feed.lon(stop),
+                type = if (stop != s || feed.children.containsKey(stop)) "Station" else "Stop", modes = modes.toList(),
+                platform = if (stop == s) feed.text(feed.stopPlatform[s]) else "")
+        }.take(limit).toList()
     }
 
     private data class StopMatch(val feed: Int, val stop: Int, val station: Int, val isStation: Boolean, val rank: Int)

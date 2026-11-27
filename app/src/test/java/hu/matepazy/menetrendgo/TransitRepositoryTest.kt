@@ -80,7 +80,7 @@ class TransitRepositoryTest {
             "vehiclePositions(" in body -> JSONObject().put("data", JSONObject().put("vehiclePositions", JSONArray().put(JSONObject(
                 """{"vehicleId":"m1","lat":47.5,"lon":19.0,"licensePlate":"ABC-123","lastUpdated":1,
                    "trip":{"gtfsId":"1:T1","tripShortName":"100","route":{"shortName":"S10","mode":"RAIL"}}}"""))))
-            "trip(id:" in body -> JSONObject().put("data", JSONObject().put("trip", JSONObject("""{"gtfsId":"1:T1","stoptimes":[
+            "trip(id:" in body && "1:T1" in body ->JSONObject().put("data", JSONObject().put("trip", JSONObject("""{"gtfsId":"1:T1","stoptimes":[
                 {"stop":{"gtfsId":"1:A","name":"A","lat":47.0,"lon":19.0},"scheduledDeparture":28800}]}""")))
             else -> JSONObject().put("data", JSONObject())
         }.toString())
@@ -95,8 +95,9 @@ class TransitRepositoryTest {
         "routes.txt" to "route_id,route_short_name,route_long_name,route_type\nR,,Fővonal,2\n",
         "calendar.txt" to calendar,
         "stops.txt" to "stop_id,stop_name,stop_lat,stop_lon\n1:A,Aváros,47.0,19.0\n1:B,Bfalva,47.1,19.1\n",
-        "trips.txt" to "route_id,service_id,trip_id,trip_headsign\nR,S,1:T1,Bfalva\n",
-        "stop_times.txt" to "trip_id,arrival_time,departure_time,stop_id,stop_sequence\n1:T1,08:00:00,08:00:00,1:A,1\n1:T1,08:30:00,08:30:00,1:B,2\n",
+        "trips.txt" to "route_id,service_id,trip_id,trip_headsign\nR,S,1:T1,Bfalva\nR,S,L1,Bfalva\n",
+        "stop_times.txt" to "trip_id,arrival_time,departure_time,stop_id,stop_sequence\n1:T1,08:00:00,08:00:00,1:A,1\n1:T1,08:30:00,08:30:00,1:B,2\n" +
+            "L1,09:00:00,09:00:00,1:A,1\nL1,09:20:00,09:20:00,1:B,2\n",
     )[it]?.byteInputStream() }, "rail", "Vasút", today)))
     private var offlineAvailable = true
     private fun repository() = TransitRepository(mav, utas, { network.takeIf { offlineAvailable } }, TransitCache())
@@ -128,6 +129,20 @@ class TransitRepositoryTest {
         assertTrue(repo.trip("1:T1", today.toString()).offline)
         mavCode = 200
         assertFalse(repo.trip("1:T1", today.toString()).offline)
+    }
+
+    @Test fun offlineOnlyNetworksJoinAWorkingLiveAnswer() = runBlocking<Unit> {
+        val repo = repository()
+        // MÁVPlusz answers but knows none of these: stops, journeys and trips come from the timetables.
+        assertEquals(listOf("gtfs:1:B"), repo.stations("Bfalva").map { it.id })
+        val a = Station("gtfs:1:A", "Aváros", 47.0, 19.0); val b = Station("gtfs:1:B", "Bfalva", 47.1, 19.1)
+        val journeys = repo.plan(a, b, today.atTime(7, 0), false)
+        assertTrue(journeys.isNotEmpty() && journeys.all { it.offline })
+        assertTrue(repo.trip("L1", today.toString()).offline)
+        assertFalse(repo.trip("1:T1", today.toString()).offline)
+        offlineAvailable = false
+        assertTrue(repo.stations("Bfalva").isEmpty())
+        assertThrows(IllegalStateException::class.java) { runBlocking { repo.trip("L1", today.toString()) } }
     }
 
     @Test fun aggregatedVehiclesDegradeToOneSourceWithANotice() = runBlocking<Unit> {

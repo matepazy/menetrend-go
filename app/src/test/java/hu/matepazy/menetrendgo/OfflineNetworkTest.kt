@@ -195,7 +195,7 @@ class OfflineNetworkTest {
         val mor = feeds.single { it.id == "mor" }
         assertEquals(OfflineFeedGroup.City, mor.group)
         assertEquals("Mór" to "M-Bussal", mor.town to mor.operator)
-        assertEquals("https://github.com/matepazy/mor-gtfs/releases/latest/download/mor-gtfs.zip", mor.url)
+        assertEquals("https://github.com/matepazy/mor-gtfs/releases/latest/download/mor-gtfs-menetrendgo.zip", mor.url)
         assertTrue("community feeds never mask an empty Transitous list", OfflineFeedCatalog.parse("{\"sources\":[]}").isEmpty())
     }
 

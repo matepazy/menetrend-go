@@ -373,12 +373,12 @@ class AppState(app: Application) : AndroidViewModel(app) {
                     requestedCriteria.copy(from = freshFrom, to = freshTo).also { activeSearch = it }
                 }
                 val edge = if (more && journeys.isNotEmpty()) {
-                    val epoch = if (earlier) journeys.minOf { it.end } - 60_000 else journeys.maxOf { it.start } + 60_000
-                    Instant.ofEpochMilli(epoch).atZone(Budapest).toLocalDateTime()
+                    Instant.ofEpochMilli(OfflineSupplement.pageEdge(journeys, earlier)).atZone(Budapest).toLocalDateTime()
                 } else criteria.time
                 val next = transit.plan(criteria.from,criteria.to,edge,if(more) earlier else criteria.arrive,activeSearchFilters,activeSearchVehicles)
                 val fresh = next.filterNot { n -> journeys.any { it.key == n.key } }
-                journeys = (journeys + fresh).distinctBy { it.key }.sortedBy { it.start }
+                val all = (journeys + fresh).distinctBy { it.key }
+                journeys = OfflineSupplement.journeys(all.filterNot { it.offline }, all.filter { it.offline }).sortedBy { it.start }
                 if (!more) {
                     canLoadMore = fresh.isNotEmpty()
                     canLoadEarlier = fresh.isNotEmpty()

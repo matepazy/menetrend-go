@@ -16,7 +16,8 @@ data class VehicleSnapshot(val vehicles: List<Vehicle>, val updatedSeconds: Long
 /**
  * The app's single way to transit data (docs/ADATRETEG.md, 3–4. fejezet). It decides which source answers:
  * MÁVPlusz is primary; utas.hu only augments live vehicles and its own trips; the downloaded offline
- * timetables answer only when MÁVPlusz is unavailable (or Offline mód is on) and they cover the request.
+ * timetables answer when MÁVPlusz is unavailable (or Offline mód is on) and they cover the request, and beside a
+ * working MÁVPlusz answer they add the stops, departures and journeys it does not know ([OfflineSupplement]).
  * One shared [TransitCache] serves every screen, the widget and the tracking service.
  *
  * For now it speaks the types the screens use; the canonical providers ([MavProvider]) sit beside it.
@@ -46,12 +47,23 @@ class TransitRepository(
         try { withContext(Dispatchers.Default) { fallback(network) } } catch (_: OfflineNotCovered) { throw e }
     }
 
+    /** The supplement role: the offline answer beside a live request. It never fails or delays that request's error. */
+    private suspend fun <T> supplement(block: (OfflineNetwork) -> T): T? = try {
+        offline()?.let { net -> withContext(Dispatchers.Default) { block(net) } }
+    } catch (e: CancellationException) { throw e } catch (_: Exception) { null }
+
     // ---- Stops ----
-    suspend fun stations(query: String): List<Station> = mav.stations(query)
+    suspend fun stations(query: String): List<Station> = coroutineScope {
+        val local = async { supplement { it.searchStops(query) }.orEmpty() }
+        OfflineSupplement.stations(mav.stations(query), local.await())
+    }
     /** Stops by name from the downloaded timetables, for when [stations] cannot reach the provider. */
     suspend fun offlineStations(query: String): List<Station> =
         offline()?.let { net -> withContext(Dispatchers.Default) { net.searchStops(query) } }.orEmpty()
-    suspend fun nearbyStops(lat: Double, lon: Double, radius: Int): List<Station> = mav.nearbyStops(lat, lon, radius)
+    suspend fun nearbyStops(lat: Double, lon: Double, radius: Int): List<Station> = coroutineScope {
+        val local = async { supplement { it.stationsNear(lat, lon, radius.toDouble()) }.orEmpty() }
+        OfflineSupplement.stations(mav.nearbyStops(lat, lon, radius), local.await())
+    }
 
     // ---- Departures, journeys, trips ----
     /** The id's namespace picks the source: a MÁVPlusz stop asks MÁVPlusz (offline as fallback), an offline-only
@@ -63,17 +75,26 @@ class TransitRepository(
             return try { withContext(Dispatchers.Default) { offlineDepartures(network) } }
             catch (e: OfflineNotCovered) { throw ProviderUnavailable("Ehhez a megállóhoz nincs letöltött menetrend.", e) }
         }
-        return primaryOrOffline(offlineDepartures) { mav.stopDepartures(StationIds.local(id), now) }
+        return primaryOrOffline(offlineDepartures) { coroutineScope {
+            val local = async { supplement(offlineDepartures).orEmpty() }
+            OfflineSupplement.departures(mav.stopDepartures(StationIds.local(id), now), local.await())
+        } }
     }
 
     suspend fun plan(from: Station, to: Station, time: LocalDateTime, arrive: Boolean,
         filters: Set<SearchFilter> = emptySet(), vehicles: Set<SearchVehicle> = emptySet()): List<Journey> =
-        primaryOrOffline({ net -> net.plan(from, to, time, arrive) }) { mav.plan(from, to, time, arrive, filters, vehicles) }
+        primaryOrOffline({ net -> net.plan(from, to, time, arrive) }) { coroutineScope {
+            val local = async { supplement { it.plan(from, to, time, arrive) }.orEmpty() }
+            OfflineSupplement.journeys(mav.plan(from, to, time, arrive, filters, vehicles), local.await(), vehicles)
+        } }
 
-    /** Only MÁVPlusz answers are cached; an offline answer is computed fresh, as it costs no request. */
+    /** Only MÁVPlusz answers are cached; an offline answer is computed fresh, as it costs no request.
+     * A trip MÁVPlusz does not know (one from an offline-only network) comes from the timetables too. */
     suspend fun trip(id: String, day: String, forceRefresh: Boolean = false, refreshSeconds: Int = 75): Trip =
         primaryOrOffline({ net -> net.trip(id, day) ?: throw OfflineNotCovered() }) {
-            cache.get("mav:trip:$id|$day", freshnessMillis(refreshSeconds), forceRefresh) { mav.trip(id, day) }
+            try { cache.get("mav:trip:$id|$day", freshnessMillis(refreshSeconds), forceRefresh) { mav.trip(id, day) } }
+            catch (e: CancellationException) { throw e } catch (e: ProviderUnavailable) { throw e }
+            catch (e: IllegalStateException) { supplement { it.trip(id, day) } ?: throw e }
         }
 
     suspend fun trackingTrip(id: String, day: String): Trip = mav.trackingTrip(id, day)
